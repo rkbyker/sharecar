@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharecar — Навигатор прототипа</title>
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f0f0f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sharecar">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<script src="/js/pwa.js" defer></script>
+<style>
+  body { background: #0a0a0a; color: #f0f0f0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif; padding: 0; margin: 0; }
+  .hub { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  .hub-header { text-align: center; margin-bottom: 48px; }
+  .hub-logo { font-size: 36px; font-weight: 800; color: #e8c84a; letter-spacing: -1px; margin-bottom: 8px; }
+  .hub-subtitle { color: #666; font-size: 15px; max-width: 480px; margin: 0 auto 24px; line-height: 1.6; }
+  .hub-version { display: inline-block; background: rgba(232,200,74,0.1); color: #e8c84a; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(232,200,74,0.2); }
+
+  .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #555; margin: 32px 0 14px; }
+  
+  /* Секция приложения */
+  .app-section { background: #111; border: 1px solid #1e1e1e; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .app-section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .app-section-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .icon-app { background: rgba(232,200,74,0.1); color: #e8c84a; }
+  .icon-admin { background: rgba(224,80,80,0.1); color: #e05050; }
+  .icon-infra { background: rgba(74,143,232,0.1); color: #4a8fe8; }
+  .app-section-title { font-size: 16px; font-weight: 700; }
+  .app-section-desc { font-size: 12px; color: #666; margin-top: 2px; }
+  
+  /* Сетка ссылок */
+  .pages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .page-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #0f0f0f;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    color: #ccc;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .page-link:hover { background: #161616; border-color: #333; color: #f0f0f0; }
+  .page-link.highlight { border-color: rgba(232,200,74,0.3); }
+  .page-link.highlight:hover { background: rgba(232,200,74,0.05); border-color: #e8c84a; }
+  .page-link.admin-link { border-color: rgba(224,80,80,0.2); }
+  .page-link.admin-link:hover { background: rgba(224,80,80,0.05); border-color: #e05050; }
+  .page-link i { width: 20px; text-align: center; font-size: 15px; opacity: 0.6; }
+  .page-link.highlight i { color: #e8c84a; opacity: 1; }
+  .page-link.admin-link i { color: #e05050; opacity: 1; }
+  .page-tag { margin-left: auto; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
+  .tag-new { background: rgba(76,175,125,0.15); color: #4caf7d; }
+  .tag-key { background: rgba(232,200,74,0.15); color: #e8c84a; }
+  .tag-admin { background: rgba(224,80,80,0.15); color: #e05050; }
+
+  /* Флоу сценарии */
+  .flow-list { list-style: none; margin: 0; padding: 0; }
+  .flow-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #161616; font-size: 13px; color: #888; }
+  .flow-item:last-child { border-bottom: none; }
+  .flow-num { background: #1e1e1e; color: #e8c84a; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .flow-text strong { color: #ccc; }
+  .flow-text a { color: #4a8fe8; text-decoration: none; }
+  .flow-text a:hover { text-decoration: underline; }
+  
+  /* Заметки */
+  .note { background: #111; border: 1px solid #1e1e1e; border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; font-size: 13px; color: #888; line-height: 1.6; }
+  .note strong { color: #ccc; }
+  .note.warn { border-left: 3px solid #e8c84a; }
+  .note.info { border-left: 3px solid #4a8fe8; }
+  .note.ok { border-left: 3px solid #4caf7d; }
+  
+  .divider { height: 1px; background: #1a1a1a; margin: 12px 0; }
+</style>
+</head>
+<body>
+<div class="hub">
+  <div class="hub-header">
+    <div class="hub-logo">Sharecar</div>
+    <p class="hub-subtitle">Платформа автомобильных впечатлений. Кликабельный прототип для тестирования UI/UX</p>
+    <span class="hub-version">MVP Prototype v6 · Апрель 2026 · Партнёры, фильтры, бонусная система, машины в рейтинге</span>
+  </div>
+
+  <!-- ПРИЛОЖЕНИЕ -->
+  <div class="section-title">Мобильное приложение</div>
+  <div class="app-section">
+    <div class="app-section-header">
+      <div class="app-section-icon icon-app"><i class="fas fa-mobile-alt"></i></div>
+      <div>
+        <div class="app-section-title">Sharecar App</div>
+        <div class="app-section-desc">Мобильная версия — открывай на телефоне</div>
+      </div>
+    </div>
+    <div class="pages-grid">
+      <a href="app/index.html" class="page-link highlight">
+        <i class="fas fa-home"></i> Лента машин
+        <span class="page-tag tag-key">Старт</span>
+      </a>
+      <a href="app/search.html" class="page-link">
+        <i class="fas fa-search"></i> Поиск
+      </a>
+      <a href="app/car-card.html" class="page-link">
+        <i class="fas fa-car"></i> Карточка машины
+      </a>
+      <a href="app/request.html" class="page-link">
+        <i class="fas fa-paper-plane"></i> Подача заявки
+      </a>
+      <a href="app/chat.html" class="page-link">
+        <i class="fas fa-comment"></i> Чат с владельцем
+      </a>
+      <a href="app/experience.html" class="page-link">
+        <i class="fas fa-trophy"></i> Мой опыт / впечатления
+      </a>
+      <a href="app/profile.html" class="page-link">
+        <i class="fas fa-user"></i> Профиль пользователя
+      </a>
+      <a href="app/owner-dashboard.html" class="page-link">
+        <i class="fas fa-tachometer-alt"></i> Кабинет владельца
+      </a>
+      <a href="app/add-car.html" class="page-link">
+        <i class="fas fa-plus-circle"></i> Добавить машину
+      </a>
+      <a href="app/levels.html" class="page-link">
+        <i class="fas fa-star"></i> Уровни участников
+        <span class="page-tag tag-new">v4</span>
+      </a>
+      <a href="app/rating.html" class="page-link highlight">
+        <i class="fas fa-trophy"></i> Рейтинг участников
+        <span class="page-tag tag-new">v4</span>
+      </a>
+      <a href="app/onboarding.html" class="page-link">
+        <i class="fas fa-door-open"></i> Онбординг / регистрация
+        <span class="page-tag tag-new">v5</span>
+      </a>
+      <a href="app/business-card.html" class="page-link highlight">
+        <i class="fas fa-building"></i> Бизнес-страница
+        <span class="page-tag tag-new">новая</span>
+      </a>
+      <a href="app/partners.html" class="page-link highlight">
+        <i class="fas fa-handshake"></i> Партнёры
+        <span class="page-tag tag-new">новая</span>
+      </a>
+      <a href="app/invite.html" class="page-link">
+        <i class="fas fa-user-plus"></i> Мои приглашения
+      </a>
+      <a href="app/boost.html" class="page-link highlight">
+        <i class="fas fa-rocket"></i> Буст объявления
+        <span class="page-tag tag-new">новое</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- АДМИН ПАНЕЛЬ -->
+  <div class="section-title">Панель администратора</div>
+  <div class="app-section">
+    <div class="app-section-header">
+      <div class="app-section-icon icon-admin"><i class="fas fa-shield-alt"></i></div>
+      <div>
+        <div class="app-section-title">Sharecar Admin</div>
+        <div class="app-section-desc">Управление всеми данными — пользователи, машины, заявки, модерация</div>
+      </div>
+    </div>
+    <div class="pages-grid">
+      <a href="admin/index.html" class="page-link admin-link highlight">
+        <i class="fas fa-chart-line"></i> Дашборд
+        <span class="page-tag tag-admin">Старт</span>
+      </a>
+      <a href="admin/users.html" class="page-link admin-link">
+        <i class="fas fa-users"></i> Пользователи
+      </a>
+      <a href="admin/vehicles.html" class="page-link admin-link">
+        <i class="fas fa-car-side"></i> Машины
+      </a>
+      <a href="admin/requests.html" class="page-link admin-link">
+        <i class="fas fa-inbox"></i> Заявки
+      </a>
+      <a href="admin/moderation.html" class="page-link admin-link">
+        <i class="fas fa-exclamation-triangle"></i> Жалобы и блок
+        <span class="page-tag tag-new">3 новых</span>
+      </a>
+      <a href="admin/levels.html" class="page-link admin-link">
+        <i class="fas fa-crown"></i> Уровни и VIP
+      </a>
+      <a href="admin/boosts.html" class="page-link admin-link highlight">
+        <i class="fas fa-rocket"></i> Бусты и продвижение
+        <span class="page-tag tag-new">новое</span>
+      </a>
+      <a href="admin/stats-car.html?car_id=bmw-m3-001" class="page-link admin-link highlight">
+        <i class="fas fa-chart-bar"></i> Статистика машины (demo)
+        <span class="page-tag tag-new">новое</span>
+      </a>
+      <a href="admin/stats-user.html?user_id=user-alexey-001" class="page-link admin-link highlight">
+        <i class="fas fa-chart-line"></i> Статистика пользователя (demo)
+        <span class="page-tag tag-new">новое</span>
+      </a>
+      <a href="admin/settings.html" class="page-link admin-link">
+        <i class="fas fa-cog"></i> Настройки / инфраструктура
+      </a>
+    </div>
+  </div>
+
+  <!-- СЦЕНАРИИ -->
+  <div class="section-title">Ключевые сценарии для тестирования</div>
+  <div class="app-section">
+    <div class="app-section-header">
+      <div class="app-section-icon icon-infra"><i class="fas fa-route"></i></div>
+      <div>
+        <div class="app-section-title">User Flows</div>
+        <div class="app-section-desc">Пройди по этим сценариям чтобы проверить логику</div>
+      </div>
+    </div>
+    <ul class="flow-list">
+      <li class="flow-item">
+        <span class="flow-num">1</span>
+        <span class="flow-text"><strong>Новый пользователь:</strong> <a href="app/onboarding.html">Онбординг</a> → регистрация → добавить свою машину → попасть в ленту</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">2</span>
+        <span class="flow-text"><strong>Найти машину мечты:</strong> <a href="app/index.html">Лента</a> → нажать карточку → <a href="app/car-card.html">карточка Mercedes</a> → подать заявку → видеть уровень одобрения</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">3</span>
+        <span class="flow-text"><strong>Поиск по бренду:</strong> <a href="app/search.html">Поиск</a> → выбрать BMW → выбрать модель → перейти на карточку</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">4</span>
+        <span class="flow-text"><strong>Пассажир vs За руль:</strong> <a href="app/car-card.html">Карточка</a> → кнопка «Подать заявку» → выбор типа: пассажир или водитель</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">5</span>
+        <span class="flow-text"><strong>Владелец — управление:</strong> <a href="app/owner-dashboard.html">Кабинет владельца</a> → входящие заявки → принять/отклонить → расписание</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">6</span>
+        <span class="flow-text"><strong>Добавить машину:</strong> <a href="app/add-car.html">Добавить</a> → 4 шага → тип доступа → инвайт / платный / бесплатный</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">7</span>
+        <span class="flow-text"><strong>Чат — правило против торга:</strong> <a href="app/chat.html">Чат</a> → написать что-то про «дешевле» → увидеть предупреждение</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">8</span>
+        <span class="flow-text"><strong>Модерация (Админ):</strong> <a href="admin/moderation.html">Жалобы</a> → посмотреть жалобу → заблокировать пользователя</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">9</span>
+        <span class="flow-text"><strong>Выдать VIP (Админ):</strong> <a href="admin/users.html">Пользователи</a> → найти нужного → нажать «Назначить VIP»</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">10</span>
+        <span class="flow-text"><strong>Заблокировать за нарушение (Админ):</strong> <a href="admin/moderation.html">Жалобы и блок</a> → посмотреть флаги → заблокировать</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">11</span>
+        <span class="flow-text"><strong>Рейтинг участников:</strong> <a href="app/rating.html">Рейтинг</a> → переключить вкладки (баллы / за рулём / пассажиром) → тапнуть на участника → увидеть боттом-шит с детальной статистикой</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">12</span>
+        <span class="flow-text"><strong>VIP-видимость в рейтинге:</strong> <a href="app/rating.html">Рейтинг</a> → демо-кнопка «Gold» → тапнуть на Александра К. → видишь только заглушку 🔒 → нажать «VIP» → тапнуть снова → видишь VIP-поездки</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">13</span>
+        <span class="flow-text"><strong>VIP-секция на карточке машины:</strong> <a href="app/car-card.html">Карточка BMW M3</a> → блок «Кто катал» → по умолчанию 🔒 заглушка → кнопка «Сменить роль» → видишь катальщиков</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">14</span>
+        <span class="flow-text"><strong>Уровни — смена роли:</strong> <a href="app/levels.html">Уровни</a> → кнопки 🥉🥈🥇💎👑 → видеть как меняется шпаргалка, прогресс и карточки</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">15</span>
+        <span class="flow-text"><strong>Регистрация — выбор страны:</strong> <a href="app/onboarding.html">Онбординг</a> → Тип аккаунта (личный/бизнес) → Страна / Город → разрешить за руль = сразу Premium</span>
+      </li>
+      <li class="flow-item">
+        <span class="flow-num">16</span>
+        <span class="flow-text"><strong>Бизнес — картинг:</strong> <a href="app/index.html">Лента</a> → фильтр 🏢 Бизнес → Moscow Kart Club → <a href="app/business-card.html">Страница организации</a> → таблица рекордов → запись → поделиться</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ЗАМЕТКИ -->
+  <div class="section-title">Важное</div>
+  <div class="note warn">
+    <strong>Правило продукта:</strong> За руль может сесть только тот, кто добавил свою машину. Пассажиром может быть любой зарегистрированный пользователь. Никакой самостоятельной аренды — все поездки с владельцем.
+  </div>
+
+  <!-- Бизнес-аккаунты — разъяснение -->
+  <div class="note info">
+    <strong>🏢 Бизнес-аккаунты:</strong>
+    <ul style="margin:8px 0 0 16px;padding:0;line-height:2;">
+      <li>При регистрации — <strong>бесплатно</strong>. Позже переводятся на платную подписку.</li>
+      <li>Отображаются в <strong>общей ленте</strong> наравне с личными объявлениями.</li>
+      <li>Ранжируются и конкурируют <strong>только с другими бизнес-аккаунтами</strong> — не вытесняют личные объявления и не участвуют в их сортировке.</li>
+      <li>Могут создавать: картинг-страницы, прокат авто, спортивные организации.</li>
+      <li>Устанавливают ценообразование: почасово, посуточно или на период.</li>
+      <li>Опционально задают залог и режим «без присутствия владельца».</li>
+      <li>На странице организации: таблица лучших времён, отзывы участников, шеринг через ссылку и Telegram.</li>
+    </ul>
+  </div>
+
+  <div class="note info">
+    <strong>Серверы:</strong> Российский стек — Яндекс Облако / VK Cloud / Selectel. Раздел настроек и инфраструктуры открывается в <a href="admin/settings.html" style="color:#4a8fe8;">Admin → Настройки</a>.
+  </div>
+  <div class="note ok">
+    <strong>Это прототип</strong> — данные не сохраняются. Все нажатия симулируют логику. Для рабочего alpha нужен бэкенд на российских серверах.
+  </div>
+
+  <!-- Градация статусов — краткая справка -->
+  <div class="section-title">Градация статусов</div>
+  <div class="app-section">
+    <div style="overflow-x:auto;">
+    <table style="width:100%;min-width:580px;border-collapse:collapse;font-size:12px;">
+      <thead>
+        <tr style="color:#555;text-align:left;border-bottom:1px solid #1e1e1e;">
+          <th style="padding:8px 10px;">Уровень</th>
+          <th style="padding:8px 10px;">Условие</th>
+          <th style="padding:8px 10px;">Заявок за руль/день</th>
+          <th style="padding:8px 10px;">За руль</th>
+          <th style="padding:8px 10px;">Скидка</th>
+          <th style="padding:8px 10px;">VIP-видимость</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #161616;">
+          <td style="padding:8px 10px;color:#c87941;">🥉 Bronze</td>
+          <td style="padding:8px 10px;color:#666;">0–5 поездок</td>
+          <td style="padding:8px 10px;color:#ccc;">3</td>
+          <td style="padding:8px 10px;color:#444;">—</td>
+          <td style="padding:8px 10px;color:#444;">—</td>
+          <td style="padding:8px 10px;color:#444;">🔒 нет</td>
+        </tr>
+        <tr style="border-bottom:1px solid #161616;">
+          <td style="padding:8px 10px;color:#90a8c0;">🥈 Silver</td>
+          <td style="padding:8px 10px;color:#666;">6–20 поездок</td>
+          <td style="padding:8px 10px;color:#ccc;">5</td>
+          <td style="padding:8px 10px;color:#90a8c0;">Silver+</td>
+          <td style="padding:8px 10px;color:#ccc;">5%</td>
+          <td style="padding:8px 10px;color:#444;">🔒 нет</td>
+        </tr>
+        <tr style="border-bottom:1px solid #161616;background:rgba(232,200,74,0.03);">
+          <td style="padding:8px 10px;color:#e8c84a;">🥇 Gold</td>
+          <td style="padding:8px 10px;color:#666;">21–50 поездок</td>
+          <td style="padding:8px 10px;color:#ccc;">20</td>
+          <td style="padding:8px 10px;color:#e8c84a;">Gold+</td>
+          <td style="padding:8px 10px;color:#ccc;">10%</td>
+          <td style="padding:8px 10px;color:#444;">🔒 нет</td>
+        </tr>
+        <tr style="border-bottom:1px solid #161616;">
+          <td style="padding:8px 10px;color:#b87fe8;">💎 Premium</td>
+          <td style="padding:8px 10px;color:#666;">51+ или подписка</td>
+          <td style="padding:8px 10px;color:#b87fe8;">∞</td>
+          <td style="padding:8px 10px;color:#b87fe8;">Premium+</td>
+          <td style="padding:8px 10px;color:#ccc;">20%</td>
+          <td style="padding:8px 10px;color:#444;">🔒 нет</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 10px;color:#7ec850;">👑 VIP</td>
+          <td style="padding:8px 10px;color:#666;">Назначение admin</td>
+          <td style="padding:8px 10px;color:#7ec850;">∞</td>
+          <td style="padding:8px 10px;color:#7ec850;">Все машины</td>
+          <td style="padding:8px 10px;color:#ccc;">30%</td>
+          <td style="padding:8px 10px;color:#7ec850;">✅ видит</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:#555;line-height:1.7;">
+      <strong style="color:#888;">VIP-видимость</strong> — кто катается на VIP-free машинах, видно только VIP-участникам.<br>
+      <strong style="color:#888;">За руль</strong> — только если добавил свою машину в платформу (не аренда, не каршеринг).<br>
+      Подробности: <a href="app/levels.html" style="color:#4a8fe8;">app/levels.html</a>
+    </div>
+  </div>
+
+  <div style="text-align:center; color:#333; font-size:12px; margin-top:40px;">
+    Sharecar · MVP Prototype v5 · 2026 · Сделано для тестирования UI/UX
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sharecar — Буст объявления</title>
+<link rel="stylesheet" href="../css/app.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sharecar">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<script src="/js/pwa.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<style>
+.boost-card {
+  background:var(--bg2); border:2px solid var(--border); border-radius:16px;
+  padding:16px; margin:0 16px 12px; cursor:pointer; transition:all 0.18s; position:relative;
+}
+.boost-card:active { transform:scale(0.98); }
+.boost-card.selected {
+  border-color:var(--accent);
+  background:rgba(232,200,74,0.06);
+}
+.boost-card.selected .boost-radio { background:var(--accent); border-color:var(--accent); }
+.boost-card.selected .boost-radio::after { content:''; width:8px; height:8px; border-radius:50%; background:#000; display:block; margin:auto; }
+.boost-radio {
+  width:20px; height:20px; border-radius:50%; border:2px solid var(--border);
+  flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  transition:all 0.15s;
+}
+.boost-badge-preview {
+  display:inline-flex; align-items:center; gap:4px; padding:3px 9px;
+  border-radius:6px; font-size:11px; font-weight:700;
+}
+.effect-tag {
+  display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:600;
+  padding:2px 7px; border-radius:5px; background:var(--bg3);
+  color:var(--text2); border:1px solid var(--border);
+}
+.car-select-card {
+  background:var(--bg2); border:2px solid var(--border); border-radius:12px;
+  padding:12px 14px; margin:0 16px 8px; cursor:pointer; display:flex; align-items:center; gap:12px;
+  transition:all 0.15s;
+}
+.car-select-card.selected { border-color:var(--accent); }
+.credits-bar {
+  background:rgba(232,200,74,0.06); border:1px solid rgba(232,200,74,0.2);
+  border-radius:12px; padding:12px 16px; margin:0 16px 16px;
+  display:flex; align-items:center; gap:12px;
+}
+.section-title {
+  font-size:11px; font-weight:700; color:var(--text3);
+  text-transform:uppercase; letter-spacing:0.5px;
+  padding:0 16px; margin:16px 0 8px;
+}
+.shimmer {
+  background:linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%);
+  background-size:200% 100%; animation:shimmer 1.2s infinite; border-radius:8px;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <!-- Верхняя панель -->
+  <div class="top-bar">
+    <button class="top-bar-action" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+    <div class="top-bar-title">Буст объявления</div>
+    <div style="width:36px;"></div>
+  </div>
+
+  <!-- Баланс кредитов -->
+  <div class="credits-bar">
+    <i class="fas fa-coins" style="color:var(--accent);font-size:20px;flex-shrink:0;"></i>
+    <div style="flex:1;">
+      <div style="font-size:11px;color:var(--text2);">Твой баланс</div>
+      <div style="font-size:18px;font-weight:800;color:var(--accent);" id="user-credits">1 240 кредитов</div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);">1 кредит = 1 ₽</div>
+  </div>
+
+  <!-- Выбор объявления -->
+  <div class="section-title">Выбери объявление</div>
+  <div id="cars-list">
+    <div class="shimmer" style="height:70px;margin:0 16px 8px;"></div>
+    <div class="shimmer" style="height:70px;margin:0 16px 8px;"></div>
+  </div>
+
+  <!-- Выбор плана буста -->
+  <div class="section-title">Выбери план продвижения</div>
+  <div id="plans-list">
+    <div class="shimmer" style="height:90px;margin:0 16px 12px;"></div>
+    <div class="shimmer" style="height:90px;margin:0 16px 12px;"></div>
+    <div class="shimmer" style="height:90px;margin:0 16px 12px;"></div>
+  </div>
+
+  <!-- Что входит в буст -->
+  <div style="margin:4px 16px 16px;background:var(--bg3);border-radius:12px;padding:14px;">
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px;"><i class="fas fa-info-circle" style="color:var(--accent);"></i> Как работает буст</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.9;">
+      ⭐ <strong>Топ</strong> — объявление поднимается в начало ленты<br>
+      🔥 <strong>Выделение</strong> — цветная рамка и значок на карточке<br>
+      ⏱ Буст начинается сразу после оплаты<br>
+      💳 Оплата только кредитами (не деньгами)
+    </div>
+  </div>
+
+  <!-- Итого и кнопка -->
+  <div style="position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);padding:12px 16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <div style="font-size:11px;color:var(--text3);">Итого</div>
+        <div style="font-size:20px;font-weight:800;" id="total-cost">— кредитов</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;color:var(--text3);">Баланс после</div>
+        <div style="font-size:14px;font-weight:600;" id="balance-after" style="color:var(--text2);">—</div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" id="pay-btn" onclick="payBoost()" disabled>
+      <i class="fas fa-rocket"></i> Запустить буст
+    </button>
+  </div>
+
+</div>
+
+<div id="app-toast" style="display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:13px;z-index:9999;white-space:nowrap;box-shadow:var(--shadow);"></div>
+
+<script>
+const USER_CREDITS = 1240;
+let selectedCarId = null;
+let selectedPlanId = null;
+let selectedPlanCost = 0;
+let allPlans = [];
+let allCars = [];
+
+// ── Загрузка данных ──
+async function init() {
+  await Promise.all([loadCars(), loadPlans()]);
+  updatePayBtn();
+}
+
+async function loadCars() {
+  try {
+    const r = await fetch('../tables/cars?limit=50');
+    const j = await r.json();
+    // Показываем только свои (в реальности — фильтр по owner_id)
+    allCars = (j.data || []).filter(c => c.status === 'published').slice(0, 5);
+    renderCars();
+  } catch(e) {
+    document.getElementById('cars-list').innerHTML =
+      '<div style="padding:16px;color:var(--text3);text-align:center;">Не удалось загрузить объявления</div>';
+  }
+}
+
+async function loadPlans() {
+  try {
+    const r = await fetch('../tables/boost_plans?limit=20&sort=sort_order');
+    const j = await r.json();
+    allPlans = (j.data || []).filter(p => p.is_active).sort((a,b) => (a.sort_order||0)-(b.sort_order||0));
+    renderPlans();
+  } catch(e) {
+    document.getElementById('plans-list').innerHTML =
+      '<div style="padding:16px;color:var(--text3);text-align:center;">Не удалось загрузить планы</div>';
+  }
+}
+
+function renderCars() {
+  const container = document.getElementById('cars-list');
+  if (!allCars.length) {
+    container.innerHTML = '<div style="padding:16px 16px;color:var(--text3);">У тебя нет опубликованных объявлений</div>';
+    return;
+  }
+  container.innerHTML = allCars.map(car => {
+    const title = `${car.brand} ${car.model}`;
+    const sub = `${car.year || ''} · ${car.city || ''} · ${(car.likes||0)} ♥`;
+    const photos = car.photos && car.photos.length ? car.photos[0] : '🏎';
+    const price = car.driver_price || car.passenger_price || 0;
+    const priceStr = price ? `${price.toLocaleString('ru')} ₽` : 'Бесплатно';
+    return `
+    <div class="car-select-card" id="car-${car.id}" onclick="selectCar('${car.id}')">
+      <div style="width:48px;height:48px;background:linear-gradient(135deg,#1a1a2a,#2a2a4a);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">${photos}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px;">${sub}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:12px;font-weight:600;color:var(--accent);">${priceStr}</div>
+        <div id="car-boost-status-${car.id}" style="font-size:10px;color:var(--text3);margin-top:2px;"></div>
+      </div>
+      <div class="boost-radio" id="car-radio-${car.id}"></div>
+    </div>`;
+  }).join('');
+}
+
+function renderPlans() {
+  const container = document.getElementById('plans-list');
+  if (!allPlans.length) {
+    container.innerHTML = '<div style="padding:16px;color:var(--text3);">Планы буста не настроены</div>';
+    return;
+  }
+  container.innerHTML = allPlans.map((plan, i) => {
+    const effectIcons = {
+      top: '⭐ Топ ленты',
+      highlight: '🔥 Выделение',
+      both: '⭐ Топ + 🔥 Выделение'
+    };
+    const effectStr = effectIcons[plan.effect] || plan.effect;
+    const badgeBg = plan.badge_color
+      ? `background:${plan.badge_color}22;color:${plan.badge_color};border:1px solid ${plan.badge_color}55;`
+      : 'background:rgba(232,200,74,0.15);color:#e8c84a;';
+    return `
+    <div class="boost-card" id="plan-${plan.id}" onclick="selectPlan('${plan.id}', ${plan.credits_cost})">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div class="boost-radio" id="plan-radio-${plan.id}"></div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div style="font-size:16px;font-weight:800;">${plan.duration_label}</div>
+            <span class="boost-badge-preview" style="${badgeBg}">${plan.badge_label || '⭐'}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px;">${plan.description || ''}</div>
+          <div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap;">
+            ${effectStr.split('+').map(e => `<span class="effect-tag">${e.trim()}</span>`).join('')}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:18px;font-weight:800;color:var(--accent);">${plan.credits_cost}</div>
+          <div style="font-size:10px;color:var(--text3);">кредитов</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectCar(id) {
+  allCars.forEach(c => {
+    const card = document.getElementById('car-' + c.id);
+    const radio = document.getElementById('car-radio-' + c.id);
+    if (card) card.classList.toggle('selected', c.id === id);
+    if (radio) {
+      radio.style.background = c.id === id ? 'var(--accent)' : '';
+      radio.style.borderColor = c.id === id ? 'var(--accent)' : '';
+      radio.innerHTML = c.id === id
+        ? '<div style="width:8px;height:8px;border-radius:50%;background:#000;margin:auto;"></div>'
+        : '';
+    }
+  });
+  selectedCarId = id;
+  updatePayBtn();
+}
+
+function selectPlan(id, cost) {
+  allPlans.forEach(p => {
+    const card = document.getElementById('plan-' + p.id);
+    const radio = document.getElementById('plan-radio-' + p.id);
+    if (card) card.classList.toggle('selected', p.id === id);
+    if (radio) {
+      radio.style.background = p.id === id ? 'var(--accent)' : '';
+      radio.style.borderColor = p.id === id ? 'var(--accent)' : '';
+      radio.innerHTML = p.id === id
+        ? '<div style="width:8px;height:8px;border-radius:50%;background:#000;margin:auto;"></div>'
+        : '';
+    }
+  });
+  selectedPlanId = id;
+  selectedPlanCost = cost;
+  updatePayBtn();
+}
+
+function updatePayBtn() {
+  const btn = document.getElementById('pay-btn');
+  const totalEl = document.getElementById('total-cost');
+  const afterEl = document.getElementById('balance-after');
+  const ready = selectedCarId && selectedPlanId;
+  btn.disabled = !ready;
+  if (ready) {
+    totalEl.textContent = selectedPlanCost + ' кредитов';
+    const after = USER_CREDITS - selectedPlanCost;
+    afterEl.textContent = after + ' кредитов';
+    afterEl.style.color = after < 0 ? '#e05050' : 'var(--text1)';
+    if (after < 0) {
+      btn.disabled = true;
+      totalEl.style.color = '#e05050';
+      showToast('⚠️ Недостаточно кредитов');
+    } else {
+      totalEl.style.color = 'var(--accent)';
+    }
+  } else {
+    totalEl.textContent = '— кредитов';
+    afterEl.textContent = '—';
+  }
+}
+
+function payBoost() {
+  if (!selectedCarId || !selectedPlanId) return;
+  const plan = allPlans.find(p => p.id === selectedPlanId);
+  if (!plan) return;
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Запускаем...';
+
+  // Симуляция оплаты (в реальности: POST /api/boosts)
+  setTimeout(() => {
+    showToast(`🚀 Буст "${plan.name}" запущен! Объявление поднято в топ`);
+    setTimeout(() => history.back(), 1800);
+  }, 1000);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('app-toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+function goPage(url) { window.location.href = url; }
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

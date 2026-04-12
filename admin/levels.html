@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharecar Admin — Уровни и VIP</title>
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+
+<aside class="admin-sidebar" id="sidebar">
+  <div class="admin-sidebar-logo"><div class="logo">Sharecar</div><div class="logo-sub">Admin Panel</div></div>
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Главное</div>
+    <a href="index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Дашборд</a>
+    <a href="users.html" class="admin-nav-item"><i class="fas fa-users"></i> Пользователи</a>
+    <a href="vehicles.html" class="admin-nav-item"><i class="fas fa-car-side"></i> Машины</a>
+    <a href="requests.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Заявки</a>
+    <div class="admin-nav-section">Контроль</div>
+    <a href="moderation.html" class="admin-nav-item"><i class="fas fa-exclamation-triangle"></i> Жалобы и блок</a>
+    <a href="levels.html" class="admin-nav-item active"><i class="fas fa-crown"></i> Уровни и VIP</a>
+    <a href="boosts.html" class="admin-nav-item"><i class="fas fa-rocket"></i> Бусты и продвижение</a>
+    <div class="admin-nav-section">Система</div>
+    <a href="settings.html" class="admin-nav-item"><i class="fas fa-cog"></i> Настройки</a>
+    <a href="../hub.html" class="admin-nav-item"><i class="fas fa-arrow-left"></i> К прототипу</a>
+  </nav>
+</aside>
+<div class="admin-sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div>
+      <div class="admin-topbar-title">Уровни и VIP</div>
+      <div class="admin-topbar-subtitle">Управление системой статусов пользователей</div>
+    </div>
+    <div class="admin-topbar-actions">
+      <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="showGrantVIP()"><i class="fas fa-crown"></i> Выдать VIP</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- Карточки уровней -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px;">
+      <div style="background:#1a100a;border:1px solid #3d2010;border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🥉</div>
+        <div style="font-size:15px;font-weight:700;color:#c87941;margin-bottom:4px;">Bronze</div>
+        <div style="font-size:24px;font-weight:800;color:#f0f0f0;">743</div>
+        <div style="font-size:11px;color:#666;margin-top:4px;">пользователей</div>
+        <div style="margin-top:12px;font-size:11px;color:#888;">0–5 поездок</div>
+        <div style="font-size:11px;color:#888;">до 5 бесплатных заявок</div>
+        <button class="admin-btn admin-btn-secondary admin-btn-sm" style="margin-top:12px;width:100%;" onclick="showLevelSettings('Bronze')"><i class="fas fa-edit"></i> Настроить</button>
+      </div>
+      <div style="background:#0f1520;border:1px solid #1e3050;border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🥈</div>
+        <div style="font-size:15px;font-weight:700;color:#90a8c0;margin-bottom:4px;">Silver</div>
+        <div style="font-size:24px;font-weight:800;color:#f0f0f0;">298</div>
+        <div style="font-size:11px;color:#666;margin-top:4px;">пользователей</div>
+        <div style="margin-top:12px;font-size:11px;color:#888;">6–20 поездок</div>
+        <div style="font-size:11px;color:#888;">до 10 бесплатных заявок</div>
+        <button class="admin-btn admin-btn-secondary admin-btn-sm" style="margin-top:12px;width:100%;" onclick="showLevelSettings('Silver')"><i class="fas fa-edit"></i> Настроить</button>
+      </div>
+      <div style="background:#1a1500;border:1px solid #3a3010;border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🥇</div>
+        <div style="font-size:15px;font-weight:700;color:#e8c84a;margin-bottom:4px;">Gold</div>
+        <div style="font-size:24px;font-weight:800;color:#f0f0f0;">124</div>
+        <div style="font-size:11px;color:#666;margin-top:4px;">пользователей</div>
+        <div style="margin-top:12px;font-size:11px;color:#888;">21–50 поездок</div>
+        <div style="font-size:11px;color:#888;">до 20 бесплатных заявок</div>
+        <button class="admin-btn admin-btn-secondary admin-btn-sm" style="margin-top:12px;width:100%;" onclick="showLevelSettings('Gold')"><i class="fas fa-edit"></i> Настроить</button>
+      </div>
+      <div style="background:#100a1a;border:1px solid #2a1540;border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">💎</div>
+        <div style="font-size:15px;font-weight:700;color:#b87fe8;margin-bottom:4px;">Premium</div>
+        <div style="font-size:24px;font-weight:800;color:#f0f0f0;">70</div>
+        <div style="font-size:11px;color:#666;margin-top:4px;">пользователей</div>
+        <div style="margin-top:12px;font-size:11px;color:#888;">51+ поездок</div>
+        <div style="font-size:11px;color:#888;">∞ бесплатных заявок</div>
+        <button class="admin-btn admin-btn-secondary admin-btn-sm" style="margin-top:12px;width:100%;" onclick="showLevelSettings('Premium')"><i class="fas fa-edit"></i> Настроить</button>
+      </div>
+      <div style="background:#0a1505;border:1px solid #1e3510;border-radius:12px;padding:18px;text-align:center;border-width:2px;">
+        <div style="font-size:28px;margin-bottom:8px;">👑</div>
+        <div style="font-size:15px;font-weight:700;color:#7ec850;margin-bottom:4px;">VIP</div>
+        <div style="font-size:24px;font-weight:800;color:#f0f0f0;">12</div>
+        <div style="font-size:11px;color:#666;margin-top:4px;">пользователей</div>
+        <div style="margin-top:12px;font-size:11px;color:#888;">Ручное назначение</div>
+        <div style="font-size:11px;color:#888;">∞ всего, все привилегии</div>
+        <button class="admin-btn admin-btn-success admin-btn-sm" style="margin-top:12px;width:100%;" onclick="showGrantVIP()"><i class="fas fa-plus"></i> Выдать VIP</button>
+      </div>
+    </div>
+
+    <!-- VIP пользователи -->
+    <div class="admin-table-wrap" style="margin-bottom:24px;">
+      <div class="admin-table-header">
+        <div class="admin-table-title">👑 VIP пользователи (12)</div>
+        <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="showGrantVIP()"><i class="fas fa-plus"></i> Выдать VIP</button>
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr><th>Пользователь</th><th>Поездок</th><th>Катал других</th><th>Рейтинг</th><th>VIP с</th><th>Причина</th><th>Действия</th></tr>
+        </thead>
+        <tbody id="vip-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Настройки системы уровней -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title">Правила начисления уровней</div>
+        <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="saveLevelRules()"><i class="fas fa-save"></i> Сохранить</button>
+      </div>
+      <div class="admin-card-body">
+        <div class="admin-alert admin-alert-info" style="margin-bottom:20px;">
+          <i class="fas fa-info-circle"></i>
+          <div>Уровень пользователя формируется автоматически на основе количества совершённых поездок, количества людей, которых он покатал, и его рейтинга. Уровень также можно <strong>купить</strong> или получить по решению администратора.</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div>
+            <h4 style="color:#ccc;margin-bottom:14px;font-size:13px;">Пороги автоматического перехода</h4>
+            <div class="admin-form-group">
+              <label class="admin-label">Silver (мин. поездок)</label>
+              <input class="admin-input" type="number" value="6" id="silver-trips">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-label">Gold (мин. поездок)</label>
+              <input class="admin-input" type="number" value="21" id="gold-trips">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-label">Premium (мин. поездок)</label>
+              <input class="admin-input" type="number" value="51" id="premium-trips">
+            </div>
+          </div>
+          <div>
+            <h4 style="color:#ccc;margin-bottom:14px;font-size:13px;">Лимиты бесплатных заявок</h4>
+            <div class="admin-form-group">
+              <label class="admin-label">Bronze (макс. заявок)</label>
+              <input class="admin-input" type="number" value="5" id="bronze-limit">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-label">Silver (макс. заявок)</label>
+              <input class="admin-input" type="number" value="10" id="silver-limit">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-label">Gold (макс. заявок)</label>
+              <input class="admin-input" type="number" value="20" id="gold-limit">
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <h4 style="color:#ccc;margin-bottom:14px;font-size:13px;">Влияние катания на выдачу</h4>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Чем выше уровень тех, кого покатал — тем выше в выдаче</div>
+              <div class="toggle-desc">Владелец получает буст в ленте за поездки с Gold/Premium/VIP</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">VIP пользователи могут ехать бесплатно (если владелец разрешил)</div>
+              <div class="toggle-desc">Бонус владельцу: повышение в выдаче за бесплатные поездки для VIP</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Уровень можно купить (монетизация)</div>
+              <div class="toggle-desc">Платный переход на следующий уровень через подписку</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Модал выдачи VIP -->
+<div id="vip-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:#151515;border:1px solid #2a2a2a;border-radius:14px;padding:28px;width:100%;max-width:440px;margin:20px;">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:6px;color:#f0f0f0;">👑 Выдать VIP</h3>
+    <p style="font-size:13px;color:#666;margin-bottom:20px;">VIP назначается вручную администратором. Этот уровень нельзя купить.</p>
+    <div class="admin-form-group">
+      <label class="admin-label">Ник пользователя</label>
+      <input class="admin-input" type="text" placeholder="@ник или ID" id="vip-user-input">
+    </div>
+    <div class="admin-form-group">
+      <label class="admin-label">Причина назначения</label>
+      <textarea class="admin-input admin-textarea" placeholder="Причина выдачи VIP статуса..." id="vip-reason"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="admin-btn admin-btn-secondary" onclick="document.getElementById('vip-modal').style.display='none'">Отмена</button>
+      <button class="admin-btn admin-btn-success" onclick="grantVIPFromModal()"><i class="fas fa-crown"></i> Выдать VIP</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модал настройки уровня -->
+<div id="level-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:#151515;border:1px solid #2a2a2a;border-radius:14px;padding:28px;width:100%;max-width:440px;margin:20px;">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:20px;color:#f0f0f0;">Настройки уровня: <span id="level-modal-name">—</span></h3>
+    <div class="admin-form-group">
+      <label class="admin-label">Мин. поездок для перехода</label>
+      <input class="admin-input" type="number" id="lm-trips" value="6">
+    </div>
+    <div class="admin-form-group">
+      <label class="admin-label">Лимит бесплатных заявок</label>
+      <input class="admin-input" type="number" id="lm-limit" value="10">
+    </div>
+    <div class="admin-form-group">
+      <label class="admin-label">Скидка на платное продвижение</label>
+      <input class="admin-input" type="number" id="lm-discount" value="10" placeholder="%">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="admin-btn admin-btn-secondary" onclick="document.getElementById('level-modal').style.display='none'">Отмена</button>
+      <button class="admin-btn admin-btn-primary" onclick="saveLevelModal()"><i class="fas fa-save"></i> Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div id="admin-toast" style="display:none;position:fixed;bottom:30px;right:30px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:12px 20px;color:#ccc;font-size:13px;z-index:9999;"></div>
+
+<script>
+const vipUsers = [
+  {name:'Дмитрий Волков',nick:'dima_wolf',trips:58,hosted:44,rating:'5.0',since:'10.07.2024',reason:'Основатель клуба'},
+  {name:'Елена Воронова',nick:'elena_v',trips:31,hosted:28,rating:'5.0',since:'01.09.2024',reason:'Топ-владелец Porsche'},
+  {name:'Андрей Крылов',nick:'andrey_k',trips:44,hosted:38,rating:'4.9',since:'15.10.2024',reason:'Амбассадор'},
+  {name:'Игорь Максимов',nick:'igor_premium',trips:29,hosted:22,rating:'4.9',since:'05.04.2026',reason:'Ручное назначение'},
+];
+
+function renderVIP() {
+  document.getElementById('vip-tbody').innerHTML = vipUsers.map(v => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#0a1505;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#7ec850;">${v.name[0]}</div>
+          <div>
+            <div style="font-weight:600;color:#f0f0f0;">${v.name}</div>
+            <div style="font-size:11px;color:#555;">@${v.nick}</div>
+          </div>
+        </div>
+      </td>
+      <td>${v.trips}</td>
+      <td>${v.hosted}</td>
+      <td style="color:#e8c84a;">★ ${v.rating}</td>
+      <td style="color:#555;font-size:12px;">${v.since}</td>
+      <td style="color:#888;font-size:12px;">${v.reason}</td>
+      <td>
+        <button class="table-btn table-btn-block" onclick="revokeVIP('${v.nick}')"><i class="fas fa-times"></i> Снять VIP</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function showGrantVIP() { document.getElementById('vip-modal').style.display = 'flex'; }
+function grantVIPFromModal() {
+  const u = document.getElementById('vip-user-input').value;
+  const r = document.getElementById('vip-reason').value;
+  if(!u) { showToast('Укажите пользователя','err'); return; }
+  vipUsers.push({name:u,nick:u.replace('@',''),trips:0,hosted:0,rating:'—',since:'07.04.2026',reason:r||'Ручное назначение'});
+  renderVIP();
+  document.getElementById('vip-modal').style.display = 'none';
+  showToast('👑 VIP выдан: ' + u, 'ok');
+}
+function revokeVIP(nick) {
+  if(confirm('Снять VIP у @' + nick + '?')) {
+    const idx = vipUsers.findIndex(v => v.nick === nick);
+    if(idx >= 0) vipUsers.splice(idx, 1);
+    renderVIP();
+    showToast('VIP снят у @' + nick);
+  }
+}
+function showLevelSettings(level) {
+  document.getElementById('level-modal-name').textContent = level;
+  const defaults = {Bronze:{trips:0,limit:5,disc:0},Silver:{trips:6,limit:10,disc:5},Gold:{trips:21,limit:20,disc:10},Premium:{trips:51,limit:999,disc:20}};
+  const d = defaults[level] || {trips:0,limit:0,disc:0};
+  document.getElementById('lm-trips').value = d.trips;
+  document.getElementById('lm-limit').value = d.limit === 999 ? '∞' : d.limit;
+  document.getElementById('lm-discount').value = d.disc;
+  document.getElementById('level-modal').style.display = 'flex';
+}
+function saveLevelModal() {
+  document.getElementById('level-modal').style.display = 'none';
+  showToast('✅ Настройки уровня сохранены','ok');
+}
+function saveLevelRules() { showToast('✅ Правила сохранены','ok'); }
+
+function showToast(msg, type) {
+  const t=document.getElementById('admin-toast');
+  t.textContent=msg; t.style.display='block';
+  t.style.borderLeft=type==='ok'?'3px solid #4caf7d':type==='err'?'3px solid #e05050':'3px solid #e8c84a';
+  setTimeout(()=>t.style.display='none',3000);
+}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+
+renderVIP();
+</script>
+</body>
+</html>

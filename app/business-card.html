@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sharecar — Moscow Kart Club</title>
+<link rel="stylesheet" href="../css/app.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sharecar">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<script src="/js/pwa.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<style>
+/* ── Шапка организации ── */
+.biz-cover { height:200px;background:linear-gradient(135deg,#001528,#002a50);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative; }
+.biz-avatar { width:72px;height:72px;border-radius:16px;background:rgba(74,143,232,0.2);border:2px solid rgba(74,143,232,0.4);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#4a8fe8;margin-bottom:12px; }
+.biz-name { font-size:20px;font-weight:800;color:#fff; }
+.biz-type { font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px; }
+.biz-badge-bar { display:flex;gap:8px;margin-top:10px; }
+/* ── Карт/машина ── */
+.vehicle-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin:0 16px 10px;cursor:pointer;display:flex;gap:12px;align-items:center; }
+.vehicle-icon { width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;background:var(--bg3); }
+/* ── Таблица времён ── */
+.lap-table { width:100%;border-collapse:collapse; }
+.lap-table th { font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border); }
+.lap-table td { font-size:13px;padding:10px;border-bottom:1px solid var(--border);vertical-align:middle; }
+.lap-table tr:last-child td { border-bottom:none; }
+.lap-table tr.record td { background:rgba(232,200,74,0.04); }
+.lap-rank { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0; }
+.rank-1 { background:rgba(232,200,74,0.2);color:#e8c84a; }
+.rank-2 { background:rgba(192,192,220,0.2);color:#c8c8dc; }
+.rank-3 { background:rgba(200,121,65,0.2);color:#c87941; }
+.rank-n { background:var(--bg3);color:var(--text3); }
+/* ── Вкладки ── */
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <!-- Шапка -->
+  <div class="biz-cover">
+    <button style="position:absolute;top:16px;left:16px;background:rgba(0,0,0,0.4);border:none;border-radius:50%;width:36px;height:36px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="history.back()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <!-- Поделиться -->
+    <button style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.4);border:none;border-radius:50%;width:36px;height:36px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="shareOrg()">
+      <i class="fas fa-share-alt"></i>
+    </button>
+    <div class="biz-avatar">MK</div>
+    <div class="biz-name">Moscow Kart Club</div>
+    <div class="biz-type">Картинг · Москва, ул. Мясницкая 22</div>
+    <div class="biz-badge-bar">
+      <span class="badge" style="background:rgba(74,143,232,0.15);color:#4a8fe8;"><i class="fas fa-building"></i> Бизнес</span>
+      <span class="badge badge-green">★ 4.7</span>
+      <span class="badge" style="background:rgba(126,200,80,0.1);color:#7ec850;">240 заездов</span>
+    </div>
+  </div>
+
+  <!-- Статистика -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px;">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:20px;font-weight:700;color:#4a8fe8;">25</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px;">Картов</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:20px;font-weight:700;color:var(--accent);">800м</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px;">Трасса</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:20px;font-weight:700;color:#4caf7d;">2 500 ₽</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px;">За час</div>
+    </div>
+  </div>
+
+  <!-- Вкладки -->
+  <div class="tabs" id="biz-tabs">
+    <button class="tab-item active" onclick="switchTab('vehicles')">Техника</button>
+    <button class="tab-item" onclick="switchTab('times')">Рекорды</button>
+    <button class="tab-item" onclick="switchTab('book')">Запись</button>
+    <button class="tab-item" onclick="switchTab('reviews')">Отзывы</button>
+  </div>
+
+  <!-- ═══ ТЕХНИКА ═══ -->
+  <div id="tab-vehicles">
+    <div style="padding:12px 16px 6px;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;">Доступные карты</div>
+
+    <div class="vehicle-card" onclick="showVehicleDetail('kart1')">
+      <div class="vehicle-icon" style="background:linear-gradient(135deg,#001528,#002540);">🏎</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:700;">Rotax Max Senior</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;">125cc · 35 л.с. · 5 шт.</div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+          <span style="font-size:10px;background:rgba(74,143,232,0.1);color:#4a8fe8;padding:2px 7px;border-radius:5px;">18+ лет</span>
+          <span style="font-size:10px;background:rgba(76,175,125,0.1);color:#4caf7d;padding:2px 7px;border-radius:5px;">Для опытных</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);">2 500 ₽/ч</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">+5 000 ₽ залог</div>
+      </div>
+    </div>
+
+    <div class="vehicle-card" onclick="showVehicleDetail('kart2')">
+      <div class="vehicle-icon" style="background:linear-gradient(135deg,#152500,#203500);">🟢</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:700;">Honda GX160 Junior</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;">160cc · 5.5 л.с. · 10 шт.</div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+          <span style="font-size:10px;background:rgba(76,175,125,0.1);color:#4caf7d;padding:2px 7px;border-radius:5px;">10+ лет</span>
+          <span style="font-size:10px;background:rgba(232,200,74,0.1);color:#e8c84a;padding:2px 7px;border-radius:5px;">Для всех</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);">1 500 ₽/ч</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">+2 000 ₽ залог</div>
+      </div>
+    </div>
+
+    <div class="vehicle-card" onclick="showVehicleDetail('kart3')">
+      <div class="vehicle-icon" style="background:linear-gradient(135deg,#200a00,#350f00);">🔴</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:700;">Birel ART R30 Racing</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;">Гоночный · 50+ л.с. · 3 шт.</div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+          <span style="font-size:10px;background:rgba(224,80,80,0.1);color:#e05050;padding:2px 7px;border-radius:5px;">Спортсмены</span>
+          <span style="font-size:10px;background:rgba(126,200,80,0.1);color:#7ec850;padding:2px 7px;border-radius:5px;">Рекорды</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);">4 500 ₽/ч</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">+10 000 ₽ залог</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ РЕКОРДЫ ═══ -->
+  <div id="tab-times" style="display:none;">
+    <!-- Выбор техники -->
+    <div style="padding:12px 16px 6px;display:flex;gap:8px;overflow-x:auto;">
+      <button class="btn btn-primary btn-sm" id="rec-btn-senior" onclick="showRecords('senior',this)" style="white-space:nowrap;">🏎 Rotax Senior</button>
+      <button class="btn btn-secondary btn-sm" id="rec-btn-junior" onclick="showRecords('junior',this)" style="white-space:nowrap;">🟢 Honda Junior</button>
+      <button class="btn btn-secondary btn-sm" id="rec-btn-racing" onclick="showRecords('racing',this)" style="white-space:nowrap;">🔴 Birel Racing</button>
+    </div>
+
+    <div style="margin:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+      <div style="padding:12px 14px;background:rgba(232,200,74,0.04);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:600;">Rotax Max Senior · Топ-10</span>
+        <span style="font-size:11px;color:var(--text3);">Обновлено: сегодня</span>
+      </div>
+      <table class="lap-table" id="records-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Участник</th>
+            <th>Время</th>
+            <th>Дата</th>
+          </tr>
+        </thead>
+        <tbody id="records-body">
+          <!-- Заполняется JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <div style="padding:0 16px 16px;font-size:12px;color:var(--text3);text-align:center;">
+      <i class="fas fa-trophy" style="color:var(--accent);margin-right:4px;"></i>
+      После заезда твоё время автоматически попадает в таблицу
+    </div>
+  </div>
+
+  <!-- ═══ ЗАПИСЬ ═══ -->
+  <div id="tab-book" style="display:none;">
+    <div style="padding:16px;">
+
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Выбери технику</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
+        <div id="book-kart1" style="border:2px solid var(--accent);border-radius:10px;padding:10px;text-align:center;cursor:pointer;background:rgba(232,200,74,0.04);" onclick="selectBookKart('kart1')">
+          <div style="font-size:22px;margin-bottom:4px;">🏎</div>
+          <div style="font-size:10px;font-weight:600;color:var(--accent);">Rotax</div>
+          <div style="font-size:10px;color:var(--text3);">2 500/ч</div>
+        </div>
+        <div id="book-kart2" style="border:2px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;" onclick="selectBookKart('kart2')">
+          <div style="font-size:22px;margin-bottom:4px;">🟢</div>
+          <div style="font-size:10px;font-weight:600;">Honda</div>
+          <div style="font-size:10px;color:var(--text3);">1 500/ч</div>
+        </div>
+        <div id="book-kart3" style="border:2px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;" onclick="selectBookKart('kart3')">
+          <div style="font-size:22px;margin-bottom:4px;">🔴</div>
+          <div style="font-size:10px;font-weight:600;">Birel</div>
+          <div style="font-size:10px;color:var(--text3);">4 500/ч</div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Дата и время</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Дата</div>
+          <input type="date" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text1);font-family:inherit;font-size:14px;padding:10px;outline:none;width:100%;box-sizing:border-box;">
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Начало</div>
+          <select style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text1);font-family:inherit;font-size:14px;padding:10px;outline:none;width:100%;appearance:none;">
+            <option>10:00</option><option>11:00</option><option>12:00</option>
+            <option>13:00</option><option>14:00</option><option>15:00</option>
+            <option>16:00</option><option>17:00</option><option>18:00</option>
+            <option>19:00</option><option>20:00</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Продолжительность</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="btn btn-primary btn-sm" id="dur-1" onclick="selectDur(1,this)">1 час</button>
+        <button class="btn btn-secondary btn-sm" id="dur-2" onclick="selectDur(2,this)">2 часа</button>
+        <button class="btn btn-secondary btn-sm" id="dur-3" onclick="selectDur(3,this)">3 часа</button>
+        <button class="btn btn-secondary btn-sm" id="dur-day" onclick="selectDur('day',this)">День</button>
+      </div>
+
+      <!-- Итог -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Итого</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:12px;color:var(--text2);">Rotax Max Senior · 1 час</span>
+          <span style="font-size:12px;font-weight:600;" id="price-line">2 500 ₽</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:12px;color:var(--text2);">Залог (возвращается)</span>
+          <span style="font-size:12px;color:var(--text3);" id="deposit-line">5 000 ₽</span>
+        </div>
+        <div class="divider" style="margin:10px 0;"></div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:14px;font-weight:700;">Итого</span>
+          <span style="font-size:16px;font-weight:700;color:var(--accent);" id="total-line">7 500 ₽</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="bookNow()"><i class="fas fa-calendar-check"></i> Забронировать</button>
+    </div>
+  </div>
+
+  <!-- ═══ ОТЗЫВЫ ═══ -->
+  <div id="tab-reviews" style="display:none;">
+    <div style="padding:12px 16px;">
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+          <div class="avatar avatar-md" style="background:#1a1a2a;">А</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;">Алексей М. <span class="badge badge-gold" style="font-size:10px;">Gold</span></div>
+            <div class="stars">★★★★★</div>
+          </div>
+          <div style="font-size:11px;color:var(--text3);">05.04</div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);">Отличный картинг! Rotax — настоящий монстр. Таблица рекордов мотивирует приезжать снова. Трасса сложная, интересная.</p>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+          <div class="avatar avatar-md" style="background:#1e2838;color:#7ec850;">Д</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;">Дмитрий В. <span class="badge badge-vip" style="font-size:10px;">👑 VIP</span></div>
+            <div class="stars">★★★★★</div>
+          </div>
+          <div style="font-size:11px;color:var(--text3);">03.04</div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);">Мой текущий рекорд — 43.2 сек на Rotax. Бьём с ребятами уже третий месяц 😅 Инфраструктура отличная.</p>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+          <div class="avatar avatar-md" style="background:#2a1820;color:#e87dc0;">К</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;">Кристина Л. <span class="badge badge-silver" style="font-size:10px;">Silver</span></div>
+            <div class="stars">★★★★☆</div>
+          </div>
+          <div style="font-size:11px;color:var(--text3);">28.03</div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);">Honda Junior подходит для новичков, но хочется мощнее. Персонал приятный, объяснили всё.</p>
+      </div>
+
+      <button class="btn btn-secondary btn-full" onclick="showToast('Форма отзыва открыта')"><i class="fas fa-pen"></i> Написать отзыв</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Поделиться-шит -->
+<div id="share-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:flex-end;justify-content:center;">
+  <div style="background:var(--bg2);border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:430px;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Поделиться</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:16px;word-break:break-all;background:var(--bg3);padding:10px;border-radius:8px;" id="share-link">shercar.app/biz/moscow-kart-club</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-secondary btn-full" onclick="copyShareLink()"><i class="fas fa-copy"></i> Скопировать</button>
+      <button class="btn btn-full" style="background:#0088cc;color:#fff;" onclick="shareToTg()"><i class="fab fa-telegram"></i> Telegram</button>
+    </div>
+    <button class="btn btn-secondary btn-full" onclick="document.getElementById('share-modal').style.display='none'">Закрыть</button>
+  </div>
+</div>
+
+<div id="app-toast" style="display:none;position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:13px;z-index:9999;white-space:nowrap;"></div>
+
+<script>
+// ── Данные рекордов ──
+const RECORDS = {
+  senior: [
+    { name:'Дмитрий В.', level:'👑 VIP', time:'43.2', delta:'', date:'03.04' },
+    { name:'Артём К.',   level:'🥇 Gold', time:'44.1', delta:'+0.9', date:'05.04' },
+    { name:'Алексей М.', level:'🥇 Gold', time:'44.8', delta:'+1.6', date:'05.04' },
+    { name:'Павел Ж.',   level:'💎 Premium', time:'45.3', delta:'+2.1', date:'02.04' },
+    { name:'Сергей Н.',  level:'🥈 Silver', time:'46.0', delta:'+2.8', date:'01.04' },
+    { name:'Иван П.',    level:'💎 Premium', time:'46.5', delta:'+3.3', date:'31.03' },
+    { name:'Роман Ш.',   level:'🥇 Gold', time:'47.2', delta:'+4.0', date:'30.03' },
+  ],
+  junior: [
+    { name:'Кристина Л.', level:'🥈 Silver', time:'58.1', delta:'', date:'28.03' },
+    { name:'Антон В.',    level:'🥉 Bronze', time:'59.4', delta:'+1.3', date:'04.04' },
+    { name:'Ольга М.',    level:'🥈 Silver', time:'60.0', delta:'+1.9', date:'02.04' },
+  ],
+  racing: [
+    { name:'Дмитрий В.', level:'👑 VIP', time:'38.9', delta:'', date:'01.04' },
+    { name:'Артём К.',   level:'🥇 Gold', time:'39.8', delta:'+0.9', date:'05.04' },
+  ]
+};
+
+const RANK_CSS = ['rank-1','rank-2','rank-3'];
+
+function showRecords(type, btn) {
+  // Кнопки
+  document.querySelectorAll('#biz-tabs + div button, #tab-times button').forEach(() => {});
+  ['senior','junior','racing'].forEach(t => {
+    const b = document.getElementById('rec-btn-' + t);
+    if (b) { b.className = t === type ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'; }
+  });
+
+  const tbody = document.getElementById('records-body');
+  const data = RECORDS[type] || [];
+  tbody.innerHTML = data.map((r, i) => {
+    const rankClass = RANK_CSS[i] || 'rank-n';
+    const rankLabel = i === 0 ? '🏆' : (i + 1);
+    return `<tr${i === 0 ? ' class="record"' : ''}>
+      <td><div class="lap-rank ${rankClass}">${rankLabel}</div></td>
+      <td>
+        <div style="font-size:13px;font-weight:600;">${r.name}</div>
+        <div style="font-size:10px;color:var(--text3);">${r.level}</div>
+      </td>
+      <td>
+        <div style="font-size:15px;font-weight:700;color:${i===0?'var(--accent)':'var(--text1)'};">${r.time}с</div>
+        ${r.delta ? `<div style="font-size:10px;color:var(--text3);">${r.delta}</div>` : ''}
+      </td>
+      <td style="font-size:11px;color:var(--text3);">${r.date}</td>
+    </tr>`;
+  }).join('');
+}
+
+// Вкладки
+const BIZ_TABS = ['vehicles','times','book','reviews'];
+function switchTab(tab) {
+  BIZ_TABS.forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('#biz-tabs .tab-item').forEach((btn, i) => {
+    btn.classList.toggle('active', BIZ_TABS[i] === tab);
+  });
+  if (tab === 'times') showRecords('senior', null);
+}
+
+// Бронирование
+let selectedKart = 'kart1';
+let selectedDur = 1;
+const KART_PRICES = { kart1: 2500, kart2: 1500, kart3: 4500 };
+const KART_DEPOSITS = { kart1: 5000, kart2: 2000, kart3: 10000 };
+
+function selectBookKart(id) {
+  selectedKart = id;
+  ['kart1','kart2','kart3'].forEach(k => {
+    const el = document.getElementById('book-' + k);
+    el.style.borderColor = k === id ? 'var(--accent)' : 'var(--border)';
+    el.style.background  = k === id ? 'rgba(232,200,74,0.04)' : '';
+    const name = el.querySelector('div:nth-child(2)');
+    if (name) name.style.color = k === id ? 'var(--accent)' : 'var(--text1)';
+  });
+  updatePrice();
+}
+
+function selectDur(d, btn) {
+  selectedDur = d;
+  document.querySelectorAll('#tab-book .btn').forEach(b => {
+    if (b.id && b.id.startsWith('dur-')) b.className = 'btn btn-secondary btn-sm';
+  });
+  if (btn) btn.className = 'btn btn-primary btn-sm';
+  updatePrice();
+}
+
+function updatePrice() {
+  const price = KART_PRICES[selectedKart] || 2500;
+  const deposit = KART_DEPOSITS[selectedKart] || 5000;
+  const hours = typeof selectedDur === 'number' ? selectedDur : 8;
+  const total = price * hours + deposit;
+  const kartNames = { kart1:'Rotax Max Senior', kart2:'Honda Junior', kart3:'Birel Racing' };
+  const durLabel = selectedDur === 'day' ? 'день' : selectedDur + ' ч';
+  document.getElementById('price-line').textContent = (price * hours).toLocaleString('ru') + ' ₽';
+  document.getElementById('deposit-line').textContent = deposit.toLocaleString('ru') + ' ₽';
+  document.getElementById('total-line').textContent = total.toLocaleString('ru') + ' ₽';
+}
+
+function bookNow() {
+  showToast('✅ Бронь подтверждена! Приезжайте за 15 минут до заезда');
+  setTimeout(() => switchTab('vehicles'), 2000);
+}
+
+// Техника
+function showVehicleDetail(id) {
+  showToast('Детали техники: ' + id);
+}
+
+// Поделиться
+function shareOrg() {
+  document.getElementById('share-modal').style.display = 'flex';
+}
+function copyShareLink() {
+  const txt = document.getElementById('share-link').textContent;
+  navigator.clipboard?.writeText(txt).catch(() => {});
+  showToast('📋 Ссылка скопирована');
+}
+function shareToTg() {
+  showToast('Открываю Telegram...');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('app-toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+
+// Инициализация
+showRecords('senior', null);
+</script>
+</body>
+</html>

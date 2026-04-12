@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharecar Admin — Статистика машины</title>
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── Сетка карточек метрик ── */
+.metrics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.metric-card {
+  background:#151520; border:1px solid #2a2a3a; border-radius:12px;
+  padding:16px 18px; position:relative; overflow:hidden;
+}
+.metric-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+}
+.metric-card.blue::before   { background:linear-gradient(90deg,#4a9eff,#2a6eff); }
+.metric-card.green::before  { background:linear-gradient(90deg,#4caf7d,#2ecc71); }
+.metric-card.yellow::before { background:linear-gradient(90deg,#e8c84a,#f0a000); }
+.metric-card.red::before    { background:linear-gradient(90deg,#e05050,#c0392b); }
+.metric-card.purple::before { background:linear-gradient(90deg,#b08cff,#8c5fff); }
+.metric-card.teal::before   { background:linear-gradient(90deg,#4ab8c8,#2a8898); }
+.metric-card.orange::before { background:linear-gradient(90deg,#ff9050,#ff6020); }
+.metric-card.pink::before   { background:linear-gradient(90deg,#ff6eb0,#e0208a); }
+
+.metric-val { font-size:26px; font-weight:800; margin:6px 0 2px; line-height:1; }
+.metric-lbl { font-size:11px; color:#a0a0b0; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; }
+.metric-sub { font-size:11px; color:#666; margin-top:4px; }
+.metric-icon { position:absolute; right:14px; top:14px; font-size:22px; opacity:0.15; }
+.metric-delta { font-size:11px; font-weight:700; margin-top:4px; }
+.metric-delta.up { color:#4caf7d; }
+.metric-delta.down { color:#e05050; }
+
+/* ── Диаграммы ── */
+.charts-row { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:20px; }
+.chart-card {
+  background:#151520; border:1px solid #2a2a3a; border-radius:12px; padding:20px;
+}
+.chart-title { font-size:13px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.chart-title span { font-size:11px; color:#a0a0b0; font-weight:400; }
+
+/* ── Период фильтр ── */
+.period-bar {
+  display:flex; gap:4px; background:#0e0e18; border:1px solid #2a2a3a;
+  border-radius:10px; padding:4px; margin-bottom:20px; width:fit-content;
+}
+.period-btn {
+  padding:6px 14px; border:none; border-radius:7px; font-size:12px; font-weight:600;
+  cursor:pointer; background:transparent; color:#a0a0b0; transition:all 0.15s;
+}
+.period-btn.active { background:#e8c84a; color:#000; }
+
+/* ── Детальная таблица ── */
+.data-table { width:100%; border-collapse:collapse; font-size:12px; }
+.data-table th { background:#1a1a2a; color:#a0a0b0; font-weight:600; text-transform:uppercase; font-size:10px; letter-spacing:0.5px; padding:9px 12px; text-align:left; border-bottom:1px solid #2a2a3a; position:sticky; top:0; z-index:1; }
+.data-table td { padding:9px 12px; border-bottom:1px solid #1a1a28; }
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tr:hover td { background:rgba(255,255,255,0.02); }
+.data-table .boost-day { background:rgba(232,200,74,0.06); }
+.boost-pill { font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px; background:rgba(232,200,74,0.15); color:#e8c84a; border:1px solid rgba(232,200,74,0.3); white-space:nowrap; }
+.tbl-scroll { max-height:400px; overflow-y:auto; border-radius:10px; border:1px solid #2a2a3a; }
+
+/* ── Шапка машины ── */
+.car-header {
+  background:#151520; border:1px solid #2a2a3a; border-radius:12px;
+  padding:20px; margin-bottom:20px; display:flex; align-items:center; gap:16px;
+}
+.car-avatar { width:56px; height:56px; border-radius:12px; background:linear-gradient(135deg,#1a1a2a,#2a2a4a); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+.car-title { font-size:18px; font-weight:800; }
+.car-meta { font-size:12px; color:#a0a0b0; margin-top:4px; }
+.status-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:5px; }
+.status-published { background:rgba(76,175,125,0.15); color:#4caf7d; }
+.status-draft { background:rgba(160,160,176,0.15); color:#a0a0b0; }
+
+/* ── Сравнение ── */
+.compare-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+.mini-stat { text-align:center; padding:12px; background:#1a1a2a; border-radius:8px; }
+.mini-stat-val { font-size:20px; font-weight:800; }
+.mini-stat-lbl { font-size:10px; color:#a0a0b0; margin-top:2px; }
+
+/* responsive */
+@media(max-width:900px) {
+  .metrics-grid { grid-template-columns:repeat(2,1fr); }
+  .charts-row { grid-template-columns:1fr; }
+}
+@media(max-width:600px) {
+  .metrics-grid { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body class="admin-body">
+
+<!-- Sidebar -->
+<aside class="admin-sidebar" id="sidebar">
+  <div class="admin-sidebar-logo">
+    <div class="logo">Sharecar</div>
+    <div class="logo-sub">Admin Panel</div>
+  </div>
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Главное</div>
+    <a href="index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Дашборд</a>
+    <a href="users.html" class="admin-nav-item"><i class="fas fa-users"></i> Пользователи</a>
+    <a href="vehicles.html" class="admin-nav-item active"><i class="fas fa-car-side"></i> Машины</a>
+    <a href="requests.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Заявки</a>
+    <div class="admin-nav-section">Контроль</div>
+    <a href="moderation.html" class="admin-nav-item"><i class="fas fa-exclamation-triangle"></i> Жалобы и блок</a>
+    <a href="levels.html" class="admin-nav-item"><i class="fas fa-crown"></i> Уровни и VIP</a>
+    <a href="boosts.html" class="admin-nav-item"><i class="fas fa-rocket"></i> Бусты и продвижение</a>
+    <div class="admin-nav-section">Система</div>
+    <a href="settings.html" class="admin-nav-item"><i class="fas fa-cog"></i> Настройки</a>
+    <a href="../hub.html" class="admin-nav-item"><i class="fas fa-arrow-left"></i> К прототипу</a>
+  </nav>
+  <div class="admin-sidebar-footer">
+    <div class="admin-user"><i class="fas fa-user-shield"></i> Администратор</div>
+  </div>
+</aside>
+<div class="admin-sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div>
+      <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="toggleSidebar()" style="margin-right:12px;"><i class="fas fa-bars"></i></button>
+      <div class="admin-topbar-title" id="page-title">Статистика машины</div>
+      <div class="admin-topbar-subtitle" id="page-sub">Загрузка данных...</div>
+    </div>
+    <div class="admin-topbar-actions">
+      <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="exportCSV()"><i class="fas fa-download"></i> Экспорт CSV</button>
+      <a href="vehicles.html" class="admin-btn admin-btn-secondary admin-btn-sm"><i class="fas fa-arrow-left"></i> К списку</a>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- Шапка машины -->
+    <div class="car-header" id="car-header">
+      <div class="car-avatar" id="car-avatar">🏎</div>
+      <div style="flex:1;">
+        <div class="car-title" id="car-title">Загрузка...</div>
+        <div class="car-meta" id="car-meta"></div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;" id="car-badges"></div>
+      </div>
+      <a id="open-card-btn" href="#" target="_blank" class="admin-btn admin-btn-secondary admin-btn-sm" style="flex-shrink:0;">
+        <i class="fas fa-external-link-alt"></i> Открыть карточку
+      </a>
+    </div>
+
+    <!-- Фильтр периода -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div class="period-bar" id="period-bar">
+        <button class="period-btn" onclick="setPeriod(7)">7 дней</button>
+        <button class="period-btn active" onclick="setPeriod(14)">14 дней</button>
+        <button class="period-btn" onclick="setPeriod(30)">30 дней</button>
+        <button class="period-btn" onclick="setPeriod(0)">Всё время</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <label style="font-size:11px;color:#a0a0b0;">Период:</label>
+        <input type="date" id="date-from" style="background:#151520;border:1px solid #2a2a3a;border-radius:6px;color:#e0e0f0;padding:5px 8px;font-size:12px;">
+        <span style="color:#555;">—</span>
+        <input type="date" id="date-to" style="background:#151520;border:1px solid #2a2a3a;border-radius:6px;color:#e0e0f0;padding:5px 8px;font-size:12px;">
+        <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="applyCustomRange()">Применить</button>
+      </div>
+    </div>
+
+    <!-- Метрики -->
+    <div class="metrics-grid" id="metrics-grid">
+      <div class="metric-card blue">
+        <div class="metric-icon"><i class="fas fa-eye"></i></div>
+        <div class="metric-lbl">Просмотры</div>
+        <div class="metric-val" id="m-views">—</div>
+        <div class="metric-sub" id="m-views-sub">уникальных: —</div>
+        <div class="metric-delta" id="m-views-delta"></div>
+      </div>
+      <div class="metric-card green">
+        <div class="metric-icon"><i class="fas fa-paper-plane"></i></div>
+        <div class="metric-lbl">Заявки</div>
+        <div class="metric-val" id="m-requests">—</div>
+        <div class="metric-sub" id="m-requests-sub">одобр.: — / откл.: —</div>
+        <div class="metric-delta" id="m-requests-delta"></div>
+      </div>
+      <div class="metric-card yellow">
+        <div class="metric-icon"><i class="fas fa-heart"></i></div>
+        <div class="metric-lbl">Лайки</div>
+        <div class="metric-val" id="m-likes">—</div>
+        <div class="metric-sub">добавили в избранное</div>
+        <div class="metric-delta" id="m-likes-delta"></div>
+      </div>
+      <div class="metric-card purple">
+        <div class="metric-icon"><i class="fas fa-comment"></i></div>
+        <div class="metric-lbl">Сообщения</div>
+        <div class="metric-val" id="m-messages">—</div>
+        <div class="metric-sub">написали владельцу</div>
+        <div class="metric-delta" id="m-messages-delta"></div>
+      </div>
+      <div class="metric-card teal">
+        <div class="metric-icon"><i class="fas fa-share-alt"></i></div>
+        <div class="metric-lbl">Шаринг</div>
+        <div class="metric-val" id="m-shares">—</div>
+        <div class="metric-sub">скопировали ссылку</div>
+        <div class="metric-delta" id="m-shares-delta"></div>
+      </div>
+      <div class="metric-card orange">
+        <div class="metric-icon"><i class="fas fa-images"></i></div>
+        <div class="metric-lbl">Просм. фото</div>
+        <div class="metric-val" id="m-photos">—</div>
+        <div class="metric-sub">свайпов в галерее</div>
+        <div class="metric-delta" id="m-photos-delta"></div>
+      </div>
+      <div class="metric-card red">
+        <div class="metric-icon"><i class="fas fa-clock"></i></div>
+        <div class="metric-lbl">Ср. время на стр.</div>
+        <div class="metric-val" id="m-time">—</div>
+        <div class="metric-sub">секунд в среднем</div>
+        <div class="metric-delta" id="m-time-delta"></div>
+      </div>
+      <div class="metric-card pink">
+        <div class="metric-icon"><i class="fas fa-rocket"></i></div>
+        <div class="metric-lbl">Дней с бустом</div>
+        <div class="metric-val" id="m-boost-days">—</div>
+        <div class="metric-sub" id="m-boost-sub">из выбранного периода</div>
+        <div class="metric-delta" id="m-boost-delta"></div>
+      </div>
+    </div>
+
+    <!-- Конверсия -->
+    <div class="compare-row">
+      <div class="chart-card" style="padding:16px;">
+        <div class="chart-title">🎯 Воронка конверсии <span>за выбранный период</span></div>
+        <div style="display:flex;gap:0;align-items:flex-end;height:80px;margin-bottom:8px;" id="funnel-bars"></div>
+        <div style="display:flex;gap:0;" id="funnel-labels"></div>
+      </div>
+      <div class="chart-card" style="padding:16px;">
+        <div class="chart-title">📊 Буст vs Органика</div>
+        <div style="position:relative;height:120px;">
+          <canvas id="boost-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Основной график -->
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div class="chart-title" style="margin:0;">📈 Динамика по дням <span id="chart-period-label"></span></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="metric-toggles">
+          <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="toggleMetric('views',this)">👁 Просмотры</button>
+          <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="toggleMetric('requests',this)">📩 Заявки</button>
+          <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="toggleMetric('likes',this)">❤️ Лайки</button>
+          <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="toggleMetric('messages',this)">💬 Сообщения</button>
+        </div>
+      </div>
+      <div style="height:260px;">
+        <canvas id="main-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Детальная таблица -->
+    <div class="admin-card" style="padding:0;overflow:hidden;">
+      <div style="padding:16px 20px;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:14px;font-weight:700;">📋 Детальные данные по дням</div>
+        <div style="font-size:11px;color:#a0a0b0;">🟡 — дни с бустом</div>
+      </div>
+      <div class="tbl-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Просмотры</th>
+              <th>Уник.</th>
+              <th>Лайки</th>
+              <th>Заявки</th>
+              <th>✅ / ❌</th>
+              <th>Сообщ.</th>
+              <th>Шаринг</th>
+              <th>Фото</th>
+              <th>Ср. время</th>
+              <th>Буст</th>
+            </tr>
+          </thead>
+          <tbody id="detail-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div id="admin-toast" style="display:none;position:fixed;bottom:24px;right:24px;background:#1a1a2a;border:1px solid #2a2a3a;border-radius:10px;padding:12px 20px;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
+
+<script>
+// ── State ──
+let allStats = [];       // все строки из car_stats за весь период
+let filtered = [];       // отфильтрованные
+let carData = null;
+let currentPeriodDays = 14;
+let activeMetrics = ['views','requests'];
+let mainChart = null;
+let boostChart = null;
+
+const CHART_COLORS = {
+  views:    { border:'#4a9eff', bg:'rgba(74,158,255,0.15)' },
+  requests: { border:'#4caf7d', bg:'rgba(76,175,125,0.12)' },
+  likes:    { border:'#e8c84a', bg:'rgba(232,200,74,0.12)' },
+  messages: { border:'#b08cff', bg:'rgba(176,140,255,0.12)' },
+};
+const METRIC_KEYS = {
+  views: 'views', requests: 'requests', likes: 'likes', messages: 'messages'
+};
+
+// ── Sidebar ──
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('admin-toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// ── Init ──
+async function init() {
+  const params = new URLSearchParams(location.search);
+  const carId = params.get('car_id') || 'bmw-m3-001';
+
+  // Загружаем машину
+  await loadCarInfo(carId);
+  // Загружаем статистику
+  await loadStats(carId);
+  // Устанавливаем даты
+  setDefaultDates();
+  // Применяем период
+  applyPeriod(14);
+}
+
+async function loadCarInfo(carId) {
+  try {
+    // Пробуем загрузить из API
+    const r = await fetch('../tables/cars/' + carId);
+    if (r.ok) {
+      carData = await r.json();
+    }
+  } catch(e) {}
+
+  // Fallback — если нет или ошибка
+  if (!carData) {
+    carData = {
+      id: carId,
+      brand: 'BMW', model: 'M3 Competition', year: 2022,
+      power: 510, city: 'Москва', status: 'published',
+      classes: ['ring','drift'], owner_name: 'Алексей Петров',
+      photos: ['🏎']
+    };
+  }
+
+  document.getElementById('car-title').textContent = `${carData.brand} ${carData.model}`;
+  document.getElementById('car-meta').textContent =
+    `${carData.year || ''} · ${carData.city || ''} · ${carData.power ? carData.power + ' л.с.' : ''} · Владелец: ${carData.owner_name || '—'}`;
+
+  const photos = carData.photos;
+  if (photos && photos.length && !photos[0].startsWith('http')) {
+    document.getElementById('car-avatar').textContent = photos[0];
+  }
+
+  const statusEl = document.createElement('span');
+  statusEl.className = 'status-badge ' + (carData.status === 'published' ? 'status-published' : 'status-draft');
+  statusEl.innerHTML = carData.status === 'published' ? '✅ Опубликовано' : '📝 Черновик';
+  document.getElementById('car-badges').appendChild(statusEl);
+
+  (carData.classes || []).forEach(cls => {
+    const CLASS_ICONS = { ring:'🏁', drift:'💨', city:'🌆', offroad:'🏔', special:'🚜', sport:'🏆' };
+    const chip = document.createElement('span');
+    chip.className = 'status-badge';
+    chip.style.cssText = 'background:rgba(232,200,74,0.1);color:#e8c84a;border:1px solid rgba(232,200,74,0.25);';
+    chip.textContent = (CLASS_ICONS[cls] || '') + ' ' + cls;
+    document.getElementById('car-badges').appendChild(chip);
+  });
+
+  document.getElementById('open-card-btn').href = `../app/car-card.html?id=${carId}`;
+  document.getElementById('page-title').textContent = `${carData.brand} ${carData.model} — Статистика`;
+}
+
+async function loadStats(carId) {
+  try {
+    const r = await fetch(`../tables/car_stats?limit=200&sort=date`);
+    const j = await r.json();
+    // Фильтруем только по нашей машине
+    allStats = (j.data || [])
+      .filter(s => s.car_id === carId)
+      .sort((a, b) => a.date.localeCompare(b.date));
+  } catch(e) {
+    showToast('⚠️ Не удалось загрузить статистику: ' + e.message);
+    allStats = [];
+  }
+
+  if (!allStats.length) {
+    showToast('ℹ️ Нет данных для этой машины — показываем демо-данные');
+    allStats = generateMockStats(carId);
+  }
+}
+
+// Генерирует mock-данные если в API нет
+function generateMockStats(carId) {
+  const rows = [];
+  const today = new Date('2026-04-11');
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const boostDays = [13, 14, 2, 3, 4]; // i значения с бустом
+    const hasBoost = boostDays.includes(i);
+    const base = hasBoost ? Math.round(Math.random() * 40 + 60) : Math.round(Math.random() * 25 + 25);
+    rows.push({
+      car_id: carId, date: dateStr,
+      views: base, unique_views: Math.round(base * 0.78),
+      likes: Math.round(base * 0.17), requests: Math.round(base * 0.08),
+      requests_approved: Math.round(base * 0.05), requests_rejected: Math.round(base * 0.03),
+      messages: Math.round(base * 0.14), boost_active: hasBoost,
+      boost_plan: hasBoost ? '1 день — Топ' : '',
+      share_count: Math.round(base * 0.04), photo_views: Math.round(base * 0.45),
+      avg_time_sec: Math.round(Math.random() * 50 + 80)
+    });
+  }
+  return rows;
+}
+
+function setDefaultDates() {
+  const today = new Date();
+  const from = new Date(today);
+  from.setDate(from.getDate() - 14);
+  document.getElementById('date-to').value = today.toISOString().split('T')[0];
+  document.getElementById('date-from').value = from.toISOString().split('T')[0];
+}
+
+// ── Период ──
+function setPeriod(days) {
+  currentPeriodDays = days;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  applyPeriod(days);
+}
+
+function applyCustomRange() {
+  const from = document.getElementById('date-from').value;
+  const to   = document.getElementById('date-to').value;
+  if (!from || !to) return;
+  filtered = allStats.filter(s => s.date >= from && s.date <= to);
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  renderAll();
+}
+
+function applyPeriod(days) {
+  if (days === 0) {
+    filtered = [...allStats];
+  } else {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutStr = cutoff.toISOString().split('T')[0];
+    filtered = allStats.filter(s => s.date >= cutStr);
+  }
+  // Обновляем даты в инпутах
+  if (filtered.length) {
+    document.getElementById('date-from').value = filtered[0].date;
+    document.getElementById('date-to').value = filtered[filtered.length - 1].date;
+  }
+  renderAll();
+}
+
+// ── Render ──
+function renderAll() {
+  renderMetrics();
+  renderFunnel();
+  renderMainChart();
+  renderBoostChart();
+  renderTable();
+  document.getElementById('page-sub').textContent =
+    `Данных за период: ${filtered.length} дней · Всего записей: ${allStats.length}`;
+}
+
+function sum(key) { return filtered.reduce((a, s) => a + (s[key] || 0), 0); }
+function avg(key) {
+  const vals = filtered.filter(s => (s[key] || 0) > 0);
+  if (!vals.length) return 0;
+  return Math.round(vals.reduce((a, s) => a + (s[key] || 0), 0) / vals.length);
+}
+
+// Сравнение с предыдущим периодом
+function prevPeriodStats() {
+  if (!filtered.length) return null;
+  const days = filtered.length;
+  const from = filtered[0].date;
+  const prevTo = new Date(from);
+  prevTo.setDate(prevTo.getDate() - 1);
+  const prevFrom = new Date(prevTo);
+  prevFrom.setDate(prevFrom.getDate() - days + 1);
+  const pf = prevFrom.toISOString().split('T')[0];
+  const pt = prevTo.toISOString().split('T')[0];
+  return allStats.filter(s => s.date >= pf && s.date <= pt);
+}
+
+function deltaHtml(curr, prev, key) {
+  if (!prev || !prev.length) return '';
+  const pVal = prev.reduce((a, s) => a + (s[key] || 0), 0);
+  if (!pVal) return '';
+  const pct = Math.round((curr - pVal) / pVal * 100);
+  const cls = pct >= 0 ? 'up' : 'down';
+  const icon = pct >= 0 ? '▲' : '▼';
+  return `<div class="metric-delta ${cls}">${icon} ${Math.abs(pct)}% vs пред. период</div>`;
+}
+
+function renderMetrics() {
+  const prev = prevPeriodStats();
+
+  const views   = sum('views');
+  const uViews  = sum('unique_views');
+  const req     = sum('requests');
+  const reqA    = sum('requests_approved');
+  const reqR    = sum('requests_rejected');
+  const likes   = sum('likes');
+  const msgs    = sum('messages');
+  const shares  = sum('share_count');
+  const photos  = sum('photo_views');
+  const avgTime = avg('avg_time_sec');
+  const boostD  = filtered.filter(s => s.boost_active).length;
+
+  set('m-views', views.toLocaleString('ru'));
+  set('m-views-sub', `уникальных: ${uViews.toLocaleString('ru')}`);
+  setHTML('m-views-delta', deltaHtml(views, prev, 'views'));
+
+  set('m-requests', req);
+  set('m-requests-sub', `одобр.: ${reqA} / откл.: ${reqR}`);
+  setHTML('m-requests-delta', deltaHtml(req, prev, 'requests'));
+
+  set('m-likes', likes);
+  setHTML('m-likes-delta', deltaHtml(likes, prev, 'likes'));
+
+  set('m-messages', msgs);
+  setHTML('m-messages-delta', deltaHtml(msgs, prev, 'messages'));
+
+  set('m-shares', shares);
+  setHTML('m-shares-delta', deltaHtml(shares, prev, 'share_count'));
+
+  set('m-photos', photos.toLocaleString('ru'));
+  setHTML('m-photos-delta', deltaHtml(photos, prev, 'photo_views'));
+
+  set('m-time', avgTime + ' сек');
+  setHTML('m-time-delta', deltaHtml(avgTime, prev, 'avg_time_sec'));
+
+  set('m-boost-days', boostD);
+  set('m-boost-sub', `из ${filtered.length} дней периода`);
+  document.getElementById('m-boost-delta').className = 'metric-delta ' + (boostD > 0 ? 'up' : '');
+  document.getElementById('m-boost-delta').textContent = boostD > 0
+    ? `🚀 ${Math.round(boostD/filtered.length*100)}% времени в бусте` : '';
+
+  document.getElementById('chart-period-label').textContent =
+    `(${filtered.length} дней · ${views} просмотров итого)`;
+}
+
+function renderFunnel() {
+  const views   = sum('views') || 1;
+  const likes   = sum('likes');
+  const msgs    = sum('messages');
+  const reqs    = sum('requests');
+  const approved= sum('requests_approved');
+
+  const stages = [
+    { label: 'Просмотры', val: views,    color: '#4a9eff', pct: 100 },
+    { label: 'Лайки',     val: likes,    color: '#e8c84a', pct: Math.round(likes/views*100) },
+    { label: 'Написали',  val: msgs,     color: '#b08cff', pct: Math.round(msgs/views*100)  },
+    { label: 'Заявки',    val: reqs,     color: '#4caf7d', pct: Math.round(reqs/views*100)  },
+    { label: 'Одобрено',  val: approved, color: '#ff9050', pct: Math.round(approved/views*100) },
+  ];
+
+  const maxH = 72;
+  document.getElementById('funnel-bars').innerHTML = stages.map((s, i) => {
+    const h = Math.max(12, Math.round(s.pct / 100 * maxH));
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;padding:0 2px;">
+      <div style="font-size:10px;color:#a0a0b0;font-weight:700;">${s.val.toLocaleString('ru')}</div>
+      <div style="width:100%;height:${h}px;border-radius:4px 4px 0 0;background:${s.color}33;border:1px solid ${s.color}66;position:relative;">
+        <div style="position:absolute;bottom:0;left:0;right:0;height:${Math.round(h*0.4)}px;background:${s.color}66;border-radius:0 0 3px 3px;"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('funnel-labels').innerHTML = stages.map(s =>
+    `<div style="flex:1;text-align:center;font-size:9px;color:#a0a0b0;padding-top:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${s.label}<br><span style="color:#e0e0f0;font-weight:700;">${s.pct}%</span></div>`
+  ).join('');
+}
+
+function renderMainChart() {
+  const labels = filtered.map(s => {
+    const d = new Date(s.date);
+    return d.toLocaleDateString('ru', {day:'numeric', month:'short'});
+  });
+
+  const boostBg = filtered.map(s => s.boost_active ? 'rgba(232,200,74,0.07)' : 'transparent');
+
+  const datasets = activeMetrics.map(m => ({
+    label: { views:'Просмотры', requests:'Заявки', likes:'Лайки', messages:'Сообщения' }[m],
+    data: filtered.map(s => s[METRIC_KEYS[m]] || 0),
+    borderColor: CHART_COLORS[m].border,
+    backgroundColor: CHART_COLORS[m].bg,
+    borderWidth: 2,
+    pointRadius: 3,
+    pointHoverRadius: 5,
+    fill: true,
+    tension: 0.35,
+  }));
+
+  if (mainChart) mainChart.destroy();
+  const ctx = document.getElementById('main-chart').getContext('2d');
+  mainChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color:'#a0a0b0', font:{ size:11 } } },
+        tooltip: {
+          callbacks: {
+            afterBody: (items) => {
+              const idx = items[0].dataIndex;
+              const day = filtered[idx];
+              return day.boost_active ? [`🚀 Буст: ${day.boost_plan}`] : [];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid:{ color:'#1a1a28' }, ticks:{ color:'#666', font:{size:10} } },
+        y: { grid:{ color:'#1a1a28' }, ticks:{ color:'#666', font:{size:10} }, beginAtZero:true },
+      }
+    }
+  });
+}
+
+function renderBoostChart() {
+  const boostDays    = filtered.filter(s => s.boost_active);
+  const organicDays  = filtered.filter(s => !s.boost_active);
+  const boostViews   = boostDays.reduce((a,s)=>a+(s.views||0),0);
+  const organicViews = organicDays.reduce((a,s)=>a+(s.views||0),0);
+
+  if (boostChart) boostChart.destroy();
+  const ctx = document.getElementById('boost-chart').getContext('2d');
+  boostChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: [`🚀 Буст (${boostDays.length} дн.)`, `🌱 Органика (${organicDays.length} дн.)`],
+      datasets: [{
+        data: [boostViews || 0, organicViews || 0],
+        backgroundColor: ['rgba(232,200,74,0.7)', 'rgba(74,158,255,0.5)'],
+        borderColor: ['#e8c84a','#4a9eff'], borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position:'bottom', labels:{ color:'#a0a0b0', font:{size:10}, padding:8 } } },
+      cutout: '60%',
+    }
+  });
+}
+
+function renderTable() {
+  const tbody = document.getElementById('detail-tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:24px;color:#555;">Нет данных за период</td></tr>';
+    return;
+  }
+  tbody.innerHTML = [...filtered].reverse().map(s => {
+    const rowCls = s.boost_active ? 'boost-day' : '';
+    const cvr = s.views ? ((s.requests / s.views) * 100).toFixed(1) : '0.0';
+    const boostCell = s.boost_active
+      ? `<span class="boost-pill">🚀 ${s.boost_plan || 'Буст'}</span>`
+      : '<span style="color:#444;">—</span>';
+    const d = new Date(s.date);
+    const dateStr = d.toLocaleDateString('ru', {weekday:'short', day:'numeric', month:'short'});
+    return `<tr class="${rowCls}">
+      <td style="font-weight:600;white-space:nowrap;">${dateStr}</td>
+      <td><strong>${s.views || 0}</strong></td>
+      <td style="color:#a0a0b0;">${s.unique_views || 0}</td>
+      <td style="color:#e8c84a;">${s.likes || 0}</td>
+      <td style="color:#4caf7d;">${s.requests || 0} <span style="font-size:10px;color:#666;">(${cvr}%)</span></td>
+      <td style="font-size:11px;"><span style="color:#4caf7d;">✅${s.requests_approved||0}</span> / <span style="color:#e05050;">❌${s.requests_rejected||0}</span></td>
+      <td style="color:#b08cff;">${s.messages || 0}</td>
+      <td style="color:#4ab8c8;">${s.share_count || 0}</td>
+      <td>${s.photo_views || 0}</td>
+      <td>${s.avg_time_sec || 0}с</td>
+      <td>${boostCell}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Toggle metric on chart ──
+function toggleMetric(key, btn) {
+  if (activeMetrics.includes(key)) {
+    if (activeMetrics.length === 1) return; // минимум 1
+    activeMetrics = activeMetrics.filter(m => m !== key);
+    btn.className = 'admin-btn admin-btn-secondary admin-btn-sm';
+  } else {
+    activeMetrics.push(key);
+    btn.className = 'admin-btn admin-btn-primary admin-btn-sm';
+  }
+  renderMainChart();
+}
+
+// ── Helpers ──
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+function setHTML(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = val;
+}
+
+// ── Экспорт CSV ──
+function exportCSV() {
+  if (!filtered.length) { showToast('Нет данных для экспорта'); return; }
+  const headers = ['Дата','Просмотры','Уник. просмотры','Лайки','Заявки','Одобрено','Отклонено','Сообщения','Шаринг','Фото','Ср. время (сек)','Буст активен','План буста'];
+  const rows = filtered.map(s => [
+    s.date, s.views, s.unique_views, s.likes, s.requests, s.requests_approved,
+    s.requests_rejected, s.messages, s.share_count, s.photo_views, s.avg_time_sec,
+    s.boost_active ? 'Да' : 'Нет', s.boost_plan || ''
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `car-stats-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  showToast('✅ CSV экспортирован');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

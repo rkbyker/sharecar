@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f0f0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sharecar">
+  <title>Sharecar</title>
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    body {
+      margin: 0;
+      background: #0f0f0f;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .splash {
+      text-align: center;
+      animation: fadeIn .5s ease;
+    }
+    .logo { font-size: 42px; font-weight: 900; letter-spacing: -2px; color: #fff; }
+    .logo span { color: #f59e0b; }
+    .tagline { font-size: 15px; color: #555; margin-top: 8px; }
+    .spinner {
+      width: 32px; height: 32px; margin: 24px auto;
+      border: 3px solid #1a1a2e;
+      border-top-color: #f59e0b;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(.95); } to { opacity: 1; transform: scale(1); } }
+  </style>
+</head>
+<body>
+  <div class="splash">
+    <div class="logo">Share<span>car</span></div>
+    <div class="tagline">Экосистема автомобильного сообщества</div>
+    <div class="spinner"></div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    const supabase = createClient(
+      'https://ktqiyywdgokktiwavgbq.supabase.co',
+      'sb_publishable_UqkqWGlqU0Slw7a4azOoGg_l8E3vUYP'
+    );
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session) {
+      // Check if profile is complete (onboarding)
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile?.first_name) {
+        window.location.href = '/app/index.html';
+      } else {
+        window.location.href = '/app/onboarding.html';
+      }
+    } else {
+      window.location.href = '/app/auth.html';
+    }
+  </script>
+</body>
+</html>

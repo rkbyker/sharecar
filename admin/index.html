@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharecar Admin — Дашборд</title>
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+
+<!-- Sidebar -->
+<aside class="admin-sidebar" id="sidebar">
+  <div class="admin-sidebar-logo">
+    <div class="logo">Sharecar</div>
+    <div class="logo-sub">Admin Panel</div>
+  </div>
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Главное</div>
+    <a href="index.html" class="admin-nav-item active"><i class="fas fa-chart-line"></i> Дашборд</a>
+    <a href="users.html" class="admin-nav-item"><i class="fas fa-users"></i> Пользователи</a>
+    <a href="vehicles.html" class="admin-nav-item"><i class="fas fa-car-side"></i> Машины</a>
+    <a href="requests.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Заявки <span class="admin-nav-badge yellow">12</span></a>
+    <div class="admin-nav-section">Контроль</div>
+    <a href="moderation.html" class="admin-nav-item"><i class="fas fa-exclamation-triangle"></i> Жалобы и блок <span class="admin-nav-badge">3</span></a>
+    <a href="levels.html" class="admin-nav-item"><i class="fas fa-crown"></i> Уровни и VIP</a>
+    <a href="boosts.html" class="admin-nav-item"><i class="fas fa-rocket"></i> Бусты и продвижение</a>
+    <div class="admin-nav-section">Система</div>
+    <a href="settings.html" class="admin-nav-item"><i class="fas fa-cog"></i> Настройки</a>
+    <a href="../hub.html" class="admin-nav-item"><i class="fas fa-arrow-left"></i> К прототипу</a>
+  </nav>
+  <div class="admin-sidebar-footer">
+    <div class="admin-user"><i class="fas fa-user-shield"></i> Администратор</div>
+    <div>Sharecar Admin v1.0</div>
+  </div>
+</aside>
+
+<!-- Overlay -->
+<div class="admin-sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- Main -->
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div>
+      <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="toggleSidebar()" style="display:none;margin-right:12px;" id="menu-btn"><i class="fas fa-bars"></i></button>
+      <div class="admin-topbar-title">Дашборд</div>
+      <div class="admin-topbar-subtitle">Обзор активности · 7 апреля 2026</div>
+    </div>
+    <div class="admin-topbar-actions">
+      <a href="../app/index.html" class="admin-btn admin-btn-secondary admin-btn-sm"><i class="fas fa-mobile-alt"></i> Открыть App</a>
+      <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="showToast('Данные обновлены')"><i class="fas fa-sync"></i> Обновить</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    
+    <!-- Алерты -->
+    <div class="admin-alert admin-alert-warn">
+      <i class="fas fa-exclamation-triangle"></i>
+      <div><strong>3 новые жалобы</strong> ожидают рассмотрения. <a href="moderation.html" style="color:inherit;text-decoration:underline;">Перейти к модерации →</a></div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="admin-stats">
+      <div class="admin-stat admin-stat-good">
+        <div class="admin-stat-label">Пользователи</div>
+        <div class="admin-stat-value">1 247</div>
+        <div class="admin-stat-sub"><i class="fas fa-arrow-up"></i> +48 за неделю</div>
+      </div>
+      <div class="admin-stat admin-stat-good">
+        <div class="admin-stat-label">Машины в системе</div>
+        <div class="admin-stat-value">384</div>
+        <div class="admin-stat-sub"><i class="fas fa-arrow-up"></i> +21 за неделю</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-label">Заявки (месяц)</div>
+        <div class="admin-stat-value">2 891</div>
+        <div class="admin-stat-sub">Принято: 1 204 (41%)</div>
+      </div>
+      <div class="admin-stat admin-stat-good">
+        <div class="admin-stat-label">Завершено поездок</div>
+        <div class="admin-stat-value">748</div>
+        <div class="admin-stat-sub"><i class="fas fa-arrow-up"></i> +112 за месяц</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-label">VIP пользователи</div>
+        <div class="admin-stat-value">12</div>
+        <div class="admin-stat-sub">Назначено вручную</div>
+      </div>
+      <div class="admin-stat admin-stat-warn">
+        <div class="admin-stat-label">Жалобы в работе</div>
+        <div class="admin-stat-value">3</div>
+        <div class="admin-stat-sub">Требуют действий</div>
+      </div>
+      <div class="admin-stat admin-stat-good">
+        <div class="admin-stat-label">Подписок Pro</div>
+        <div class="admin-stat-value">89</div>
+        <div class="admin-stat-sub"><i class="fas fa-arrow-up"></i> +14 за месяц</div>
+      </div>
+      <div class="admin-stat admin-stat-bad">
+        <div class="admin-stat-label">Заблокировано</div>
+        <div class="admin-stat-value">7</div>
+        <div class="admin-stat-sub">3 — за нарушения</div>
+      </div>
+    </div>
+
+    <!-- Нижняя сетка -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      
+      <!-- Последние пользователи -->
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-title">Новые пользователи</div>
+          <a href="users.html" class="admin-btn admin-btn-secondary admin-btn-sm">Все →</a>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr><th>Пользователь</th><th>Уровень</th><th>Статус</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Александр К.</strong><br><span style="color:#555;font-size:11px;">alex_k · 5 мин назад</span></td>
+              <td><span class="status-pill" style="background:rgba(200,121,65,0.15);color:#c87941;">Bronze</span></td>
+              <td><span class="status-pill status-new">Новый</span></td>
+            </tr>
+            <tr>
+              <td><strong>Диана М.</strong><br><span style="color:#555;font-size:11px;">di_motor · 2 ч назад</span></td>
+              <td><span class="status-pill" style="background:rgba(144,168,192,0.15);color:#90a8c0;">Silver</span></td>
+              <td><span class="status-pill status-active">Активный</span></td>
+            </tr>
+            <tr>
+              <td><strong>Роман Ш.</strong><br><span style="color:#555;font-size:11px;">rom_sh · 5 ч назад</span></td>
+              <td><span class="status-pill" style="background:rgba(232,200,74,0.15);color:#e8c84a;">Gold</span></td>
+              <td><span class="status-pill status-active">Активный</span></td>
+            </tr>
+            <tr>
+              <td><strong>Ксения В.</strong><br><span style="color:#555;font-size:11px;">ksen_v · вчера</span></td>
+              <td><span class="status-pill" style="background:rgba(184,127,232,0.15);color:#b87fe8;">Premium</span></td>
+              <td><span class="status-pill status-active">Активный</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Лог активности -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title">Лог активности</div>
+          <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="refreshLog()"><i class="fas fa-sync"></i></button>
+        </div>
+        <div class="admin-card-body">
+          <div class="activity-log" id="activity-log">
+            <div class="activity-item">
+              <div class="activity-dot activity-dot-red"></div>
+              <div class="activity-content">
+                <div class="activity-text">Жалоба на торг: <strong>user_145</strong> в чате с <strong>alexm_bmw</strong></div>
+                <div class="activity-time">2 мин назад</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot activity-dot-green"></div>
+              <div class="activity-content">
+                <div class="activity-text">Поездка завершена: <strong>Porsche 911</strong> → <strong>roma_s</strong></div>
+                <div class="activity-time">15 мин назад</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot activity-dot-yellow"></div>
+              <div class="activity-content">
+                <div class="activity-text">Новая машина на модерации: <strong>BMW M3 2023</strong> от <strong>dimacar</strong></div>
+                <div class="activity-time">32 мин назад</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot activity-dot-blue"></div>
+              <div class="activity-content">
+                <div class="activity-text">Пользователь <strong>ksen_v</strong> купил подписку Premium</div>
+                <div class="activity-time">1 ч назад</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot activity-dot-green"></div>
+              <div class="activity-content">
+                <div class="activity-text">Добавлена новая машина: <strong>Mercedes AMG GT</strong></div>
+                <div class="activity-time">2 ч назад</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot activity-dot-red"></div>
+              <div class="activity-content">
+                <div class="activity-text">Пользователь <strong>bad_user99</strong> получил блокировку (торг)</div>
+                <div class="activity-time">3 ч назад</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot activity-dot-yellow"></div>
+              <div class="activity-content">
+                <div class="activity-text">VIP выдан: <strong>igor_premium</strong> назначен Администратором</div>
+                <div class="activity-time">5 ч назад</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Статистика машин по категориям -->
+    <div class="admin-card" style="margin-top:20px;">
+      <div class="admin-card-header">
+        <div class="admin-card-title">Машины по брендам — ТОП</div>
+        <a href="vehicles.html" class="admin-btn admin-btn-secondary admin-btn-sm">Все машины →</a>
+      </div>
+      <div class="admin-card-body">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+          <div style="text-align:center;padding:16px;background:#0f0f0f;border-radius:8px;">
+            <div style="font-size:22px;font-weight:700;color:#f0f0f0;">87</div>
+            <div style="font-size:12px;color:#666;margin-top:4px;">BMW</div>
+            <div style="margin-top:8px;"><div class="progress-bar"><div class="progress-fill" style="width:87%;background:#4a8fe8;"></div></div></div>
+          </div>
+          <div style="text-align:center;padding:16px;background:#0f0f0f;border-radius:8px;">
+            <div style="font-size:22px;font-weight:700;color:#f0f0f0;">74</div>
+            <div style="font-size:12px;color:#666;margin-top:4px;">Mercedes</div>
+            <div style="margin-top:8px;"><div class="progress-bar"><div class="progress-fill" style="width:74%;"></div></div></div>
+          </div>
+          <div style="text-align:center;padding:16px;background:#0f0f0f;border-radius:8px;">
+            <div style="font-size:22px;font-weight:700;color:#f0f0f0;">61</div>
+            <div style="font-size:12px;color:#666;margin-top:4px;">Audi</div>
+            <div style="margin-top:8px;"><div class="progress-bar"><div class="progress-fill" style="width:61%;background:#b87fe8;"></div></div></div>
+          </div>
+          <div style="text-align:center;padding:16px;background:#0f0f0f;border-radius:8px;">
+            <div style="font-size:22px;font-weight:700;color:#f0f0f0;">38</div>
+            <div style="font-size:12px;color:#666;margin-top:4px;">Porsche</div>
+            <div style="margin-top:8px;"><div class="progress-bar"><div class="progress-fill" style="width:38%;background:#e05050;"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Быстрые действия -->
+    <div class="admin-card" style="margin-top:20px;">
+      <div class="admin-card-header">
+        <div class="admin-card-title">Быстрые действия</div>
+      </div>
+      <div class="admin-card-body">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <a href="users.html" class="admin-btn admin-btn-secondary"><i class="fas fa-users"></i> Управлять пользователями</a>
+          <a href="moderation.html" class="admin-btn admin-btn-danger"><i class="fas fa-exclamation-triangle"></i> Рассмотреть жалобы (3)</a>
+          <a href="levels.html" class="admin-btn admin-btn-secondary"><i class="fas fa-crown"></i> Выдать VIP</a>
+          <a href="vehicles.html" class="admin-btn admin-btn-secondary"><i class="fas fa-car-side"></i> Машины на модерации</a>
+          <button class="admin-btn admin-btn-secondary" onclick="showSystemModal()"><i class="fas fa-bell"></i> Уведомление всем</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Модальное окно уведомления -->
+<div id="notify-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:#151515;border:1px solid #2a2a2a;border-radius:14px;padding:28px;width:100%;max-width:460px;margin:20px;">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:20px;color:#f0f0f0;">📢 Отправить уведомление</h3>
+    <div class="admin-form-group">
+      <label class="admin-label">Заголовок</label>
+      <input class="admin-input" type="text" placeholder="Важное обновление..." id="notif-title">
+    </div>
+    <div class="admin-form-group">
+      <label class="admin-label">Текст</label>
+      <textarea class="admin-input admin-textarea" placeholder="Текст сообщения для всех пользователей..." id="notif-text"></textarea>
+    </div>
+    <div class="admin-form-group">
+      <label class="admin-label">Получатели</label>
+      <select class="admin-input admin-select">
+        <option>Все пользователи (1 247)</option>
+        <option>Только владельцы машин (384)</option>
+        <option>VIP пользователи (12)</option>
+        <option>Premium подписка (89)</option>
+        <option>Заблокированные (7)</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="admin-btn admin-btn-secondary" onclick="closeModal()">Отмена</button>
+      <button class="admin-btn admin-btn-primary" onclick="sendNotification()"><i class="fas fa-paper-plane"></i> Отправить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="admin-toast" style="display:none;position:fixed;bottom:30px;right:30px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:12px 20px;color:#ccc;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.5);"></div>
+
+<script>
+function showToast(msg, type='info') {
+  const t = document.getElementById('admin-toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  t.style.borderLeftColor = type === 'ok' ? '#4caf7d' : type === 'err' ? '#e05050' : '#e8c84a';
+  t.style.borderLeftWidth = '3px';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+function showSystemModal() {
+  document.getElementById('notify-modal').style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('notify-modal').style.display = 'none';
+}
+function sendNotification() {
+  closeModal();
+  showToast('✅ Уведомление отправлено всем пользователям', 'ok');
+}
+function refreshLog() {
+  showToast('Лог обновлён');
+}
+// Мобильная кнопка меню
+if (window.innerWidth <= 900) {
+  document.getElementById('menu-btn').style.display = 'inline-flex';
+}
+</script>
+</body>
+</html>

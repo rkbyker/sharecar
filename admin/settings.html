@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharecar Admin — Настройки и инфраструктура</title>
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+
+<aside class="admin-sidebar" id="sidebar">
+  <div class="admin-sidebar-logo"><div class="logo">Sharecar</div><div class="logo-sub">Admin Panel</div></div>
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Главное</div>
+    <a href="index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Дашборд</a>
+    <a href="users.html" class="admin-nav-item"><i class="fas fa-users"></i> Пользователи</a>
+    <a href="vehicles.html" class="admin-nav-item"><i class="fas fa-car-side"></i> Машины</a>
+    <a href="requests.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Заявки</a>
+    <div class="admin-nav-section">Контроль</div>
+    <a href="moderation.html" class="admin-nav-item"><i class="fas fa-exclamation-triangle"></i> Жалобы и блок</a>
+    <a href="levels.html" class="admin-nav-item"><i class="fas fa-crown"></i> Уровни и VIP</a>
+    <a href="boosts.html" class="admin-nav-item"><i class="fas fa-rocket"></i> Бусты и продвижение</a>
+    <div class="admin-nav-section">Система</div>
+    <a href="settings.html" class="admin-nav-item active"><i class="fas fa-cog"></i> Настройки</a>
+    <a href="../hub.html" class="admin-nav-item"><i class="fas fa-arrow-left"></i> К прототипу</a>
+  </nav>
+</aside>
+<div class="admin-sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div>
+      <div class="admin-topbar-title">Настройки и инфраструктура</div>
+      <div class="admin-topbar-subtitle">Конфигурация платформы, российский хостинг, интеграции</div>
+    </div>
+    <div class="admin-topbar-actions">
+      <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="saveAllSettings()"><i class="fas fa-save"></i> Сохранить всё</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- Инфраструктура -->
+    <div class="admin-card" style="margin-bottom:24px;">
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-server" style="color:#4a8fe8;"></i> Российская инфраструктура</div>
+        <span class="status-pill status-active">Рекомендовано</span>
+      </div>
+      <div class="admin-card-body">
+        <div class="admin-alert admin-alert-info" style="margin-bottom:20px;">
+          <i class="fas fa-shield-alt"></i>
+          <div>
+            <strong>Почему российский стек?</strong> Избежать блокировок (как AWS, GCP). Соответствовать 149-ФЗ и 152-ФЗ (данные пользователей на территории РФ). Надёжная работа без VPN. Быстрые платёжные интеграции.
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+          
+          <!-- Яндекс Облако -->
+          <div style="background:#0f0f0f;border-radius:10px;padding:16px;border:1px solid #1a1a1a;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <div style="width:36px;height:36px;border-radius:8px;background:#1e2838;display:flex;align-items:center;justify-content:center;font-size:18px;">☁️</div>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#f0f0f0;">Яндекс Облако</div>
+                <div style="font-size:11px;color:#555;">yandex.cloud</div>
+              </div>
+              <span class="status-pill status-active" style="margin-left:auto;">✓ Рек.</span>
+            </div>
+            <div style="font-size:12px;color:#888;line-height:1.7;">
+              ✓ Compute Cloud (серверы)<br>
+              ✓ Object Storage (фото машин)<br>
+              ✓ Managed PostgreSQL<br>
+              ✓ API Gateway<br>
+              ✓ Push уведомления<br>
+              ✓ SpeechKit (голос)<br>
+              <strong style="color:#e8c84a;">Цена: от 5 000 ₽/мес.</strong>
+            </div>
+            <button class="admin-btn admin-btn-primary admin-btn-sm" style="margin-top:12px;width:100%;" onclick="showToast('Переход на Яндекс Облако')">Настроить</button>
+          </div>
+
+          <!-- VK Cloud -->
+          <div style="background:#0f0f0f;border-radius:10px;padding:16px;border:1px solid #1a1a1a;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <div style="width:36px;height:36px;border-radius:8px;background:#1e1e2a;display:flex;align-items:center;justify-content:center;font-size:18px;">🔵</div>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#f0f0f0;">VK Cloud</div>
+                <div style="font-size:11px;color:#555;">cloud.vk.com</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:#888;line-height:1.7;">
+              ✓ Облачные серверы<br>
+              ✓ S3-совместимый Storage<br>
+              ✓ PostgreSQL / Redis<br>
+              ✓ ML Platform<br>
+              ✓ Интеграция с VK ID<br>
+              <br>
+              <strong style="color:#4a8fe8;">Альтернатива Яндексу</strong>
+            </div>
+            <button class="admin-btn admin-btn-secondary admin-btn-sm" style="margin-top:12px;width:100%;" onclick="showToast('VK Cloud')">Выбрать</button>
+          </div>
+
+          <!-- Selectel -->
+          <div style="background:#0f0f0f;border-radius:10px;padding:16px;border:1px solid #1a1a1a;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <div style="width:36px;height:36px;border-radius:8px;background:#1a1a2a;display:flex;align-items:center;justify-content:center;font-size:18px;">🟣</div>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#f0f0f0;">Selectel</div>
+                <div style="font-size:11px;color:#555;">selectel.ru</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:#888;line-height:1.7;">
+              ✓ Dedicated серверы<br>
+              ✓ Object Storage<br>
+              ✓ Managed DB<br>
+              ✓ CDN по России<br>
+              ✓ Хорошая поддержка<br>
+              <br>
+              <strong style="color:#b87fe8;">Для production</strong>
+            </div>
+            <button class="admin-btn admin-btn-secondary admin-btn-sm" style="margin-top:12px;width:100%;" onclick="showToast('Selectel')">Выбрать</button>
+          </div>
+        </div>
+
+        <!-- Стек технологий -->
+        <h4 style="color:#888;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;">Рекомендованный технологический стек</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:#0f0f0f;border-radius:8px;padding:14px;border-left:3px solid #e8c84a;">
+            <div style="font-size:11px;color:#555;margin-bottom:8px;text-transform:uppercase;">Frontend / App</div>
+            <div style="font-size:13px;color:#ccc;line-height:2;">
+              <span class="badge badge-yellow">React Native</span>&nbsp;iOS + Android<br>
+              <span class="badge badge-yellow">Next.js</span>&nbsp;Web PWA<br>
+              <span class="badge badge-blue">Expo</span>&nbsp;Сборка<br>
+              <span class="badge badge-gray">Tailwind CSS</span>&nbsp;Стили
+            </div>
+          </div>
+          <div style="background:#0f0f0f;border-radius:8px;padding:14px;border-left:3px solid #4a8fe8;">
+            <div style="font-size:11px;color:#555;margin-bottom:8px;text-transform:uppercase;">Backend / Данные</div>
+            <div style="font-size:13px;color:#ccc;line-height:2;">
+              <span class="badge badge-blue">Node.js + Fastify</span>&nbsp;API<br>
+              <span class="badge badge-blue">PostgreSQL</span>&nbsp;База данных<br>
+              <span class="badge badge-blue">Redis</span>&nbsp;Кэш / сессии<br>
+              <span class="badge badge-gray">S3</span>&nbsp;Фото машин
+            </div>
+          </div>
+          <div style="background:#0f0f0f;border-radius:8px;padding:14px;border-left:3px solid #4caf7d;">
+            <div style="font-size:11px;color:#555;margin-bottom:8px;text-transform:uppercase;">Платежи (РФ)</div>
+            <div style="font-size:13px;color:#ccc;line-height:2;">
+              <span class="badge badge-green">ЮKassa</span>&nbsp;Основные<br>
+              <span class="badge badge-green">CloudPayments</span>&nbsp;Альтернатива<br>
+              <span class="badge badge-green">СБП</span>&nbsp;Переводы<br>
+              <span class="badge badge-gray">Тинькофф</span>&nbsp;Эквайринг
+            </div>
+          </div>
+          <div style="background:#0f0f0f;border-radius:8px;padding:14px;border-left:3px solid #b87fe8;">
+            <div style="font-size:11px;color:#555;margin-bottom:8px;text-transform:uppercase;">Коммуникации</div>
+            <div style="font-size:13px;color:#ccc;line-height:2;">
+              <span class="badge badge-premium">СБЕР Push</span>&nbsp;Уведомления<br>
+              <span class="badge badge-premium">Dadata</span>&nbsp;Адреса<br>
+              <span class="badge badge-premium">СМСРУ</span>&nbsp;SMS / OTP<br>
+              <span class="badge badge-gray">Яндекс Карты</span>&nbsp;Карты
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Настройки платформы -->
+    <div class="admin-card" style="margin-bottom:24px;">
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-sliders-h" style="color:#e8c84a;"></i> Настройки платформы</div>
+      </div>
+      <div class="admin-card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+          <div>
+            <div class="admin-form-group">
+              <label class="admin-label">Название платформы</label>
+              <input class="admin-input" type="text" value="Sharecar">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-label">Комиссия платформы с поездок (%)</label>
+              <input class="admin-input" type="number" value="15" id="commission">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-label">Мин. рейтинг для подачи заявки</label>
+              <input class="admin-input" type="number" value="0" step="0.1" id="min-rating">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-label">Начальный лимит бесплатных заявок</label>
+              <input class="admin-input" type="number" value="5" id="init-limit">
+            </div>
+          </div>
+          <div>
+            <h4 style="color:#888;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;">Правила поведения</h4>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Торг запрещён (авто-детекция)</div>
+                <div class="toggle-desc">Система отслеживает слова торга в чатах</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked id="antitrg"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Только владельцы за руль</div>
+                <div class="toggle-desc">За руль — только те, кто добавил машину</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked id="owner-only"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Разрешить пользователей без машины</div>
+                <div class="toggle-desc">Могут быть пассажирами, не могут за руль</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked id="no-car"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Модерация новых машин вручную</div>
+                <div class="toggle-desc">Каждое новое объявление проверяет модератор</div>
+              </div>
+              <label class="toggle"><input type="checkbox" checked id="manual-mod"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Подписки -->
+    <div class="admin-card" style="margin-bottom:24px;">
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-ruble-sign" style="color:#4caf7d;"></i> Тарифы подписок</div>
+      </div>
+      <div class="admin-card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+          <div style="background:#0f0f0f;border-radius:10px;padding:16px;">
+            <div style="font-size:13px;font-weight:700;color:#90a8c0;margin-bottom:12px;">Driver Silver+</div>
+            <div class="admin-form-group" style="margin-bottom:8px;">
+              <label class="admin-label">Цена в месяц (₽)</label>
+              <input class="admin-input admin-input-sm" type="number" value="299" style="padding:8px 12px;">
+            </div>
+            <div class="admin-form-group" style="margin-bottom:0;">
+              <label class="admin-label">Лимит заявок</label>
+              <input class="admin-input admin-input-sm" type="number" value="999" style="padding:8px 12px;">
+            </div>
+          </div>
+          <div style="background:#0f0f0f;border-radius:10px;padding:16px;">
+            <div style="font-size:13px;font-weight:700;color:#b87fe8;margin-bottom:12px;">Driver Premium</div>
+            <div class="admin-form-group" style="margin-bottom:8px;">
+              <label class="admin-label">Цена в месяц (₽)</label>
+              <input class="admin-input admin-input-sm" type="number" value="699" style="padding:8px 12px;">
+            </div>
+            <div class="admin-form-group" style="margin-bottom:0;">
+              <label class="admin-label">Лимит заявок</label>
+              <input class="admin-input admin-input-sm" type="text" value="∞" style="padding:8px 12px;">
+            </div>
+          </div>
+          <div style="background:#0f0f0f;border-radius:10px;padding:16px;">
+            <div style="font-size:13px;font-weight:700;color:#e8c84a;margin-bottom:12px;">Owner Pro</div>
+            <div class="admin-form-group" style="margin-bottom:8px;">
+              <label class="admin-label">Цена в месяц (₽)</label>
+              <input class="admin-input admin-input-sm" type="number" value="499" style="padding:8px 12px;">
+            </div>
+            <div class="admin-form-group" style="margin-bottom:0;">
+              <label class="admin-label">Буст в ленте</label>
+              <input class="admin-input admin-input-sm" type="text" value="×3" style="padding:8px 12px;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Законодательство РФ -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title"><i class="fas fa-balance-scale" style="color:#e8c84a;"></i> Законодательство РФ — чеклист</div>
+      </div>
+      <div class="admin-card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #111;">
+              <span style="color:#4caf7d;">✓</span>
+              <div><div style="font-size:13px;color:#ccc;font-weight:500;">152-ФЗ «О персональных данных»</div><div style="font-size:12px;color:#666;">Данные пользователей хранятся на серверах в РФ</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #111;">
+              <span style="color:#4caf7d;">✓</span>
+              <div><div style="font-size:13px;color:#ccc;font-weight:500;">149-ФЗ «Об информации»</div><div style="font-size:12px;color:#666;">Модерация контента, правила использования</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #111;">
+              <span style="color:#e8c84a;">⚠</span>
+              <div><div style="font-size:13px;color:#ccc;font-weight:500;">ПДД — ответственность за рулем</div><div style="font-size:12px;color:#666;">Юридически — не аренда, поездка с владельцем</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;">
+              <span style="color:#e8c84a;">⚠</span>
+              <div><div style="font-size:13px;color:#ccc;font-weight:500;">ОСАГО / КАСКО</div><div style="font-size:12px;color:#666;">Ответственность остаётся на владельце ТС</div></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #111;">
+              <span style="color:#4caf7d;">✓</span>
+              <div><div style="font-size:13px;color:#ccc;font-weight:500;">Платёжные данные — ФЗ-161</div><div style="font-size:12px;color:#666;">Только российские платёжные системы: ЮKassa, СБП</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #111;">
+              <span style="color:#4caf7d;">✓</span>
+              <div><div style="font-size:13px;color:#ccc;font-weight:500;">Реестр РКН</div><div style="font-size:12px;color:#666;">Уведомить РКН об обработке ПД</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #111;">
+              <span style="color:#e05050;">!</span>
+              <div><div style="font-size:13px;color:#ccc;font-weight:500;">Самозанятые / ИП для выплат</div><div style="font-size:12px;color:#666;">Нужна схема выплат владельцам — НПД или договор</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;">
+              <span style="color:#e8c84a;">⚠</span>
+              <div><div style="font-size:13px;color:#ccc;font-weight:500;">Оферта пользователя</div><div style="font-size:12px;color:#666;">Обязательна к разработке с юристом</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div id="admin-toast" style="display:none;position:fixed;bottom:30px;right:30px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:12px 20px;color:#ccc;font-size:13px;z-index:9999;border-left:3px solid #e8c84a;"></div>
+
+<script>
+function saveAllSettings() { showToast('✅ Настройки сохранены','ok'); }
+function showToast(msg, type) {
+  const t=document.getElementById('admin-toast');
+  t.textContent=msg; t.style.display='block';
+  t.style.borderLeft=type==='ok'?'3px solid #4caf7d':type==='err'?'3px solid #e05050':'3px solid #e8c84a';
+  setTimeout(()=>t.style.display='none',3000);
+}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+</script>
+</body>
+</html>

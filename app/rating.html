@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#0f0f0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Sharecar — Рейтинг</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    body { background: #0f0f0f; padding-bottom: 80px; }
+
+    .top-bar {
+      display: flex; align-items: center; justify-content: center;
+      padding: 14px 16px; position: sticky; top: 0; background: #0f0f0f; z-index: 100;
+      border-bottom: 1px solid #1e1e3a;
+    }
+    .logo { font-size: 18px; font-weight: 800; }
+    .logo span { color: #f59e0b; }
+
+    /* Main tabs */
+    .main-tabs {
+      display: flex; background: #141428;
+      border-bottom: 1px solid #1e1e3a;
+    }
+    .main-tab {
+      flex: 1; padding: 12px 6px; text-align: center;
+      font-size: 13px; font-weight: 600; color: #555;
+      cursor: pointer; border-bottom: 2px solid transparent;
+      transition: all .2s;
+    }
+    .main-tab.active { color: #f59e0b; border-bottom-color: #f59e0b; }
+
+    /* Podium */
+    .podium {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 8px; padding: 20px 16px 16px;
+    }
+    .podium-item { text-align: center; flex: 1; }
+    .podium-avatar {
+      margin: 0 auto 6px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700;
+    }
+    .podium-place { font-size: 18px; margin-bottom: 4px; }
+    .podium-name { font-size: 12px; font-weight: 600; color: #ccc; }
+    .podium-pts { font-size: 13px; font-weight: 700; color: #f59e0b; }
+    .podium-item.first .podium-avatar { width: 68px; height: 68px; }
+    .podium-item.second .podium-avatar, .podium-item.third .podium-avatar { width: 52px; height: 52px; }
+    .podium-item.first { order: 2; }
+    .podium-item.second { order: 1; }
+    .podium-item.third { order: 3; }
+
+    /* Search */
+    .search-wrap {
+      padding: 0 14px 12px;
+    }
+    .search-input {
+      width: 100%; background: #141428; border: 1px solid #2a2a4a;
+      border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 14px;
+      outline: none; box-sizing: border-box;
+    }
+    .search-input:focus { border-color: #f59e0b; }
+
+    /* Sort tabs */
+    .sort-tabs {
+      display: flex; overflow-x: auto; scrollbar-width: none;
+      padding: 0 14px 10px; gap: 8px;
+    }
+    .sort-tabs::-webkit-scrollbar { display: none; }
+    .sort-chip {
+      flex-shrink: 0; padding: 5px 12px;
+      background: transparent; border: 1px solid #2a2a4a;
+      border-radius: 14px; color: #666; font-size: 12px; cursor: pointer;
+    }
+    .sort-chip.active { border-color: #f59e0b; color: #f59e0b; }
+
+    /* Table */
+    .rating-table { width: 100%; padding: 0 14px; }
+    .rt-row {
+      display: flex; align-items: center; gap: 10px;
+      background: #141428; border-radius: 10px; padding: 10px 12px;
+      margin-bottom: 8px; border: 1px solid #1e1e3a;
+      cursor: pointer; transition: border-color .15s;
+    }
+    .rt-row:hover { border-color: #f59e0b30; }
+    .rt-row.me { border-color: #f59e0b; background: rgba(245,158,11,.05); }
+    .rt-rank { font-size: 16px; font-weight: 700; width: 28px; text-align: center; flex-shrink: 0; }
+    .rt-rank.gold { color: #ffd700; }
+    .rt-rank.silver { color: #a8a9ad; }
+    .rt-rank.bronze { color: #cd7f32; }
+    .rt-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; flex-shrink: 0; overflow: hidden;
+    }
+    .rt-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .rt-info { flex: 1; min-width: 0; }
+    .rt-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rt-meta { font-size: 11px; color: #666; margin-top: 2px; }
+    .rt-pts { font-size: 18px; font-weight: 800; color: #f59e0b; flex-shrink: 0; }
+
+    /* Sport section */
+    .sport-controls {
+      padding: 12px 14px; display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .sport-select {
+      flex: 1; background: #141428; border: 1px solid #2a2a4a;
+      border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 13px;
+      outline: none; min-width: 140px;
+    }
+
+    /* RSKG info */
+    .rskg-info {
+      margin: 0 14px 12px;
+      background: #141428; border-radius: 10px; padding: 10px 14px;
+      border: 1px solid #1e1e3a;
+    }
+    .rskg-title { font-size: 12px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .rskg-pts { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rskg-p { font-size: 11px; color: #ccc; }
+    .rskg-p span { color: #f59e0b; font-weight: 700; }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0f0f0f; border-top: 1px solid #1e1e3a;
+      display: flex; z-index: 100;
+    }
+    .nav-btn {
+      flex: 1; padding: 10px 0 12px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; color: #555; font-size: 10px;
+      cursor: pointer; border: none; background: none;
+    }
+    .nav-btn i { font-size: 20px; }
+    .nav-btn.active { color: #f59e0b; }
+
+    .loader-wrap { text-align: center; padding: 40px; color: #555; }
+    .loader-wrap i { font-size: 28px; animation: spin .8s linear infinite; color: #f59e0b; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: #555; }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+
+    /* Hidden tabs */
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+
+    /* My rank bar */
+    .my-rank-bar {
+      margin: 0 14px 10px;
+      background: linear-gradient(90deg, #1a1a2e, #1e1e3e);
+      border: 1px solid #f59e0b30; border-radius: 10px; padding: 10px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .my-rank-label { font-size: 12px; color: #888; }
+    .my-rank-val { font-size: 18px; font-weight: 700; color: #f59e0b; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="logo">Share<span>car</span> — Рейтинг</div>
+  </div>
+
+  <!-- Main tabs -->
+  <div class="main-tabs">
+    <div class="main-tab active" onclick="switchMain('drivers')">🚗 Водители</div>
+    <div class="main-tab" onclick="switchMain('passengers')">👥 Пассажиры</div>
+    <div class="main-tab" onclick="switchMain('sport')">🏁 Спорт</div>
+  </div>
+
+  <!-- DRIVERS TAB -->
+  <div class="tab-section active" id="sec-drivers">
+    <div class="podium" id="drivers-podium">
+      <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+    </div>
+    <div class="my-rank-bar" id="my-rank-drivers" style="display:none;">
+      <div>
+        <div class="my-rank-label">Вы в рейтинге</div>
+        <div class="my-rank-val" id="my-rank-d">#—</div>
+      </div>
+      <div style="flex:1;text-align:right;font-size:13px;color:#aaa;" id="my-pts-d">— очков</div>
+    </div>
+    <div class="sort-tabs" id="d-sort-tabs">
+      <div class="sort-chip active" data-sort="score" onclick="setDriverSort('score', this)">Очки</div>
+      <div class="sort-chip" data-sort="trips_driven" onclick="setDriverSort('trips_driven', this)">Поездок</div>
+      <div class="sort-chip" data-sort="rating_driver" onclick="setDriverSort('rating_driver', this)">Рейтинг ★</div>
+    </div>
+    <div class="search-wrap">
+      <input class="search-input" placeholder="Поиск водителя..." oninput="filterDrivers(this.value)">
+    </div>
+    <div class="rating-table" id="drivers-table">
+      <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+    </div>
+  </div>
+
+  <!-- PASSENGERS TAB -->
+  <div class="tab-section" id="sec-passengers">
+    <div class="podium" id="passengers-podium">
+      <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+    </div>
+    <div class="my-rank-bar" id="my-rank-passengers" style="display:none;">
+      <div>
+        <div class="my-rank-label">Вы в рейтинге</div>
+        <div class="my-rank-val" id="my-rank-p">#—</div>
+      </div>
+      <div style="flex:1;text-align:right;font-size:13px;color:#aaa;" id="my-pts-p">— очков</div>
+    </div>
+    <div class="sort-tabs">
+      <div class="sort-chip active" data-sort="score" onclick="setPassSort('score', this)">Очки</div>
+      <div class="sort-chip" data-sort="trips_rode" onclick="setPassSort('trips_rode', this)">Поездок</div>
+      <div class="sort-chip" data-sort="rating_passenger" onclick="setPassSort('rating_passenger', this)">Рейтинг ★</div>
+    </div>
+    <div class="search-wrap">
+      <input class="search-input" placeholder="Поиск пассажира..." oninput="filterPassengers(this.value)">
+    </div>
+    <div class="rating-table" id="passengers-table">
+      <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+    </div>
+  </div>
+
+  <!-- SPORT TAB -->
+  <div class="tab-section" id="sec-sport">
+    <div class="sport-controls">
+      <select class="sport-select" id="track-select" onchange="loadSport()">
+        <option value="all">Все трассы</option>
+      </select>
+      <select class="sport-select" id="category-select" onchange="loadSport()">
+        <option value="all">Все категории</option>
+        <option value="karting">🏎 Картинг</option>
+        <option value="circuit">🏁 Кольцо</option>
+        <option value="drag">💨 Драг</option>
+      </select>
+    </div>
+    <div class="rskg-info">
+      <div class="rskg-title">Система очков RSKG</div>
+      <div class="rskg-pts">
+        <div class="rskg-p">1м: <span>25</span></div>
+        <div class="rskg-p">2м: <span>18</span></div>
+        <div class="rskg-p">3м: <span>15</span></div>
+        <div class="rskg-p">4м: <span>12</span></div>
+        <div class="rskg-p">5м: <span>10</span></div>
+        <div class="rskg-p">6м: <span>8</span></div>
+        <div class="rskg-p">7м: <span>6</span></div>
+        <div class="rskg-p">8м: <span>4</span></div>
+        <div class="rskg-p">9м: <span>2</span></div>
+        <div class="rskg-p">10м: <span>1</span></div>
+      </div>
+    </div>
+    <div class="sort-tabs">
+      <div class="sort-chip active" onclick="setSportSort('points', this)">Очки</div>
+      <div class="sort-chip" onclick="setSportSort('lap_time_ms', this)">Лучшее время</div>
+      <div class="sort-chip" onclick="setSportSort('runs', this)">Заездов</div>
+    </div>
+    <div class="rating-table" id="sport-table">
+      <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="goPage('index.html')"><i class="fa fa-home"></i>Лента</button>
+    <button class="nav-btn" onclick="goPage('partners.html')"><i class="fa fa-handshake"></i>Партнёры</button>
+    <button class="nav-btn active"><i class="fa fa-trophy"></i>Рейтинг</button>
+    <button class="nav-btn" onclick="goPage('profile.html')"><i class="fa fa-user"></i>Профиль</button>
+  </nav>
+
+  <div id="global-toast"></div>
+
+  <script type="module">
+    import { supabase, showToast } from '../js/supabase.js';
+
+    let currentUser = null;
+    let driversAll = [], passengersAll = [], sportAll = [];
+    let driverSort = 'score', passSort = 'score', sportSort = 'points';
+
+    window.switchMain = switchMain;
+    window.setDriverSort = setDriverSort;
+    window.setPassSort = setPassSort;
+    window.setSportSort = setSportSort;
+    window.filterDrivers = filterDrivers;
+    window.filterPassengers = filterPassengers;
+    window.loadSport = loadSport;
+    window.goPage = (p) => window.location.href = p;
+
+    const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
+
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { window.location.href = '/app/auth.html'; return; }
+      currentUser = session.user;
+
+      await Promise.all([loadDrivers(), loadPassengers(), loadTracks()]);
+      loadSport();
+    }
+
+    // ── Drivers ───────────────────────────────────────────────────────────────
+    async function loadDrivers() {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, level, city, score, rating_driver, trips_driven, avatar_url')
+        .order('score', { ascending: false })
+        .limit(50);
+
+      driversAll = data || [];
+      renderDrivers(driversAll);
+
+      // My rank
+      if (currentUser) {
+        const myIdx = driversAll.findIndex(p => p.id === currentUser.id);
+        if (myIdx >= 0) {
+          const me = driversAll[myIdx];
+          document.getElementById('my-rank-drivers').style.display = 'flex';
+          document.getElementById('my-rank-d').textContent = `#${myIdx + 1}`;
+          document.getElementById('my-pts-d').textContent = `${me.score || 0} очков`;
+        }
+      }
+    }
+
+    function renderDrivers(arr) {
+      const sorted = [...arr].sort((a, b) => (b[driverSort] || 0) - (a[driverSort] || 0));
+      renderPodium('drivers-podium', sorted.slice(0, 3));
+      renderTable('drivers-table', sorted, 'driver');
+    }
+
+    function setDriverSort(sort, el) {
+      driverSort = sort;
+      document.querySelectorAll('#d-sort-tabs .sort-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderDrivers(driversAll);
+    }
+
+    function filterDrivers(q) {
+      const filtered = q
+        ? driversAll.filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(q.toLowerCase()))
+        : driversAll;
+      renderTable('drivers-table', filtered, 'driver');
+    }
+
+    // ── Passengers ────────────────────────────────────────────────────────────
+    async function loadPassengers() {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, level, city, score, rating_passenger, trips_rode, avatar_url')
+        .order('trips_rode', { ascending: false })
+        .limit(50);
+
+      passengersAll = data || [];
+      renderPassengers(passengersAll);
+
+      if (currentUser) {
+        const myIdx = passengersAll.findIndex(p => p.id === currentUser.id);
+        if (myIdx >= 0) {
+          const me = passengersAll[myIdx];
+          document.getElementById('my-rank-passengers').style.display = 'flex';
+          document.getElementById('my-rank-p').textContent = `#${myIdx + 1}`;
+          document.getElementById('my-pts-p').textContent = `${me.trips_rode || 0} поездок`;
+        }
+      }
+    }
+
+    function renderPassengers(arr) {
+      const sorted = [...arr].sort((a, b) => (b[passSort] || 0) - (a[passSort] || 0));
+      renderPodium('passengers-podium', sorted.slice(0, 3));
+      renderTable('passengers-table', sorted, 'passenger');
+    }
+
+    function setPassSort(sort, el) {
+      passSort = sort;
+      document.querySelectorAll('#sec-passengers .sort-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderPassengers(passengersAll);
+    }
+
+    function filterPassengers(q) {
+      const filtered = q
+        ? passengersAll.filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(q.toLowerCase()))
+        : passengersAll;
+      renderTable('passengers-table', filtered, 'passenger');
+    }
+
+    // ── Sport ─────────────────────────────────────────────────────────────────
+    async function loadTracks() {
+      const { data: tracks } = await supabase
+        .from('racing_tracks')
+        .select('id, name, category')
+        .eq('active', true);
+      if (!tracks) return;
+      const sel = document.getElementById('track-select');
+      tracks.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    async function loadSport() {
+      document.getElementById('sport-table').innerHTML = '<div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>';
+
+      const trackId = document.getElementById('track-select').value;
+      const category = document.getElementById('category-select').value;
+
+      let query = supabase
+        .from('racing_results')
+        .select(`
+          *,
+          profiles:user_id(id, first_name, last_name, level, avatar_url),
+          racing_tracks(name, category)
+        `);
+
+      if (trackId !== 'all') query = query.eq('track_id', trackId);
+
+      const { data: results } = await query.limit(200);
+      if (!results) { document.getElementById('sport-table').innerHTML = '<div class="empty-state"><div class="icon">🏁</div>Нет результатов</div>'; return; }
+
+      // Filter by category
+      let filtered = results;
+      if (category !== 'all') {
+        filtered = results.filter(r => r.racing_tracks?.category === category);
+      }
+
+      // Aggregate by user
+      const byUser = {};
+      filtered.forEach(r => {
+        const uid = r.user_id;
+        if (!byUser[uid]) byUser[uid] = { user: r.profiles, totalPts: 0, runs: 0, bestTime: Infinity };
+        byUser[uid].totalPts += r.points || 0;
+        byUser[uid].runs += 1;
+        if (r.lap_time_ms && r.lap_time_ms < byUser[uid].bestTime) byUser[uid].bestTime = r.lap_time_ms;
+      });
+
+      let aggArr = Object.values(byUser);
+
+      // Sort
+      if (sportSort === 'points') aggArr.sort((a, b) => b.totalPts - a.totalPts);
+      else if (sportSort === 'lap_time_ms') aggArr.sort((a, b) => (a.bestTime || 99999) - (b.bestTime || 99999));
+      else if (sportSort === 'runs') aggArr.sort((a, b) => b.runs - a.runs);
+
+      sportAll = aggArr;
+      renderSportTable(aggArr);
+    }
+
+    function setSportSort(sort, el) {
+      sportSort = sort;
+      document.querySelectorAll('#sec-sport .sort-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      if (sportAll.length) renderSportTable(sportAll);
+    }
+
+    function fmtLap(ms) {
+      if (!ms || ms === Infinity) return '—';
+      const m = Math.floor(ms / 60000);
+      const s = Math.floor((ms % 60000) / 1000);
+      const mss = Math.floor((ms % 1000) / 10);
+      return `${m}:${String(s).padStart(2,'0')}.${String(mss).padStart(2,'0')}`;
+    }
+
+    function renderSportTable(arr) {
+      const container = document.getElementById('sport-table');
+      if (!arr.length) {
+        container.innerHTML = '<div class="empty-state"><div class="icon">🏁</div>Нет результатов</div>';
+        return;
+      }
+      container.innerHTML = arr.slice(0, 50).map((item, i) => {
+        const u = item.user || {};
+        const name = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Гонщик';
+        const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+        const lvlColor = LEVEL_COLORS[u.level] || '#888';
+        const isMe = currentUser && u.id === currentUser.id;
+        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+        const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+        return `
+          <div class="rt-row${isMe ? ' me' : ''}">
+            <div class="rt-rank ${rankClass}">${rankIcon || (i + 1)}</div>
+            <div class="rt-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};">
+              ${u.avatar_url ? `<img src="${u.avatar_url}" alt="${name}">` : `<span style="color:${lvlColor};">${initials}</span>`}
+            </div>
+            <div class="rt-info">
+              <div class="rt-name">${name} ${isMe ? '(вы)' : ''}</div>
+              <div class="rt-meta">Заездов: ${item.runs} · Лучшее: ${fmtLap(item.bestTime)}</div>
+            </div>
+            <div class="rt-pts">${item.totalPts}</div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Common render helpers ─────────────────────────────────────────────────
+    function renderPodium(containerId, top3) {
+      const container = document.getElementById(containerId);
+      if (!top3.length) { container.innerHTML = '<div class="empty-state">Нет данных</div>'; return; }
+
+      const PLACES = [
+        { cls: 'first',  icon: '🥇', size: 68, order: 2 },
+        { cls: 'second', icon: '🥈', size: 52, order: 1 },
+        { cls: 'third',  icon: '🥉', size: 52, order: 3 },
+      ];
+
+      container.innerHTML = top3.map((p, i) => {
+        const pl = PLACES[i];
+        const name = `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Пользователь';
+        const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+        const lvlColor = LEVEL_COLORS[p.level] || '#888';
+        const pts = p.score || p.trips_drove || p.totalPts || 0;
+        return `
+          <div class="podium-item ${pl.cls}" style="order:${pl.order}">
+            <div class="podium-place">${pl.icon}</div>
+            <div class="podium-avatar" style="width:${pl.size}px;height:${pl.size}px;background:${lvlColor}20;border:2px solid ${lvlColor};">
+              ${p.avatar_url ? `<img src="${p.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : `<span style="color:${lvlColor};">${initials}</span>`}
+            </div>
+            <div class="podium-name">${name.split(' ')[0]}</div>
+            <div class="podium-pts">${pts} оч.</div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderTable(containerId, arr, type) {
+      const container = document.getElementById(containerId);
+      if (!arr.length) {
+        container.innerHTML = '<div class="empty-state"><div class="icon">👤</div>Нет пользователей</div>';
+        return;
+      }
+
+      container.innerHTML = arr.slice(0, 50).map((p, i) => {
+        const name = `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Пользователь';
+        const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+        const lvlColor = LEVEL_COLORS[p.level] || '#888';
+        const isMe = currentUser && p.id === currentUser.id;
+        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+        const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+        const pts = type === 'driver' ? (p.score || 0) : (p.trips_rode || 0);
+        const meta = type === 'driver'
+          ? `${p.trips_driven || 0} поездок · ★ ${(p.rating_driver || 5).toFixed(1)}`
+          : `${p.trips_rode || 0} пассажиром · ★ ${(p.rating_passenger || 5).toFixed(1)}`;
+        return `
+          <div class="rt-row${isMe ? ' me' : ''}">
+            <div class="rt-rank ${rankClass}">${rankIcon || (i + 1)}</div>
+            <div class="rt-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};">
+              ${p.avatar_url ? `<img src="${p.avatar_url}" alt="${name}">` : `<span style="color:${lvlColor};">${initials}</span>`}
+            </div>
+            <div class="rt-info">
+              <div class="rt-name">${name} ${isMe ? '(вы)' : ''}</div>
+              <div class="rt-meta">${meta} · ${p.city || ''}</div>
+            </div>
+            <div class="rt-pts">${pts}</div>
+          </div>`;
+      }).join('');
+    }
+
+    function switchMain(tab) {
+      document.querySelectorAll('.main-tab').forEach((t, i) => {
+        const tabs = ['drivers', 'passengers', 'sport'];
+        t.classList.toggle('active', tabs[i] === tab);
+      });
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`sec-${tab}`).classList.add('active');
+    }
+
+    init();
+  </script>
+</body>
+</html>

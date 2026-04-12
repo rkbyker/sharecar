@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#0f0f0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Sharecar — Чат</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    body { background: #0f0f0f; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    /* Top bar */
+    .chat-top {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; border-bottom: 1px solid #1e1e3a;
+      background: #0f0f0f; flex-shrink: 0;
+    }
+    .back-btn {
+      width: 36px; height: 36px; background: #1a1a2e; border: none;
+      border-radius: 10px; color: #aaa; cursor: pointer; font-size: 16px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .chat-info { flex: 1; min-width: 0; }
+    .chat-title { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chat-meta { font-size: 12px; color: #888; }
+    .chat-status-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #22c55e;
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    /* Request info bar */
+    .req-bar {
+      background: #141428; padding: 10px 14px;
+      border-bottom: 1px solid #1e1e3a; flex-shrink: 0;
+    }
+    .req-bar-inner { display: flex; justify-content: space-between; align-items: center; }
+    .req-car { font-size: 14px; font-weight: 600; }
+    .req-price { font-size: 16px; font-weight: 700; color: #f59e0b; }
+    .req-status-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 6px;
+      font-size: 12px; font-weight: 600; margin-top: 4px;
+    }
+
+    /* Messages */
+    .messages-wrap {
+      flex: 1; overflow-y: auto; padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .msg-bubble {
+      max-width: 80%; word-break: break-word;
+    }
+    .msg-bubble.outgoing { align-self: flex-end; }
+    .msg-bubble.incoming { align-self: flex-start; }
+    .msg-bubble.system { align-self: center; max-width: 90%; }
+
+    .bubble-body {
+      padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5;
+    }
+    .outgoing .bubble-body {
+      background: #f59e0b; color: #000; border-bottom-right-radius: 4px;
+    }
+    .incoming .bubble-body {
+      background: #1a1a2e; color: #fff; border-bottom-left-radius: 4px;
+    }
+    .system .bubble-body {
+      background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3);
+      color: #93c5fd; text-align: center; font-size: 13px; border-radius: 10px;
+    }
+    .msg-time { font-size: 10px; color: #555; margin-top: 3px; padding: 0 4px; }
+    .outgoing .msg-time { text-align: right; }
+
+    /* Typing indicator */
+    .typing { align-self: flex-start; }
+    .typing .bubble-body { background: #1a1a2e; padding: 12px 16px; }
+    .typing-dots span {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: #888; margin: 0 2px;
+      animation: bounce .8s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: .15s; }
+    .typing-dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+    /* Input area */
+    .chat-input-wrap {
+      padding: 10px 12px; border-top: 1px solid #1e1e3a;
+      background: #0f0f0f; flex-shrink: 0;
+    }
+    .quick-replies {
+      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+      margin-bottom: 8px;
+    }
+    .quick-replies::-webkit-scrollbar { display: none; }
+    .qr-btn {
+      flex-shrink: 0; padding: 6px 12px;
+      background: #1a1a2e; border: 1px solid #2a2a4a;
+      border-radius: 16px; color: #ccc; font-size: 12px;
+      cursor: pointer; white-space: nowrap;
+    }
+    .chat-row { display: flex; gap: 8px; align-items: flex-end; }
+    .chat-textarea {
+      flex: 1; background: #1a1a2e; border: 1px solid #2a2a4a;
+      border-radius: 12px; padding: 10px 14px; color: #fff;
+      font-size: 15px; resize: none; outline: none;
+      max-height: 120px; overflow-y: auto; line-height: 1.4;
+      font-family: inherit;
+    }
+    .chat-textarea:focus { border-color: #f59e0b; }
+    .send-btn {
+      width: 44px; height: 44px; background: #f59e0b; border: none;
+      border-radius: 12px; color: #000; cursor: pointer; font-size: 18px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .send-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* Action banners */
+    .action-banner {
+      background: #141428; border: 1px solid #2a2a4a; border-radius: 12px;
+      padding: 12px 14px; margin: 8px 14px;
+    }
+    .banner-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .banner-btn {
+      width: 100%; padding: 10px; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 6px;
+    }
+    .banner-btn.primary { background: #22c55e; color: #000; }
+    .banner-btn.secondary { background: #1a1a2e; color: #aaa; border: 1px solid #333; }
+
+    /* Rating modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 300;
+      display: none; align-items: flex-end;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-sheet {
+      width: 100%; background: #141428;
+      border-radius: 20px 20px 0 0; padding: 24px 20px; max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-handle { width: 40px; height: 4px; background: #333; border-radius: 2px; margin: 0 auto 20px; }
+    .star-row { display: flex; justify-content: center; gap: 12px; margin: 16px 0; }
+    .star-btn { font-size: 36px; cursor: pointer; opacity: .4; transition: opacity .15s, transform .15s; }
+    .star-btn.active { opacity: 1; transform: scale(1.2); }
+    .review-tags-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .rtag {
+      padding: 6px 14px; border: 1px solid #2a2a4a;
+      border-radius: 20px; font-size: 13px; color: #aaa; cursor: pointer;
+    }
+    .rtag.selected { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,.08); }
+    .review-textarea {
+      width: 100%; background: #1a1a2e; border: 1px solid #2a2a4a;
+      border-radius: 10px; padding: 12px; color: #fff; font-size: 14px;
+      resize: none; outline: none; min-height: 80px; box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+    .review-textarea:focus { border-color: #f59e0b; }
+
+    .loader-full { display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; gap: 12px; color: #555; }
+    .loader-full i { font-size: 32px; animation: spin .8s linear infinite; color: #f59e0b; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div id="loader-full" class="loader-full">
+    <i class="fa fa-circle-notch"></i>
+    <span>Загрузка чата...</span>
+  </div>
+
+  <div id="chat-wrap" style="display:none; height:100vh; display:none; flex-direction:column;">
+
+    <!-- TOP BAR -->
+    <div class="chat-top">
+      <button class="back-btn" onclick="history.back()"><i class="fa fa-arrow-left"></i></button>
+      <div class="chat-info">
+        <div class="chat-title" id="chat-title">Чат</div>
+        <div class="chat-meta" id="chat-meta"></div>
+      </div>
+      <div class="chat-status-dot" id="status-dot" style="background:#555;"></div>
+    </div>
+
+    <!-- REQUEST BAR -->
+    <div class="req-bar">
+      <div class="req-bar-inner">
+        <div class="req-car" id="req-car">—</div>
+        <div class="req-price" id="req-price">—</div>
+      </div>
+      <span class="req-status-badge" id="req-status-badge">—</span>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="messages-wrap" id="messages-wrap"></div>
+
+    <!-- QUICK REPLIES -->
+    <div class="chat-input-wrap">
+      <div class="quick-replies" id="quick-replies"></div>
+      <div class="chat-row">
+        <textarea class="chat-textarea" id="msg-input" rows="1" placeholder="Сообщение..."
+                  oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMsg()"><i class="fa fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RATING MODAL -->
+  <div class="modal-overlay" id="rating-modal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div style="text-align:center;font-size:18px;font-weight:700;margin-bottom:4px;">Оцените поездку</div>
+      <div style="text-align:center;font-size:13px;color:#888;" id="rating-car-name"></div>
+
+      <div class="star-row" id="star-row">
+        <span class="star-btn" data-star="1" onclick="selectStar(1)">⭐</span>
+        <span class="star-btn" data-star="2" onclick="selectStar(2)">⭐</span>
+        <span class="star-btn" data-star="3" onclick="selectStar(3)">⭐</span>
+        <span class="star-btn" data-star="4" onclick="selectStar(4)">⭐</span>
+        <span class="star-btn" data-star="5" onclick="selectStar(5)">⭐</span>
+      </div>
+
+      <div class="review-tags-grid" id="review-tags">
+        <div class="rtag" onclick="toggleTag(this)">👍 Надёжный</div>
+        <div class="rtag" onclick="toggleTag(this)">⚡ Мощная машина</div>
+        <div class="rtag" onclick="toggleTag(this)">💬 Хороший контакт</div>
+        <div class="rtag" onclick="toggleTag(this)">⏰ Пунктуальность</div>
+        <div class="rtag" onclick="toggleTag(this)">🏁 Техничный стиль</div>
+        <div class="rtag" onclick="toggleTag(this)">🎯 Чистый</div>
+        <div class="rtag" onclick="toggleTag(this)">😊 Дружелюбный</div>
+      </div>
+
+      <textarea class="review-textarea" id="review-text" placeholder="Комментарий (необязательно)..."></textarea>
+
+      <button onclick="submitReview()"
+        style="width:100%;padding:14px;background:#f59e0b;color:#000;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">
+        Отправить отзыв
+      </button>
+      <button onclick="closeRatingModal()"
+        style="width:100%;padding:12px;background:transparent;border:none;color:#555;font-size:14px;cursor:pointer;margin-top:4px;">
+        Пропустить
+      </button>
+    </div>
+  </div>
+
+  <div id="global-toast"></div>
+
+  <script type="module">
+    import { supabase, showToast } from '../js/supabase.js';
+
+    let currentUser = null;
+    let currentProfile = null;
+    let request = null;
+    let car = null;
+    let otherUser = null;
+    let selectedStars = 5;
+    let realtimeChannel = null;
+    let REQUEST_ID = null;
+
+    window.sendMsg = sendMsg;
+    window.autoResize = autoResize;
+    window.handleKey = handleKey;
+    window.selectStar = selectStar;
+    window.toggleTag = toggleTag;
+    window.submitReview = submitReview;
+    window.closeRatingModal = closeRatingModal;
+
+    async function init() {
+      const params = new URLSearchParams(location.search);
+      REQUEST_ID = params.get('request');
+      if (!REQUEST_ID) { window.location.href = 'index.html'; return; }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { window.location.href = '/app/auth.html'; return; }
+      currentUser = session.user;
+
+      const { data: prof } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+      currentProfile = prof;
+
+      // Load request with car
+      const { data: req } = await supabase
+        .from('requests')
+        .select('*, cars(*)')
+        .eq('id', REQUEST_ID)
+        .single();
+
+      if (!req) { window.location.href = 'index.html'; return; }
+      request = req;
+      car = req.cars;
+
+      // Other party
+      const otherId = currentUser.id === req.owner_id ? req.requester_id : req.owner_id;
+      const { data: other } = await supabase.from('profiles').select('*').eq('id', otherId).single();
+      otherUser = other;
+
+      renderHeader();
+      await loadMessages();
+      setupRealtime();
+
+      document.getElementById('loader-full').style.display = 'none';
+      document.getElementById('chat-wrap').style.display = 'flex';
+      scrollBottom();
+    }
+
+    function renderHeader() {
+      const otherName = otherUser
+        ? `${otherUser.first_name || ''} ${otherUser.last_name || ''}`.trim()
+        : 'Пользователь';
+      document.getElementById('chat-title').textContent = otherName;
+      document.getElementById('chat-meta').textContent = car ? `${car.brand} ${car.model}` : '';
+      document.getElementById('req-car').textContent = car ? `${car.brand} ${car.model} ${car.year || ''}` : '';
+      document.getElementById('req-price').textContent = request.price ? `${request.price.toLocaleString('ru')} ₽` : 'Бесплатно';
+
+      const STATUS = {
+        pending: { label: '⏳ Ожидает ответа', color: '#f59e0b' },
+        accepted: { label: '✅ Принята', color: '#22c55e' },
+        rejected: { label: '❌ Отклонена', color: '#ef4444' },
+        completed: { label: '🏁 Завершена', color: '#3b82f6' },
+        cancelled: { label: '⊘ Отменена', color: '#555' },
+      };
+      const s = STATUS[request.status] || { label: request.status, color: '#888' };
+      const badge = document.getElementById('req-status-badge');
+      badge.textContent = s.label;
+      badge.style.background = s.color + '20';
+      badge.style.color = s.color;
+
+      // Quick replies
+      const isOwner = currentUser.id === request.owner_id;
+      const quickReplies = isOwner
+        ? ['Когда вам удобно?', 'Расскажите о себе', 'Место встречи скоро напишу']
+        : ['Когда удобно?', 'Где встречаемся?', 'Готов к поездке', 'Спасибо за поездку!'];
+      document.getElementById('quick-replies').innerHTML = quickReplies
+        .map(t => `<div class="qr-btn" onclick="sendQuick('${t}')">${t}</div>`).join('');
+
+      // Action banners for owner
+      if (isOwner && request.status === 'pending') {
+        renderOwnerActions();
+      }
+    }
+
+    function renderOwnerActions() {
+      const banner = document.createElement('div');
+      banner.className = 'action-banner';
+      banner.id = 'owner-actions';
+      const reqName = otherUser ? `${otherUser.first_name || ''} ${otherUser.last_name || ''}`.trim() : 'Пользователь';
+      const lvl = otherUser?.level || 'bronze';
+      const LEVEL_ICONS = { bronze:'🥉', silver:'🥈', gold:'🥇', premium:'💎', vip:'👑' };
+      banner.innerHTML = `
+        <div class="banner-title">Заявка от ${reqName} ${LEVEL_ICONS[lvl] || ''}</div>
+        <div style="font-size:13px;color:#888;margin-bottom:6px;">
+          Роль: ${request.role === 'driver' ? '🚗 Водитель' : '👥 Пассажир'} · 
+          ${request.price ? request.price.toLocaleString('ru') + ' ₽' : 'Бесплатно'}
+        </div>
+        <button class="banner-btn primary" onclick="acceptRequest()">✅ Принять заявку</button>
+        <button class="banner-btn secondary" onclick="rejectRequest()">Отклонить</button>`;
+      document.getElementById('messages-wrap').prepend(banner);
+    }
+
+    async function loadMessages() {
+      const { data: msgs } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('request_id', REQUEST_ID)
+        .order('created_at', { ascending: true });
+
+      const wrap = document.getElementById('messages-wrap');
+      const existingMsgs = wrap.querySelectorAll('.msg-bubble');
+      existingMsgs.forEach(m => m.remove());
+
+      if (msgs) {
+        msgs.forEach(m => appendMessage(m));
+      }
+
+      // Mark messages as read
+      if (msgs) {
+        const unread = msgs.filter(m => m.sender_id !== currentUser.id && !m.read).map(m => m.id);
+        if (unread.length) {
+          supabase.from('messages').update({ read: true }).in('id', unread);
+        }
+      }
+    }
+
+    function appendMessage(msg) {
+      const isOwn = msg.sender_id === currentUser.id;
+      const time = new Date(msg.created_at).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' });
+      const div = document.createElement('div');
+      div.className = `msg-bubble ${isOwn ? 'outgoing' : 'incoming'}`;
+      div.dataset.id = msg.id;
+      div.innerHTML = `
+        <div class="bubble-body">${escapeHtml(msg.content)}</div>
+        <div class="msg-time">${time}</div>`;
+      document.getElementById('messages-wrap').appendChild(div);
+    }
+
+    function appendSystemMsg(text) {
+      const div = document.createElement('div');
+      div.className = 'msg-bubble system';
+      div.innerHTML = `<div class="bubble-body">${text}</div>`;
+      document.getElementById('messages-wrap').appendChild(div);
+      scrollBottom();
+    }
+
+    function setupRealtime() {
+      realtimeChannel = supabase
+        .channel(`chat-${REQUEST_ID}`)
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `request_id=eq.${REQUEST_ID}`
+        }, (payload) => {
+          const msg = payload.new;
+          // Don't duplicate own messages
+          if (!document.querySelector(`[data-id="${msg.id}"]`)) {
+            appendMessage(msg);
+            scrollBottom();
+            if (msg.sender_id !== currentUser.id) {
+              document.getElementById('status-dot').style.background = '#22c55e';
+            }
+          }
+        })
+        .subscribe();
+    }
+
+    async function sendMsg() {
+      const input = document.getElementById('msg-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      autoResize(input);
+
+      const { error } = await supabase.from('messages').insert({
+        request_id: REQUEST_ID,
+        sender_id: currentUser.id,
+        content: text,
+      });
+
+      if (error) { showToast('Ошибка отправки', 'error'); return; }
+      scrollBottom();
+    }
+
+    window.sendQuick = async function(text) {
+      await supabase.from('messages').insert({
+        request_id: REQUEST_ID,
+        sender_id: currentUser.id,
+        content: text,
+      });
+      scrollBottom();
+    };
+
+    window.acceptRequest = async function() {
+      const { error } = await supabase
+        .from('requests')
+        .update({ status: 'accepted' })
+        .eq('id', REQUEST_ID);
+
+      if (error) { showToast('Ошибка', 'error'); return; }
+      request.status = 'accepted';
+      document.getElementById('owner-actions')?.remove();
+
+      const reqName = otherUser ? `${otherUser.first_name || ''} ${otherUser.last_name || ''}`.trim() : 'Пользователь';
+      await supabase.from('messages').insert({
+        request_id: REQUEST_ID,
+        sender_id: currentUser.id,
+        content: `✅ Заявка принята! Жду вас, ${reqName}. Напишу детали встречи.`,
+      });
+
+      const badge = document.getElementById('req-status-badge');
+      badge.textContent = '✅ Принята';
+      badge.style.background = '#22c55e20';
+      badge.style.color = '#22c55e';
+      showToast('Заявка принята!', 'success');
+    };
+
+    window.rejectRequest = async function() {
+      await supabase.from('requests').update({ status: 'rejected' }).eq('id', REQUEST_ID);
+      await supabase.from('messages').insert({
+        request_id: REQUEST_ID,
+        sender_id: currentUser.id,
+        content: '❌ К сожалению, не смогу принять заявку в этот раз. Удачи!',
+      });
+      document.getElementById('owner-actions')?.remove();
+      const badge = document.getElementById('req-status-badge');
+      badge.textContent = '❌ Отклонена';
+      badge.style.background = '#ef444420';
+      badge.style.color = '#ef4444';
+    };
+
+    window.markTripDone = async function() {
+      // Owner marks trip as done → credits will be calculated
+      const discountPct = { bronze:0, silver:5, gold:10, premium:15, vip:20 }[otherUser?.level] || 0;
+      const creditsForOwner = discountPct > 0 ? Math.round((request.price || 0) * discountPct / 100) : 0;
+
+      await supabase.from('requests').update({
+        status: 'completed',
+        owner_confirmed: true,
+        owner_confirmed_at: new Date().toISOString(),
+        credits_earned: creditsForOwner,
+      }).eq('id', REQUEST_ID);
+
+      if (creditsForOwner > 0) {
+        await supabase.from('profiles').update({
+          credits: supabase.rpc ? 0 : 0, // Placeholder; real update via function
+        }).eq('id', currentUser.id);
+        // Add credits manually (simple increment)
+        const { data: ownerProf } = await supabase.from('profiles').select('credits').eq('id', currentUser.id).single();
+        const newCredits = (ownerProf?.credits || 0) + creditsForOwner;
+        await supabase.from('profiles').update({ credits: newCredits }).eq('id', currentUser.id);
+      }
+
+      await supabase.from('messages').insert({
+        request_id: REQUEST_ID,
+        sender_id: currentUser.id,
+        content: `✅ Поездка завершена! Спасибо!${creditsForOwner > 0 ? ` +${creditsForOwner} кредитов зачислено.` : ''}`,
+      });
+
+      appendSystemMsg(`✅ Поездка подтверждена владельцем${creditsForOwner > 0 ? ` · +${creditsForOwner} кредитов` : ''}`);
+      document.getElementById('owner-done-btn')?.remove();
+      showToast(creditsForOwner > 0 ? `+${creditsForOwner} кредитов!` : 'Поездка завершена!', 'success');
+    };
+
+    window.openRatingModal = function() {
+      document.getElementById('rating-car-name').textContent = car ? `${car.brand} ${car.model}` : '';
+      document.getElementById('rating-modal').classList.add('show');
+      selectStar(5);
+    };
+
+    function closeRatingModal() {
+      document.getElementById('rating-modal').classList.remove('show');
+    }
+
+    function selectStar(n) {
+      selectedStars = n;
+      document.querySelectorAll('.star-btn').forEach((s, i) => {
+        s.classList.toggle('active', i < n);
+      });
+    }
+
+    function toggleTag(el) { el.classList.toggle('selected'); }
+
+    async function submitReview() {
+      const comment = document.getElementById('review-text').value.trim();
+      const tags = Array.from(document.querySelectorAll('.rtag.selected')).map(t => t.textContent.trim());
+
+      const { error } = await supabase.from('reviews').insert({
+        request_id: REQUEST_ID,
+        car_id: car?.id,
+        reviewer_id: currentUser.id,
+        reviewed_id: request.owner_id,
+        role: request.role,
+        rating: selectedStars,
+        comment: comment || null,
+        tags: tags.length ? tags : null,
+      });
+
+      if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
+
+      // Mark user confirmed (for profile stats)
+      await supabase.from('requests').update({
+        user_confirmed: true,
+        user_confirmed_at: new Date().toISOString(),
+      }).eq('id', REQUEST_ID);
+
+      // Increment trips for user
+      const { data: p } = await supabase.from('profiles').select('trips_driven').eq('id', currentUser.id).single();
+      await supabase.from('profiles').update({ trips_driven: (p?.trips_driven || 0) + 1 }).eq('id', currentUser.id);
+
+      closeRatingModal();
+      showToast('✅ Отзыв отправлен! Спасибо!', 'success');
+      appendSystemMsg('⭐ Вы оставили отзыв');
+    }
+
+    function scrollBottom() {
+      const wrap = document.getElementById('messages-wrap');
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function autoResize(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMsg();
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/\n/g, '<br>');
+    }
+
+    // Cleanup on leave
+    window.addEventListener('beforeunload', () => {
+      if (realtimeChannel) supabase.removeChannel(realtimeChannel);
+    });
+
+    init();
+  </script>
+</body>
+</html>

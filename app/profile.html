@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#0f0f0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Sharecar — Профиль</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    body { background: #0f0f0f; padding-bottom: 80px; }
+
+    /* ── Header ───────────────────────── */
+    .profile-header {
+      background: linear-gradient(180deg, #1a1a3e 0%, #0f0f0f 100%);
+      padding: 24px 20px 20px;
+      text-align: center;
+    }
+    .avatar-wrap { position: relative; display: inline-block; margin-bottom: 12px; }
+    .avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      object-fit: cover; border: 3px solid #f59e0b;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 700; color: #fff;
+      background: linear-gradient(135deg, #1a1a2e, #2a2a4e);
+    }
+    .avatar-edit-btn {
+      position: absolute; bottom: 0; right: 0;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #f59e0b; border: 2px solid #0f0f0f;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 12px;
+    }
+
+    .profile-name { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+    .profile-nick { font-size: 14px; color: #888; margin-bottom: 8px; }
+
+    .level-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 14px; border-radius: 20px;
+      font-size: 13px; font-weight: 700; margin-bottom: 16px;
+    }
+
+    .profile-stats {
+      display: flex; gap: 0;
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid #1e1e3a; margin: 0 -4px 12px;
+    }
+    .stat-item {
+      flex: 1; padding: 12px 4px; text-align: center;
+      border-right: 1px solid #1e1e3a;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-val { font-size: 20px; font-weight: 700; color: #f59e0b; }
+    .stat-lbl { font-size: 11px; color: #666; margin-top: 2px; }
+
+    .credits-row {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      background: #1a1a2e; border-radius: 10px; padding: 10px 16px;
+      margin-bottom: 8px;
+    }
+    .credits-val { font-size: 18px; font-weight: 700; color: #22c55e; }
+    .credits-lbl { font-size: 12px; color: #888; }
+    .btn-boost-link {
+      background: #f59e0b; color: #000;
+      border: none; border-radius: 8px;
+      padding: 6px 14px; font-size: 12px; font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ── Level progress ───────────────── */
+    .level-progress-wrap {
+      padding: 0 16px; margin-bottom: 4px;
+    }
+    .level-progress-bar {
+      height: 4px; background: #1a1a2e; border-radius: 2px; overflow: hidden;
+    }
+    .level-progress-fill {
+      height: 100%; background: #f59e0b; border-radius: 2px;
+      transition: width .5s;
+    }
+    .level-progress-labels {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: #555; margin-top: 4px;
+    }
+
+    /* ── Tabs ─────────────────────────── */
+    .tabs-row {
+      display: flex; overflow-x: auto; scrollbar-width: none;
+      border-bottom: 1px solid #1e1e3a; margin: 0;
+    }
+    .tabs-row::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0; padding: 12px 16px;
+      font-size: 13px; font-weight: 500; color: #666;
+      border: none; background: none; cursor: pointer;
+      border-bottom: 2px solid transparent; white-space: nowrap;
+      transition: all .2s;
+    }
+    .tab-btn.active { color: #f59e0b; border-bottom-color: #f59e0b; }
+
+    .tab-content { display: none; padding: 16px; }
+    .tab-content.active { display: block; }
+
+    /* ── Cars ─────────────────────────── */
+    .car-card-item {
+      background: #141428; border-radius: 12px;
+      padding: 14px; margin-bottom: 12px;
+      border: 1px solid #1e1e3a;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .car-thumb {
+      width: 72px; height: 56px; border-radius: 8px;
+      object-fit: cover; background: #1a1a2e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; flex-shrink: 0;
+    }
+    .car-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+    .car-info { flex: 1; min-width: 0; }
+    .car-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .car-meta { font-size: 12px; color: #888; }
+    .car-stats { display: flex; gap: 12px; margin-top: 6px; }
+    .car-stat { font-size: 12px; color: #aaa; }
+    .car-stat span { font-weight: 700; color: #fff; }
+    .car-actions { display: flex; gap: 6px; margin-top: 8px; }
+    .btn-sm {
+      padding: 5px 10px; border-radius: 6px; font-size: 12px;
+      cursor: pointer; border: none; font-weight: 600;
+    }
+    .btn-edit { background: #1a1a2e; color: #aaa; border: 1px solid #2a2a4a; }
+    .btn-dash { background: #f59e0b; color: #000; }
+    .status-dot {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    /* ── Trips ────────────────────────── */
+    .trip-item {
+      background: #141428; border-radius: 12px; padding: 12px 14px;
+      margin-bottom: 10px; border: 1px solid #1e1e3a;
+    }
+    .trip-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .trip-title { font-size: 14px; font-weight: 600; }
+    .trip-status { font-size: 11px; padding: 2px 8px; border-radius: 6px; }
+    .trip-date { font-size: 12px; color: #666; }
+    .trip-price { font-size: 14px; font-weight: 700; color: #f59e0b; }
+
+    /* ── Reviews ──────────────────────── */
+    .review-item {
+      background: #141428; border-radius: 12px; padding: 12px 14px;
+      margin-bottom: 10px; border: 1px solid #1e1e3a;
+    }
+    .review-header { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .review-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #2a2a4a; display: flex; align-items: center;
+      justify-content: center; font-size: 12px; font-weight: 700;
+    }
+    .review-stars { color: #f59e0b; font-size: 13px; }
+    .review-text { font-size: 13px; color: #ccc; }
+    .review-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .review-tag { background: rgba(245,158,11,.1); color: #f59e0b; padding: 2px 8px; border-radius: 6px; font-size: 11px; }
+
+    /* ── Racing ───────────────────────── */
+    .racing-summary {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px;
+    }
+    .racing-card {
+      background: #141428; border-radius: 12px; padding: 14px;
+      border: 1px solid #1e1e3a; text-align: center;
+    }
+    .racing-card .val { font-size: 22px; font-weight: 700; color: #f59e0b; }
+    .racing-card .lbl { font-size: 11px; color: #666; margin-top: 2px; }
+    .racing-row {
+      background: #141428; border-radius: 12px; padding: 12px 14px;
+      margin-bottom: 8px; border: 1px solid #1e1e3a;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .racing-icon { font-size: 24px; flex-shrink: 0; }
+    .racing-info { flex: 1; }
+    .racing-track { font-size: 14px; font-weight: 600; }
+    .racing-detail { font-size: 12px; color: #888; margin-top: 2px; }
+    .racing-pts { font-size: 18px; font-weight: 700; color: #f59e0b; }
+
+    /* ── Settings form ────────────────── */
+    .settings-group { margin-bottom: 20px; }
+    .settings-label {
+      font-size: 12px; color: #888; text-transform: uppercase;
+      letter-spacing: .5px; margin-bottom: 8px; font-weight: 500;
+    }
+    .settings-input {
+      width: 100%; background: #1a1a2e; border: 1px solid #2a2a4a;
+      border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 15px;
+      margin-bottom: 10px; box-sizing: border-box; outline: none;
+    }
+    .settings-input:focus { border-color: #f59e0b; }
+    .btn-save {
+      width: 100%; padding: 14px; background: #f59e0b; color: #000;
+      border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
+      cursor: pointer; margin-top: 4px;
+    }
+    .btn-logout {
+      width: 100%; padding: 12px; background: transparent;
+      border: 1px solid #333; border-radius: 10px;
+      color: #ef4444; font-size: 14px; cursor: pointer; margin-top: 10px;
+    }
+
+    /* ── Bottom nav ───────────────────── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0f0f0f; border-top: 1px solid #1e1e3a;
+      display: flex; z-index: 100;
+    }
+    .nav-btn {
+      flex: 1; padding: 10px 0 12px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; text-decoration: none; color: #555; font-size: 10px;
+      cursor: pointer; border: none; background: none;
+    }
+    .nav-btn i { font-size: 20px; }
+    .nav-btn.active { color: #f59e0b; }
+
+    .empty-state {
+      text-align: center; padding: 40px 20px; color: #555;
+    }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    .loader-wrap { text-align: center; padding: 40px; color: #555; }
+    .loader-wrap i { font-size: 28px; animation: spin .8s linear infinite; color: #f59e0b; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div id="loader-wrap" class="loader-wrap">
+    <i class="fa fa-circle-notch"></i>
+    <div style="margin-top:12px;">Загрузка профиля...</div>
+  </div>
+
+  <div id="profile-content" style="display:none;">
+
+    <!-- HEADER -->
+    <div class="profile-header">
+      <div class="avatar-wrap">
+        <div class="avatar" id="avatar-el"></div>
+        <div class="avatar-edit-btn" onclick="document.getElementById('avatar-input').click()">
+          <i class="fa fa-camera"></i>
+        </div>
+        <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+      </div>
+      <div class="profile-name" id="profile-name">—</div>
+      <div class="profile-nick" id="profile-nick">@...</div>
+      <div class="level-badge" id="level-badge">—</div>
+
+      <div class="profile-stats">
+        <div class="stat-item">
+          <div class="stat-val" id="stat-trips">0</div>
+          <div class="stat-lbl">Поездок</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val" id="stat-cars">0</div>
+          <div class="stat-lbl">Машин</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val" id="stat-rating">5.0</div>
+          <div class="stat-lbl">Рейтинг ★</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val" id="stat-score">0</div>
+          <div class="stat-lbl">Очки</div>
+        </div>
+      </div>
+
+      <div class="credits-row">
+        <div>
+          <div class="credits-val" id="credits-val">0</div>
+          <div class="credits-lbl">кредитов на счету</div>
+        </div>
+        <button class="btn-boost-link" onclick="goPage('boost.html')">Буст машины →</button>
+      </div>
+
+      <div class="level-progress-wrap">
+        <div class="level-progress-bar">
+          <div class="level-progress-fill" id="level-progress"></div>
+        </div>
+        <div class="level-progress-labels">
+          <span id="level-current-label">Bronze</span>
+          <span id="level-next-label">→ Silver (5 поездок)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-row">
+      <button class="tab-btn active" onclick="switchTab('cars')">🚗 Машины</button>
+      <button class="tab-btn" onclick="switchTab('trips')">📋 Поездки</button>
+      <button class="tab-btn" onclick="switchTab('reviews')">⭐ Отзывы</button>
+      <button class="tab-btn" onclick="switchTab('racing')">🏆 Гонки</button>
+      <button class="tab-btn" onclick="switchTab('settings')">⚙️ Настройки</button>
+    </div>
+
+    <!-- CARS TAB -->
+    <div class="tab-content active" id="tab-cars">
+      <button onclick="goPage('add-car.html')"
+        style="width:100%;padding:12px;background:#f59e0b;color:#000;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:14px;">
+        + Добавить машину
+      </button>
+      <div id="cars-list">
+        <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+      </div>
+    </div>
+
+    <!-- TRIPS TAB -->
+    <div class="tab-content" id="tab-trips">
+      <div id="trips-list">
+        <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+      </div>
+    </div>
+
+    <!-- REVIEWS TAB -->
+    <div class="tab-content" id="tab-reviews">
+      <div id="reviews-list">
+        <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+      </div>
+    </div>
+
+    <!-- RACING TAB -->
+    <div class="tab-content" id="tab-racing">
+      <div class="racing-summary">
+        <div class="racing-card">
+          <div class="val" id="r-total-pts">—</div>
+          <div class="lbl">Очков (сезон)</div>
+        </div>
+        <div class="racing-card">
+          <div class="val" id="r-total-runs">—</div>
+          <div class="lbl">Заездов</div>
+        </div>
+        <div class="racing-card">
+          <div class="val" id="r-global-rank">#—</div>
+          <div class="lbl">Место в рейтинге</div>
+        </div>
+        <div class="racing-card">
+          <div class="val" id="r-best-time">—</div>
+          <div class="lbl">Лучшее время</div>
+        </div>
+      </div>
+      <div id="racing-list"></div>
+      <button onclick="goPage('rating.html')"
+        style="width:100%;padding:12px;background:#1a1a2e;border:1px solid #2a2a4a;color:#aaa;border-radius:10px;font-size:14px;cursor:pointer;margin-top:8px;">
+        Общий рейтинг гонщиков →
+      </button>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="tab-content" id="tab-settings">
+      <div class="settings-group">
+        <div class="settings-label">Имя</div>
+        <input class="settings-input" id="s-fname" placeholder="Имя">
+        <input class="settings-input" id="s-lname" placeholder="Фамилия">
+      </div>
+      <div class="settings-group">
+        <div class="settings-label">Никнейм</div>
+        <input class="settings-input" id="s-nick" placeholder="@nickname">
+      </div>
+      <div class="settings-group">
+        <div class="settings-label">Город</div>
+        <input class="settings-input" id="s-city" placeholder="Москва">
+      </div>
+      <div class="settings-group">
+        <div class="settings-label">О себе</div>
+        <textarea class="settings-input" id="s-bio" rows="3" placeholder="Коротко о себе..."></textarea>
+      </div>
+      <div class="settings-group">
+        <div class="settings-label">Соцсети</div>
+        <input class="settings-input" id="s-tg" placeholder="Telegram @username">
+        <input class="settings-input" id="s-ig" placeholder="Instagram @username">
+      </div>
+      <button class="btn-save" onclick="saveProfile()">Сохранить</button>
+      <button class="btn-logout" onclick="logout()">Выйти из аккаунта</button>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="goPage('index.html')"><i class="fa fa-home"></i>Лента</button>
+    <button class="nav-btn" onclick="goPage('partners.html')"><i class="fa fa-handshake"></i>Партнёры</button>
+    <button class="nav-btn" onclick="goPage('rating.html')"><i class="fa fa-trophy"></i>Рейтинг</button>
+    <button class="nav-btn active"><i class="fa fa-user"></i>Профиль</button>
+  </nav>
+
+  <div id="global-toast"></div>
+
+  <script type="module">
+    import { supabase, getLevel, showToast } from '../js/supabase.js';
+
+    let currentUser = null;
+    let profile = null;
+    const LEVELS_DATA = [
+      { id: 'bronze',  label: 'Bronze',  min: 0,   next: 5,   color: '#cd7f32' },
+      { id: 'silver',  label: 'Silver',  min: 5,   next: 15,  color: '#a8a9ad' },
+      { id: 'gold',    label: 'Gold',    min: 15,  next: 30,  color: '#ffd700' },
+      { id: 'premium', label: 'Premium', min: 30,  next: 60,  color: '#a855f7' },
+      { id: 'vip',     label: 'VIP',     min: 60,  next: null, color: '#f59e0b' },
+    ];
+
+    window.switchTab = switchTab;
+    window.saveProfile = saveProfile;
+    window.logout = logout;
+    window.uploadAvatar = uploadAvatar;
+    window.goPage = (p) => window.location.href = p;
+
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { window.location.href = '/app/auth.html'; return; }
+      currentUser = session.user;
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+      profile = data;
+      renderProfile();
+      loadCars();
+      loadTrips();
+      loadReviews();
+      loadRacing();
+    }
+
+    function renderProfile() {
+      const p = profile;
+      const name = `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Пользователь';
+      const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+      // Avatar
+      const avEl = document.getElementById('avatar-el');
+      if (p.avatar_url) {
+        avEl.innerHTML = `<img src="${p.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+      } else {
+        avEl.textContent = initials;
+      }
+
+      document.getElementById('profile-name').textContent = name;
+      document.getElementById('profile-nick').textContent = p.nickname ? `@${p.nickname}` : `@${p.first_name?.toLowerCase() || 'user'}`;
+      document.getElementById('stat-trips').textContent = p.trips_driven || 0;
+      document.getElementById('stat-rating').textContent = (p.rating_driver || 5).toFixed(1);
+      document.getElementById('stat-score').textContent = p.score || 0;
+      document.getElementById('credits-val').textContent = p.credits || 0;
+
+      // Level badge
+      const lvl = LEVELS_DATA.find(l => l.id === (p.level || 'bronze')) || LEVELS_DATA[0];
+      const badge = document.getElementById('level-badge');
+      badge.style.background = lvl.color + '20';
+      badge.style.border = `1px solid ${lvl.color}`;
+      badge.style.color = lvl.color;
+      badge.textContent = lvl.label;
+
+      // Progress bar
+      const trips = p.trips_driven || 0;
+      const nextLvl = LEVELS_DATA[LEVELS_DATA.indexOf(lvl) + 1];
+      if (nextLvl) {
+        const pct = Math.min(100, ((trips - lvl.min) / (nextLvl.min - lvl.min)) * 100);
+        document.getElementById('level-progress').style.width = pct + '%';
+        document.getElementById('level-current-label').textContent = lvl.label;
+        document.getElementById('level-next-label').textContent = `→ ${nextLvl.label} (${nextLvl.min} поездок)`;
+      } else {
+        document.getElementById('level-progress').style.width = '100%';
+        document.getElementById('level-next-label').textContent = 'Максимальный уровень 👑';
+      }
+
+      // Settings prefill
+      document.getElementById('s-fname').value = p.first_name || '';
+      document.getElementById('s-lname').value = p.last_name || '';
+      document.getElementById('s-nick').value = p.nickname || '';
+      document.getElementById('s-city').value = p.city || '';
+      document.getElementById('s-bio').value = p.bio || '';
+      document.getElementById('s-tg').value = p.telegram || '';
+      document.getElementById('s-ig').value = p.instagram || '';
+
+      document.getElementById('loader-wrap').style.display = 'none';
+      document.getElementById('profile-content').style.display = 'block';
+    }
+
+    async function loadCars() {
+      const { data: cars } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('owner_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+      document.getElementById('stat-cars').textContent = cars?.length || 0;
+
+      const container = document.getElementById('cars-list');
+      if (!cars || !cars.length) {
+        container.innerHTML = `<div class="empty-state"><div class="icon">🚗</div>Нет добавленных машин</div>`;
+        return;
+      }
+
+      const CLASS_ICONS = { ring:'🏁', drift:'💨', city:'🚗', offroad:'🚙', special:'⚡', sport:'🏎', business:'🏢' };
+      const STATUS_COLORS = { published: '#22c55e', draft: '#f59e0b', archived: '#555' };
+      const STATUS_LABELS = { published: 'Активна', draft: 'Черновик', archived: 'Архив' };
+
+      container.innerHTML = cars.map(car => {
+        const thumb = car.photos?.[0]
+          ? `<img src="${car.photos[0]}" style="width:72px;height:56px;border-radius:8px;object-fit:cover;">`
+          : `<div class="car-thumb">${CLASS_ICONS[car.car_class] || '🚗'}</div>`;
+        const sc = STATUS_COLORS[car.status] || '#555';
+        return `
+          <div class="car-card-item">
+            <div class="car-thumb">${thumb}</div>
+            <div class="car-info">
+              <div class="car-name">${car.brand} ${car.model} ${car.year || ''}</div>
+              <div class="car-meta">
+                <span class="status-dot" style="background:${sc}"></span>
+                ${STATUS_LABELS[car.status] || car.status}
+                ${car.horsepower ? ' · ' + car.horsepower + ' л.с.' : ''}
+                ${car.city ? ' · ' + car.city : ''}
+              </div>
+              <div class="car-stats">
+                <div class="car-stat">Заявок: <span>${car.requests_count || 0}</span></div>
+                <div class="car-stat">Поездок: <span>${car.rides_count || 0}</span></div>
+                <div class="car-stat">★ <span>${(car.rating || 5).toFixed(1)}</span></div>
+              </div>
+              <div class="car-actions">
+                <button class="btn-sm btn-edit" onclick="goPage('add-car.html?edit=${car.id}')">✏️ Редактировать</button>
+                <button class="btn-sm btn-dash" onclick="goPage('owner-dashboard.html?car=${car.id}')">Кабинет</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function loadTrips() {
+      const { data: trips } = await supabase
+        .from('requests')
+        .select('*, cars(brand, model, year)')
+        .eq('requester_id', currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      const container = document.getElementById('trips-list');
+      if (!trips || !trips.length) {
+        container.innerHTML = `<div class="empty-state"><div class="icon">📋</div>Нет поездок</div>`;
+        return;
+      }
+
+      const STATUS = {
+        pending: { label: 'Ожидает', color: '#f59e0b' },
+        accepted: { label: 'Принята', color: '#3b82f6' },
+        completed: { label: 'Завершена', color: '#22c55e' },
+        rejected: { label: 'Отклонена', color: '#ef4444' },
+        cancelled: { label: 'Отменена', color: '#555' },
+      };
+
+      container.innerHTML = trips.map(t => {
+        const s = STATUS[t.status] || { label: t.status, color: '#888' };
+        const car = t.cars;
+        const dt = new Date(t.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'short' });
+        return `
+          <div class="trip-item">
+            <div class="trip-header">
+              <div class="trip-title">${car ? car.brand + ' ' + car.model : 'Машина'}</div>
+              <span class="trip-status" style="background:${s.color}20;color:${s.color};">${s.label}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div class="trip-date">${dt}</div>
+              <div class="trip-price">${t.price ? t.price.toLocaleString('ru') + ' ₽' : 'Бесплатно'}</div>
+            </div>
+            ${t.status === 'accepted' ? `
+              <button onclick="openChat('${t.id}')"
+                style="width:100%;margin-top:8px;padding:8px;background:#3b82f6;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">
+                Открыть чат
+              </button>` : ''}
+            ${t.status === 'completed' && !t.user_confirmed ? `
+              <button onclick="confirmTrip('${t.id}')"
+                style="width:100%;margin-top:8px;padding:8px;background:#22c55e;color:#000;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;">
+                ✅ Подтвердить поездку + Оставить отзыв
+              </button>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    async function loadReviews() {
+      const { data: reviews } = await supabase
+        .from('reviews')
+        .select('*, profiles:reviewer_id(first_name, last_name, level)')
+        .eq('reviewed_id', currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      const container = document.getElementById('reviews-list');
+      if (!reviews || !reviews.length) {
+        container.innerHTML = `<div class="empty-state"><div class="icon">⭐</div>Нет отзывов пока</div>`;
+        return;
+      }
+
+      container.innerHTML = reviews.map(r => {
+        const reviewer = r.profiles;
+        const rname = reviewer ? `${reviewer.first_name} ${reviewer.last_name}` : 'Пользователь';
+        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+        const dt = new Date(r.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'short' });
+        return `
+          <div class="review-item">
+            <div class="review-header">
+              <div class="review-avatar">${rname[0] || '?'}</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;">${rname}</div>
+                <div class="review-stars">${stars}</div>
+              </div>
+              <div style="margin-left:auto;font-size:11px;color:#555;">${dt}</div>
+            </div>
+            <div class="review-text">${r.comment || ''}</div>
+            ${r.tags?.length ? `<div class="review-tags">${r.tags.map(t => `<span class="review-tag">${t}</span>`).join('')}</div>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    async function loadRacing() {
+      const { data: results } = await supabase
+        .from('racing_results')
+        .select('*, racing_tracks(name, category)')
+        .eq('user_id', currentUser.id)
+        .order('session_date', { ascending: false });
+
+      if (!results || !results.length) {
+        document.getElementById('r-total-pts').textContent = '0';
+        document.getElementById('r-total-runs').textContent = '0';
+        document.getElementById('r-global-rank').textContent = '#—';
+        document.getElementById('r-best-time').textContent = '—';
+        document.getElementById('racing-list').innerHTML = `
+          <div class="empty-state"><div class="icon">🏁</div>Нет гоночных результатов</div>`;
+        return;
+      }
+
+      const totalPts = results.reduce((s, r) => s + (r.points || 0), 0);
+      const totalRuns = results.length;
+      const bestMs = Math.min(...results.filter(r => r.lap_time_ms).map(r => r.lap_time_ms));
+
+      function fmtLap(ms) {
+        if (!ms || ms === Infinity) return '—';
+        const m = Math.floor(ms / 60000);
+        const s = Math.floor((ms % 60000) / 1000);
+        const mss = Math.floor((ms % 1000) / 10);
+        return `${m}:${String(s).padStart(2,'0')}.${String(mss).padStart(2,'0')}`;
+      }
+
+      document.getElementById('r-total-pts').textContent = totalPts;
+      document.getElementById('r-total-runs').textContent = totalRuns;
+      document.getElementById('r-best-time').textContent = fmtLap(bestMs);
+
+      // Get global rank
+      const { data: allPts } = await supabase.rpc
+        ? null // fallback
+        : null;
+      document.getElementById('r-global-rank').textContent = '#—';
+
+      const ICONS = { karting: '🏎', circuit: '🏁', drag: '💨', offroad: '🚙' };
+      document.getElementById('racing-list').innerHTML = results.map(r => {
+        const track = r.racing_tracks;
+        const icon = ICONS[track?.category] || '🏁';
+        const dt = new Date(r.session_date).toLocaleDateString('ru', { day: 'numeric', month: 'short' });
+        return `
+          <div class="racing-row">
+            <div class="racing-icon">${icon}</div>
+            <div class="racing-info">
+              <div class="racing-track">${track?.name || 'Трасса'}</div>
+              <div class="racing-detail">${r.car_name || ''} · ${dt}</div>
+              <div class="racing-detail">⏱ ${fmtLap(r.lap_time_ms)} · Позиция: #${r.position || '—'}</div>
+            </div>
+            <div class="racing-pts">${r.points || 0} оч.</div>
+          </div>`;
+      }).join('');
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        const tabs = ['cars', 'trips', 'reviews', 'racing', 'settings'];
+        b.classList.toggle('active', tabs[i] === tab);
+      });
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    async function saveProfile() {
+      const updates = {
+        first_name: document.getElementById('s-fname').value.trim(),
+        last_name:  document.getElementById('s-lname').value.trim(),
+        nickname:   document.getElementById('s-nick').value.replace('@','').trim() || null,
+        city:       document.getElementById('s-city').value.trim(),
+        bio:        document.getElementById('s-bio').value.trim(),
+        telegram:   document.getElementById('s-tg').value.trim(),
+        instagram:  document.getElementById('s-ig').value.trim(),
+      };
+      const { error } = await supabase.from('profiles').update(updates).eq('id', currentUser.id);
+      if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
+      Object.assign(profile, updates);
+      showToast('Профиль сохранён ✅', 'success');
+      renderProfile();
+    }
+
+    async function uploadAvatar(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const ext = file.name.split('.').pop();
+      const path = `${currentUser.id}/avatar.${ext}`;
+      showToast('Загружаем фото...');
+      const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+      if (error) { showToast('Ошибка загрузки: ' + error.message, 'error'); return; }
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+      await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id);
+      profile.avatar_url = publicUrl;
+      renderProfile();
+      showToast('Фото обновлено ✅', 'success');
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = '/app/auth.html';
+    }
+
+    window.openChat = (reqId) => goPage(`chat.html?request=${reqId}`);
+    window.confirmTrip = async (reqId) => {
+      await supabase.from('requests').update({ user_confirmed: true, status: 'completed' }).eq('id', reqId);
+      showToast('Поездка подтверждена! Оставьте отзыв.', 'success');
+      loadTrips();
+    };
+
+    init();
+  </script>
+</body>
+</html>

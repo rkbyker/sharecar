@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharecar Admin — Статистика пользователя</title>
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.metrics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.metric-card {
+  background:#151520; border:1px solid #2a2a3a; border-radius:12px;
+  padding:16px 18px; position:relative; overflow:hidden;
+}
+.metric-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.metric-card.blue::before   { background:linear-gradient(90deg,#4a9eff,#2a6eff); }
+.metric-card.green::before  { background:linear-gradient(90deg,#4caf7d,#2ecc71); }
+.metric-card.yellow::before { background:linear-gradient(90deg,#e8c84a,#f0a000); }
+.metric-card.red::before    { background:linear-gradient(90deg,#e05050,#c0392b); }
+.metric-card.purple::before { background:linear-gradient(90deg,#b08cff,#8c5fff); }
+.metric-card.teal::before   { background:linear-gradient(90deg,#4ab8c8,#2a8898); }
+.metric-card.orange::before { background:linear-gradient(90deg,#ff9050,#ff6020); }
+.metric-card.pink::before   { background:linear-gradient(90deg,#ff6eb0,#e0208a); }
+
+.metric-val { font-size:26px; font-weight:800; margin:6px 0 2px; line-height:1; }
+.metric-lbl { font-size:11px; color:#a0a0b0; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; }
+.metric-sub { font-size:11px; color:#666; margin-top:4px; }
+.metric-icon { position:absolute; right:14px; top:14px; font-size:22px; opacity:0.15; }
+.metric-delta { font-size:11px; font-weight:700; margin-top:4px; }
+.metric-delta.up { color:#4caf7d; }
+.metric-delta.down { color:#e05050; }
+
+.chart-card { background:#151520; border:1px solid #2a2a3a; border-radius:12px; padding:20px; }
+.chart-title { font-size:13px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.chart-title span { font-size:11px; color:#a0a0b0; font-weight:400; }
+
+.period-bar { display:flex; gap:4px; background:#0e0e18; border:1px solid #2a2a3a; border-radius:10px; padding:4px; margin-bottom:20px; width:fit-content; }
+.period-btn { padding:6px 14px; border:none; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; background:transparent; color:#a0a0b0; transition:all 0.15s; }
+.period-btn.active { background:#e8c84a; color:#000; }
+
+.data-table { width:100%; border-collapse:collapse; font-size:12px; }
+.data-table th { background:#1a1a2a; color:#a0a0b0; font-weight:600; text-transform:uppercase; font-size:10px; letter-spacing:0.5px; padding:9px 12px; text-align:left; border-bottom:1px solid #2a2a3a; position:sticky; top:0; z-index:1; }
+.data-table td { padding:9px 12px; border-bottom:1px solid #1a1a28; }
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tr:hover td { background:rgba(255,255,255,0.02); }
+.tbl-scroll { max-height:380px; overflow-y:auto; border-radius:10px; border:1px solid #2a2a3a; }
+
+.user-header { background:#151520; border:1px solid #2a2a3a; border-radius:12px; padding:20px; margin-bottom:20px; display:flex; align-items:center; gap:16px; }
+.user-avatar { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#1a1a2a,#2a2a4a); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; flex-shrink:0; color:#e8c84a; }
+.status-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:5px; }
+
+.charts-2col { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:20px; }
+.credits-flow { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+.flow-card { background:#151520; border:1px solid #2a2a3a; border-radius:10px; padding:14px 16px; text-align:center; }
+.flow-val { font-size:22px; font-weight:800; }
+.flow-lbl { font-size:11px; color:#a0a0b0; margin-top:4px; }
+
+/* Тепловая карта активности */
+.heatmap { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.hm-cell { aspect-ratio:1; border-radius:3px; cursor:pointer; transition:opacity 0.1s; }
+.hm-cell:hover { opacity:0.8; outline:1px solid #e8c84a; }
+.hm-header { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:4px; }
+.hm-day { font-size:9px; color:#555; text-align:center; }
+
+@media(max-width:900px) {
+  .metrics-grid { grid-template-columns:repeat(2,1fr); }
+  .charts-2col { grid-template-columns:1fr; }
+  .credits-flow { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body class="admin-body">
+
+<aside class="admin-sidebar" id="sidebar">
+  <div class="admin-sidebar-logo">
+    <div class="logo">Sharecar</div>
+    <div class="logo-sub">Admin Panel</div>
+  </div>
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Главное</div>
+    <a href="index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Дашборд</a>
+    <a href="users.html" class="admin-nav-item active"><i class="fas fa-users"></i> Пользователи</a>
+    <a href="vehicles.html" class="admin-nav-item"><i class="fas fa-car-side"></i> Машины</a>
+    <a href="requests.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Заявки</a>
+    <div class="admin-nav-section">Контроль</div>
+    <a href="moderation.html" class="admin-nav-item"><i class="fas fa-exclamation-triangle"></i> Жалобы и блок</a>
+    <a href="levels.html" class="admin-nav-item"><i class="fas fa-crown"></i> Уровни и VIP</a>
+    <a href="boosts.html" class="admin-nav-item"><i class="fas fa-rocket"></i> Бусты и продвижение</a>
+    <div class="admin-nav-section">Система</div>
+    <a href="settings.html" class="admin-nav-item"><i class="fas fa-cog"></i> Настройки</a>
+    <a href="../hub.html" class="admin-nav-item"><i class="fas fa-arrow-left"></i> К прототипу</a>
+  </nav>
+  <div class="admin-sidebar-footer">
+    <div class="admin-user"><i class="fas fa-user-shield"></i> Администратор</div>
+  </div>
+</aside>
+<div class="admin-sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div>
+      <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="toggleSidebar()" style="margin-right:12px;"><i class="fas fa-bars"></i></button>
+      <div class="admin-topbar-title" id="page-title">Статистика пользователя</div>
+      <div class="admin-topbar-subtitle" id="page-sub">Загрузка данных...</div>
+    </div>
+    <div class="admin-topbar-actions">
+      <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="exportCSV()"><i class="fas fa-download"></i> Экспорт CSV</button>
+      <a href="users.html" class="admin-btn admin-btn-secondary admin-btn-sm"><i class="fas fa-arrow-left"></i> К списку</a>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- Шапка пользователя -->
+    <div class="user-header" id="user-header">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <div style="flex:1;">
+        <div style="font-size:18px;font-weight:800;" id="user-name">Загрузка...</div>
+        <div style="font-size:12px;color:#a0a0b0;margin-top:4px;" id="user-meta"></div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;" id="user-badges"></div>
+      </div>
+      <div style="flex-shrink:0;text-align:right;">
+        <div style="font-size:11px;color:#a0a0b0;">Баланс кредитов</div>
+        <div style="font-size:22px;font-weight:800;color:#e8c84a;" id="user-credits">—</div>
+        <div style="font-size:10px;color:#555;">кредитов</div>
+      </div>
+    </div>
+
+    <!-- Фильтр периода -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div class="period-bar">
+        <button class="period-btn" onclick="setPeriod(7,this)">7 дней</button>
+        <button class="period-btn active" onclick="setPeriod(14,this)">14 дней</button>
+        <button class="period-btn" onclick="setPeriod(30,this)">30 дней</button>
+        <button class="period-btn" onclick="setPeriod(0,this)">Всё время</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <label style="font-size:11px;color:#a0a0b0;">Период:</label>
+        <input type="date" id="date-from" style="background:#151520;border:1px solid #2a2a3a;border-radius:6px;color:#e0e0f0;padding:5px 8px;font-size:12px;">
+        <span style="color:#555;">—</span>
+        <input type="date" id="date-to" style="background:#151520;border:1px solid #2a2a3a;border-radius:6px;color:#e0e0f0;padding:5px 8px;font-size:12px;">
+        <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="applyCustomRange()">Применить</button>
+      </div>
+    </div>
+
+    <!-- Метрики -->
+    <div class="metrics-grid">
+      <div class="metric-card blue">
+        <div class="metric-icon"><i class="fas fa-mobile-alt"></i></div>
+        <div class="metric-lbl">Сессии</div>
+        <div class="metric-val" id="m-sessions">—</div>
+        <div class="metric-sub" id="m-sessions-sub">в приложении</div>
+        <div class="metric-delta" id="m-sessions-delta"></div>
+      </div>
+      <div class="metric-card teal">
+        <div class="metric-icon"><i class="fas fa-clock"></i></div>
+        <div class="metric-lbl">Время в приложении</div>
+        <div class="metric-val" id="m-time">—</div>
+        <div class="metric-sub" id="m-time-sub">суммарно</div>
+        <div class="metric-delta" id="m-time-delta"></div>
+      </div>
+      <div class="metric-card purple">
+        <div class="metric-icon"><i class="fas fa-eye"></i></div>
+        <div class="metric-lbl">Карточек просмотрено</div>
+        <div class="metric-val" id="m-cards">—</div>
+        <div class="metric-sub">за период</div>
+        <div class="metric-delta" id="m-cards-delta"></div>
+      </div>
+      <div class="metric-card green">
+        <div class="metric-icon"><i class="fas fa-paper-plane"></i></div>
+        <div class="metric-lbl">Заявки отправлены</div>
+        <div class="metric-val" id="m-requests">—</div>
+        <div class="metric-sub" id="m-requests-sub">одобр.: — / всего: —</div>
+        <div class="metric-delta" id="m-requests-delta"></div>
+      </div>
+      <div class="metric-card orange">
+        <div class="metric-icon"><i class="fas fa-flag-checkered"></i></div>
+        <div class="metric-lbl">Поездки завершены</div>
+        <div class="metric-val" id="m-rides">—</div>
+        <div class="metric-sub">за период</div>
+        <div class="metric-delta" id="m-rides-delta"></div>
+      </div>
+      <div class="metric-card yellow">
+        <div class="metric-icon"><i class="fas fa-star"></i></div>
+        <div class="metric-lbl">Отзывы написаны</div>
+        <div class="metric-val" id="m-reviews">—</div>
+        <div class="metric-sub">оставил отзывов</div>
+        <div class="metric-delta" id="m-reviews-delta"></div>
+      </div>
+      <div class="metric-card pink">
+        <div class="metric-icon"><i class="fas fa-user-plus"></i></div>
+        <div class="metric-lbl">Инвайты отправлены</div>
+        <div class="metric-val" id="m-invites">—</div>
+        <div class="metric-sub">приглашений</div>
+        <div class="metric-delta" id="m-invites-delta"></div>
+      </div>
+      <div class="metric-card red">
+        <div class="metric-icon"><i class="fas fa-comment"></i></div>
+        <div class="metric-lbl">Сообщений отправлено</div>
+        <div class="metric-val" id="m-messages">—</div>
+        <div class="metric-sub">в чатах</div>
+        <div class="metric-delta" id="m-messages-delta"></div>
+      </div>
+    </div>
+
+    <!-- Кредиты -->
+    <div class="credits-flow">
+      <div class="flow-card" style="border-top:3px solid #4caf7d;">
+        <div class="flow-val" style="color:#4caf7d;" id="f-earned">—</div>
+        <div class="flow-lbl">🟢 Получено кредитов</div>
+        <div style="font-size:10px;color:#555;margin-top:4px;">за поездки, отзывы, инвайты</div>
+      </div>
+      <div class="flow-card" style="border-top:3px solid #e05050;">
+        <div class="flow-val" style="color:#e05050;" id="f-spent">—</div>
+        <div class="flow-lbl">🔴 Потрачено кредитов</div>
+        <div style="font-size:10px;color:#555;margin-top:4px;">бусты, оплата поездок</div>
+      </div>
+      <div class="flow-card" style="border-top:3px solid #e8c84a;">
+        <div class="flow-val" style="color:#e8c84a;" id="f-balance">—</div>
+        <div class="flow-lbl">💰 Баланс за период</div>
+        <div style="font-size:10px;color:#555;margin-top:4px;">итог: получено − потрачено</div>
+      </div>
+      <div class="flow-card" style="border-top:3px solid #4a9eff;">
+        <div class="flow-val" style="color:#4a9eff;" id="f-conversion">—%</div>
+        <div class="flow-lbl">🎯 Конверсия заявок</div>
+        <div style="font-size:10px;color:#555;margin-top:4px;">одобрено / отправлено</div>
+      </div>
+    </div>
+
+    <!-- Графики -->
+    <div class="charts-2col">
+      <div class="chart-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <div class="chart-title" style="margin:0;">📈 Активность по дням <span id="chart-period-label"></span></div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;" id="metric-toggles">
+            <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="toggleMetric('sessions',this)">📱 Сессии</button>
+            <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="toggleMetric('rides_completed',this)">🏁 Поездки</button>
+            <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="toggleMetric('requests_sent',this)">📩 Заявки</button>
+            <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="toggleMetric('credits_earned',this)">💰 Кредиты</button>
+          </div>
+        </div>
+        <div style="height:240px;">
+          <canvas id="main-chart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">⚡ Распределение активности</div>
+        <div style="position:relative;height:180px;">
+          <canvas id="activity-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Тепловая карта активности -->
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-title">🗓 Тепловая карта активности (30 дней)</div>
+      <div style="margin-bottom:6px;" id="hm-months"></div>
+      <div class="hm-header">
+        <div class="hm-day">Пн</div><div class="hm-day">Вт</div><div class="hm-day">Ср</div>
+        <div class="hm-day">Чт</div><div class="hm-day">Пт</div><div class="hm-day">Сб</div>
+        <div class="hm-day">Вс</div>
+      </div>
+      <div class="heatmap" id="heatmap"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;font-size:10px;color:#a0a0b0;">
+        <span>Меньше</span>
+        <div style="width:12px;height:12px;border-radius:2px;background:#1a1a2a;border:1px solid #2a2a3a;"></div>
+        <div style="width:12px;height:12px;border-radius:2px;background:#e8c84a33;"></div>
+        <div style="width:12px;height:12px;border-radius:2px;background:#e8c84a66;"></div>
+        <div style="width:12px;height:12px;border-radius:2px;background:#e8c84a99;"></div>
+        <div style="width:12px;height:12px;border-radius:2px;background:#e8c84a;"></div>
+        <span>Больше</span>
+      </div>
+    </div>
+
+    <!-- Детальная таблица -->
+    <div class="admin-card" style="padding:0;overflow:hidden;">
+      <div style="padding:16px 20px;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:14px;font-weight:700;">📋 Детальные данные по дням</div>
+        <div style="font-size:11px;color:#a0a0b0;" id="table-count">0 записей</div>
+      </div>
+      <div class="tbl-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Сессии</th>
+              <th>Время</th>
+              <th>Карточки</th>
+              <th>Заявки</th>
+              <th>Одобр.</th>
+              <th>Поездки</th>
+              <th>Отзывы</th>
+              <th>Сообщ.</th>
+              <th>Инвайты</th>
+              <th>+ кред.</th>
+              <th>− кред.</th>
+              <th>Уровень</th>
+            </tr>
+          </thead>
+          <tbody id="detail-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div id="admin-toast" style="display:none;position:fixed;bottom:24px;right:24px;background:#1a1a2a;border:1px solid #2a2a3a;border-radius:10px;padding:12px 20px;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
+
+<script>
+let allStats = [];
+let filtered = [];
+let userData = null;
+let activeMetrics = ['sessions', 'rides_completed'];
+let mainChart = null;
+let activityChart = null;
+
+const CHART_COLORS = {
+  sessions:        { border:'#4a9eff', bg:'rgba(74,158,255,0.15)' },
+  rides_completed: { border:'#4caf7d', bg:'rgba(76,175,125,0.12)' },
+  requests_sent:   { border:'#e8c84a', bg:'rgba(232,200,74,0.12)' },
+  credits_earned:  { border:'#b08cff', bg:'rgba(176,140,255,0.12)' },
+};
+const LEVEL_ICONS = { bronze:'🥉', silver:'🥈', gold:'🥇', premium:'💎', vip:'👑' };
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+function showToast(msg) {
+  const t = document.getElementById('admin-toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', 3000);
+}
+
+async function init() {
+  const params = new URLSearchParams(location.search);
+  const userId = params.get('user_id') || 'user-alexey-001';
+  await loadUserInfo(userId);
+  await loadStats(userId);
+  setDefaultDates();
+  applyPeriod(14);
+}
+
+async function loadUserInfo(userId) {
+  // Демо-данные пользователя (в реальности — GET /tables/users/userId)
+  const DEMO_USERS = {
+    'user-alexey-001': { name:'Алексей Петров', initial:'АП', level:'premium', city:'Москва', trips:47, rating:4.9, credits:1240, phone:'+7 999 123-45-67', cars:2, since:'2025-11-01' },
+    'user-mikhail-002': { name:'Михаил Соколов', initial:'МС', level:'gold', city:'Москва', trips:28, rating:4.7, credits:640, phone:'+7 916 234-56-78', cars:1, since:'2025-12-15' },
+    'user-dmitry-003': { name:'Дмитрий Иванов', initial:'ДИ', level:'silver', city:'Казань', trips:12, rating:4.5, credits:180, phone:'+7 987 345-67-89', cars:1, since:'2026-01-20' },
+  };
+  userData = DEMO_USERS[userId] || DEMO_USERS['user-alexey-001'];
+
+  document.getElementById('user-avatar').textContent = userData.initial;
+  document.getElementById('user-name').textContent = userData.name;
+  document.getElementById('user-meta').textContent =
+    `${userData.phone} · ${userData.city} · Зарегистрирован: ${new Date(userData.since).toLocaleDateString('ru')} · ${userData.cars} авт. · ${userData.trips} поездок · ★ ${userData.rating}`;
+  document.getElementById('user-credits').textContent = userData.credits.toLocaleString('ru');
+  document.getElementById('page-title').textContent = userData.name + ' — Статистика';
+
+  const badgesEl = document.getElementById('user-badges');
+  const lvlBadge = document.createElement('span');
+  lvlBadge.className = 'status-badge';
+  lvlBadge.style.cssText = 'background:rgba(232,200,74,0.12);color:#e8c84a;border:1px solid rgba(232,200,74,0.25);';
+  lvlBadge.textContent = (LEVEL_ICONS[userData.level]||'') + ' ' + userData.level.charAt(0).toUpperCase() + userData.level.slice(1);
+  badgesEl.appendChild(lvlBadge);
+
+  const cityBadge = document.createElement('span');
+  cityBadge.className = 'status-badge';
+  cityBadge.style.cssText = 'background:rgba(74,158,255,0.1);color:#4a9eff;border:1px solid rgba(74,158,255,0.2);';
+  cityBadge.textContent = '📍 ' + userData.city;
+  badgesEl.appendChild(cityBadge);
+}
+
+async function loadStats(userId) {
+  try {
+    const r = await fetch('../tables/user_stats?limit=200&sort=date');
+    const j = await r.json();
+    allStats = (j.data || [])
+      .filter(s => s.user_id === userId)
+      .sort((a,b) => a.date.localeCompare(b.date));
+  } catch(e) {
+    showToast('⚠️ ' + e.message);
+  }
+  if (!allStats.length) allStats = generateMockStats(userId);
+}
+
+function generateMockStats(userId) {
+  const rows = [];
+  const today = new Date('2026-04-11');
+  const LEVELS = ['gold','gold','gold','gold','gold','gold','gold','gold','gold','gold','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium','premium'];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const sess = Math.round(Math.random() * 4 + 1);
+    const cards = sess * Math.round(Math.random() * 4 + 3);
+    const reqs = Math.round(Math.random() * 2);
+    const approved = Math.round(reqs * 0.7);
+    const rides = approved > 0 && Math.random() > 0.4 ? Math.round(approved * 0.8) : 0;
+    const earned = rides * Math.round(Math.random() * 80 + 60);
+    const spent = Math.random() > 0.85 ? Math.round(Math.random() * 200 + 50) : 0;
+    rows.push({
+      user_id: userId, date: dateStr,
+      sessions: sess, session_duration_sec: sess * Math.round(Math.random() * 200 + 150),
+      cards_viewed: cards, requests_sent: reqs, requests_approved: approved,
+      rides_completed: rides, reviews_written: rides > 0 && Math.random() > 0.5 ? 1 : 0,
+      likes_given: Math.round(Math.random() * 6 + 1),
+      messages_sent: Math.round(Math.random() * 5 + 1),
+      invites_sent: Math.random() > 0.85 ? 1 : 0,
+      credits_earned: earned, credits_spent: spent,
+      level: LEVELS[29 - i] || 'gold'
+    });
+  }
+  return rows;
+}
+
+function setDefaultDates() {
+  const today = new Date();
+  const from = new Date(today);
+  from.setDate(from.getDate() - 14);
+  document.getElementById('date-to').value = today.toISOString().split('T')[0];
+  document.getElementById('date-from').value = from.toISOString().split('T')[0];
+}
+
+function setPeriod(days, btn) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  applyPeriod(days);
+}
+
+function applyCustomRange() {
+  const from = document.getElementById('date-from').value;
+  const to   = document.getElementById('date-to').value;
+  if (!from || !to) return;
+  filtered = allStats.filter(s => s.date >= from && s.date <= to);
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  renderAll();
+}
+
+function applyPeriod(days) {
+  if (days === 0) {
+    filtered = [...allStats];
+  } else {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutStr = cutoff.toISOString().split('T')[0];
+    filtered = allStats.filter(s => s.date >= cutStr);
+  }
+  if (filtered.length) {
+    document.getElementById('date-from').value = filtered[0].date;
+    document.getElementById('date-to').value = filtered[filtered.length - 1].date;
+  }
+  renderAll();
+}
+
+function sum(key) { return filtered.reduce((a,s) => a + (s[key]||0), 0); }
+
+function prevPeriod() {
+  if (!filtered.length) return [];
+  const days = filtered.length;
+  const from = filtered[0].date;
+  const prevTo = new Date(from);
+  prevTo.setDate(prevTo.getDate() - 1);
+  const prevFrom = new Date(prevTo);
+  prevFrom.setDate(prevFrom.getDate() - days + 1);
+  return allStats.filter(s => s.date >= prevFrom.toISOString().split('T')[0] && s.date <= prevTo.toISOString().split('T')[0]);
+}
+
+function deltaHtml(curr, prev, key) {
+  if (!prev.length) return '';
+  const pVal = prev.reduce((a,s) => a + (s[key]||0), 0);
+  if (!pVal) return '';
+  const pct = Math.round((curr - pVal) / pVal * 100);
+  const cls = pct >= 0 ? 'up' : 'down';
+  return `<div class="metric-delta ${cls}">${pct >= 0 ? '▲' : '▼'} ${Math.abs(pct)}% vs пред. период</div>`;
+}
+
+function fmtTime(sec) {
+  if (sec < 60) return sec + ' с';
+  const m = Math.floor(sec / 60);
+  if (m < 60) return m + ' мин';
+  const h = Math.floor(m / 60);
+  const rm = m % 60;
+  return `${h} ч ${rm} мин`;
+}
+
+function renderAll() {
+  renderMetrics();
+  renderMainChart();
+  renderActivityChart();
+  renderHeatmap();
+  renderTable();
+  document.getElementById('page-sub').textContent =
+    `Данных: ${filtered.length} дней · Всего в базе: ${allStats.length} дней`;
+}
+
+function renderMetrics() {
+  const prev = prevPeriod();
+
+  const sessions  = sum('sessions');
+  const totalSec  = sum('session_duration_sec');
+  const cards     = sum('cards_viewed');
+  const reqSent   = sum('requests_sent');
+  const reqAppr   = sum('requests_approved');
+  const rides     = sum('rides_completed');
+  const reviews   = sum('reviews_written');
+  const msgs      = sum('messages_sent');
+  const invites   = sum('invites_sent');
+  const earned    = sum('credits_earned');
+  const spent     = sum('credits_spent');
+  const cvr       = reqSent > 0 ? Math.round(reqAppr / reqSent * 100) : 0;
+
+  set('m-sessions', sessions);
+  set('m-sessions-sub', `всего за ${filtered.length} дней`);
+  setHTML('m-sessions-delta', deltaHtml(sessions, prev, 'sessions'));
+
+  set('m-time', fmtTime(totalSec));
+  set('m-time-sub', `≈ ${Math.round(totalSec / filtered.length / 60)} мин/день`);
+  setHTML('m-time-delta', deltaHtml(totalSec, prev, 'session_duration_sec'));
+
+  set('m-cards', cards);
+  setHTML('m-cards-delta', deltaHtml(cards, prev, 'cards_viewed'));
+
+  set('m-requests', reqSent);
+  set('m-requests-sub', `одобр.: ${reqAppr} / всего: ${reqSent}`);
+  setHTML('m-requests-delta', deltaHtml(reqSent, prev, 'requests_sent'));
+
+  set('m-rides', rides);
+  setHTML('m-rides-delta', deltaHtml(rides, prev, 'rides_completed'));
+
+  set('m-reviews', reviews);
+  setHTML('m-reviews-delta', deltaHtml(reviews, prev, 'reviews_written'));
+
+  set('m-invites', invites);
+  setHTML('m-invites-delta', deltaHtml(invites, prev, 'invites_sent'));
+
+  set('m-messages', msgs);
+  setHTML('m-messages-delta', deltaHtml(msgs, prev, 'messages_sent'));
+
+  // Credits flow
+  set('f-earned', '+' + earned.toLocaleString('ru'));
+  set('f-spent', '−' + spent.toLocaleString('ru'));
+  const bal = earned - spent;
+  const balEl = document.getElementById('f-balance');
+  if (balEl) {
+    balEl.textContent = (bal >= 0 ? '+' : '') + bal.toLocaleString('ru');
+    balEl.style.color = bal >= 0 ? '#4caf7d' : '#e05050';
+  }
+  set('f-conversion', cvr + '%');
+
+  document.getElementById('chart-period-label').textContent =
+    `(${filtered.length} дн. · ${sessions} сессий)`;
+}
+
+function renderMainChart() {
+  const labels = filtered.map(s => {
+    const d = new Date(s.date);
+    return d.toLocaleDateString('ru', {day:'numeric', month:'short'});
+  });
+
+  const datasets = activeMetrics.map(m => ({
+    label: { sessions:'Сессии', rides_completed:'Поездки', requests_sent:'Заявки', credits_earned:'Кредиты' }[m] || m,
+    data: filtered.map(s => s[m] || 0),
+    borderColor: CHART_COLORS[m]?.border || '#999',
+    backgroundColor: CHART_COLORS[m]?.bg || 'rgba(150,150,150,0.1)',
+    borderWidth: 2, pointRadius: 3, pointHoverRadius: 5,
+    fill: true, tension: 0.35,
+  }));
+
+  if (mainChart) mainChart.destroy();
+  const ctx = document.getElementById('main-chart').getContext('2d');
+  mainChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color:'#a0a0b0', font:{size:11} } } },
+      scales: {
+        x: { grid:{color:'#1a1a28'}, ticks:{color:'#666', font:{size:10}} },
+        y: { grid:{color:'#1a1a28'}, ticks:{color:'#666', font:{size:10}}, beginAtZero:true },
+      }
+    }
+  });
+}
+
+function renderActivityChart() {
+  const labels = ['Сессии','Карточки','Заявки','Поездки','Отзывы','Инвайты'];
+  const data   = [sum('sessions'), sum('cards_viewed'), sum('requests_sent'), sum('rides_completed'), sum('reviews_written'), sum('invites_sent')];
+  const colors = ['#4a9eff','#b08cff','#4caf7d','#ff9050','#e8c84a','#ff6eb0'];
+
+  if (activityChart) activityChart.destroy();
+  const ctx = document.getElementById('activity-chart').getContext('2d');
+  activityChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Активность',
+        data,
+        backgroundColor: 'rgba(232,200,74,0.15)',
+        borderColor: '#e8c84a',
+        borderWidth: 2,
+        pointBackgroundColor: colors,
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display:false } },
+      scales: {
+        r: {
+          grid: { color:'#2a2a3a' },
+          ticks: { color:'#555', font:{size:9}, backdropColor:'transparent' },
+          pointLabels: { color:'#a0a0b0', font:{size:10} },
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+}
+
+function renderHeatmap() {
+  const heatmap = document.getElementById('heatmap');
+  if (!heatmap) return;
+
+  // Собираем данные всех 30 дней (по allStats или mock)
+  const last30 = allStats.slice(-30);
+  const maxSess = Math.max(...last30.map(s => s.sessions || 0), 1);
+
+  // Выравниваем до полной недели (начинаем с понедельника)
+  const firstDate = last30.length ? new Date(last30[0].date) : new Date();
+  const dayOfWeek = (firstDate.getDay() + 6) % 7; // 0=Пн
+  const cells = [];
+  for (let i = 0; i < dayOfWeek; i++) cells.push(null); // пустые слоты
+  last30.forEach(s => cells.push(s));
+
+  heatmap.innerHTML = cells.map(s => {
+    if (!s) return `<div class="hm-cell" style="background:#0e0e18;"></div>`;
+    const intensity = (s.sessions || 0) / maxSess;
+    const alpha = Math.round(intensity * 4) / 4;
+    const bg = alpha === 0 ? '#1a1a2a' :
+               alpha <= 0.25 ? '#e8c84a33' :
+               alpha <= 0.5  ? '#e8c84a66' :
+               alpha <= 0.75 ? '#e8c84a99' : '#e8c84a';
+    const tip = `${s.date}: ${s.sessions} сесс., ${s.rides_completed||0} поездок`;
+    return `<div class="hm-cell" style="background:${bg};" title="${tip}"></div>`;
+  }).join('');
+}
+
+function renderTable() {
+  const tbody = document.getElementById('detail-tbody');
+  document.getElementById('table-count').textContent = filtered.length + ' записей';
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:24px;color:#555;">Нет данных за период</td></tr>';
+    return;
+  }
+  tbody.innerHTML = [...filtered].reverse().map(s => {
+    const d = new Date(s.date);
+    const dateStr = d.toLocaleDateString('ru', {weekday:'short', day:'numeric', month:'short'});
+    const lvlIcon = LEVEL_ICONS[s.level] || '';
+    return `<tr>
+      <td style="font-weight:600;white-space:nowrap;">${dateStr}</td>
+      <td><strong>${s.sessions||0}</strong></td>
+      <td style="color:#a0a0b0;">${fmtTime(s.session_duration_sec||0)}</td>
+      <td style="color:#b08cff;">${s.cards_viewed||0}</td>
+      <td style="color:#4caf7d;">${s.requests_sent||0}</td>
+      <td style="color:#4caf7d;">${s.requests_approved||0}</td>
+      <td style="color:#ff9050;font-weight:700;">${s.rides_completed||0}</td>
+      <td style="color:#e8c84a;">${s.reviews_written||0}</td>
+      <td style="color:#a0a0b0;">${s.messages_sent||0}</td>
+      <td style="color:#ff6eb0;">${s.invites_sent||0}</td>
+      <td style="color:#4caf7d;">+${s.credits_earned||0}</td>
+      <td style="color:#e05050;">${s.credits_spent ? '−'+s.credits_spent : '—'}</td>
+      <td>${lvlIcon} ${s.level||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleMetric(key, btn) {
+  if (activeMetrics.includes(key)) {
+    if (activeMetrics.length === 1) return;
+    activeMetrics = activeMetrics.filter(m => m !== key);
+    btn.className = 'admin-btn admin-btn-secondary admin-btn-sm';
+  } else {
+    activeMetrics.push(key);
+    btn.className = 'admin-btn admin-btn-primary admin-btn-sm';
+  }
+  renderMainChart();
+}
+
+function set(id, val) { const e = document.getElementById(id); if(e) e.textContent = val; }
+function setHTML(id, val) { const e = document.getElementById(id); if(e) e.innerHTML = val; }
+
+function exportCSV() {
+  if (!filtered.length) { showToast('Нет данных'); return; }
+  const headers = ['Дата','Сессии','Время (сек)','Карточки','Заявки','Одобрено','Поездки','Отзывы','Сообщ.','Инвайты','+кред.','−кред.','Уровень'];
+  const rows = filtered.map(s => [s.date, s.sessions, s.session_duration_sec, s.cards_viewed, s.requests_sent, s.requests_approved, s.rides_completed, s.reviews_written, s.messages_sent, s.invites_sent, s.credits_earned, s.credits_spent, s.level]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `user-stats-${new Date().toISOString().split('T')[0]}.csv`; a.click();
+  showToast('✅ CSV экспортирован');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#0f0f0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Sharecar — Добро пожаловать</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <style>
+    body {
+      background: #0f0f0f; min-height: 100vh;
+      display: flex; flex-direction: column;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    /* Slides */
+    .slides-wrap { flex: 1; overflow: hidden; position: relative; }
+    .slides { display: flex; height: 100%; transition: transform .4s cubic-bezier(.4,0,.2,1); }
+    .slide {
+      flex-shrink: 0; width: 100%; padding: 40px 28px 20px;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+    }
+    .slide-emoji { font-size: 72px; margin-bottom: 24px; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    .slide-title { font-size: 26px; font-weight: 800; margin-bottom: 12px; letter-spacing: -.5px; }
+    .slide-title span { color: #f59e0b; }
+    .slide-desc { font-size: 15px; color: #999; line-height: 1.65; max-width: 320px; }
+
+    /* Level cards in slide 2 */
+    .levels-preview {
+      display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 16px;
+    }
+    .level-row {
+      display: flex; align-items: center; gap: 10px;
+      background: #141428; border-radius: 10px; padding: 10px 14px;
+    }
+    .level-icon { font-size: 20px; flex-shrink: 0; }
+    .level-name { font-weight: 700; font-size: 14px; }
+    .level-desc { font-size: 12px; color: #666; }
+
+    /* Bottom area */
+    .bottom-area { padding: 20px 24px 36px; }
+    .dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #2a2a4a; transition: all .2s; }
+    .dot.active { background: #f59e0b; width: 20px; border-radius: 4px; }
+    .dot.done { background: #22c55e; }
+
+    .btn-next {
+      width: 100%; padding: 16px; background: #f59e0b; color: #000;
+      border: none; border-radius: 14px; font-size: 16px; font-weight: 800;
+      cursor: pointer; letter-spacing: -.3px; transition: opacity .2s;
+    }
+    .btn-next:active { opacity: .85; }
+
+    /* Setup form slide */
+    .setup-form { width: 100%; text-align: left; margin-top: 16px; }
+    .f-label {
+      font-size: 12px; color: #888; margin-bottom: 6px; display: block;
+      text-transform: uppercase; letter-spacing: .5px; font-weight: 500;
+    }
+    .f-input {
+      width: 100%; background: #141428; border: 1px solid #2a2a4a;
+      border-radius: 10px; padding: 13px 14px; color: #fff; font-size: 16px;
+      outline: none; margin-bottom: 12px; box-sizing: border-box;
+      transition: border .2s; -webkit-appearance: none;
+    }
+    .f-input:focus { border-color: #f59e0b; }
+    .f-input::placeholder { color: #444; }
+    .f-row { display: flex; gap: 10px; }
+    .f-row .form-g { flex: 1; }
+
+    /* Interest chips */
+    .interest-grid {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;
+    }
+    .int-chip {
+      padding: 8px 14px; background: #141428;
+      border: 1px solid #2a2a4a; border-radius: 20px;
+      font-size: 13px; color: #aaa; cursor: pointer; transition: all .2s;
+    }
+    .int-chip.selected {
+      border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,.08);
+    }
+
+    /* Credits explainer */
+    .credits-flow {
+      width: 100%; background: #141428; border-radius: 14px;
+      padding: 16px; margin-top: 16px; text-align: left;
+    }
+    .cf-step {
+      display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px;
+    }
+    .cf-step:last-child { margin-bottom: 0; }
+    .cf-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: #f59e0b; color: #000; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .cf-text { font-size: 13px; color: #ccc; line-height: 1.5; }
+    .cf-text b { color: #f59e0b; }
+  </style>
+</head>
+<body>
+
+  <div class="slides-wrap">
+    <div class="slides" id="slides">
+
+      <!-- Slide 0: Welcome -->
+      <div class="slide">
+        <div class="slide-emoji">🚗</div>
+        <div class="slide-title">Добро пожаловать в <span>Sharecar</span></div>
+        <div class="slide-desc">
+          Экосистема для автолюбителей: делитесь машинами, ездите на мечте
+          и становитесь частью сообщества.
+        </div>
+      </div>
+
+      <!-- Slide 1: Level system -->
+      <div class="slide">
+        <div class="slide-emoji">🏆</div>
+        <div class="slide-title">Система <span>уровней</span></div>
+        <div class="slide-desc">Чем больше поездок — тем выше уровень и скидки.</div>
+        <div class="levels-preview">
+          <div class="level-row">
+            <span class="level-icon">🥉</span>
+            <div>
+              <div class="level-name" style="color:#cd7f32;">Bronze</div>
+              <div class="level-desc">Старт · 0 поездок</div>
+            </div>
+          </div>
+          <div class="level-row">
+            <span class="level-icon">🥈</span>
+            <div>
+              <div class="level-name" style="color:#a8a9ad;">Silver</div>
+              <div class="level-desc">−5% к цене · 5 поездок</div>
+            </div>
+          </div>
+          <div class="level-row">
+            <span class="level-icon">🥇</span>
+            <div>
+              <div class="level-name" style="color:#ffd700;">Gold</div>
+              <div class="level-desc">−10% к цене · 15 поездок</div>
+            </div>
+          </div>
+          <div class="level-row">
+            <span class="level-icon">💎</span>
+            <div>
+              <div class="level-name" style="color:#a855f7;">Premium</div>
+              <div class="level-desc">−15% · Владельцы с правом езды</div>
+            </div>
+          </div>
+          <div class="level-row">
+            <span class="level-icon">👑</span>
+            <div>
+              <div class="level-name" style="color:#f59e0b;">VIP</div>
+              <div class="level-desc">−20% · 60 поездок</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: Credits -->
+      <div class="slide">
+        <div class="slide-emoji">💰</div>
+        <div class="slide-title">Кредиты для <span>бустов</span></div>
+        <div class="slide-desc">Владельцы получают кредиты и поднимают объявления в топ.</div>
+        <div class="credits-flow">
+          <div class="cf-step">
+            <div class="cf-num">1</div>
+            <div class="cf-text">Пользователь <b>завершил поездку</b> и оставил отзыв</div>
+          </div>
+          <div class="cf-step">
+            <div class="cf-num">2</div>
+            <div class="cf-text">Владелец <b>подтверждает</b> поездку в кабинете</div>
+          </div>
+          <div class="cf-step">
+            <div class="cf-num">3</div>
+            <div class="cf-text"><b>Кредиты зачисляются</b> на счёт автоматически</div>
+          </div>
+          <div class="cf-step">
+            <div class="cf-num">4</div>
+            <div class="cf-text">Тратьте кредиты на <b>буст объявления</b> в топ ленты</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3: Interests -->
+      <div class="slide">
+        <div class="slide-emoji">🎯</div>
+        <div class="slide-title">Ваши <span>интересы</span></div>
+        <div class="slide-desc">Выберите, что вам близко — настроим ленту:</div>
+        <div class="interest-grid" id="interests">
+          <div class="int-chip" onclick="toggleInt(this)">🏁 Кольцо</div>
+          <div class="int-chip" onclick="toggleInt(this)">💨 Дрифт</div>
+          <div class="int-chip" onclick="toggleInt(this)">🚗 Городские</div>
+          <div class="int-chip" onclick="toggleInt(this)">🚙 Оффроуд</div>
+          <div class="int-chip" onclick="toggleInt(this)">🏎 Спорт</div>
+          <div class="int-chip" onclick="toggleInt(this)">🏢 Бизнес</div>
+          <div class="int-chip" onclick="toggleInt(this)">⚡ Электрокары</div>
+          <div class="int-chip" onclick="toggleInt(this)">🏆 Гонки</div>
+          <div class="int-chip" onclick="toggleInt(this)">📸 Фотосессии</div>
+        </div>
+      </div>
+
+      <!-- Slide 4: Setup profile -->
+      <div class="slide">
+        <div class="slide-emoji">👤</div>
+        <div class="slide-title">Ваш <span>профиль</span></div>
+        <div class="slide-desc">Заполните — это увидят владельцы при рассмотрении заявки.</div>
+        <div class="setup-form">
+          <div class="f-row">
+            <div class="form-g">
+              <label class="f-label">Имя</label>
+              <input class="f-input" id="ob-fname" placeholder="Иван" autocomplete="given-name">
+            </div>
+            <div class="form-g">
+              <label class="f-label">Фамилия</label>
+              <input class="f-input" id="ob-lname" placeholder="Петров" autocomplete="family-name">
+            </div>
+          </div>
+          <label class="f-label">Город</label>
+          <input class="f-input" id="ob-city" placeholder="Москва" autocomplete="address-level2">
+          <label class="f-label">Коротко о себе</label>
+          <textarea class="f-input" id="ob-bio" rows="3" placeholder="Опыт, машины, цели..."></textarea>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom -->
+  <div class="bottom-area">
+    <div class="dots" id="dots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="nextSlide()">Далее →</button>
+  </div>
+
+  <div id="global-toast"></div>
+
+  <script type="module">
+    import { supabase, showToast } from '../js/supabase.js';
+
+    let step = 0;
+    const TOTAL = 5;
+    let currentUser = null;
+
+    window.nextSlide = nextSlide;
+    window.toggleInt = toggleInt;
+
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { window.location.href = '/app/auth.html'; return; }
+      currentUser = session.user;
+
+      // Prefill from user meta
+      const meta = session.user.user_metadata || {};
+      if (meta.first_name) document.getElementById('ob-fname').value = meta.first_name;
+      if (meta.last_name) document.getElementById('ob-lname').value = meta.last_name;
+      if (meta.city) document.getElementById('ob-city').value = meta.city;
+    }
+
+    function toggleInt(el) { el.classList.toggle('selected'); }
+
+    async function nextSlide() {
+      if (step === TOTAL - 1) {
+        await finish();
+        return;
+      }
+      step++;
+      document.getElementById('slides').style.transform = `translateX(-${step * 100}%)`;
+      updateDots();
+      if (step === TOTAL - 1) {
+        document.getElementById('btn-next').textContent = '🚀 Начать!';
+      }
+    }
+
+    function updateDots() {
+      document.querySelectorAll('.dot').forEach((d, i) => {
+        d.className = 'dot' + (i < step ? ' done' : i === step ? ' active' : '');
+      });
+    }
+
+    async function finish() {
+      const fname = document.getElementById('ob-fname').value.trim();
+      const lname = document.getElementById('ob-lname').value.trim();
+      const city  = document.getElementById('ob-city').value.trim();
+      const bio   = document.getElementById('ob-bio').value.trim();
+
+      document.getElementById('btn-next').textContent = '⏳ Сохраняем...';
+      document.getElementById('btn-next').disabled = true;
+
+      const { error } = await supabase.from('profiles').update({
+        first_name: fname || null,
+        last_name: lname || null,
+        city: city || 'Москва',
+        bio: bio || null,
+      }).eq('id', currentUser.id);
+
+      if (error) {
+        showToast('Ошибка: ' + error.message, 'error');
+        document.getElementById('btn-next').disabled = false;
+        document.getElementById('btn-next').textContent = '🚀 Начать!';
+        return;
+      }
+
+      window.location.href = '/app/index.html';
+    }
+
+    init();
+  </script>
+</body>
+</html>

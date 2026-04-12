@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharecar Admin — Заявки</title>
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+
+<aside class="admin-sidebar" id="sidebar">
+  <div class="admin-sidebar-logo"><div class="logo">Sharecar</div><div class="logo-sub">Admin Panel</div></div>
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Главное</div>
+    <a href="index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Дашборд</a>
+    <a href="users.html" class="admin-nav-item"><i class="fas fa-users"></i> Пользователи</a>
+    <a href="vehicles.html" class="admin-nav-item"><i class="fas fa-car-side"></i> Машины</a>
+    <a href="requests.html" class="admin-nav-item active"><i class="fas fa-inbox"></i> Заявки <span class="admin-nav-badge yellow">12</span></a>
+    <div class="admin-nav-section">Контроль</div>
+    <a href="moderation.html" class="admin-nav-item"><i class="fas fa-exclamation-triangle"></i> Жалобы и блок <span class="admin-nav-badge">3</span></a>
+    <a href="levels.html" class="admin-nav-item"><i class="fas fa-crown"></i> Уровни и VIP</a>
+    <a href="boosts.html" class="admin-nav-item"><i class="fas fa-rocket"></i> Бусты и продвижение</a>
+    <div class="admin-nav-section">Система</div>
+    <a href="settings.html" class="admin-nav-item"><i class="fas fa-cog"></i> Настройки</a>
+    <a href="../hub.html" class="admin-nav-item"><i class="fas fa-arrow-left"></i> К прототипу</a>
+  </nav>
+</aside>
+<div class="admin-sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div>
+      <div class="admin-topbar-title">Заявки на поездки</div>
+      <div class="admin-topbar-subtitle">Все запросы: в ожидании, принятые, завершённые</div>
+    </div>
+    <div class="admin-topbar-actions">
+      <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="showToast('Экспорт')"><i class="fas fa-download"></i> Экспорт</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    <div class="admin-stats">
+      <div class="admin-stat">
+        <div class="admin-stat-label">Всего заявок</div>
+        <div class="admin-stat-value">2 891</div>
+      </div>
+      <div class="admin-stat admin-stat-warn">
+        <div class="admin-stat-label">В ожидании</div>
+        <div class="admin-stat-value" style="color:#e8c84a;">127</div>
+      </div>
+      <div class="admin-stat admin-stat-good">
+        <div class="admin-stat-label">Принято</div>
+        <div class="admin-stat-value" style="color:#4caf7d;">1 204</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-label">Завершено поездок</div>
+        <div class="admin-stat-value">748</div>
+      </div>
+    </div>
+
+    <!-- Вкладки -->
+    <div style="display:flex;gap:0;border-bottom:1px solid #1e1e1e;margin-bottom:20px;">
+      <button class="tab-admin" onclick="filterTab('all')" id="tab-all" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid #e8c84a;color:#e8c84a;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Все (2891)</button>
+      <button class="tab-admin" onclick="filterTab('pending')" id="tab-pending" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;color:#666;font-size:13px;cursor:pointer;font-family:inherit;">В ожидании (127)</button>
+      <button class="tab-admin" onclick="filterTab('accepted')" id="tab-accepted" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;color:#666;font-size:13px;cursor:pointer;font-family:inherit;">Принято (1204)</button>
+      <button class="tab-admin" onclick="filterTab('done')" id="tab-done" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;color:#666;font-size:13px;cursor:pointer;font-family:inherit;">Завершено (748)</button>
+      <button class="tab-admin" onclick="filterTab('rejected')" id="tab-rejected" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;color:#666;font-size:13px;cursor:pointer;font-family:inherit;">Отклонено (812)</button>
+    </div>
+
+    <div class="admin-filters">
+      <div class="admin-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Поиск по пользователю, машине..." oninput="filterReqs(this.value)">
+      </div>
+      <select class="admin-filter-select">
+        <option>Все типы</option>
+        <option>За руль</option>
+        <option>Пассажир</option>
+      </select>
+      <select class="admin-filter-select">
+        <option>Любая оплата</option>
+        <option>Бесплатные</option>
+        <option>Платные</option>
+      </select>
+    </div>
+
+    <div class="admin-table-wrap">
+      <div class="admin-table-header">
+        <div class="admin-table-title">Список заявок</div>
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID заявки</th>
+            <th>Кто подал</th>
+            <th>Машина / Владелец</th>
+            <th>Тип</th>
+            <th>Оплата</th>
+            <th>Статус</th>
+            <th>Дата</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="req-tbody">
+        </tbody>
+      </table>
+      <div class="admin-pagination">
+        <div>Показано 1–10 из 2891</div>
+        <div class="pagination-pages">
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">...</button>
+          <button class="page-btn">290</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Детали заявки -->
+<div id="req-panel" style="display:none;position:fixed;top:0;right:0;width:400px;height:100vh;background:#111;border-left:1px solid #1e1e1e;z-index:300;overflow-y:auto;padding:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+    <h3 style="font-size:17px;font-weight:700;color:#f0f0f0;">Заявка #<span id="rp-id">—</span></h3>
+    <button onclick="document.getElementById('req-panel').style.display='none'" style="background:none;border:none;color:#666;font-size:20px;cursor:pointer;"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="admin-card" style="margin-bottom:16px;">
+    <div class="admin-card-header"><div class="admin-card-title">Детали</div></div>
+    <div class="admin-card-body">
+      <div class="detail-row"><span class="detail-key">От кого</span><span class="detail-val" id="rp-from">—</span></div>
+      <div class="detail-row"><span class="detail-key">Машина</span><span class="detail-val" id="rp-car">—</span></div>
+      <div class="detail-row"><span class="detail-key">Тип</span><span class="detail-val" id="rp-type">—</span></div>
+      <div class="detail-row"><span class="detail-key">Оплата</span><span class="detail-val" id="rp-pay">—</span></div>
+      <div class="detail-row"><span class="detail-key">Статус</span><span class="detail-val" id="rp-status">—</span></div>
+      <div class="detail-row"><span class="detail-key">Дата</span><span class="detail-val" id="rp-date">—</span></div>
+    </div>
+  </div>
+  <div id="rp-comment" style="background:#0f0f0f;border-radius:8px;padding:14px;margin-bottom:16px;font-size:13px;color:#888;display:none;">
+    <div style="font-size:11px;color:#555;margin-bottom:6px;">КОММЕНТАРИЙ</div>
+    <div id="rp-comment-text">—</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <button class="admin-btn admin-btn-secondary" onclick="showToast('Переход в чат заявки')"><i class="fas fa-comment"></i> Открыть чат</button>
+    <button class="admin-btn admin-btn-danger" onclick="cancelReq()"><i class="fas fa-times-circle"></i> Отменить заявку</button>
+  </div>
+</div>
+
+<div id="admin-toast" style="display:none;position:fixed;bottom:30px;right:30px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:12px 20px;color:#ccc;font-size:13px;z-index:9999;"></div>
+
+<script>
+const requests = [
+  {id:'req_001',from:'alex_moto',car:'BMW M3 Competition',owner:'ivan_p',type:'За руль',pay:'Бесплатно',status:'В ожидании',date:'07.04.2026',comment:'Хочу попробовать М-серию, у меня Golf GTI'},
+  {id:'req_002',from:'mary_car',car:'Mercedes AMG GT S',owner:'dima_wolf',type:'Пассажир',pay:'5 000 ₽',status:'Принята',date:'06.04.2026',comment:''},
+  {id:'req_003',from:'ksen_v',car:'Porsche 911 Carrera',owner:'elena_v',type:'За руль',pay:'Только инвайт',status:'Отклонена',date:'05.04.2026',comment:''},
+  {id:'req_004',from:'olga_t',car:'Toyota Supra A90',owner:'p_zhukov',type:'За руль',pay:'Бесплатно',status:'Завершена',date:'03.04.2026',comment:'Мечтала о Supra с детства'},
+  {id:'req_005',from:'roma_s',car:'Porsche 911 Carrera',owner:'elena_v',type:'Пассажир',pay:'3 000 ₽',status:'Завершена',date:'02.04.2026',comment:''},
+  {id:'req_006',from:'bad_user99',car:'Audi RS6',owner:'olga_t',type:'За руль',pay:'Бесплатно',status:'Заблокирована',date:'01.04.2026',comment:'Можете скинуть цену?'},
+  {id:'req_007',from:'nat_car',car:'Mini Cooper JCW',owner:'ksen_v',type:'За руль',pay:'Бесплатно',status:'Принята',date:'01.04.2026',comment:''},
+  {id:'req_008',from:'p_zhukov',car:'BMW M5 CS',owner:'alex_moto',type:'За руль',pay:'Только инвайт',status:'В ожидании',date:'31.03.2026',comment:''},
+  {id:'req_009',from:'ivan_p',car:'Ford Mustang GT500',owner:'mary_car',type:'Пассажир',pay:'4 500 ₽',status:'Принята',date:'30.03.2026',comment:''},
+  {id:'req_010',from:'dima_wolf',car:'Subaru BRZ',owner:'nat_car',type:'За руль',pay:'Бесплатно',status:'Завершена',date:'28.03.2026',comment:''},
+];
+
+const stClass = {'В ожидании':'status-pending','Принята':'status-active','Завершена':'status-active','Отклонена':'status-closed','Заблокирована':'status-blocked'};
+
+function renderRequests(data) {
+  document.getElementById('req-tbody').innerHTML = data.map(r => `
+    <tr>
+      <td style="font-size:11px;color:#555;">#${r.id}</td>
+      <td><strong style="color:#f0f0f0;">@${r.from}</strong></td>
+      <td>
+        <div style="color:#ccc;font-weight:500;">${r.car}</div>
+        <div style="font-size:11px;color:#555;">@${r.owner}</div>
+      </td>
+      <td><span class="badge ${r.type==='За руль'?'badge-yellow':'badge-blue'}">${r.type}</span></td>
+      <td style="color:${r.pay.includes('₽')?'#e8c84a':r.pay==='Бесплатно'?'#4caf7d':'#888'}">${r.pay}</td>
+      <td><span class="status-pill ${stClass[r.status]||'status-closed'}">${r.status}</span></td>
+      <td style="color:#555;font-size:12px;">${r.date}</td>
+      <td>
+        <div class="table-actions">
+          <button class="table-btn table-btn-view" onclick="openReq('${r.id}')"><i class="fas fa-eye"></i></button>
+          ${r.status === 'Заблокирована' || r.comment.toLowerCase().includes('скинуть') || r.comment.toLowerCase().includes('цен') ? '<span style="font-size:10px;color:#e05050;">⚠ Торг</span>' : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openReq(id) {
+  const r = requests.find(x => x.id === id);
+  if(!r) return;
+  document.getElementById('rp-id').textContent = r.id;
+  document.getElementById('rp-from').textContent = '@' + r.from;
+  document.getElementById('rp-car').textContent = r.car + ' (@' + r.owner + ')';
+  document.getElementById('rp-type').textContent = r.type;
+  document.getElementById('rp-pay').textContent = r.pay;
+  document.getElementById('rp-status').innerHTML = `<span class="status-pill ${stClass[r.status]||''}">${r.status}</span>`;
+  document.getElementById('rp-date').textContent = r.date;
+  const commentEl = document.getElementById('rp-comment');
+  if(r.comment) {
+    document.getElementById('rp-comment-text').textContent = r.comment;
+    commentEl.style.display = 'block';
+    if(r.comment.toLowerCase().includes('скинуть') || r.comment.toLowerCase().includes('цен') || r.comment.toLowerCase().includes('дешев')) {
+      commentEl.style.borderLeft = '3px solid #e05050';
+      document.getElementById('rp-comment-text').innerHTML = r.comment + ' <span style="color:#e05050;font-size:11px;">⚠ Признак торга</span>';
+    }
+  } else {
+    commentEl.style.display = 'none';
+  }
+  document.getElementById('req-panel').style.display = 'block';
+}
+
+function filterTab(tab) {
+  ['all','pending','accepted','done','rejected'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    if(el) { el.style.borderBottomColor = 'transparent'; el.style.color = '#666'; }
+  });
+  const active = document.getElementById('tab-' + tab);
+  if(active) { active.style.borderBottomColor = '#e8c84a'; active.style.color = '#e8c84a'; }
+  const map = {all: null, pending:'В ожидании', accepted:'Принята', done:'Завершена', rejected:'Отклонена'};
+  const f = map[tab];
+  renderRequests(f ? requests.filter(r => r.status === f) : requests);
+}
+
+function filterReqs(q) {
+  q = q.toLowerCase();
+  renderRequests(requests.filter(r => r.from.includes(q) || r.car.toLowerCase().includes(q) || r.owner.includes(q)));
+}
+
+function cancelReq() { showToast('Заявка отменена'); document.getElementById('req-panel').style.display='none'; }
+
+function showToast(msg,type) {
+  const t=document.getElementById('admin-toast');
+  t.textContent=msg; t.style.display='block';
+  t.style.borderLeft=type==='ok'?'3px solid #4caf7d':type==='err'?'3px solid #e05050':'3px solid #e8c84a';
+  setTimeout(()=>t.style.display='none',3000);
+}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+
+renderRequests(requests);
+</script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharecar Admin — Машины</title>
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+
+<aside class="admin-sidebar" id="sidebar">
+  <div class="admin-sidebar-logo"><div class="logo">Sharecar</div><div class="logo-sub">Admin Panel</div></div>
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Главное</div>
+    <a href="index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Дашборд</a>
+    <a href="users.html" class="admin-nav-item"><i class="fas fa-users"></i> Пользователи</a>
+    <a href="vehicles.html" class="admin-nav-item active"><i class="fas fa-car-side"></i> Машины</a>
+    <a href="requests.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Заявки <span class="admin-nav-badge yellow">12</span></a>
+    <div class="admin-nav-section">Контроль</div>
+    <a href="moderation.html" class="admin-nav-item"><i class="fas fa-exclamation-triangle"></i> Жалобы и блок <span class="admin-nav-badge">3</span></a>
+    <a href="levels.html" class="admin-nav-item"><i class="fas fa-crown"></i> Уровни и VIP</a>
+    <a href="boosts.html" class="admin-nav-item"><i class="fas fa-rocket"></i> Бусты и продвижение</a>
+    <div class="admin-nav-section">Система</div>
+    <a href="settings.html" class="admin-nav-item"><i class="fas fa-cog"></i> Настройки</a>
+    <a href="../hub.html" class="admin-nav-item"><i class="fas fa-arrow-left"></i> К прототипу</a>
+  </nav>
+</aside>
+<div class="admin-sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div>
+      <div class="admin-topbar-title">Машины</div>
+      <div class="admin-topbar-subtitle">Все транспортные средства, опубликованные в системе</div>
+    </div>
+    <div class="admin-topbar-actions">
+      <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="showModQ()"><i class="fas fa-clock"></i> На модерации (4)</button>
+      <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="showToast('Экспорт CSV')"><i class="fas fa-download"></i> Экспорт</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    <!-- Статистика -->
+    <div class="admin-stats">
+      <div class="admin-stat">
+        <div class="admin-stat-label">Всего машин</div>
+        <div class="admin-stat-value">384</div>
+        <div class="admin-stat-sub">В системе</div>
+      </div>
+      <div class="admin-stat admin-stat-good">
+        <div class="admin-stat-label">Активных</div>
+        <div class="admin-stat-value" style="color:#4caf7d;">367</div>
+        <div class="admin-stat-sub">Доступны в ленте</div>
+      </div>
+      <div class="admin-stat admin-stat-warn">
+        <div class="admin-stat-label">На модерации</div>
+        <div class="admin-stat-value" style="color:#e8c84a;">4</div>
+        <div class="admin-stat-sub">Ожидают проверки</div>
+      </div>
+      <div class="admin-stat admin-stat-bad">
+        <div class="admin-stat-label">Скрытых</div>
+        <div class="admin-stat-value" style="color:#e05050;">13</div>
+        <div class="admin-stat-sub">Заблокированы/скрыты</div>
+      </div>
+    </div>
+
+    <!-- Очередь модерации -->
+    <div id="mod-queue" style="display:none;" class="admin-alert admin-alert-warn" style="cursor:pointer;">
+      <i class="fas fa-clock"></i>
+      <div style="flex:1;">
+        <strong>На модерации 4 машины</strong> — требуют проверки перед публикацией
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="admin-btn admin-btn-success admin-btn-sm" onclick="approveAll()"><i class="fas fa-check"></i> Одобрить все</button>
+          <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="document.getElementById('mod-queue').style.display='none'">Скрыть</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="admin-filters">
+      <div class="admin-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Поиск по бренду, модели, владельцу..." oninput="filterVehicles(this.value)">
+      </div>
+      <select class="admin-filter-select" onchange="filterByBrand(this.value)">
+        <option value="">Все бренды</option>
+        <option>BMW</option><option>Mercedes</option><option>Audi</option>
+        <option>Porsche</option><option>Toyota</option><option>Subaru</option>
+        <option>Ford</option><option>Mini</option>
+      </select>
+      <select class="admin-filter-select" onchange="filterByAccess(this.value)">
+        <option value="">Тип доступа</option>
+        <option value="free">Бесплатно</option>
+        <option value="paid">Платно</option>
+        <option value="invite">Только инвайт</option>
+      </select>
+      <select class="admin-filter-select" onchange="filterByStatus(this.value)">
+        <option value="">Все статусы</option>
+        <option value="active">Активные</option>
+        <option value="pending">На модерации</option>
+        <option value="hidden">Скрытые</option>
+      </select>
+    </div>
+
+    <!-- Таблица машин -->
+    <div class="admin-table-wrap">
+      <div class="admin-table-header">
+        <div class="admin-table-title">Список машин (<span id="v-count">10</span>)</div>
+      </div>
+      <table class="admin-table" id="vehicles-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox"></th>
+            <th>Автомобиль</th>
+            <th>Владелец</th>
+            <th>Тип доступа</th>
+            <th>Цена / условия</th>
+            <th>Заявок</th>
+            <th>Поездок</th>
+            <th>Статус</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="vehicles-tbody"></tbody>
+      </table>
+      <div class="admin-pagination">
+        <div>Показано 1–10 из 384</div>
+        <div class="pagination-pages">
+          <button class="page-btn active">1</button>
+          <button class="page-btn" onclick="showToast('Стр. 2')">2</button>
+          <button class="page-btn" onclick="showToast('Стр. 3')">3</button>
+          <button class="page-btn">...</button>
+          <button class="page-btn" onclick="showToast('Стр. 39')">39</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Панель деталей машины -->
+<div id="vehicle-panel" style="display:none;position:fixed;top:0;right:0;width:420px;height:100vh;background:#111;border-left:1px solid #1e1e1e;z-index:300;overflow-y:auto;padding:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+    <h3 style="font-size:17px;font-weight:700;color:#f0f0f0;" id="vp-title">BMW M3</h3>
+    <button onclick="document.getElementById('vehicle-panel').style.display='none'" style="background:none;border:none;color:#666;font-size:20px;cursor:pointer;"><i class="fas fa-times"></i></button>
+  </div>
+
+  <!-- Фото-плейсхолдер -->
+  <div style="background:linear-gradient(135deg,#1a1a2a,#2a2a3a);border-radius:10px;height:160px;display:flex;align-items:center;justify-content:center;font-size:48px;margin-bottom:20px;">🚗</div>
+
+  <div class="admin-card" style="margin-bottom:16px;">
+    <div class="admin-card-header"><div class="admin-card-title">Детали машины</div></div>
+    <div class="admin-card-body">
+      <div class="detail-row"><span class="detail-key">ID</span><span class="detail-val" id="vp-id">—</span></div>
+      <div class="detail-row"><span class="detail-key">Бренд / Модель</span><span class="detail-val" id="vp-make">—</span></div>
+      <div class="detail-row"><span class="detail-key">Год</span><span class="detail-val" id="vp-year">—</span></div>
+      <div class="detail-row"><span class="detail-key">Двигатель</span><span class="detail-val" id="vp-engine">—</span></div>
+      <div class="detail-row"><span class="detail-key">Город</span><span class="detail-val" id="vp-city">—</span></div>
+      <div class="detail-row"><span class="detail-key">Владелец</span><span class="detail-val" id="vp-owner">—</span></div>
+      <div class="detail-row"><span class="detail-key">Доступ</span><span class="detail-val" id="vp-access">—</span></div>
+      <div class="detail-row"><span class="detail-key">Заявок</span><span class="detail-val" id="vp-reqs">—</span></div>
+      <div class="detail-row"><span class="detail-key">Одобрено</span><span class="detail-val" id="vp-approved">—</span></div>
+      <div class="detail-row"><span class="detail-key">Статус</span><span class="detail-val" id="vp-status">—</span></div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <button class="admin-btn admin-btn-success" onclick="approveVehicle()"><i class="fas fa-check"></i> Одобрить / Опубликовать</button>
+    <button class="admin-btn" style="background:rgba(74,158,255,0.12);color:#4a9eff;border:1px solid rgba(74,158,255,0.3);" onclick="openCarStats()"><i class="fas fa-chart-bar"></i> Статистика</button>
+    <button class="admin-btn admin-btn-secondary" onclick="featureVehicle()"><i class="fas fa-star"></i> Выделить в ленте</button>
+    <button class="admin-btn admin-btn-secondary" onclick="showToast('Редактирование машины')"><i class="fas fa-edit"></i> Редактировать</button>
+    <button class="admin-btn admin-btn-danger" onclick="hideVehicle()"><i class="fas fa-eye-slash"></i> Скрыть объявление</button>
+    <button class="admin-btn" style="background:rgba(224,80,80,0.1);color:#e05050;border:1px solid rgba(224,80,80,0.2);" onclick="deleteVehicle()"><i class="fas fa-trash"></i> Удалить</button>
+  </div>
+</div>
+
+<div id="admin-toast" style="display:none;position:fixed;bottom:30px;right:30px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:12px 20px;color:#ccc;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.5);"></div>
+
+<script>
+const vehicles = [
+  {id:'veh_001',brand:'BMW',model:'M3 Competition',year:2022,engine:'3.0 T / 510 л.с.',city:'Москва',owner:'ivan_p',access:'Только инвайт',price:'—',reqs:87,approved:12,trips:12,status:'Активный',featured:true},
+  {id:'veh_002',brand:'Mercedes',model:'AMG GT S',year:2021,engine:'4.0 T / 558 л.с.',city:'Москва',owner:'dima_wolf',access:'Платно',price:'5 000 ₽',reqs:134,approved:28,trips:28,status:'Активный',featured:true},
+  {id:'veh_003',brand:'Porsche',model:'911 Carrera',year:2023,engine:'3.0 T / 450 л.с.',city:'СПб',owner:'elena_v',access:'Только инвайт',price:'—',reqs:211,approved:7,trips:7,status:'Активный',featured:false},
+  {id:'veh_004',brand:'Toyota',model:'Supra A90',year:2022,engine:'3.0 T / 387 л.с.',city:'Казань',owner:'p_zhukov',access:'Бесплатно',price:'—',reqs:56,approved:34,trips:34,status:'Активный',featured:false},
+  {id:'veh_005',brand:'Subaru',model:'BRZ',year:2023,engine:'2.4 NA / 234 л.с.',city:'Нск',owner:'nat_car',access:'Бесплатно',price:'—',reqs:43,approved:28,trips:28,status:'Активный',featured:false},
+  {id:'veh_006',brand:'Audi',model:'RS6 Avant',year:2023,engine:'4.0 T / 600 л.с.',city:'Москва',owner:'olga_t',access:'Платно',price:'7 000 ₽',reqs:78,approved:9,trips:9,status:'Активный',featured:false},
+  {id:'veh_007',brand:'BMW',model:'M5 CS',year:2022,engine:'4.4 T / 635 л.с.',city:'Москва',owner:'alex_moto',access:'Только инвайт',price:'—',reqs:0,approved:0,trips:0,status:'На модерации',featured:false},
+  {id:'veh_008',brand:'Ford',model:'Mustang GT500',year:2021,engine:'5.2 NA / 760 л.с.',city:'Краснодар',owner:'mary_car',access:'Платно',price:'4 500 ₽',reqs:92,approved:41,trips:41,status:'Активный',featured:false},
+  {id:'veh_009',brand:'Mini',model:'Cooper S JCW',year:2023,engine:'2.0 T / 231 л.с.',city:'Москва',owner:'ksen_v',access:'Бесплатно',price:'—',reqs:31,approved:22,trips:22,status:'Активный',featured:false},
+  {id:'veh_010',brand:'Mercedes',model:'C63 AMG',year:2020,engine:'4.0 T / 476 л.с.',city:'Уфа',owner:'bad_user99',access:'Бесплатно',price:'—',reqs:14,approved:0,trips:0,status:'Скрытый',featured:false},
+];
+
+let selectedVehicle = null;
+const statusClass = {Активный:'status-active','На модерации':'status-pending',Скрытый:'status-closed'};
+const accessClass = {'Только инвайт':'badge-blue','Платно':'badge-yellow','Бесплатно':'badge-green'};
+
+function renderVehicles(data) {
+  const tb = document.getElementById('vehicles-tbody');
+  document.getElementById('v-count').textContent = data.length;
+  tb.innerHTML = data.map(v => `
+    <tr>
+      <td><input type="checkbox"></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:8px;background:#1a1a2a;display:flex;align-items:center;justify-content:center;font-size:18px;">🚗</div>
+          <div>
+            <div style="font-weight:600;color:#f0f0f0;">${v.brand} ${v.model}</div>
+            <div style="font-size:11px;color:#555;">${v.engine} · ${v.year}</div>
+          </div>
+        </div>
+      </td>
+      <td style="color:#888;">@${v.owner}</td>
+      <td><span class="badge ${accessClass[v.access] || 'badge-gray'}">${v.access}</span></td>
+      <td style="color:${v.price !== '—' ? '#e8c84a' : '#555'}">${v.price}</td>
+      <td style="color:#888;">${v.reqs}</td>
+      <td>${v.trips}</td>
+      <td><span class="status-pill ${statusClass[v.status] || 'status-closed'}">${v.status}</span></td>
+      <td>
+        <div class="table-actions">
+          <button class="table-btn table-btn-view" onclick="openVehicle('${v.id}')"><i class="fas fa-eye"></i> Открыть</button>
+          ${v.status === 'На модерации' ? `<button class="table-btn table-btn-unblock" onclick="quickApprove('${v.id}')"><i class="fas fa-check"></i></button>` : ''}
+          ${v.status !== 'Скрытый' ? `<button class="table-btn table-btn-block" onclick="quickHide('${v.id}')"><i class="fas fa-eye-slash"></i></button>` : `<button class="table-btn table-btn-unblock" onclick="quickShow('${v.id}')"><i class="fas fa-eye"></i></button>`}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openVehicle(id) {
+  selectedVehicle = vehicles.find(v => v.id === id);
+  if(!selectedVehicle) return;
+  const v = selectedVehicle;
+  document.getElementById('vp-title').textContent = v.brand + ' ' + v.model;
+  document.getElementById('vp-id').textContent = '#' + v.id;
+  document.getElementById('vp-make').textContent = v.brand + ' ' + v.model;
+  document.getElementById('vp-year').textContent = v.year;
+  document.getElementById('vp-engine').textContent = v.engine;
+  document.getElementById('vp-city').textContent = v.city;
+  document.getElementById('vp-owner').textContent = '@' + v.owner;
+  document.getElementById('vp-access').textContent = v.access;
+  document.getElementById('vp-reqs').textContent = v.reqs;
+  document.getElementById('vp-approved').textContent = v.approved + ' (' + (v.reqs > 0 ? Math.round(v.approved/v.reqs*100) : 0) + '%)';
+  document.getElementById('vp-status').innerHTML = `<span class="status-pill ${statusClass[v.status] || ''}">${v.status}</span>`;
+  document.getElementById('vehicle-panel').style.display = 'block';
+}
+
+function approveVehicle() { if(selectedVehicle) { selectedVehicle.status='Активный'; showToast('✅ Машина опубликована','ok'); renderVehicles(vehicles); openVehicle(selectedVehicle.id); }}
+function hideVehicle() { if(selectedVehicle) { selectedVehicle.status='Скрытый'; showToast('🙈 Объявление скрыто'); renderVehicles(vehicles); openVehicle(selectedVehicle.id); }}
+function featureVehicle() { showToast('⭐ Машина выделена в ленте','ok'); }
+function openCarStats() { if(selectedVehicle) { window.location.href = 'stats-car.html?car_id=' + selectedVehicle.id; } else { showToast('⚠️ Выбери машину'); } }
+function deleteVehicle() { if(confirm('Удалить машину?')) { showToast('🗑️ Удалено'); document.getElementById('vehicle-panel').style.display='none'; }}
+function quickApprove(id) { const v=vehicles.find(x=>x.id===id); if(v){v.status='Активный';showToast('✅ Одобрено','ok');renderVehicles(vehicles);} }
+function quickHide(id) { const v=vehicles.find(x=>x.id===id); if(v){v.status='Скрытый';showToast('Скрыто');renderVehicles(vehicles);} }
+function quickShow(id) { const v=vehicles.find(x=>x.id===id); if(v){v.status='Активный';showToast('Показано');renderVehicles(vehicles);} }
+function showModQ() { const el=document.getElementById('mod-queue'); el.style.display=el.style.display==='none'?'flex':'none'; }
+function approveAll() { vehicles.filter(v=>v.status==='На модерации').forEach(v=>v.status='Активный'); showToast('✅ Все машины одобрены','ok'); renderVehicles(vehicles); document.getElementById('mod-queue').style.display='none'; }
+function filterVehicles(q) { q=q.toLowerCase(); renderVehicles(vehicles.filter(v => v.brand.toLowerCase().includes(q)||v.model.toLowerCase().includes(q)||v.owner.toLowerCase().includes(q))); }
+function filterByBrand(b) { renderVehicles(b ? vehicles.filter(v=>v.brand===b) : vehicles); }
+function filterByAccess(a) {
+  const map={'free':'Бесплатно','paid':'Платно','invite':'Только инвайт'};
+  renderVehicles(a ? vehicles.filter(v=>v.access===map[a]) : vehicles);
+}
+function filterByStatus(s) {
+  const map={'active':'Активный','pending':'На модерации','hidden':'Скрытый'};
+  renderVehicles(s ? vehicles.filter(v=>v.status===map[s]) : vehicles);
+}
+function showToast(msg, type) {
+  const t=document.getElementById('admin-toast');
+  t.textContent=msg; t.style.display='block';
+  t.style.borderLeft=type==='ok'?'3px solid #4caf7d':type==='err'?'3px solid #e05050':'3px solid #e8c84a';
+  setTimeout(()=>t.style.display='none',3000);
+}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+
+renderVehicles(vehicles);
+</script>
+</body>
+</html>

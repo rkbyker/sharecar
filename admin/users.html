@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharecar Admin — Пользователи</title>
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+
+<aside class="admin-sidebar" id="sidebar">
+  <div class="admin-sidebar-logo">
+    <div class="logo">Sharecar</div>
+    <div class="logo-sub">Admin Panel</div>
+  </div>
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Главное</div>
+    <a href="index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Дашборд</a>
+    <a href="users.html" class="admin-nav-item active"><i class="fas fa-users"></i> Пользователи</a>
+    <a href="vehicles.html" class="admin-nav-item"><i class="fas fa-car-side"></i> Машины</a>
+    <a href="requests.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Заявки <span class="admin-nav-badge yellow">12</span></a>
+    <div class="admin-nav-section">Контроль</div>
+    <a href="moderation.html" class="admin-nav-item"><i class="fas fa-exclamation-triangle"></i> Жалобы и блок <span class="admin-nav-badge">3</span></a>
+    <a href="levels.html" class="admin-nav-item"><i class="fas fa-crown"></i> Уровни и VIP</a>
+    <a href="boosts.html" class="admin-nav-item"><i class="fas fa-rocket"></i> Бусты и продвижение</a>
+    <div class="admin-nav-section">Система</div>
+    <a href="settings.html" class="admin-nav-item"><i class="fas fa-cog"></i> Настройки</a>
+    <a href="../hub.html" class="admin-nav-item"><i class="fas fa-arrow-left"></i> К прототипу</a>
+  </nav>
+  <div class="admin-sidebar-footer">
+    <div class="admin-user"><i class="fas fa-user-shield"></i> Администратор</div>
+  </div>
+</aside>
+
+<div class="admin-sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div>
+      <div class="admin-topbar-title">Пользователи</div>
+      <div class="admin-topbar-subtitle">Управление аккаунтами, уровнями, блокировками</div>
+    </div>
+    <div class="admin-topbar-actions">
+      <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="showAddUser()"><i class="fas fa-plus"></i> Добавить</button>
+      <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="exportUsers()"><i class="fas fa-download"></i> Экспорт</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    <!-- Статистика -->
+    <div class="admin-stats" style="grid-template-columns:repeat(5,1fr);">
+      <div class="admin-stat">
+        <div class="admin-stat-label">Всего</div>
+        <div class="admin-stat-value">1 247</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-label">Активных</div>
+        <div class="admin-stat-value" style="color:#4caf7d;">1 158</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-label">С машиной</div>
+        <div class="admin-stat-value">384</div>
+      </div>
+      <div class="admin-stat admin-stat-warn">
+        <div class="admin-stat-label">VIP</div>
+        <div class="admin-stat-value" style="color:#7ec850;">12</div>
+      </div>
+      <div class="admin-stat admin-stat-bad">
+        <div class="admin-stat-label">Заблокировано</div>
+        <div class="admin-stat-value" style="color:#e05050;">7</div>
+      </div>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="admin-filters">
+      <div class="admin-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="user-search" placeholder="Поиск по имени, нику, ID..." oninput="filterUsers()">
+      </div>
+      <select class="admin-filter-select" id="level-filter" onchange="filterUsers()">
+        <option value="">Все уровни</option>
+        <option value="Bronze">Bronze</option>
+        <option value="Silver">Silver</option>
+        <option value="Gold">Gold</option>
+        <option value="Premium">Premium</option>
+        <option value="VIP">VIP</option>
+      </select>
+      <select class="admin-filter-select" id="status-filter" onchange="filterUsers()">
+        <option value="">Все статусы</option>
+        <option value="Активный">Активные</option>
+        <option value="Заблокирован">Заблокированные</option>
+        <option value="Новый">Новые</option>
+      </select>
+      <select class="admin-filter-select" id="car-filter" onchange="filterUsers()">
+        <option value="">Все пользователи</option>
+        <option value="yes">С машиной</option>
+        <option value="no">Без машины</option>
+      </select>
+    </div>
+
+    <!-- Таблица пользователей -->
+    <div class="admin-table-wrap">
+      <div class="admin-table-header">
+        <div class="admin-table-title">Список пользователей (<span id="count">10</span>)</div>
+        <div class="admin-table-tools">
+          <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="selectAll()"><i class="fas fa-check-square"></i> Выбрать всех</button>
+        </div>
+      </div>
+      <table class="admin-table" id="users-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="select-all" onchange="toggleSelectAll(this)"></th>
+            <th>Пользователь</th>
+            <th>Уровень</th>
+            <th>Машины</th>
+            <th>Поездок</th>
+            <th>Рейтинг</th>
+            <th>Статус</th>
+            <th>Рег.</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody">
+          <!-- заполняется JS -->
+        </tbody>
+      </table>
+      <div class="admin-pagination">
+        <div>Показано 1–10 из 1247</div>
+        <div class="pagination-pages">
+          <button class="page-btn active">1</button>
+          <button class="page-btn" onclick="showToast('Страница 2')">2</button>
+          <button class="page-btn" onclick="showToast('Страница 3')">3</button>
+          <button class="page-btn" onclick="showToast('...')">...</button>
+          <button class="page-btn" onclick="showToast('Последняя страница')">125</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ДЕРЕВО ПРИГЛАШЕНИЙ ═══ -->
+    <div class="admin-card" style="margin-top:24px;">
+      <div class="admin-card-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="admin-card-title"><i class="fas fa-sitemap" style="margin-right:8px;color:#4a8fe8;"></i>Дерево приглашений</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" placeholder="Найти..." id="tree-search" oninput="filterTree(this.value)"
+            style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;color:#ccc;font-size:12px;padding:5px 10px;outline:none;width:150px;font-family:inherit;">
+          <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="exportTree()"><i class="fas fa-download"></i> Экспорт</button>
+        </div>
+      </div>
+      <div class="admin-card-body">
+        <div style="font-size:12px;color:#555;margin-bottom:16px;">
+          Показывает кто от кого пришёл. Используется для анализа роста и будущих реферальных программ.
+        </div>
+
+        <!-- Статистика дерева -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+          <div style="background:#1a1a1a;border:1px solid #222;border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:20px;font-weight:800;color:#4a8fe8;">1 247</div>
+            <div style="font-size:10px;color:#555;margin-top:2px;">Всего польз.</div>
+          </div>
+          <div style="background:#1a1a1a;border:1px solid #222;border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:20px;font-weight:800;color:#4caf7d;">834</div>
+            <div style="font-size:10px;color:#555;margin-top:2px;">По инвайту</div>
+          </div>
+          <div style="background:#1a1a1a;border:1px solid #222;border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:20px;font-weight:800;color:#e8c84a;">413</div>
+            <div style="font-size:10px;color:#555;margin-top:2px;">Органика</div>
+          </div>
+          <div style="background:#1a1a1a;border:1px solid #222;border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:20px;font-weight:800;color:#b87fe8;">67%</div>
+            <div style="font-size:10px;color:#555;margin-top:2px;">Инвайт %</div>
+          </div>
+        </div>
+
+        <!-- Дерево (топ рефереры) -->
+        <div id="invite-tree">
+
+          <!-- Ветка 1: Александр К. -->
+          <div class="tree-node" style="margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#1a1a1a;border:1px solid #222;border-radius:10px;cursor:pointer;" onclick="toggleBranch('branch1')">
+              <div style="width:38px;height:38px;border-radius:50%;background:#1e2838;display:flex;align-items:center;justify-content:center;font-weight:700;color:#7ec850;flex-shrink:0;">А</div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:600;color:#f0f0f0;">Александр К. <span style="font-size:10px;background:rgba(126,200,80,0.12);color:#7ec850;padding:2px 6px;border-radius:4px;">👑 VIP</span></div>
+                <div style="font-size:11px;color:#555;">@alex_k · Пришёл сам (1-й пользователь)</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0;">
+                <div style="font-size:13px;font-weight:700;color:#4caf7d;">12 чел.</div>
+                <div style="font-size:10px;color:#555;">приглашено</div>
+              </div>
+              <i class="fas fa-chevron-down" style="color:#555;font-size:12px;" id="branch1-icon"></i>
+            </div>
+            <div id="branch1" style="display:none;margin-left:28px;border-left:2px solid #1e1e1e;padding-left:14px;margin-top:6px;">
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:#161616;border-radius:8px;font-size:12px;">
+                  <div style="width:30px;height:30px;border-radius:50%;background:#0f1520;display:flex;align-items:center;justify-content:center;color:#90a8c0;font-weight:700;">С</div>
+                  <div style="flex:1;"><strong style="color:#ccc;">Сергей М.</strong> <span style="color:#555;">@sergey_m · 🥇 Gold · 14 поездок</span></div>
+                  <div style="color:#555;font-size:10px;">→ пригласил 3</div>
+                  <div style="color:#4caf7d;font-size:10px;">Активен</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:#161616;border-radius:8px;font-size:12px;margin-left:28px;border-left:1px dashed #222;padding-left:12px;">
+                  <div style="width:26px;height:26px;border-radius:50%;background:#1a100a;display:flex;align-items:center;justify-content:center;color:#c87941;font-weight:700;font-size:11px;">Н</div>
+                  <div style="flex:1;"><strong style="color:#ccc;">Никита В.</strong> <span style="color:#555;">@nikita_v · 🥈 Silver</span></div>
+                  <div style="color:#555;font-size:10px;">от Сергея М.</div>
+                  <div style="color:#4caf7d;font-size:10px;">Активен</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:#161616;border-radius:8px;font-size:12px;margin-left:28px;border-left:1px dashed #222;padding-left:12px;">
+                  <div style="width:26px;height:26px;border-radius:50%;background:#1a100a;display:flex;align-items:center;justify-content:center;color:#c87941;font-weight:700;font-size:11px;">М</div>
+                  <div style="flex:1;"><strong style="color:#ccc;">Марина К.</strong> <span style="color:#555;">@marina_k · 🥇 Gold</span></div>
+                  <div style="color:#555;font-size:10px;">от Сергея М.</div>
+                  <div style="color:#4caf7d;font-size:10px;">Активна</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:#161616;border-radius:8px;font-size:12px;">
+                  <div style="width:30px;height:30px;border-radius:50%;background:#100f20;display:flex;align-items:center;justify-content:center;color:#90a8c0;font-weight:700;">Е</div>
+                  <div style="flex:1;"><strong style="color:#ccc;">Екатерина Л.</strong> <span style="color:#555;">@katya_l · 🥇 Gold</span></div>
+                  <div style="color:#555;font-size:10px;">→ пригласил 1</div>
+                  <div style="color:#4caf7d;font-size:10px;">Активна</div>
+                </div>
+                <div style="text-align:center;padding:6px;font-size:11px;color:#555;">
+                  ... ещё 8 человек <button onclick="showToast('Полный список — в экспорте')" style="background:none;border:none;color:#4a8fe8;font-size:11px;cursor:pointer;padding:0;">Показать всех</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ветка 2: Дмитрий В. -->
+          <div class="tree-node" style="margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#1a1a1a;border:1px solid #222;border-radius:10px;cursor:pointer;" onclick="toggleBranch('branch2')">
+              <div style="width:38px;height:38px;border-radius:50%;background:#1e2030;display:flex;align-items:center;justify-content:center;font-weight:700;color:#7ec850;flex-shrink:0;">Д</div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:600;color:#f0f0f0;">Дмитрий В. <span style="font-size:10px;background:rgba(126,200,80,0.12);color:#7ec850;padding:2px 6px;border-radius:4px;">👑 VIP</span></div>
+                <div style="font-size:11px;color:#555;">@dmitriy_v · Пришёл через Александра К.</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0;">
+                <div style="font-size:13px;font-weight:700;color:#4caf7d;">7 чел.</div>
+                <div style="font-size:10px;color:#555;">приглашено</div>
+              </div>
+              <i class="fas fa-chevron-right" style="color:#555;font-size:12px;" id="branch2-icon"></i>
+            </div>
+            <div id="branch2" style="display:none;margin-left:28px;border-left:2px solid #1e1e1e;padding-left:14px;margin-top:6px;">
+              <div style="font-size:12px;color:#555;padding:8px;">Загрузить ветку... <button onclick="showToast('Загрузка ветки')" style="background:none;border:none;color:#4a8fe8;font-size:12px;cursor:pointer;">→</button></div>
+            </div>
+          </div>
+
+          <!-- Ветка 3: Без инвайта (органика) -->
+          <div class="tree-node" style="margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#1a1a1a;border:1px solid #222;border-radius:10px;cursor:pointer;" onclick="toggleBranch('branch3')">
+              <div style="width:38px;height:38px;border-radius:50%;background:#1a1500;display:flex;align-items:center;justify-content:center;font-weight:700;color:#e8c84a;flex-shrink:0;font-size:12px;">+413</div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:600;color:#ccc;">Органические пользователи</div>
+                <div style="font-size:11px;color:#555;">Без реферальной ссылки · прямая регистрация</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0;">
+                <div style="font-size:13px;font-weight:700;color:#e8c84a;">413</div>
+                <div style="font-size:10px;color:#555;">пользователей</div>
+              </div>
+              <i class="fas fa-chevron-right" style="color:#555;font-size:12px;" id="branch3-icon"></i>
+            </div>
+            <div id="branch3" style="display:none;margin-left:28px;border-left:2px solid #1e1e1e;padding-left:14px;margin-top:6px;">
+              <div style="font-size:12px;color:#555;padding:8px;">413 пользователей без реферера. <button onclick="showToast('Список — в экспорте CSV')" style="background:none;border:none;color:#4a8fe8;font-size:12px;cursor:pointer;">Экспорт списка →</button></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="margin-top:12px;padding:12px;background:#111;border:1px dashed #222;border-radius:8px;font-size:12px;color:#555;">
+          💡 <strong style="color:#888;">Будущие возможности:</strong> автоматические бонусы за приглашённых, реферальные выплаты, топ-рефереров в отдельном рейтинге, A/B тесты по источникам трафика
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Панель деталей пользователя -->
+<div id="user-panel" style="display:none;position:fixed;top:0;right:0;width:420px;height:100vh;background:#111;border-left:1px solid #1e1e1e;z-index:300;overflow-y:auto;padding:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+    <h3 style="font-size:17px;font-weight:700;color:#f0f0f0;" id="panel-name">Пользователь</h3>
+    <button onclick="closePanel()" style="background:none;border:none;color:#666;font-size:20px;cursor:pointer;"><i class="fas fa-times"></i></button>
+  </div>
+  
+  <div style="text-align:center;margin-bottom:20px;">
+    <div style="width:64px;height:64px;border-radius:50%;background:#1e2838;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#e8c84a;margin:0 auto 12px;" id="panel-avatar">А</div>
+    <div id="panel-level-badge"></div>
+  </div>
+
+  <div class="admin-card" style="margin-bottom:16px;">
+    <div class="admin-card-header"><div class="admin-card-title">Профиль</div></div>
+    <div class="admin-card-body" id="panel-details">
+      <div class="detail-row"><span class="detail-key">ID</span><span class="detail-val" id="panel-id">#usr_001</span></div>
+      <div class="detail-row"><span class="detail-key">Ник</span><span class="detail-val" id="panel-nick">—</span></div>
+      <div class="detail-row"><span class="detail-key">Email</span><span class="detail-val" id="panel-email">—</span></div>
+      <div class="detail-row"><span class="detail-key">Город</span><span class="detail-val" id="panel-city">—</span></div>
+      <div class="detail-row"><span class="detail-key">Машин</span><span class="detail-val" id="panel-cars">—</span></div>
+      <div class="detail-row"><span class="detail-key">Поездок</span><span class="detail-val" id="panel-trips">—</span></div>
+      <div class="detail-row"><span class="detail-key">Рейтинг</span><span class="detail-val" id="panel-rating">—</span></div>
+      <div class="detail-row"><span class="detail-key">Статус</span><span class="detail-val" id="panel-status">—</span></div>
+      <div class="detail-row"><span class="detail-key">Регистрация</span><span class="detail-val" id="panel-reg">—</span></div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:8px;" id="panel-actions">
+    <button class="admin-btn admin-btn-success" onclick="grantVIP()"><i class="fas fa-crown"></i> Назначить VIP</button>
+    <button class="admin-btn admin-btn-secondary" onclick="changeLevel()"><i class="fas fa-arrow-up"></i> Изменить уровень</button>
+    <button class="admin-btn admin-btn-secondary" onclick="showToast('Переход в профиль')"><i class="fas fa-external-link-alt"></i> Открыть профиль</button>
+    <button class="admin-btn admin-btn-danger" id="block-btn" onclick="blockUser()"><i class="fas fa-ban"></i> Заблокировать</button>
+    <button class="admin-btn" style="background:rgba(224,80,80,0.1);color:#e05050;border:1px solid rgba(224,80,80,0.2);" onclick="deleteUser()"><i class="fas fa-trash"></i> Удалить аккаунт</button>
+  </div>
+</div>
+
+<!-- Модал добавления -->
+<div id="add-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:#151515;border:1px solid #2a2a2a;border-radius:14px;padding:28px;width:100%;max-width:460px;margin:20px;">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:20px;color:#f0f0f0;">Добавить пользователя</h3>
+    <div class="admin-form-grid">
+      <div class="admin-form-group">
+        <label class="admin-label">Имя</label>
+        <input class="admin-input" type="text" placeholder="Александр">
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-label">Ник</label>
+        <input class="admin-input" type="text" placeholder="alex_k">
+      </div>
+    </div>
+    <div class="admin-form-group">
+      <label class="admin-label">Email</label>
+      <input class="admin-input" type="email" placeholder="user@email.com">
+    </div>
+    <div class="admin-form-grid">
+      <div class="admin-form-group">
+        <label class="admin-label">Город</label>
+        <input class="admin-input" type="text" placeholder="Москва">
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-label">Уровень</label>
+        <select class="admin-input admin-select">
+          <option>Bronze</option><option>Silver</option><option>Gold</option><option>Premium</option><option>VIP</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="admin-btn admin-btn-secondary" onclick="document.getElementById('add-modal').style.display='none'">Отмена</button>
+      <button class="admin-btn admin-btn-primary" onclick="createUser()"><i class="fas fa-plus"></i> Создать</button>
+    </div>
+  </div>
+</div>
+
+<div id="admin-toast" style="display:none;position:fixed;bottom:30px;right:30px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:12px 20px;color:#ccc;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.5);"></div>
+
+<script>
+const usersData = [
+  {id:'usr_001',name:'Иван Петров',nick:'ivan_p',email:'ivan@mail.ru',city:'Москва',level:'Gold',cars:2,trips:14,rating:'4.9',status:'Активный',reg:'12.01.2025',blocked:false},
+  {id:'usr_002',name:'Мария Сидорова',nick:'mary_car',email:'mary@yandex.ru',city:'СПб',level:'Silver',cars:1,trips:7,rating:'4.7',status:'Активный',reg:'03.02.2025',blocked:false},
+  {id:'usr_003',name:'Алексей Козлов',nick:'alex_moto',email:'alexk@gmail.com',city:'Казань',level:'Bronze',cars:1,trips:2,rating:'4.5',status:'Новый',reg:'01.04.2026',blocked:false},
+  {id:'usr_004',name:'Елена Воронова',nick:'elena_v',email:'elena@mail.ru',city:'Москва',level:'Premium',cars:3,trips:31,rating:'5.0',status:'Активный',reg:'15.09.2024',blocked:false},
+  {id:'usr_005',name:'Дмитрий Волков',nick:'dima_wolf',email:'dima@yandex.ru',city:'Нск',level:'VIP',cars:4,trips:58,rating:'5.0',status:'Активный',reg:'10.07.2024',blocked:false},
+  {id:'usr_006',name:'Ольга Тихонова',nick:'olga_t',email:'olga@mail.ru',city:'Екатеринбург',level:'Silver',cars:1,trips:9,rating:'4.6',status:'Активный',reg:'20.11.2024',blocked:false},
+  {id:'usr_007',name:'Сергей Белов',nick:'s_belov',email:'s.belov@inbox.ru',city:'Москва',level:'Bronze',cars:0,trips:0,rating:'—',status:'Новый',reg:'05.04.2026',blocked:false},
+  {id:'usr_008',name:'Антон Зайцев',nick:'bad_user99',email:'anton@mail.ru',city:'Уфа',level:'Bronze',cars:1,trips:3,rating:'2.1',status:'Заблокирован',reg:'14.03.2025',blocked:true},
+  {id:'usr_009',name:'Наталья Орлова',nick:'nat_car',email:'nat@yandex.ru',city:'Москва',level:'Gold',cars:2,trips:22,rating:'4.8',status:'Активный',reg:'29.08.2024',blocked:false},
+  {id:'usr_010',name:'Павел Жуков',nick:'p_zhukov',email:'p.zhukov@mail.ru',city:'Краснодар',level:'Premium',cars:3,trips:44,rating:'4.9',status:'Активный',reg:'18.06.2024',blocked:false},
+];
+
+const levelColors = {
+  'Bronze':'rgba(200,121,65,0.15);color:#c87941',
+  'Silver':'rgba(144,168,192,0.15);color:#90a8c0',
+  'Gold':'rgba(232,200,74,0.15);color:#e8c84a',
+  'Premium':'rgba(184,127,232,0.15);color:#b87fe8',
+  'VIP':'rgba(126,200,80,0.15);color:#7ec850'
+};
+
+let filteredData = [...usersData];
+let selectedUser = null;
+
+function renderTable(data) {
+  const tbody = document.getElementById('users-tbody');
+  document.getElementById('count').textContent = data.length;
+  tbody.innerHTML = data.map(u => `
+    <tr>
+      <td><input type="checkbox" class="row-check"></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#1e2838;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#e8c84a;flex-shrink:0;">${u.name[0]}</div>
+          <div>
+            <div style="font-weight:600;color:#f0f0f0;">${u.name}</div>
+            <div style="font-size:11px;color:#555;">@${u.nick} · ${u.id}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="status-pill" style="background:${levelColors[u.level].split(';')[0]};${levelColors[u.level].split(';')[1]}">${u.level}</span></td>
+      <td>${u.cars > 0 ? `<span style="color:#e8c84a;font-weight:600;">${u.cars}</span>` : '<span style="color:#555;">0</span>'}</td>
+      <td>${u.trips}</td>
+      <td>${u.rating !== '—' ? `<span style="color:#e8c84a;">★</span> ${u.rating}` : '<span style="color:#555;">—</span>'}</td>
+      <td><span class="status-pill ${u.status==='Активный'?'status-active':u.status==='Заблокирован'?'status-blocked':'status-new'}">${u.status}</span></td>
+      <td style="color:#555;font-size:12px;">${u.reg}</td>
+      <td>
+        <div class="table-actions">
+          <button class="table-btn table-btn-view" onclick="openUser('${u.id}')"><i class="fas fa-eye"></i> Открыть</button>
+          <button class="table-btn" style="background:rgba(74,158,255,0.12);color:#4a9eff;border:1px solid rgba(74,158,255,0.25);" onclick="location.href='stats-user.html?user_id=${u.id}'"><i class="fas fa-chart-bar"></i> Стат.</button>
+          ${u.level !== 'VIP' ? `<button class="table-btn table-btn-vip" onclick="grantVIPById('${u.id}')"><i class="fas fa-crown"></i></button>` : ''}
+          ${!u.blocked ? `<button class="table-btn table-btn-block" onclick="blockById('${u.id}')"><i class="fas fa-ban"></i></button>` : `<button class="table-btn table-btn-unblock" onclick="unblockById('${u.id}')"><i class="fas fa-unlock"></i></button>`}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('user-search').value.toLowerCase();
+  const lvl = document.getElementById('level-filter').value;
+  const st = document.getElementById('status-filter').value;
+  const car = document.getElementById('car-filter').value;
+  filteredData = usersData.filter(u => {
+    if(q && !u.name.toLowerCase().includes(q) && !u.nick.toLowerCase().includes(q) && !u.id.includes(q)) return false;
+    if(lvl && u.level !== lvl) return false;
+    if(st && u.status !== st) return false;
+    if(car === 'yes' && u.cars === 0) return false;
+    if(car === 'no' && u.cars > 0) return false;
+    return true;
+  });
+  renderTable(filteredData);
+}
+
+function openUser(id) {
+  selectedUser = usersData.find(u => u.id === id);
+  if(!selectedUser) return;
+  document.getElementById('panel-name').textContent = selectedUser.name;
+  document.getElementById('panel-avatar').textContent = selectedUser.name[0];
+  document.getElementById('panel-id').textContent = '#' + selectedUser.id;
+  document.getElementById('panel-nick').textContent = '@' + selectedUser.nick;
+  document.getElementById('panel-email').textContent = selectedUser.email;
+  document.getElementById('panel-city').textContent = selectedUser.city;
+  document.getElementById('panel-cars').textContent = selectedUser.cars;
+  document.getElementById('panel-trips').textContent = selectedUser.trips;
+  document.getElementById('panel-rating').textContent = selectedUser.rating !== '—' ? '★ ' + selectedUser.rating : '—';
+  document.getElementById('panel-reg').textContent = selectedUser.reg;
+  const lvl = selectedUser.level;
+  const lc = levelColors[lvl];
+  document.getElementById('panel-level-badge').innerHTML = `<span class="status-pill" style="background:${lc.split(';')[0]};${lc.split(';')[1]}">${lvl}</span>`;
+  document.getElementById('panel-status').innerHTML = `<span class="status-pill ${selectedUser.status==='Активный'?'status-active':'status-blocked'}">${selectedUser.status}</span>`;
+  const blockBtn = document.getElementById('block-btn');
+  if(selectedUser.blocked) {
+    blockBtn.innerHTML = '<i class="fas fa-unlock"></i> Разблокировать';
+    blockBtn.className = 'admin-btn admin-btn-success';
+  } else {
+    blockBtn.innerHTML = '<i class="fas fa-ban"></i> Заблокировать';
+    blockBtn.className = 'admin-btn admin-btn-danger';
+  }
+  document.getElementById('user-panel').style.display = 'block';
+}
+
+function closePanel() { document.getElementById('user-panel').style.display = 'none'; }
+
+function grantVIP() {
+  if(selectedUser) {
+    selectedUser.level = 'VIP';
+    selectedUser.status = 'Активный';
+    showToast('✅ VIP назначен: ' + selectedUser.name, 'ok');
+    renderTable(filteredData);
+    openUser(selectedUser.id);
+  }
+}
+function grantVIPById(id) {
+  const u = usersData.find(x => x.id === id);
+  if(u) { u.level = 'VIP'; showToast('✅ VIP назначен: ' + u.name, 'ok'); renderTable(filteredData); }
+}
+function blockById(id) {
+  const u = usersData.find(x => x.id === id);
+  if(u) { u.blocked = true; u.status = 'Заблокирован'; showToast('🚫 Заблокирован: ' + u.name, 'err'); renderTable(filteredData); }
+}
+function unblockById(id) {
+  const u = usersData.find(x => x.id === id);
+  if(u) { u.blocked = false; u.status = 'Активный'; showToast('✅ Разблокирован: ' + u.name, 'ok'); renderTable(filteredData); }
+}
+function blockUser() {
+  if(selectedUser) {
+    selectedUser.blocked = !selectedUser.blocked;
+    selectedUser.status = selectedUser.blocked ? 'Заблокирован' : 'Активный';
+    showToast(selectedUser.blocked ? '🚫 Заблокирован' : '✅ Разблокирован', selectedUser.blocked ? 'err' : 'ok');
+    renderTable(filteredData); openUser(selectedUser.id);
+  }
+}
+function deleteUser() {
+  if(selectedUser && confirm('Удалить аккаунт ' + selectedUser.name + '?')) {
+    showToast('🗑️ Аккаунт удалён: ' + selectedUser.name);
+    closePanel();
+  }
+}
+function changeLevel() {
+  const levels = ['Bronze','Silver','Gold','Premium','VIP'];
+  const next = levels[(levels.indexOf(selectedUser.level) + 1) % levels.length];
+  selectedUser.level = next;
+  showToast('Уровень изменён на: ' + next);
+  renderTable(filteredData); openUser(selectedUser.id);
+}
+function selectAll() { showToast('Все 10 пользователей выбраны'); }
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.row-check').forEach(c => c.checked = cb.checked);
+}
+function showAddUser() { document.getElementById('add-modal').style.display = 'flex'; }
+function createUser() {
+  document.getElementById('add-modal').style.display = 'none';
+  showToast('✅ Пользователь создан', 'ok');
+}
+function exportUsers() { showToast('📥 Экспорт CSV начат'); }
+function exportTree()  { showToast('📥 Дерево приглашений — экспорт CSV'); }
+
+// Дерево приглашений
+function toggleBranch(id) {
+  const el   = document.getElementById(id);
+  const icon = document.getElementById(id + '-icon');
+  const open = el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  if (icon) icon.className = open ? 'fas fa-chevron-down' : 'fas fa-chevron-right';
+  icon.style.color = open ? '#4a8fe8' : '#555';
+}
+function filterTree(q) {
+  const ql = q.toLowerCase();
+  document.querySelectorAll('.tree-node').forEach(node => {
+    const text = node.textContent.toLowerCase();
+    node.style.display = text.includes(ql) || !ql ? '' : 'none';
+  });
+}
+function showToast(msg, type) {
+  const t = document.getElementById('admin-toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  t.style.borderLeft = type === 'ok' ? '3px solid #4caf7d' : type === 'err' ? '3px solid #e05050' : '3px solid #e8c84a';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+
+renderTable(usersData);
+</script>
+</body>
+</html>

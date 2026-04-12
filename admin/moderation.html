@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharecar Admin — Жалобы и блокировки</title>
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+
+<aside class="admin-sidebar" id="sidebar">
+  <div class="admin-sidebar-logo"><div class="logo">Sharecar</div><div class="logo-sub">Admin Panel</div></div>
+  <nav class="admin-nav">
+    <div class="admin-nav-section">Главное</div>
+    <a href="index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Дашборд</a>
+    <a href="users.html" class="admin-nav-item"><i class="fas fa-users"></i> Пользователи</a>
+    <a href="vehicles.html" class="admin-nav-item"><i class="fas fa-car-side"></i> Машины</a>
+    <a href="requests.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Заявки</a>
+    <div class="admin-nav-section">Контроль</div>
+    <a href="moderation.html" class="admin-nav-item active"><i class="fas fa-exclamation-triangle"></i> Жалобы и блок <span class="admin-nav-badge">3</span></a>
+    <a href="levels.html" class="admin-nav-item"><i class="fas fa-crown"></i> Уровни и VIP</a>
+    <a href="boosts.html" class="admin-nav-item"><i class="fas fa-rocket"></i> Бусты и продвижение</a>
+    <div class="admin-nav-section">Система</div>
+    <a href="settings.html" class="admin-nav-item"><i class="fas fa-cog"></i> Настройки</a>
+    <a href="../hub.html" class="admin-nav-item"><i class="fas fa-arrow-left"></i> К прототипу</a>
+  </nav>
+</aside>
+<div class="admin-sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div>
+      <div class="admin-topbar-title">Жалобы и блокировки</div>
+      <div class="admin-topbar-subtitle">Нарушения правил, торг, жалобы пользователей</div>
+    </div>
+    <div class="admin-topbar-actions">
+      <button class="admin-btn admin-btn-danger admin-btn-sm" onclick="blockAllViolators()"><i class="fas fa-ban"></i> Заблокировать всех нарушителей</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- Правила -->
+    <div class="admin-alert admin-alert-info">
+      <i class="fas fa-info-circle"></i>
+      <div>
+        <strong>Правило платформы:</strong> Торг с владельцем автомобиля категорически запрещён. Любая попытка договориться о снижении цены или изменении условий в чате ведёт к предупреждению, а при повторном нарушении — к блокировке аккаунта.
+      </div>
+    </div>
+
+    <div class="admin-stats" style="grid-template-columns:repeat(4,1fr);">
+      <div class="admin-stat admin-stat-bad">
+        <div class="admin-stat-label">Открытых жалоб</div>
+        <div class="admin-stat-value" style="color:#e05050;">3</div>
+        <div class="admin-stat-sub">Требуют действий</div>
+      </div>
+      <div class="admin-stat admin-stat-warn">
+        <div class="admin-stat-label">Предупреждений</div>
+        <div class="admin-stat-value" style="color:#e8c84a;">14</div>
+        <div class="admin-stat-sub">За этот месяц</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-label">Заблокировано</div>
+        <div class="admin-stat-value">7</div>
+        <div class="admin-stat-sub">Всего аккаунтов</div>
+      </div>
+      <div class="admin-stat admin-stat-good">
+        <div class="admin-stat-label">Закрытых жалоб</div>
+        <div class="admin-stat-value">89</div>
+        <div class="admin-stat-sub">Разрешено</div>
+      </div>
+    </div>
+
+    <!-- Открытые жалобы -->
+    <div class="admin-card" style="margin-bottom:24px;">
+      <div class="admin-card-header">
+        <div class="admin-card-title" style="color:#e05050;"><i class="fas fa-exclamation-triangle"></i> Открытые жалобы (3)</div>
+      </div>
+      <div class="admin-card-body" style="padding:0;">
+        <div id="open-complaints">
+          <!-- заполняется JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Журнал предупреждений -->
+    <div class="admin-table-wrap">
+      <div class="admin-table-header">
+        <div class="admin-table-title">Журнал нарушений</div>
+        <div class="admin-table-tools">
+          <select class="admin-filter-select" onchange="filterLog(this.value)">
+            <option value="">Все типы</option>
+            <option value="torq">Торг</option>
+            <option value="spam">Спам</option>
+            <option value="fraud">Мошенничество</option>
+            <option value="offensive">Оскорбления</option>
+          </select>
+        </div>
+      </div>
+      <table class="admin-table" id="violations-table">
+        <thead>
+          <tr>
+            <th>Пользователь</th>
+            <th>Тип нарушения</th>
+            <th>Детали</th>
+            <th>Кол-во</th>
+            <th>Статус</th>
+            <th>Дата</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="violations-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Заблокированные -->
+    <div class="admin-table-wrap">
+      <div class="admin-table-header">
+        <div class="admin-table-title">Заблокированные аккаунты (7)</div>
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr><th>Пользователь</th><th>Причина</th><th>Дата блока</th><th>Заблокировал</th><th>Действия</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:#f0f0f0;">bad_user99</strong><br><span style="font-size:11px;color:#555;">@bad_user99</span></td>
+            <td><span class="badge badge-red">Торг</span></td>
+            <td style="color:#555;font-size:12px;">01.04.2026</td>
+            <td style="color:#555;font-size:12px;">Авто (система)</td>
+            <td><button class="table-btn table-btn-unblock" onclick="unblockUser('bad_user99')"><i class="fas fa-unlock"></i> Разблокировать</button></td>
+          </tr>
+          <tr>
+            <td><strong style="color:#f0f0f0;">spam_acc22</strong><br><span style="font-size:11px;color:#555;">@spam_acc22</span></td>
+            <td><span class="badge badge-red">Спам</span></td>
+            <td style="color:#555;font-size:12px;">28.03.2026</td>
+            <td style="color:#555;font-size:12px;">Администратор</td>
+            <td><button class="table-btn table-btn-unblock" onclick="unblockUser('spam_acc22')"><i class="fas fa-unlock"></i> Разблокировать</button></td>
+          </tr>
+          <tr>
+            <td><strong style="color:#f0f0f0;">fake_owner1</strong><br><span style="font-size:11px;color:#555;">@fake_owner1</span></td>
+            <td><span class="badge badge-red">Мошенничество</span></td>
+            <td style="color:#555;font-size:12px;">15.03.2026</td>
+            <td style="color:#555;font-size:12px;">Администратор</td>
+            <td><button class="table-btn table-btn-del" onclick="deleteAccount('fake_owner1')"><i class="fas fa-trash"></i> Удалить</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</main>
+
+<!-- Модал разбора жалобы -->
+<div id="complaint-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:#151515;border:1px solid #2a2a2a;border-radius:14px;padding:28px;width:100%;max-width:520px;margin:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 style="font-size:17px;font-weight:700;color:#f0f0f0;">Жалоба #<span id="c-id">—</span></h3>
+      <button onclick="document.getElementById('complaint-modal').style.display='none'" style="background:none;border:none;color:#666;font-size:20px;cursor:pointer;"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="admin-card" style="margin-bottom:16px;">
+      <div class="admin-card-body">
+        <div class="detail-row"><span class="detail-key">Жалобщик</span><span class="detail-val" id="c-reporter">—</span></div>
+        <div class="detail-row"><span class="detail-key">На кого</span><span class="detail-val" id="c-accused">—</span></div>
+        <div class="detail-row"><span class="detail-key">Тип</span><span class="detail-val" id="c-type">—</span></div>
+        <div class="detail-row"><span class="detail-key">Дата</span><span class="detail-val" id="c-date">—</span></div>
+      </div>
+    </div>
+    <div style="background:#0f0f0f;border-radius:8px;padding:14px;margin-bottom:20px;font-size:13px;color:#888;border-left:3px solid #e05050;">
+      <div style="font-size:11px;color:#555;margin-bottom:6px;">ДЕТАЛИ НАРУШЕНИЯ</div>
+      <div id="c-detail">—</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="admin-btn admin-btn-danger" onclick="blockFromModal()"><i class="fas fa-ban"></i> Заблокировать</button>
+      <button class="admin-btn admin-btn-secondary" onclick="warnFromModal()"><i class="fas fa-exclamation"></i> Предупреждение</button>
+      <button class="admin-btn admin-btn-success" onclick="dismissComplaint()"><i class="fas fa-check"></i> Закрыть жалобу</button>
+    </div>
+  </div>
+</div>
+
+<div id="admin-toast" style="display:none;position:fixed;bottom:30px;right:30px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:12px 20px;color:#ccc;font-size:13px;z-index:9999;"></div>
+
+<script>
+const openComplaints = [
+  {id:'cmp_001',reporter:'user_145',accused:'alexm_bmw',type:'Торг',date:'07.04.2026',detail:'В чате на BMW M3, user_145 написал: "Можете сделать дешевле? У вас уже 3 дня нет поездок". Явный торг с давлением на владельца.'},
+  {id:'cmp_002',reporter:'dimacar',accused:'test_user88',type:'Спам заявок',date:'06.04.2026',detail:'test_user88 отправил 12 заявок подряд за 10 минут на одну и ту же машину после первого отклонения.'},
+  {id:'cmp_003',reporter:'elena_v',accused:'noob_guy',type:'Некорректное поведение',date:'05.04.2026',detail:'noob_guy настаивал на поездке без владельца и угрожал негативным отзывом.'},
+];
+
+const violations = [
+  {user:'user_145',type:'Торг',detail:'Попытка снизить цену в чате',count:2,status:'Открытое',date:'07.04.2026'},
+  {user:'test_user88',type:'Спам',detail:'Массовая отправка заявок',count:1,status:'Предупреждение',date:'06.04.2026'},
+  {user:'noob_guy',type:'Давление на владельца',detail:'Требование поездки без хозяина',count:1,status:'Открытое',date:'05.04.2026'},
+  {user:'bad_user99',type:'Торг',detail:'Попытка торга, отказ принять правила',count:3,status:'Заблокирован',date:'01.04.2026'},
+  {user:'spam_acc22',type:'Спам',detail:'100+ заявок за день',count:5,status:'Заблокирован',date:'28.03.2026'},
+  {user:'rude_12',type:'Оскорбления',detail:'Оскорбления в чате с владельцем',count:1,status:'Предупреждение',date:'25.03.2026'},
+  {user:'fake_car99',type:'Мошенничество',detail:'Фейковые фото машины',count:1,status:'Заблокирован',date:'20.03.2026'},
+];
+
+let currentComplaint = null;
+
+function renderOpenComplaints() {
+  document.getElementById('open-complaints').innerHTML = openComplaints.map(c => `
+    <div style="padding:16px 20px;border-bottom:1px solid #111;display:flex;align-items:flex-start;gap:16px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(224,80,80,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#e05050;">
+        <i class="fas fa-${c.type==='Торг'?'tag':c.type==='Спам заявок'?'paper-plane':'user-slash'}"></i>
+      </div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <strong style="color:#f0f0f0;">@${c.accused}</strong>
+          <span class="badge badge-red">${c.type}</span>
+          <span style="font-size:11px;color:#555;margin-left:auto;">${c.date}</span>
+        </div>
+        <div style="font-size:13px;color:#888;">${c.detail.substring(0,90)}...</div>
+        <div style="margin-top:10px;display:flex;gap:8px;">
+          <button class="admin-btn admin-btn-danger admin-btn-sm" onclick="openComplaint('${c.id}')"><i class="fas fa-gavel"></i> Разобрать</button>
+          <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="dismissById('${c.id}')"><i class="fas fa-times"></i> Закрыть</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderViolations(data) {
+  const vTypeClass = {'Торг':'badge-red','Спам':'badge-red','Заблокирован':'badge-red','Предупреждение':'badge-yellow','Открытое':'badge-red'};
+  document.getElementById('violations-tbody').innerHTML = data.map(v => `
+    <tr>
+      <td><strong style="color:#f0f0f0;">@${v.user}</strong></td>
+      <td><span class="badge badge-red">${v.type}</span></td>
+      <td style="color:#888;font-size:12px;max-width:200px;">${v.detail}</td>
+      <td style="color:${v.count>=3?'#e05050':'#e8c84a'};font-weight:700;">${v.count}×</td>
+      <td><span class="status-pill ${v.status==='Заблокирован'?'status-blocked':v.status==='Открытое'?'status-pending':'status-new'}">${v.status}</span></td>
+      <td style="color:#555;font-size:12px;">${v.date}</td>
+      <td>
+        <div class="table-actions">
+          ${v.status !== 'Заблокирован' ? `<button class="table-btn table-btn-block" onclick="blockViolator('${v.user}')"><i class="fas fa-ban"></i> Блок</button>` : `<button class="table-btn table-btn-unblock" onclick="unblockUser('${v.user}')"><i class="fas fa-unlock"></i></button>`}
+          ${v.status === 'Открытое' ? `<button class="table-btn table-btn-edit" onclick="warnViolator('${v.user}')"><i class="fas fa-exclamation"></i> Предупр.</button>` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openComplaint(id) {
+  currentComplaint = openComplaints.find(c => c.id === id);
+  if(!currentComplaint) return;
+  document.getElementById('c-id').textContent = currentComplaint.id;
+  document.getElementById('c-reporter').textContent = '@' + currentComplaint.reporter;
+  document.getElementById('c-accused').textContent = '@' + currentComplaint.accused;
+  document.getElementById('c-type').textContent = currentComplaint.type;
+  document.getElementById('c-date').textContent = currentComplaint.date;
+  document.getElementById('c-detail').textContent = currentComplaint.detail;
+  document.getElementById('complaint-modal').style.display = 'flex';
+}
+
+function blockFromModal() {
+  if(currentComplaint) {
+    showToast('🚫 Пользователь @' + currentComplaint.accused + ' заблокирован', 'err');
+    dismissComplaint();
+  }
+}
+function warnFromModal() {
+  if(currentComplaint) {
+    showToast('⚠️ Предупреждение отправлено @' + currentComplaint.accused);
+    dismissComplaint();
+  }
+}
+function dismissComplaint() {
+  document.getElementById('complaint-modal').style.display = 'none';
+  showToast('✅ Жалоба закрыта', 'ok');
+}
+function dismissById(id) {
+  const idx = openComplaints.findIndex(c => c.id === id);
+  if(idx >= 0) { openComplaints.splice(idx, 1); renderOpenComplaints(); }
+  showToast('Жалоба закрыта');
+}
+function blockViolator(user) { showToast('🚫 @' + user + ' заблокирован', 'err'); }
+function warnViolator(user) { showToast('⚠️ Предупреждение → @' + user); }
+function unblockUser(user) { showToast('✅ @' + user + ' разблокирован', 'ok'); }
+function deleteAccount(user) { if(confirm('Удалить аккаунт @' + user + '?')) showToast('🗑️ Аккаунт @' + user + ' удалён'); }
+function blockAllViolators() {
+  if(confirm('Заблокировать всех пользователей с открытыми жалобами?')) {
+    showToast('🚫 Нарушители заблокированы', 'err');
+    openComplaints.length = 0;
+    renderOpenComplaints();
+  }
+}
+function filterLog(type) {
+  const map = {torq:'Торг', spam:'Спам', fraud:'Мошенничество', offensive:'Оскорбления'};
+  renderViolations(type ? violations.filter(v => v.type === map[type]) : violations);
+}
+
+function showToast(msg, type) {
+  const t=document.getElementById('admin-toast');
+  t.textContent=msg; t.style.display='block';
+  t.style.borderLeft=type==='ok'?'3px solid #4caf7d':type==='err'?'3px solid #e05050':'3px solid #e8c84a';
+  setTimeout(()=>t.style.display='none',3000);
+}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+
+renderOpenComplaints();
+renderViolations(violations);
+</script>
+</body>
+</html>
