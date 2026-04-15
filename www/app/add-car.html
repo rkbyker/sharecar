@@ -149,7 +149,7 @@
 <body>
 
   <div class="top-bar">
-    <button class="back-btn" onclick="history.back()"><i class="fa fa-arrow-left"></i></button>
+    <button class="back-btn" onclick="scGoBack()"><i class="fa fa-arrow-left"></i></button>
     <div class="page-title" id="page-title">Добавить машину</div>
   </div>
 
@@ -357,6 +357,7 @@
 
   <script type="module">
     import { supabase, showToast } from '../js/supabase.js';
+    import '../js/nav.js';
 
     let currentUser = null;
     let selectedClass = 'city';

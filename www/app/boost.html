@@ -67,7 +67,7 @@
 
   <!-- Верхняя панель -->
   <div class="top-bar">
-    <button class="top-bar-action" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+    <button class="top-bar-action" onclick="scGoBack()"><i class="fas fa-arrow-left"></i></button>
     <div class="top-bar-title">Буст объявления</div>
     <div style="width:36px;"></div>
   </div>
@@ -305,7 +305,7 @@ function payBoost() {
   // Симуляция оплаты (в реальности: POST /api/boosts)
   setTimeout(() => {
     showToast(`🚀 Буст "${plan.name}" запущен! Объявление поднято в топ`);
-    setTimeout(() => history.back(), 1800);
+    setTimeout(() => window.scGoBack ? scGoBack() : history.back(), 1800);
   }, 1000);
 }
 

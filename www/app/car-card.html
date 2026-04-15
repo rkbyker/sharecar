@@ -214,7 +214,7 @@
 
     <!-- GALLERY -->
     <div class="gallery" id="gallery">
-      <button class="back-abs" onclick="history.back()"><i class="fa fa-arrow-left"></i></button>
+      <button class="back-abs" onclick="scGoBack()"><i class="fa fa-arrow-left"></i></button>
       <div class="gallery-slides" id="gallery-slides"></div>
       <div class="gallery-dots" id="gallery-dots"></div>
       <button class="gallery-btn prev" id="btn-prev" onclick="slideGallery(-1)" style="display:none;"><i class="fa fa-chevron-left"></i></button>
@@ -306,6 +306,7 @@
 
   <script type="module">
     import { supabase, getLevel, showToast } from '../js/supabase.js';
+    import '../js/nav.js';
 
     let currentUser = null;
     let currentProfile = null;
