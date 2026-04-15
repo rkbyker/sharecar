@@ -174,14 +174,6 @@
       background: #0f0f0f; border-top: 1px solid #1e1e3a;
       display: flex; z-index: 100;
     }
-    .nav-btn {
-      flex: 1; padding: 10px 0 12px;
-      display: flex; flex-direction: column; align-items: center;
-      gap: 3px; text-decoration: none; color: #555; font-size: 10px;
-      cursor: pointer; border: none; background: none;
-    }
-    .nav-btn i { font-size: 20px; }
-    .nav-btn.active { color: #f59e0b; }
 
     /* ── Filter overlay ─────────────────────────── */
     .filter-overlay {
@@ -276,10 +268,10 @@
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <button class="nav-btn active"><i class="fa fa-home"></i>Лента</button>
-    <button class="nav-btn" onclick="goPage('partners.html')"><i class="fa fa-handshake"></i>Партнёры</button>
-    <button class="nav-btn" onclick="goPage('rating.html')"><i class="fa fa-trophy"></i>Рейтинг</button>
-    <button class="nav-btn" onclick="goPage('profile.html')"><i class="fa fa-user"></i>Профиль</button>
+    <button class="nav-item active"><i class="fa fa-home"></i><span>Лента</span></button>
+    <button class="nav-item" onclick="goPage('partners.html')"><i class="fa fa-handshake"></i><span>Партнёры</span></button>
+    <button class="nav-item" onclick="goPage('rating.html')"><i class="fa fa-trophy"></i><span>Рейтинг</span></button>
+    <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
   </nav>
 
   <!-- FILTER OVERLAY -->
@@ -320,6 +312,7 @@
 
   <script type="module">
     import { supabase, requireAuth, getProfile, getLevel, showToast } from '../js/supabase.js';
+    import '../js/nav.js';
 
     // ── State ──────────────────────────────────────────────────────────────────
     let currentUser = null;

@@ -173,7 +173,7 @@
 
     <!-- TOP BAR -->
     <div class="chat-top">
-      <button class="back-btn" onclick="history.back()"><i class="fa fa-arrow-left"></i></button>
+      <button class="back-btn" onclick="scGoBack()"><i class="fa fa-arrow-left"></i></button>
       <div class="chat-info">
         <div class="chat-title" id="chat-title">Чат</div>
         <div class="chat-meta" id="chat-meta"></div>
@@ -246,6 +246,7 @@
 
   <script type="module">
     import { supabase, showToast } from '../js/supabase.js';
+    import '../js/nav.js';
 
     let currentUser = null;
     let currentProfile = null;
