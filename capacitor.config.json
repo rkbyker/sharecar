@@ -1,1 +1,1 @@
-{"appId":"com.sharecar.app","appName":"Sharecar","webDir":"www","server":{"androidScheme":"https"}}
+{"appId":"com.sharecar.app","appName":"Sharecar","webDir":"www","server":{"url":"https://sharecar-five.vercel.app","cleartext":true}}
