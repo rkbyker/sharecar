@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#0f0f0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Sharecar — Машина</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    body { background: #0f0f0f; padding-bottom: 100px; }
+
+    /* Photo gallery */
+    .gallery { position: relative; aspect-ratio: 4/3; background: #1a1a2e; overflow: hidden; }
+    .gallery-slides { display: flex; height: 100%; transition: transform .3s; }
+    .gallery-slide { flex-shrink: 0; width: 100%; height: 100%; }
+    .gallery-slide img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-slide .no-photo {
+      width: 100%; height: 100%; display: flex; align-items: center;
+      justify-content: center; font-size: 64px;
+      background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
+    }
+    .gallery-dots {
+      position: absolute; bottom: 10px; left: 0; right: 0;
+      display: flex; justify-content: center; gap: 6px;
+    }
+    .gdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.4); }
+    .gdot.active { background: #fff; }
+    .gallery-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(0,0,0,.6); border: none; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 14px;
+    }
+    .gallery-btn.prev { left: 8px; }
+    .gallery-btn.next { right: 8px; }
+    .gallery-actions {
+      position: absolute; top: 12px; right: 12px;
+      display: flex; gap: 8px;
+    }
+    .gallery-action-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(0,0,0,.6); border: none; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 16px;
+    }
+    .back-abs {
+      position: absolute; top: 12px; left: 12px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(0,0,0,.6); border: none; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 16px; z-index: 10;
+    }
+
+    /* Content */
+    .content { padding: 16px; }
+
+    .car-title { font-size: 22px; font-weight: 800; margin-bottom: 2px; }
+    .car-subtitle { font-size: 14px; color: #888; margin-bottom: 12px; }
+
+    .spec-row {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;
+    }
+    .spec-chip {
+      background: #1a1a2e; border: 1px solid #2a2a4a;
+      border-radius: 8px; padding: 6px 12px; font-size: 13px; color: #ccc;
+    }
+    .spec-chip b { color: #f59e0b; }
+
+    /* Price block */
+    .price-block {
+      background: #141428; border-radius: 12px; padding: 16px;
+      border: 1px solid #1e1e3a; margin-bottom: 16px;
+    }
+    .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .price-label { font-size: 13px; color: #888; }
+    .price-val { font-size: 20px; font-weight: 700; }
+    .price-discounted { color: #f59e0b; }
+    .price-old { font-size: 14px; color: #555; text-decoration: line-through; margin-right: 6px; }
+    .price-free { font-size: 20px; font-weight: 700; color: #22c55e; }
+    .discount-badge {
+      background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.3);
+      border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #22c55e;
+    }
+
+    /* Owner block */
+    .owner-block {
+      background: #141428; border-radius: 12px; padding: 14px;
+      border: 1px solid #1e1e3a; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .owner-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: #fff;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .owner-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .owner-info { flex: 1; }
+    .owner-name { font-size: 15px; font-weight: 700; }
+    .owner-meta { font-size: 12px; color: #888; margin-top: 2px; }
+    .owner-level {
+      font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600;
+      margin-top: 4px; display: inline-block;
+    }
+
+    /* Reviews summary */
+    .reviews-summary {
+      display: flex; align-items: center; gap: 8px;
+      background: #141428; border-radius: 10px; padding: 10px 14px;
+      border: 1px solid #1e1e3a; margin-bottom: 16px;
+    }
+    .rating-big { font-size: 28px; font-weight: 700; color: #f59e0b; }
+    .stars-row { color: #f59e0b; font-size: 16px; }
+    .reviews-count { font-size: 12px; color: #888; }
+
+    /* Description */
+    .section-head { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: #aaa; }
+    .description { font-size: 14px; color: #ccc; line-height: 1.6; margin-bottom: 16px; }
+    .hashtags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .hashtag { color: #3b82f6; font-size: 13px; }
+
+    /* Reviews list */
+    .review-item {
+      background: #141428; border-radius: 10px; padding: 12px;
+      margin-bottom: 10px; border: 1px solid #1e1e3a;
+    }
+    .review-header { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .review-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #2a2a4a; display: flex; align-items: center;
+      justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .review-stars { color: #f59e0b; font-size: 12px; }
+    .review-text { font-size: 13px; color: #ccc; }
+
+    /* Bottom apply bar */
+    .apply-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0f0f0f; border-top: 1px solid #1e1e3a;
+      padding: 12px 16px; display: flex; gap: 10px; z-index: 100;
+    }
+    .btn-apply {
+      flex: 1; padding: 14px; background: #f59e0b; color: #000;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-apply:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-like-big {
+      width: 52px; height: 52px; background: #141428;
+      border: 1px solid #2a2a4a; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 20px; color: #555;
+      flex-shrink: 0;
+    }
+    .btn-like-big.liked { color: #ef4444; border-color: rgba(239,68,68,.3); }
+
+    /* Apply modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 200;
+      display: none; align-items: flex-end;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-sheet {
+      width: 100%; background: #141428;
+      border-radius: 20px 20px 0 0; padding: 20px;
+      max-height: 80vh; overflow-y: auto;
+    }
+    .modal-handle {
+      width: 40px; height: 4px; background: #333;
+      border-radius: 2px; margin: 0 auto 20px;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .modal-sub { font-size: 13px; color: #888; margin-bottom: 16px; }
+
+    .role-select-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .role-option {
+      flex: 1; background: #1a1a2e; border: 2px solid #2a2a4a;
+      border-radius: 10px; padding: 12px; text-align: center; cursor: pointer;
+    }
+    .role-option.selected { border-color: #f59e0b; background: rgba(245,158,11,.08); }
+    .role-option .ri { font-size: 24px; margin-bottom: 4px; }
+    .role-option .rl { font-size: 12px; color: #888; }
+    .role-option .rp { font-size: 16px; font-weight: 700; color: #f59e0b; }
+
+    .msg-textarea {
+      width: 100%; background: #1a1a2e; border: 1px solid #2a2a4a;
+      border-radius: 10px; padding: 12px; color: #fff; font-size: 14px;
+      resize: none; outline: none; min-height: 80px; box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+    .msg-textarea:focus { border-color: #f59e0b; }
+
+    .level-check {
+      background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+      border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #ef4444;
+      margin-bottom: 12px; display: none;
+    }
+
+    .loader-wrap { text-align: center; padding: 60px 20px; color: #555; }
+    .loader-wrap i { font-size: 32px; animation: spin .8s linear infinite; color: #f59e0b; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div id="loader-wrap" class="loader-wrap">
+    <i class="fa fa-circle-notch"></i>
+  </div>
+
+  <div id="car-content" style="display:none;">
+
+    <!-- GALLERY -->
+    <div class="gallery" id="gallery">
+      <button class="back-abs" onclick="history.back()"><i class="fa fa-arrow-left"></i></button>
+      <div class="gallery-slides" id="gallery-slides"></div>
+      <div class="gallery-dots" id="gallery-dots"></div>
+      <button class="gallery-btn prev" id="btn-prev" onclick="slideGallery(-1)" style="display:none;"><i class="fa fa-chevron-left"></i></button>
+      <button class="gallery-btn next" id="btn-next" onclick="slideGallery(1)" style="display:none;"><i class="fa fa-chevron-right"></i></button>
+      <div class="gallery-actions">
+        <button class="gallery-action-btn" id="like-btn-top" onclick="toggleLike()"><i class="far fa-heart"></i></button>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <div class="car-title" id="car-title"></div>
+      <div class="car-subtitle" id="car-subtitle"></div>
+
+      <div class="spec-row" id="spec-row"></div>
+
+      <!-- Price -->
+      <div class="price-block" id="price-block"></div>
+
+      <!-- Owner -->
+      <div class="owner-block" id="owner-block"></div>
+
+      <!-- Rating -->
+      <div class="reviews-summary" id="reviews-summary"></div>
+
+      <!-- Description -->
+      <div id="desc-section" style="display:none;">
+        <div class="section-head">Описание</div>
+        <div class="description" id="car-desc"></div>
+      </div>
+      <div id="hashtags-wrap" class="hashtags"></div>
+
+      <!-- Owner controls -->
+      <div id="owner-controls" style="display:none;margin-bottom:16px;">
+        <button onclick="goPage('owner-dashboard.html?car=' + CAR_ID)"
+          style="width:100%;padding:12px;background:#1a1a2e;border:1px solid #f59e0b;color:#f59e0b;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">
+          📊 Кабинет владельца
+        </button>
+        <button onclick="goPage('add-car.html?edit=' + CAR_ID)"
+          style="width:100%;padding:12px;background:#1a1a2e;border:1px solid #2a2a4a;color:#aaa;border-radius:10px;font-size:14px;cursor:pointer;">
+          ✏️ Редактировать
+        </button>
+        <button onclick="goPage('boost.html?car=' + CAR_ID)"
+          style="width:100%;padding:12px;background:#22c55e;border:none;color:#000;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;">
+          🚀 Буст объявления
+        </button>
+      </div>
+
+      <!-- Reviews -->
+      <div id="reviews-section">
+        <div class="section-head" style="margin-top:4px;">Отзывы</div>
+        <div id="reviews-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- APPLY BAR -->
+  <div class="apply-bar" id="apply-bar" style="display:none;">
+    <button class="btn-like-big" id="btn-like-big" onclick="toggleLike()"><i class="far fa-heart"></i></button>
+    <button class="btn-apply" id="btn-apply" onclick="openApplyModal()">Подать заявку</button>
+  </div>
+
+  <!-- APPLY MODAL -->
+  <div class="modal-overlay" id="apply-modal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Заявка на поездку</div>
+      <div class="modal-sub" id="apply-modal-sub"></div>
+
+      <div class="level-check" id="level-check"></div>
+
+      <div class="role-select-row" id="role-select-row"></div>
+
+      <textarea class="msg-textarea" id="apply-msg" placeholder="Расскажите о себе: опыт, машина, цель поездки..."></textarea>
+
+      <button onclick="submitRequest()"
+        style="width:100%;padding:14px;background:#f59e0b;color:#000;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">
+        Отправить заявку
+      </button>
+      <button onclick="closeApplyModal()"
+        style="width:100%;padding:12px;background:transparent;border:none;color:#666;font-size:14px;cursor:pointer;margin-top:8px;">
+        Отмена
+      </button>
+    </div>
+  </div>
+
+  <div id="global-toast"></div>
+
+  <script type="module">
+    import { supabase, getLevel, showToast } from '../js/supabase.js';
+
+    let currentUser = null;
+    let currentProfile = null;
+    let car = null;
+    let isLiked = false;
+    let selectedRole = 'driver';
+    let galleryIdx = 0;
+    let CAR_ID = null;
+
+    window.slideGallery = slideGallery;
+    window.toggleLike = toggleLike;
+    window.openApplyModal = openApplyModal;
+    window.closeApplyModal = closeApplyModal;
+    window.submitRequest = submitRequest;
+    window.goPage = (p) => window.location.href = p;
+    window.CAR_ID = null;
+
+    async function init() {
+      const params = new URLSearchParams(location.search);
+      CAR_ID = params.get('id');
+      window.CAR_ID = CAR_ID;
+
+      if (!CAR_ID) { window.location.href = 'index.html'; return; }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { window.location.href = '/app/auth.html'; return; }
+      currentUser = session.user;
+
+      // Load profile
+      const { data: prof } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+      currentProfile = prof;
+
+      // Load car with owner
+      const { data, error } = await supabase
+        .from('cars')
+        .select('*, profiles:owner_id(*)')
+        .eq('id', CAR_ID)
+        .single();
+
+      if (error || !data) {
+        document.getElementById('loader-wrap').innerHTML = '<div style="text-align:center;padding:60px;color:#555;">Машина не найдена</div>';
+        return;
+      }
+      car = data;
+
+      // Check like
+      const { data: likeData } = await supabase
+        .from('likes')
+        .select('id')
+        .eq('user_id', currentUser.id)
+        .eq('car_id', CAR_ID)
+        .maybeSingle();
+      isLiked = !!likeData;
+
+      renderCar();
+      loadReviews();
+    }
+
+    const CLASS_ICONS = { ring:'🏁', drift:'💨', city:'🚗', offroad:'🚙', special:'⚡', sport:'🏎', business:'🏢' };
+    const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
+    const DISCOUNTS = { bronze: 0, silver: 5, gold: 10, premium: 15, vip: 20 };
+
+    function renderCar() {
+      document.title = `Sharecar — ${car.brand} ${car.model}`;
+
+      // Gallery
+      const photos = car.photos || [];
+      const slides = document.getElementById('gallery-slides');
+      const dots = document.getElementById('gallery-dots');
+
+      if (photos.length) {
+        slides.innerHTML = photos.map(url =>
+          `<div class="gallery-slide"><img src="${url}" alt="${car.brand} ${car.model}" loading="lazy"></div>`
+        ).join('');
+        if (photos.length > 1) {
+          dots.innerHTML = photos.map((_, i) =>
+            `<div class="gdot${i===0?' active':''}" onclick="jumpGallery(${i})"></div>`
+          ).join('');
+          document.getElementById('btn-prev').style.display = 'flex';
+          document.getElementById('btn-next').style.display = 'flex';
+        }
+      } else {
+        slides.innerHTML = `<div class="gallery-slide"><div class="no-photo">${CLASS_ICONS[car.car_class]||'🚗'}</div></div>`;
+      }
+      updateLikeBtnTop();
+
+      // Title
+      document.getElementById('car-title').textContent = `${car.brand} ${car.model} ${car.year || ''}`;
+      document.getElementById('car-subtitle').textContent =
+        [car.city, car.car_class ? CLASS_ICONS[car.car_class] + ' ' + car.car_class : '', car.horsepower ? car.horsepower + ' л.с.' : '']
+        .filter(Boolean).join(' · ');
+
+      // Specs
+      const specs = [];
+      if (car.horsepower) specs.push(`⚡ <b>${car.horsepower} л.с.</b>`);
+      if (car.engine_volume) specs.push(`🔧 <b>${car.engine_volume} л</b>`);
+      if (car.drive_type) specs.push(`⚙️ <b>${car.drive_type}</b>`);
+      if (car.transmission) specs.push(car.transmission === 'AT' ? '🤖 Автомат' : '🕹 Механика');
+      if (car.color) specs.push(`🎨 ${car.color}`);
+      document.getElementById('spec-row').innerHTML = specs.map(s => `<div class="spec-chip">${s}</div>`).join('');
+
+      // Price
+      const discount = DISCOUNTS[currentProfile?.level] || 0;
+      let priceHtml = '';
+      if (car.is_free) {
+        priceHtml = `<div class="price-free">🎁 Бесплатная поездка</div>`;
+      } else {
+        const roles = [];
+        if (car.has_driver_role) {
+          const orig = car.price_driver || 0;
+          const final = discount > 0 ? Math.round(orig * (1 - discount / 100)) : orig;
+          roles.push({ label: '🚗 Водитель', orig, final });
+        }
+        if (car.has_passenger_role) {
+          const orig = car.price_passenger || 0;
+          const final = discount > 0 ? Math.round(orig * (1 - discount / 100)) : orig;
+          roles.push({ label: '👥 Пассажир', orig, final });
+        }
+        priceHtml = roles.map(r => `
+          <div class="price-row">
+            <span class="price-label">${r.label}</span>
+            <span>
+              ${r.orig !== r.final ? `<span class="price-old">${r.orig.toLocaleString('ru')} ₽</span>` : ''}
+              <span class="price-val price-discounted">${r.final.toLocaleString('ru')} ₽</span>
+            </span>
+          </div>`).join('');
+        if (discount > 0) {
+          priceHtml += `<div class="discount-badge">Ваша скидка ${discount}% (${currentProfile?.level || 'Bronze'})</div>`;
+        }
+      }
+      if (car.schedule) {
+        priceHtml += `<div style="font-size:12px;color:#666;margin-top:10px;border-top:1px solid #1e1e3a;padding-top:10px;">
+          📅 ${car.schedule}</div>`;
+      }
+      document.getElementById('price-block').innerHTML = priceHtml;
+
+      // Owner
+      const owner = car.profiles || {};
+      const ownerName = owner.org_name || `${owner.first_name || ''} ${owner.last_name || ''}`.trim() || 'Владелец';
+      const initials = ownerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      const lvlColor = LEVEL_COLORS[owner.level] || '#888';
+      const avatarContent = owner.avatar_url
+        ? `<img src="${owner.avatar_url}" alt="${ownerName}">`
+        : `<span style="color:${lvlColor};">${initials}</span>`;
+
+      document.getElementById('owner-block').innerHTML = `
+        <div class="owner-avatar" style="background:${lvlColor}20;border:2px solid ${lvlColor};">
+          ${avatarContent}
+        </div>
+        <div class="owner-info">
+          <div class="owner-name">${ownerName}</div>
+          <div class="owner-meta">
+            ${owner.city || ''} · ${owner.trips_driven || 0} поездок
+          </div>
+          <span class="owner-level" style="background:${lvlColor}20;color:${lvlColor};border:1px solid ${lvlColor}40;">
+            ${owner.level?.charAt(0).toUpperCase() + owner.level?.slice(1) || 'Bronze'}
+          </span>
+        </div>
+        <div style="font-size:22px;font-weight:700;color:#f59e0b;">
+          ${(owner.rating_driver || 5).toFixed(1)} ★
+        </div>`;
+
+      // Reviews summary (will be updated in loadReviews)
+      document.getElementById('reviews-summary').innerHTML = `
+        <div class="rating-big">${(car.rating || 5).toFixed(1)}</div>
+        <div>
+          <div class="stars-row">★★★★★</div>
+          <div class="reviews-count">Загрузка отзывов...</div>
+        </div>`;
+
+      // Description
+      if (car.description) {
+        document.getElementById('desc-section').style.display = 'block';
+        document.getElementById('car-desc').textContent = car.description;
+      }
+      if (car.hashtags?.length) {
+        document.getElementById('hashtags-wrap').innerHTML =
+          car.hashtags.map(t => `<span class="hashtag">#${t}</span>`).join('');
+      }
+
+      // Owner controls or apply bar
+      const isOwner = currentUser.id === car.owner_id;
+      document.getElementById('owner-controls').style.display = isOwner ? 'block' : 'none';
+      document.getElementById('apply-bar').style.display = isOwner ? 'none' : 'flex';
+
+      updateLikeBtnBig();
+      document.getElementById('loader-wrap').style.display = 'none';
+      document.getElementById('car-content').style.display = 'block';
+    }
+
+    async function loadReviews() {
+      const { data: reviews } = await supabase
+        .from('reviews')
+        .select('*, profiles:reviewer_id(first_name, last_name, level)')
+        .eq('car_id', CAR_ID)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (!reviews) return;
+
+      const avg = reviews.length
+        ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+        : (car.rating || 5).toFixed(1);
+      const stars = '★'.repeat(Math.round(avg)) + '☆'.repeat(5 - Math.round(avg));
+
+      document.getElementById('reviews-summary').innerHTML = `
+        <div class="rating-big">${avg}</div>
+        <div>
+          <div class="stars-row">${stars}</div>
+          <div class="reviews-count">${reviews.length} отзывов</div>
+        </div>`;
+
+      const container = document.getElementById('reviews-list');
+      if (!reviews.length) {
+        container.innerHTML = `<div style="color:#555;font-size:13px;padding:8px 0;">Нет отзывов</div>`;
+        return;
+      }
+      container.innerHTML = reviews.map(r => {
+        const reviewer = r.profiles;
+        const rname = reviewer ? `${reviewer.first_name} ${reviewer.last_name}` : 'Пользователь';
+        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+        const dt = new Date(r.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'short' });
+        return `
+          <div class="review-item">
+            <div class="review-header">
+              <div class="review-avatar">${rname[0] || '?'}</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;">${rname}</div>
+                <div class="review-stars">${stars}</div>
+              </div>
+              <div style="margin-left:auto;font-size:11px;color:#555;">${dt}</div>
+            </div>
+            ${r.comment ? `<div class="review-text">${r.comment}</div>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    // Gallery
+    function slideGallery(dir) {
+      const photos = car.photos || [];
+      galleryIdx = (galleryIdx + dir + photos.length) % photos.length;
+      updateGallery();
+    }
+    window.jumpGallery = function(i) { galleryIdx = i; updateGallery(); };
+
+    function updateGallery() {
+      document.getElementById('gallery-slides').style.transform = `translateX(-${galleryIdx * 100}%)`;
+      document.querySelectorAll('.gdot').forEach((d, i) => d.classList.toggle('active', i === galleryIdx));
+    }
+
+    // Like
+    function updateLikeBtnTop() {
+      const btn = document.getElementById('like-btn-top');
+      btn.innerHTML = isLiked ? '<i class="fas fa-heart" style="color:#ef4444;"></i>' : '<i class="far fa-heart"></i>';
+    }
+    function updateLikeBtnBig() {
+      const btn = document.getElementById('btn-like-big');
+      btn.classList.toggle('liked', isLiked);
+      btn.innerHTML = isLiked ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>';
+    }
+
+    async function toggleLike() {
+      if (isLiked) {
+        await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('car_id', CAR_ID);
+        isLiked = false;
+      } else {
+        await supabase.from('likes').insert({ user_id: currentUser.id, car_id: CAR_ID });
+        isLiked = true;
+      }
+      updateLikeBtnTop();
+      updateLikeBtnBig();
+    }
+
+    // Apply modal
+    function openApplyModal() {
+      // Level check
+      const LEVEL_ORDER = ['bronze', 'silver', 'gold', 'premium', 'vip'];
+      const minLvl = car.min_level || 'bronze';
+      const userLvl = currentProfile?.level || 'bronze';
+      const minIdx = LEVEL_ORDER.indexOf(minLvl);
+      const userIdx = LEVEL_ORDER.indexOf(userLvl);
+
+      const levelCheck = document.getElementById('level-check');
+      if (userIdx < minIdx) {
+        levelCheck.style.display = 'block';
+        levelCheck.textContent = `Требуется уровень ${minLvl}. У вас ${userLvl}.`;
+      } else {
+        levelCheck.style.display = 'none';
+      }
+
+      document.getElementById('apply-modal-sub').textContent = `${car.brand} ${car.model} ${car.year || ''}`;
+
+      // Roles
+      const DISCOUNTS = { bronze: 0, silver: 5, gold: 10, premium: 15, vip: 20 };
+      const disc = DISCOUNTS[currentProfile?.level] || 0;
+      let rolesHtml = '';
+
+      if (car.has_driver_role) {
+        const p = car.is_free ? 0 : car.price_driver || 0;
+        const f = disc > 0 ? Math.round(p * (1 - disc / 100)) : p;
+        rolesHtml += `
+          <div class="role-option selected" id="ro-driver" onclick="selectRole('driver')">
+            <div class="ri">🚗</div>
+            <div class="rl">Водитель</div>
+            <div class="rp">${car.is_free ? 'Бесплатно' : f.toLocaleString('ru') + ' ₽'}</div>
+          </div>`;
+      }
+      if (car.has_passenger_role) {
+        const p = car.is_free ? 0 : car.price_passenger || 0;
+        const f = disc > 0 ? Math.round(p * (1 - disc / 100)) : p;
+        rolesHtml += `
+          <div class="role-option" id="ro-passenger" onclick="selectRole('passenger')">
+            <div class="ri">👥</div>
+            <div class="rl">Пассажир</div>
+            <div class="rp">${car.is_free ? 'Бесплатно' : f.toLocaleString('ru') + ' ₽'}</div>
+          </div>`;
+      }
+      document.getElementById('role-select-row').innerHTML = rolesHtml;
+      selectedRole = car.has_driver_role ? 'driver' : 'passenger';
+
+      document.getElementById('apply-modal').classList.add('show');
+    }
+
+    function closeApplyModal() {
+      document.getElementById('apply-modal').classList.remove('show');
+    }
+
+    window.selectRole = function(role) {
+      selectedRole = role;
+      ['driver', 'passenger'].forEach(r => {
+        const el = document.getElementById(`ro-${r}`);
+        if (el) el.classList.toggle('selected', r === role);
+      });
+    };
+
+    async function submitRequest() {
+      const msg = document.getElementById('apply-msg').value.trim();
+      const DISCOUNTS = { bronze: 0, silver: 5, gold: 10, premium: 15, vip: 20 };
+      const disc = DISCOUNTS[currentProfile?.level] || 0;
+      const basePrice = selectedRole === 'driver' ? car.price_driver : car.price_passenger;
+      const finalPrice = car.is_free ? 0 : Math.round((basePrice || 0) * (1 - disc / 100));
+
+      const { data: req, error } = await supabase.from('requests').insert({
+        car_id: CAR_ID,
+        owner_id: car.owner_id,
+        requester_id: currentUser.id,
+        role: selectedRole,
+        message: msg || null,
+        price: finalPrice,
+      }).select().single();
+
+      if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
+
+      closeApplyModal();
+      showToast('✅ Заявка отправлена!', 'success');
+      setTimeout(() => goPage(`chat.html?request=${req.id}`), 1000);
+    }
+
+    init();
+  </script>
+</body>
+</html>

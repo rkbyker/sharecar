@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sharecar — Поиск</title>
+<link rel="stylesheet" href="../css/app.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sharecar">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<script src="/js/pwa.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<style>
+.brand-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 16px 16px; }
+.brand-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 10px; text-align: center; cursor: pointer; transition: all 0.15s; }
+.brand-card:hover, .brand-card:active { border-color: var(--accent); background: rgba(232,200,74,0.05); }
+.brand-icon { font-size: 32px; margin-bottom: 8px; }
+.brand-name { font-size: 13px; font-weight: 600; }
+.brand-count { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.model-list { padding: 0 16px; }
+.model-item { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
+.model-item:active { border-color: var(--accent); }
+.model-info { flex: 1; }
+.model-title { font-size: 14px; font-weight: 600; }
+.model-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.car-list { padding: 0 16px; }
+.car-item { display: flex; gap: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.15s; }
+.car-item:active { border-color: var(--accent); }
+.car-thumb { width: 70px; height: 70px; border-radius: 8px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; padding: 12px 16px; font-size: 13px; color: var(--text2); overflow-x: auto; white-space: nowrap; }
+.breadcrumb-sep { color: var(--text3); }
+.breadcrumb-link { color: var(--accent); cursor: pointer; }
+.section-header { padding: 8px 16px 12px; font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <!-- Верхняя панель -->
+  <div class="top-bar">
+    <button class="top-bar-action" id="back-btn" onclick="goBack()" style="display:none;"><i class="fas fa-arrow-left"></i></button>
+    <div class="top-bar-title" id="page-title">Поиск</div>
+    <button class="top-bar-action"><i class="fas fa-map-marker-alt"></i></button>
+  </div>
+
+  <!-- Поиск -->
+  <div style="padding: 12px 16px;">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="BMW, Porsche, Supra, трактор..." oninput="quickSearch(this.value)">
+    </div>
+  </div>
+
+  <!-- Хлебные крошки -->
+  <div class="breadcrumb" id="breadcrumb" style="display:none;">
+    <span class="breadcrumb-link" onclick="showBrands()">Все бренды</span>
+    <span class="breadcrumb-sep" id="bc-sep1">›</span>
+    <span id="bc-brand" class="breadcrumb-link"></span>
+    <span class="breadcrumb-sep" id="bc-sep2" style="display:none;">›</span>
+    <span id="bc-model" style="color:var(--text);"></span>
+  </div>
+
+  <!-- Контент (меняется по уровням) -->
+  <div id="content-brands">
+    <div class="section-header">Бренды автомобилей</div>
+    <div class="brand-grid">
+      <div class="brand-card" onclick="selectBrand('BMW')"><div class="brand-icon">🔵</div><div class="brand-name">BMW</div><div class="brand-count">87 машин</div></div>
+      <div class="brand-card" onclick="selectBrand('Mercedes')"><div class="brand-icon">⭐</div><div class="brand-name">Mercedes</div><div class="brand-count">74 машины</div></div>
+      <div class="brand-card" onclick="selectBrand('Audi')"><div class="brand-icon">💠</div><div class="brand-name">Audi</div><div class="brand-count">61 машина</div></div>
+      <div class="brand-card" onclick="selectBrand('Porsche')"><div class="brand-icon">🏆</div><div class="brand-name">Porsche</div><div class="brand-count">38 машин</div></div>
+      <div class="brand-card" onclick="selectBrand('Toyota')"><div class="brand-icon">🔴</div><div class="brand-name">Toyota</div><div class="brand-count">29 машин</div></div>
+      <div class="brand-card" onclick="selectBrand('Subaru')"><div class="brand-icon">🌟</div><div class="brand-name">Subaru</div><div class="brand-count">18 машин</div></div>
+      <div class="brand-card" onclick="selectBrand('Ford')"><div class="brand-icon">🇺🇸</div><div class="brand-name">Ford</div><div class="brand-count">24 машины</div></div>
+      <div class="brand-card" onclick="selectBrand('Mini')"><div class="brand-icon">🟡</div><div class="brand-name">Mini</div><div class="brand-count">15 машин</div></div>
+      <div class="brand-card" onclick="selectBrand('Спецтехника')"><div class="brand-icon">🚜</div><div class="brand-name">Спецтехника</div><div class="brand-count">8 машин</div></div>
+    </div>
+
+    <div class="section-header" style="margin-top:8px;">Типы опыта</div>
+    <div class="brand-grid">
+      <div class="brand-card" onclick="selectBrand('Дрифт')"><div class="brand-icon">🔄</div><div class="brand-name">Дрифт</div><div class="brand-count">12 авто</div></div>
+      <div class="brand-card" onclick="selectBrand('Ралли')"><div class="brand-icon">🏔</div><div class="brand-name">Ралли</div><div class="brand-count">7 авто</div></div>
+      <div class="brand-card" onclick="selectBrand('Трек')"><div class="brand-icon">🏁</div><div class="brand-name">Трек / Кольцо</div><div class="brand-count">9 авто</div></div>
+    </div>
+  </div>
+
+  <div id="content-models" style="display:none;">
+    <div class="section-header" id="models-header">Модели</div>
+    <div class="model-list" id="models-list"></div>
+  </div>
+
+  <div id="content-cars" style="display:none;">
+    <div class="section-header" id="cars-header">Доступные машины</div>
+    <div class="car-list" id="cars-list"></div>
+  </div>
+
+  <!-- Нижняя навигация -->
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goPage('index.html')"><i class="fas fa-home"></i><span>Лента</span></button>
+    <button class="nav-item active" onclick="goPage('partners.html')"><i class="fas fa-handshake"></i><span>Партнёры</span></button>
+    <button class="nav-item" onclick="goPage('experience.html')"><i class="fas fa-trophy"></i><span>Опыт</span></button>
+    <button class="nav-item" onclick="goPage('profile.html')"><i class="fas fa-user"></i><span>Профиль</span></button>
+  </nav>
+</div>
+
+<div id="app-toast" style="display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:13px;z-index:9999;white-space:nowrap;"></div>
+
+<script>
+const modelsData = {
+  'BMW': [{name:'M3 Competition',sub:'3.0T / 510 л.с.',count:14,emoji:'🏎'},{name:'M5 CS',sub:'4.4T / 635 л.с.',count:4,emoji:'🔵'},{name:'M2',sub:'3.0T / 460 л.с.',count:9,emoji:'⚡'},{name:'X5M',sub:'4.4T / 625 л.с.',count:7,emoji:'🚙'}],
+  'Mercedes': [{name:'AMG GT S',sub:'4.0T / 558 л.с.',count:6,emoji:'⭐'},{name:'C63 AMG',sub:'4.0T / 476 л.с.',count:12,emoji:'🚗'},{name:'G63 AMG',sub:'4.0T / 585 л.с.',count:3,emoji:'🚛'},{name:'E63 AMG',sub:'4.0T / 612 л.с.',count:5,emoji:'🌟'}],
+  'Porsche': [{name:'911 Carrera',sub:'3.0T / 450 л.с.',count:8,emoji:'🏆'},{name:'Cayenne Turbo',sub:'4.0T / 550 л.с.',count:5,emoji:'🚙'},{name:'Boxster',sub:'2.7 / 265 л.с.',count:4,emoji:'💨'},{name:'Panamera',sub:'4.0T / 460 л.с.',count:3,emoji:'🎯'}],
+  'Toyota': [{name:'Supra A90',sub:'3.0T / 387 л.с.',count:11,emoji:'🔶'},{name:'GR Yaris',sub:'1.6T / 261 л.с.',count:7,emoji:'🟠'},{name:'Land Cruiser 200',sub:'4.5D / 272 л.с.',count:6,emoji:'🌿'}],
+  'Audi': [{name:'RS6 Avant',sub:'4.0T / 600 л.с.',count:7,emoji:'💠'},{name:'R8 V10',sub:'5.2 NA / 570 л.с.',count:3,emoji:'💎'},{name:'RS3',sub:'2.5T / 400 л.с.',count:9,emoji:'🔷'}],
+  'Subaru': [{name:'BRZ',sub:'2.4 NA / 234 л.с.',count:8,emoji:'🌟'},{name:'WRX STI',sub:'2.5T / 310 л.с.',count:6,emoji:'🔵'},{name:'Forester XT',sub:'2.0T / 250 л.с.',count:4,emoji:'🌲'}],
+  'Ford': [{name:'Mustang GT500',sub:'5.2 NA / 760 л.с.',count:5,emoji:'🐎'},{name:'Mustang GT',sub:'5.0 NA / 450 л.с.',count:9,emoji:'🇺🇸'},{name:'Focus RS',sub:'2.3T / 350 л.с.',count:4,emoji:'🔴'}],
+  'Mini': [{name:'Cooper S JCW',sub:'2.0T / 231 л.с.',count:7,emoji:'🟡'},{name:'Countryman JCW',sub:'2.0T / 306 л.с.',count:4,emoji:'🟢'}],
+  'Спецтехника': [{name:'Трактор John Deere',sub:'370 л.с. / Поле',count:2,emoji:'🚜'},{name:'Экскаватор CAT',sub:'Строительная',count:1,emoji:'🏗'},{name:'Грейдер',sub:'Дорожная техника',count:1,emoji:'🛣'}],
+  'Дрифт': [{name:'Toyota Mark II',sub:'2JZ / Дрифт-кар',count:4,emoji:'🔄'},{name:'Nissan Silvia S15',sub:'SR20T / Дрифт',count:5,emoji:'🔄'}],
+  'Ралли': [{name:'Mitsubishi Evo IX',sub:'2.0T / Ралли',count:3,emoji:'🏔'},{name:'Subaru Impreza WRC',sub:'EJ20T / Ралли',count:2,emoji:'🏔'}],
+  'Трек': [{name:'Lotus Exige',sub:'1.8T / Трек',count:3,emoji:'🏁'},{name:'Porsche Cayman GT4',sub:'4.0 NA / Трек',count:4,emoji:'🏁'}],
+};
+
+const carsData = {
+  'BMW_M3 Competition': [
+    {owner:'Иван П.',nick:'ivan_p',level:'Gold',rating:'4.9',access:'Платно',price:'5 000 ₽',city:'Москва',approval:62,trips:14,emoji:'🏎',bg:'linear-gradient(135deg,#1a1a2a,#2a2a4a)'},
+    {owner:'Роман С.',nick:'rom_s',level:'Silver',rating:'4.7',access:'Бесплатно',price:'—',city:'Москва',approval:84,trips:8,emoji:'🔵',bg:'linear-gradient(135deg,#0f0f1f,#1f1f3f)'},
+    {owner:'Борис К.',nick:'bor_k',level:'Premium',rating:'4.8',access:'Только инвайт',price:'—',city:'СПб',approval:18,trips:22,emoji:'⚡',bg:'linear-gradient(135deg,#15152a,#25254a)'},
+  ],
+  'Mercedes_AMG GT S': [
+    {owner:'Дмитрий В.',nick:'dima_wolf',level:'VIP',rating:'5.0',access:'Только инвайт',price:'—',city:'Москва',approval:21,trips:28,emoji:'⭐',bg:'linear-gradient(135deg,#1a2030,#253050)'},
+  ],
+};
+
+let currentBrand = '';
+let currentModel = '';
+
+function selectBrand(brand) {
+  currentBrand = brand;
+  currentModel = '';
+  document.getElementById('content-brands').style.display = 'none';
+  document.getElementById('content-cars').style.display = 'none';
+  document.getElementById('content-models').style.display = 'block';
+  document.getElementById('models-header').textContent = brand + ' — Модели';
+  document.getElementById('page-title').textContent = brand;
+  document.getElementById('back-btn').style.display = 'block';
+  document.getElementById('breadcrumb').style.display = 'flex';
+  document.getElementById('bc-brand').textContent = brand;
+  document.getElementById('bc-sep2').style.display = 'none';
+  document.getElementById('bc-model').textContent = '';
+
+  const models = modelsData[brand] || [];
+  document.getElementById('models-list').innerHTML = models.map(m => `
+    <div class="model-item" onclick="selectModel('${m.name.replace(/'/g,"\\'")}')">
+      <div style="font-size:24px;margin-right:12px;">${m.emoji}</div>
+      <div class="model-info">
+        <div class="model-title">${m.name}</div>
+        <div class="model-sub">${m.sub}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:14px;font-weight:600;color:var(--accent);">${m.count}</div>
+        <div style="font-size:11px;color:var(--text2);">машин</div>
+      </div>
+      <i class="fas fa-chevron-right" style="color:var(--text3);margin-left:10px;"></i>
+    </div>
+  `).join('');
+}
+
+function selectModel(model) {
+  currentModel = model;
+  document.getElementById('content-models').style.display = 'none';
+  document.getElementById('content-cars').style.display = 'block';
+  document.getElementById('cars-header').textContent = currentBrand + ' ' + model;
+  document.getElementById('page-title').textContent = model;
+  document.getElementById('bc-sep2').style.display = 'inline';
+  document.getElementById('bc-model').textContent = model;
+
+  const key = currentBrand + '_' + model;
+  const cars = carsData[key] || generateCars(currentBrand, model);
+  document.getElementById('cars-list').innerHTML = cars.map(c => `
+    <div class="car-item" onclick="openCar()">
+      <div class="car-thumb" style="background:${c.bg};">${c.emoji}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:600;">${currentBrand} ${model}</div>
+        <div style="font-size:12px;color:var(--text2);margin:3px 0;">${c.owner} · @${c.nick} · <span class="level-${c.level.toLowerCase()}">${c.level}</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+          <span style="font-size:11px;color:var(--accent);">★ ${c.rating}</span>
+          <span style="font-size:11px;color:var(--text2);">${c.trips} поездок</span>
+          <span style="font-size:11px;color:${c.access==='Бесплатно'?'#4caf7d':c.access==='Платно'?'#e8c84a':'#4a8fe8'};">${c.access === 'Платно' ? c.price : c.access}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+          <div style="flex:1;height:3px;background:var(--bg3);border-radius:2px;"><div style="width:${c.approval}%;height:100%;background:${c.approval>=60?'#4caf7d':c.approval>=30?'#e8c84a':'#e05050'};border-radius:2px;"></div></div>
+          <span style="font-size:10px;color:var(--text2);">${c.approval}% одобрения</span>
+        </div>
+      </div>
+      <i class="fas fa-chevron-right" style="color:var(--text3);"></i>
+    </div>
+  `).join('');
+}
+
+function generateCars(brand, model) {
+  const names = ['Алексей К.','Мария С.','Роман Ш.','Наталья О.'];
+  const nicks = ['alex_k','mary_s','roman_sh','nat_o'];
+  const levels = ['Silver','Gold','Premium'];
+  const count = Math.floor(Math.random() * 3) + 2;
+  return Array.from({length:count}, (_,i) => ({
+    owner: names[i % names.length],
+    nick: nicks[i % nicks.length],
+    level: levels[i % levels.length],
+    rating: (4.5 + Math.random() * 0.5).toFixed(1),
+    access: ['Бесплатно','Платно','Только инвайт'][Math.floor(Math.random() * 3)],
+    price: Math.floor(Math.random() * 5000 + 2000) + ' ₽',
+    city: ['Москва','СПб','Казань'][i % 3],
+    approval: Math.floor(Math.random() * 80 + 10),
+    trips: Math.floor(Math.random() * 30 + 2),
+    emoji: ['🚗','🏎','⚡','🌟'][i % 4],
+    bg: `linear-gradient(135deg, #${(10+i*5).toString(16)}1a1a, #1a1a${(2+i*5).toString(16)}a)`
+  }));
+}
+
+function showBrands() {
+  currentBrand = ''; currentModel = '';
+  document.getElementById('content-brands').style.display = 'block';
+  document.getElementById('content-models').style.display = 'none';
+  document.getElementById('content-cars').style.display = 'none';
+  document.getElementById('breadcrumb').style.display = 'none';
+  document.getElementById('page-title').textContent = 'Поиск';
+  document.getElementById('back-btn').style.display = 'none';
+}
+
+function goBack() {
+  if(currentModel) {
+    selectBrand(currentBrand);
+  } else {
+    showBrands();
+  }
+}
+
+function openCar() { window.location.href = 'car-card.html'; }
+
+function quickSearch(q) {
+  if(q.length > 1) showToast('Поиск: ' + q);
+}
+
+function goPage(url) { window.location.href = url; }
+function showToast(msg) {
+  const t = document.getElementById('app-toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2000);
+}
+</script>
+</body>
+</html>

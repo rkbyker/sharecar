@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sharecar — Мой опыт</title>
+<link rel="stylesheet" href="../css/app.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sharecar">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<script src="/js/pwa.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<style>
+.trip-card { background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;cursor:pointer; }
+.trip-thumb { height:120px;display:flex;align-items:center;justify-content:center;font-size:52px;position:relative; }
+.trip-body { padding:14px; }
+.trip-title { font-size:15px;font-weight:700;margin-bottom:4px; }
+.trip-sub { font-size:12px;color:var(--text2); }
+.trip-review { font-size:13px;color:var(--text2);margin-top:8px;line-height:1.5; }
+.trip-footer { display:flex;justify-content:space-between;align-items:center;margin-top:10px; }
+.pending-review-banner { background:rgba(232,200,74,0.08);border:1px solid rgba(232,200,74,0.2);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <div class="top-bar">
+    <div class="top-bar-logo">Sharecar</div>
+    <div class="top-bar-title" style="font-size:16px;font-weight:600;">Мой опыт</div>
+  </div>
+
+  <!-- Статистика -->
+  <div style="padding:16px;background:linear-gradient(180deg,rgba(232,200,74,0.08) 0%,transparent 100%);">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">Поездок за всё время</div>
+      <div style="font-size:36px;font-weight:800;color:var(--accent);">14</div>
+      <div style="font-size:13px;color:var(--text2);">на разных машинах</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+      <div style="background:var(--bg2);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border);">
+        <div style="font-size:18px;font-weight:700;color:var(--accent);">5</div>
+        <div style="font-size:11px;color:var(--text2);">брендов</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border);">
+        <div style="font-size:18px;font-weight:700;color:var(--accent);">3</div>
+        <div style="font-size:11px;color:var(--text2);">класса</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border);">
+        <div style="font-size:18px;font-weight:700;color:#4caf7d;">11</div>
+        <div style="font-size:11px;color:var(--text2);">отзывов</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Уведомление: ожидает отзыв -->
+  <div style="padding:0 16px 4px;">
+    <div class="pending-review-banner">
+      <i class="fas fa-bell" style="color:var(--accent);margin-right:6px;"></i>
+      <strong style="color:var(--accent);">Напиши отзыв!</strong> Прошёл день после поездки на BMW M3. Поделись впечатлениями — владелец их увидит.
+      <div style="margin-top:8px;">
+        <button class="btn btn-primary btn-sm" onclick="openReviewModal(1)"><i class="fas fa-pen"></i> Написать отзыв</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Список поездок -->
+  <div style="padding:0 16px;">
+    <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">Мои поездки</div>
+
+    <!-- Поездка 1 — ожидает отзыв -->
+    <div class="trip-card" onclick="showTrip(1)">
+      <div class="trip-thumb" style="background:linear-gradient(135deg,#1a1a2a,#2a2a4a);">
+        🏎
+        <div style="position:absolute;top:10px;left:10px;"><span class="badge badge-gold">BMW</span></div>
+        <div style="position:absolute;top:10px;right:10px;"><span style="background:rgba(232,200,74,0.2);color:#e8c84a;font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;">✍️ Ждёт отзыв</span></div>
+        <div style="position:absolute;bottom:10px;right:10px;font-size:11px;color:rgba(255,255,255,0.6);">09.04.2026</div>
+      </div>
+      <div class="trip-body">
+        <div class="trip-title">BMW M3 Competition</div>
+        <div class="trip-sub">Иван П. · Москва · Кольцо</div>
+        <div class="trip-review" style="color:var(--text3);font-style:italic;">Отзыв ещё не написан</div>
+        <div class="trip-footer">
+          <div class="stars" style="color:var(--text3);">☆☆☆☆☆</div>
+          <span style="font-size:12px;color:var(--accent);">5 000 ₽</span>
+        </div>
+        <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;" onclick="event.stopPropagation();openReviewModal(1)"><i class="fas fa-pen"></i> Написать отзыв</button>
+      </div>
+    </div>
+
+    <!-- Поездка 2 — с отзывом -->
+    <div class="trip-card" onclick="showTrip(2)">
+      <div class="trip-thumb" style="background:linear-gradient(135deg,#1a1a2a,#2a2a4a);">
+        🏎
+        <div style="position:absolute;top:10px;left:10px;"><span class="badge badge-gold">BMW</span></div>
+        <div style="position:absolute;bottom:10px;right:10px;font-size:11px;color:rgba(255,255,255,0.6);">02.04.2026</div>
+      </div>
+      <div class="trip-body">
+        <div class="trip-title">BMW M3 Competition</div>
+        <div class="trip-sub">Иван П. · Москва · Кольцо · Платная</div>
+        <div class="trip-review">"Невероятно! 510 л.с. это просто другой мир. Поехали по МКАД, потом срезали через трассу. Незабываемо."</div>
+        <div class="trip-footer">
+          <div class="stars">★★★★★</div>
+          <span style="font-size:12px;color:var(--accent);">5 000 ₽</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Поездка 3 -->
+    <div class="trip-card" onclick="showTrip(3)">
+      <div class="trip-thumb" style="background:linear-gradient(135deg,#1a2030,#253050);">
+        ⭐
+        <div style="position:absolute;top:10px;left:10px;"><span class="badge badge-blue">Mercedes</span></div>
+        <div style="position:absolute;bottom:10px;right:10px;font-size:11px;color:rgba(255,255,255,0.6);">28.03.2026</div>
+      </div>
+      <div class="trip-body">
+        <div class="trip-title">Mercedes AMG C63</div>
+        <div class="trip-sub">Михаил Д. · Москва · Город · Бесплатная</div>
+        <div class="trip-review">"Дизельный V8 звучит невероятно. Михаил дал порулить на МКАД."</div>
+        <div class="trip-footer">
+          <div class="stars">★★★★★</div>
+          <span class="badge badge-green">Бесплатно</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Поездка 4 — спецтехника -->
+    <div class="trip-card" onclick="showTrip(4)">
+      <div class="trip-thumb" style="background:linear-gradient(135deg,#1a1500,#2a2500);">
+        🚜
+        <div style="position:absolute;top:10px;left:10px;"><span class="badge badge-yellow">Спецтехника</span></div>
+        <div style="position:absolute;bottom:10px;right:10px;font-size:11px;color:rgba(255,255,255,0.6);">20.03.2026</div>
+      </div>
+      <div class="trip-body">
+        <div class="trip-title">John Deere 8R</div>
+        <div class="trip-sub">Константин А. · Подмосковье · Спецтехника</div>
+        <div class="trip-review">"Совсем другое управление! Трактор — это своя вселенная. Огромный кайф."</div>
+        <div class="trip-footer">
+          <div class="stars">★★★★☆</div>
+          <span style="font-size:12px;color:var(--accent);">3 000 ₽</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Нижняя навигация -->
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goPage('index.html')"><i class="fas fa-home"></i><span>Лента</span></button>
+    <button class="nav-item" onclick="goPage('partners.html')"><i class="fas fa-handshake"></i><span>Партнёры</span></button>
+    <button class="nav-item active"><i class="fas fa-trophy"></i><span>Опыт</span></button>
+    <button class="nav-item" onclick="goPage('profile.html')"><i class="fas fa-user"></i><span>Профиль</span></button>
+  </nav>
+</div>
+
+<!-- Детали поездки -->
+<div id="trip-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:flex-end;justify-content:center;">
+  <div style="background:var(--bg2);border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto;border:1px solid var(--border);">
+    <div class="modal-handle"></div>
+    <div id="trip-content">—</div>
+    <button class="btn btn-secondary btn-full" style="margin-top:16px;" onclick="document.getElementById('trip-modal').style.display='none'">Закрыть</button>
+  </div>
+</div>
+
+<!-- Модал написания отзыва -->
+<div id="review-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:600;align-items:flex-end;justify-content:center;">
+  <div style="background:var(--bg2);border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:430px;border:1px solid var(--border);">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Отзыв о поездке</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px;" id="review-car-name">BMW M3 Competition · Иван П.</div>
+
+    <!-- Рейтинг звёздочками -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Оценка</div>
+      <div id="star-rating" style="display:flex;gap:8px;font-size:28px;">
+        <span class="star-btn" onclick="setStars(1)" style="cursor:pointer;color:var(--text3);">★</span>
+        <span class="star-btn" onclick="setStars(2)" style="cursor:pointer;color:var(--text3);">★</span>
+        <span class="star-btn" onclick="setStars(3)" style="cursor:pointer;color:var(--text3);">★</span>
+        <span class="star-btn" onclick="setStars(4)" style="cursor:pointer;color:var(--text3);">★</span>
+        <span class="star-btn" onclick="setStars(5)" style="cursor:pointer;color:var(--text3);">★</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Впечатления</label>
+      <textarea id="review-text" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;color:var(--text1);width:100%;min-height:80px;font-family:inherit;resize:none;outline:none;box-sizing:border-box;" placeholder="Расскажи как прошла поездка..."></textarea>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="submitReview()"><i class="fas fa-check"></i> Отправить отзыв</button>
+    <button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="document.getElementById('review-modal').style.display='none'">Отмена</button>
+  </div>
+</div>
+
+<div id="app-toast" style="display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:13px;z-index:9999;white-space:nowrap;"></div>
+
+<script>
+const trips = {
+  1: { title:'BMW M3 Competition', owner:'Иван Петров', date:'09.04.2026', price:'5 000 ₽', rating:'Ещё не оценено', text:'Ты ещё не написал отзыв. Напиши — владелец увидит!', emoji:'🏎', bg:'linear-gradient(135deg,#1a1a2a,#2a2a4a)', pending:true },
+  2: { title:'BMW M3 Competition', owner:'Иван Петров', date:'02.04.2026', price:'5 000 ₽', rating:'5/5', text:'Невероятно! 510 л.с. это просто другой мир. Поехали по МКАД, потом срезали через трассу. Иван очень открытый и классный. Дал мне полноценно порулить. Незабываемые впечатления — теперь я точно хочу М-серию.', emoji:'🏎', bg:'linear-gradient(135deg,#1a1a2a,#2a2a4a)'},
+  3: { title:'Mercedes AMG C63', owner:'Михаил Дорохов', date:'28.03.2026', price:'Бесплатно', rating:'5/5', text:'Дизельный V8 звучит невероятно. Михаил дал порулить на МКАД. Разгон просто сумасшедший.', emoji:'⭐', bg:'linear-gradient(135deg,#1a2030,#253050)'},
+  4: { title:'John Deere 8R', owner:'Константин Агронов', date:'20.03.2026', price:'3 000 ₽', rating:'4/5', text:'Совсем другое управление! Трактор — это своя вселенная. Огромный кайф когда такой зверь слушается тебя.', emoji:'🚜', bg:'linear-gradient(135deg,#1a1500,#2a2500)'},
+};
+
+let selectedStars = 0;
+
+function showTrip(id) {
+  const t = trips[id];
+  document.getElementById('trip-content').innerHTML = `
+    <div style="height:120px;background:${t.bg};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:52px;margin-bottom:16px;">${t.emoji}</div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px;">${t.title}</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">${t.owner} · ${t.date} · ${t.price}</div>
+    ${t.pending
+      ? `<div style="background:rgba(232,200,74,0.08);border:1px solid rgba(232,200,74,0.2);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);">✍️ Отзыв ещё не написан. Нажми «Написать отзыв».</div>
+         <button class="btn btn-primary btn-full" style="margin-top:12px;" onclick="document.getElementById('trip-modal').style.display='none';openReviewModal(1)"><i class='fas fa-pen'></i> Написать отзыв</button>`
+      : `<div class="stars" style="margin-bottom:12px;">★ ${t.rating}</div>
+         <div style="font-size:14px;color:var(--text2);line-height:1.7;background:var(--bg3);border-radius:10px;padding:14px;">"${t.text}"</div>`
+    }
+  `;
+  document.getElementById('trip-modal').style.display = 'flex';
+}
+
+function openReviewModal(tripId) {
+  selectedStars = 0;
+  document.querySelectorAll('.star-btn').forEach(s => s.style.color = 'var(--text3)');
+  document.getElementById('review-text').value = '';
+  document.getElementById('review-modal').style.display = 'flex';
+}
+
+function setStars(n) {
+  selectedStars = n;
+  document.querySelectorAll('.star-btn').forEach((s, i) => {
+    s.style.color = i < n ? '#e8c84a' : 'var(--text3)';
+  });
+}
+
+function submitReview() {
+  const text = document.getElementById('review-text').value.trim();
+  if (!selectedStars) { showToast('⚠️ Поставь оценку'); return; }
+  if (!text) { showToast('⚠️ Напиши текст отзыва'); return; }
+  document.getElementById('review-modal').style.display = 'none';
+  showToast('✅ Отзыв отправлен! Владелец увидит его.');
+}
+
+function goPage(url) { window.location.href = url; }
+function showToast(msg) {
+  const t = document.getElementById('app-toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+</script>
+</body>
+</html>

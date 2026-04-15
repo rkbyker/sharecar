@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f0f0f">
+<title>Sharecar — Уровни участников</title>
+<link rel="stylesheet" href="../css/app.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sharecar">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<script src="/js/pwa.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<style>
+/* ── Таблица сравнения уровней ── */
+.levels-table-wrap {
+  margin: 0 16px 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.levels-table {
+  width: 100%;
+  min-width: 540px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.levels-table th {
+  padding: 11px 10px;
+  text-align: center;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  white-space: nowrap;
+}
+.levels-table th:first-child { text-align: left; padding-left: 14px; }
+.levels-table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text2);
+  line-height: 1.4;
+}
+.levels-table td:first-child {
+  text-align: left;
+  padding-left: 14px;
+  color: var(--text1);
+  font-weight: 500;
+  font-size: 12px;
+}
+.levels-table tr:last-child td { border-bottom: none; }
+.levels-table tr:hover td { background: rgba(255,255,255,0.015); }
+
+/* Заголовки уровней */
+.th-bronze { color: #c87941; }
+.th-silver { color: #90a8c0; }
+.th-gold   { color: #e8c84a; }
+.th-prem   { color: #b87fe8; }
+.th-vip    { color: #7ec850; }
+
+/* Активная колонка (текущий уровень пользователя) */
+.col-active { background: rgba(232,200,74,0.04); }
+
+/* Значения ячеек */
+.cell-yes  { color: #4caf7d; font-size: 15px; }
+.cell-no   { color: rgba(255,255,255,0.15); font-size: 15px; }
+.cell-part { color: #e8c84a; font-size: 13px; }
+.cell-num  { color: var(--text1); font-weight: 700; }
+
+/* ── Карточки уровней ── */
+.level-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 0 16px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.level-card.active-level {
+  border-color: rgba(232,200,74,0.4);
+  background: rgba(232,200,74,0.04);
+}
+.level-card.vip-card {
+  background: linear-gradient(135deg,#0a1505,#151f08);
+  border-color: rgba(126,200,80,0.3);
+}
+.level-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.level-icon { font-size: 28px; line-height: 1; }
+.level-name { font-size: 16px; font-weight: 800; }
+.level-range { font-size: 11px; color: var(--text2); margin-top: 1px; }
+.level-perks {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+.perk-yes { color: #4caf7d; }
+.perk-no  { color: rgba(255,255,255,0.25); }
+.perk-star { color: #e8c84a; }
+.perk-crown { color: #7ec850; }
+
+/* ── Блок текущего уровня ── */
+.my-level-banner {
+  margin: 16px;
+  background: linear-gradient(135deg,#1e2010,#2e3020);
+  border: 1px solid rgba(232,200,74,0.3);
+  border-radius: 14px;
+  padding: 18px;
+}
+.progress-bar { background: rgba(255,255,255,0.07); border-radius: 99px; height: 6px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #7ec850, #e8c84a); border-radius: 99px; transition: width 0.6s; }
+
+/* ── Видимость VIP ── */
+.vip-note {
+  margin: 0 16px 16px;
+  background: rgba(126,200,80,0.07);
+  border: 1px solid rgba(126,200,80,0.2);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 12px;
+  color: #7ec850;
+  line-height: 1.6;
+}
+.vip-note strong { color: #9edd70; }
+
+/* ── Покупка ── */
+.buy-card {
+  margin: 0 16px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+.buy-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg3);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.buy-row:last-child { margin-bottom: 0; }
+.buy-row:active { background: rgba(255,255,255,0.06); }
+.buy-price { font-size: 16px; font-weight: 800; color: var(--accent); }
+.buy-price-sub { font-size: 10px; color: var(--text2); }
+
+/* ── Таб-переключатель ── */
+.view-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+.view-tab {
+  flex: 1;
+  padding: 11px 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text2);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+.view-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <!-- Верхняя панель -->
+  <div class="top-bar">
+    <button class="top-bar-action" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+    <div class="top-bar-title">Уровни участников</div>
+    <button class="top-bar-action" onclick="toggleVipMode()" id="vip-toggle-btn" title="Переключить демо-роль">
+      <i class="fas fa-crown" id="vip-toggle-icon" style="color:#e8c84a;"></i>
+    </button>
+  </div>
+
+  <!-- Демо-режим переключатель -->
+  <div style="margin:10px 16px 0;background:rgba(232,200,74,0.07);border:1px solid rgba(232,200,74,0.2);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;">
+    <i class="fas fa-flask" style="color:#e8c84a;font-size:14px;"></i>
+    <div style="flex:1;font-size:12px;color:var(--text2);">
+      Демо-роль: <strong id="demo-role-label" style="color:var(--text1);">🥇 Gold</strong>
+    </div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;">
+      <button onclick="setDemoRole('bronze')" class="btn btn-secondary btn-sm" style="font-size:10px;padding:3px 7px;">🥉</button>
+      <button onclick="setDemoRole('silver')" class="btn btn-secondary btn-sm" style="font-size:10px;padding:3px 7px;">🥈</button>
+      <button onclick="setDemoRole('gold')" class="btn btn-secondary btn-sm" style="font-size:10px;padding:3px 7px;">🥇</button>
+      <button onclick="setDemoRole('premium')" class="btn btn-secondary btn-sm" style="font-size:10px;padding:3px 7px;">💎</button>
+      <button onclick="setDemoRole('vip')" class="btn btn-secondary btn-sm" style="font-size:10px;padding:3px 7px;">👑</button>
+    </div>
+  </div>
+
+  <!-- Мой текущий уровень -->
+  <div class="my-level-banner" style="margin-top:14px;">
+    <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Мой уровень</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="font-size:36px;" id="my-level-icon">🥇</div>
+      <div style="flex:1;">
+        <div style="font-size:20px;font-weight:800;color:#e8c84a;" id="my-level-name">Gold</div>
+        <div style="font-size:12px;color:var(--text2);" id="my-level-sub">14 из 50 поездок до Premium</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:22px;font-weight:800;color:var(--accent);" id="my-trips-num">14</div>
+        <div style="font-size:10px;color:var(--text2);">поездок</div>
+      </div>
+    </div>
+    <div class="progress-bar" style="margin-top:12px;">
+      <div class="progress-fill" id="my-progress" style="width:28%;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px;" id="my-progress-labels">
+      <span>Gold — 21 поездка</span>
+      <span>Premium — 51 поездок</span>
+    </div>
+  </div>
+
+  <!-- Таб-переключатель: карточки / таблица -->
+  <div class="view-tabs" style="margin: 0 16px 0;">
+    <button class="view-tab active" onclick="switchView('cards', this)"><i class="fas fa-th-large" style="margin-right:5px;"></i>Карточки</button>
+    <button class="view-tab" onclick="switchView('table', this)"><i class="fas fa-table" style="margin-right:5px;"></i>Сравнение</button>
+  </div>
+
+  <!-- ─────── ВИД: КАРТОЧКИ ─────── -->
+  <div id="view-cards" style="padding-top:14px;">
+
+    <!-- Быстрая шпаргалка -->
+    <div style="margin:0 16px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;">
+      <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;">Два пути роста</div>
+      <!-- Две ветки -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div style="background:rgba(126,200,80,0.07);border:1px solid rgba(126,200,80,0.2);border-radius:10px;padding:10px;">
+          <div style="font-size:11px;font-weight:700;color:#7ec850;margin-bottom:4px;">🏎 ВЛАДЕЛЕЦ С РУЛЁМ</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.6;">Разрешил сесть за руль → <strong style="color:#b87fe8;">сразу Premium</strong><br>Машина выше в выдаче · ∞ заявок · скидка 20%</div>
+        </div>
+        <div style="background:rgba(74,143,232,0.07);border:1px solid rgba(74,143,232,0.2);border-radius:10px;padding:10px;">
+          <div style="font-size:11px;font-weight:700;color:#4a8fe8;margin-bottom:4px;">💺 БЕЗ РУЛЯ / ПАССАЖИР</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.6;">Рост от количества поездок:<br>Bronze → Silver → Gold → Premium</div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;">Что даёт уровень — кратко</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div id="cheat-bronze" style="display:flex;align-items:center;gap:10px;font-size:12px;border-radius:7px;padding:4px 6px;transition:background 0.2s;">
+          <span style="width:28px;text-align:center;font-size:15px;">🥉</span>
+          <span style="color:#c87941;font-weight:600;width:54px;">Bronze</span>
+          <span style="color:var(--text2);flex:1;">0–5 поездок · пассажир без лимита · <em style="color:var(--text3);">за руль — недоступно</em></span>
+        </div>
+        <div id="cheat-silver" style="display:flex;align-items:center;gap:10px;font-size:12px;border-radius:7px;padding:4px 6px;transition:background 0.2s;">
+          <span style="width:28px;text-align:center;font-size:15px;">🥈</span>
+          <span style="color:#90a8c0;font-weight:600;width:54px;">Silver</span>
+          <span style="color:var(--text2);flex:1;">6–20 поездок · <strong style="color:#e8c84a;">5 заявок/день</strong> за руль · скидка 5%</span>
+        </div>
+        <div id="cheat-gold" style="display:flex;align-items:center;gap:10px;font-size:12px;border-radius:7px;padding:4px 6px;background:rgba(232,200,74,0.07);transition:background 0.2s;">
+          <span style="width:28px;text-align:center;font-size:15px;">🥇</span>
+          <span style="color:#e8c84a;font-weight:600;width:54px;">Gold</span>
+          <span style="color:var(--text2);flex:1;">21–50 поездок · <strong style="color:#e8c84a;">10 заявок/день</strong> за руль · скидка 10%</span>
+        </div>
+        <div id="cheat-premium" style="display:flex;align-items:center;gap:10px;font-size:12px;border-radius:7px;padding:4px 6px;transition:background 0.2s;">
+          <span style="width:28px;text-align:center;font-size:15px;">💎</span>
+          <span style="color:#b87fe8;font-weight:600;width:54px;">Premium</span>
+          <span style="color:var(--text2);flex:1;">51+ поездок · <strong style="color:#7ec850;">♥ владелец с рулём</strong> · ♥ без лимита · скидка 20%</span>
+        </div>
+        <div id="cheat-vip" style="display:flex;align-items:center;gap:10px;font-size:12px;border-radius:7px;padding:4px 6px;transition:background 0.2s;">
+          <span style="width:28px;text-align:center;font-size:15px;">👑</span>
+          <span style="color:#7ec850;font-weight:600;width:54px;">VIP</span>
+          <span style="color:var(--text2);flex:1;">Приглашение · FREE для VIP · без лимита · скидка 30%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bronze -->
+    <div class="level-card" id="card-bronze">
+      <div class="level-header">
+        <div class="level-icon">🥉</div>
+        <div style="flex:1;">
+          <div class="level-name" style="color:#c87941;">Bronze</div>
+          <div class="level-range">Старт · 0–5 поездок · пассажиры без руля</div>
+        </div>
+        <span class="badge badge-bronze" id="badge-bronze" style="display:none;">Текущий</span>
+      </div>
+      <div class="level-perks">
+        <div class="perk-yes">✅ Просмотр ленты и поиска</div>
+        <div class="perk-no">✗ За руль — недоступно (нет своей машины или не разрешил руль)</div>
+        <div class="perk-yes">✅ Пассажиром — без лимита</div>
+        <div class="perk-yes">✅ Пассажиром — на любых открытых машинах</div>
+        <div class="perk-no">✗ За руль — недоступно</div>
+        <div class="perk-no">✗ Скидки на продвижение — нет</div>
+      </div>
+      <div style="margin-top:8px;background:rgba(74,143,232,0.07);border-radius:8px;padding:8px 12px;font-size:11px;color:#4a8fe8;">
+        💡 Если добавишь машину и разрешишь за руль — сразу получишь <strong>Premium</strong>
+      </div>
+    </div>
+
+    <!-- Silver -->
+    <div class="level-card" id="card-silver">
+      <div class="level-header">
+        <div class="level-icon">🥈</div>
+        <div style="flex:1;">
+          <div class="level-name" style="color:#90a8c0;">Silver</div>
+          <div class="level-range">Постоянный · 6–20 поездок</div>
+        </div>
+        <span class="badge" style="background:rgba(144,168,192,0.15);color:#90a8c0;display:none;" id="badge-silver">Текущий</span>
+      </div>
+      <div class="level-perks">
+        <div class="perk-yes">✅ До 10 бесплатных заявок в месяц</div>
+        <div class="perk-yes">✅ Скидка 5% на продвижение машин</div>
+        <div class="perk-yes">✅ Пассажиром + за руль на Silver-машинах</div>
+        <div class="perk-yes">✅ Приоритет в выдаче ленты</div>
+        <div class="perk-no">✗ Gold/Premium-машины — закрыты</div>
+        <div class="perk-no">✗ Видеть VIP-катальщиков — нет</div>
+      </div>
+    </div>
+
+    <!-- Gold — текущий (по умолчанию) -->
+    <div class="level-card active-level" id="card-gold">
+      <div class="level-header">
+        <div class="level-icon">🥇</div>
+        <div style="flex:1;">
+          <div class="level-name" style="color:#e8c84a;">Gold</div>
+          <div class="level-range">Уважаемый · 21–50 поездок</div>
+        </div>
+        <span class="badge badge-yellow" id="badge-gold">Текущий</span>
+      </div>
+      <div class="level-perks">
+        <div class="perk-yes">✅ До 20 бесплатных заявок в месяц</div>
+        <div class="perk-yes">✅ Скидка 10% на продвижение</div>
+        <div class="perk-yes">✅ За руль на Gold-машинах</div>
+        <div class="perk-yes">✅ Повышенная видимость профиля</div>
+        <div class="perk-yes">✅ Приоритет в поиске и ленте</div>
+        <div class="perk-star">⭐ Владельцы одобряют чаще</div>
+        <div class="perk-no">✗ Видеть VIP-катальщиков — нет</div>
+      </div>
+    </div>
+
+    <!-- Premium -->
+    <div class="level-card" id="card-premium">
+      <div class="level-header">
+        <div class="level-icon">💎</div>
+        <div style="flex:1;">
+          <div class="level-name" style="color:#b87fe8;">Premium</div>
+          <div class="level-range">Клубный · 51+ поездок · или владелец с рулём</div>
+        </div>
+        <span class="badge" style="background:rgba(184,127,232,0.15);color:#b87fe8;display:none;" id="badge-premium">Текущий</span>
+      </div>
+      <div class="level-perks">
+        <div class="perk-yes">✅ Безлимитные заявки</div>
+        <div class="perk-yes">✅ Скидка 20% на продвижение</div>
+        <div class="perk-yes">✅ За руль на Premium-машинах</div>
+        <div class="perk-yes">✅ Приоритет поддержки</div>
+        <div class="perk-yes">✅ Статус виден в ленте и поиске</div>
+        <div class="perk-yes">✅ Машина выше в ленте у других</div>
+      </div>
+      <div style="margin-top:10px;background:rgba(184,127,232,0.08);border-radius:8px;padding:9px 12px;font-size:11px;color:#b87fe8;">
+        🏎 <strong>Быстрый путь:</strong> добавь машину и разреши за руль — Premium сразу<br>
+        💺 <strong>Путь пассажира:</strong> 51+ поездок или подписка 699 ₽/мес
+      </div>
+    </div>
+
+    <!-- VIP -->
+    <div class="level-card vip-card" id="card-vip">
+      <div class="level-header">
+        <div class="level-icon">👑</div>
+        <div style="flex:1;">
+          <div class="level-name" style="color:#7ec850;">VIP</div>
+          <div class="level-range">Только по приглашению администратора</div>
+        </div>
+        <span class="badge badge-vip" style="display:none;" id="badge-vip">Текущий</span>
+      </div>
+      <div class="level-perks">
+        <div class="perk-crown">👑 Всё из Premium</div>
+        <div class="perk-crown">👑 Бесплатный доступ к машинам, где VIP = free</div>
+        <div class="perk-crown">👑 Особая метка в профиле и ленте</div>
+        <div class="perk-crown">👑 Доступ к закрытым инвайт-машинам</div>
+        <div class="perk-crown">👑 Максимальный буст в выдаче</div>
+        <div class="perk-crown">👑 Скидка 30% на любое продвижение</div>
+        <div class="perk-crown" id="vip-drivers-perk" style="display:none;">👑 Видишь кто катает VIP — другие нет 🔒</div>
+      </div>
+      <div style="margin-top:12px;background:rgba(126,200,80,0.06);border-radius:8px;padding:10px 12px;font-size:11px;color:#7ec850;">
+        👑 VIP назначается вручную администратором. Нельзя купить — только заслужить.
+      </div>
+    </div>
+
+    <!-- Заметка о VIP-видимости -->
+    <div class="vip-note" id="vip-visibility-note">
+      <strong>🔒 Видимость VIP-катальщиков</strong><br>
+      Информация о том, кто катается на VIP-машинах бесплатно — видна только VIP-участникам.<br>
+      Для остальных в ленте отображается только марка машины без деталей о водителе.
+      <div id="vip-active-note" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(126,200,80,0.2);color:#9edd70;">
+        ✅ У тебя VIP — ты видишь всех катальщиков.
+      </div>
+    </div>
+
+    <!-- Покупка уровня -->
+    <div class="buy-card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Ускорить рост</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Купи переход или подписку и получи привилегии сразу</div>
+      <div class="buy-row" onclick="buyLevel('Premium')">
+        <div>
+          <div style="font-size:13px;font-weight:600;">💎 Premium подписка</div>
+          <div style="font-size:11px;color:var(--text2);">Безлимит заявок · за руль на Premium-машинах</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="buy-price">699 ₽</div>
+          <div class="buy-price-sub">/месяц</div>
+        </div>
+      </div>
+      <div class="buy-row" onclick="buyLevel('Owner Pro')">
+        <div>
+          <div style="font-size:13px;font-weight:600;">🏠 Owner Pro</div>
+          <div style="font-size:11px;color:var(--text2);">Топ выдачи + аналитика + авто-продвижение</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="buy-price">499 ₽</div>
+          <div class="buy-price-sub">/месяц</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /view-cards -->
+
+  <!-- ─────── ВИД: ТАБЛИЦА СРАВНЕНИЯ ─────── -->
+  <div id="view-table" style="display:none;padding: 14px 0 16px;">
+
+    <div class="levels-table-wrap">
+      <table class="levels-table">
+        <thead>
+          <tr>
+            <th style="min-width:130px;">Привилегия</th>
+            <th class="th-bronze">🥉<br>Bronze</th>
+            <th class="th-silver">🥈<br>Silver</th>
+            <th class="th-gold col-active">🥇<br>Gold</th>
+            <th class="th-prem">💎<br>Prem.</th>
+            <th class="th-vip">👑<br>VIP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Поездок до уровня</td>
+            <td class="cell-num">0–5</td>
+            <td class="cell-num">6–20</td>
+            <td class="cell-num col-active">21–50</td>
+            <td class="cell-num">51+</td>
+            <td style="color:#7ec850;font-size:11px;" class="cell-num">👑 Admin</td>
+          </tr>
+          <tr>
+            <td>Бесплат. заявок/мес</td>
+            <td class="cell-num">5</td>
+            <td class="cell-num">10</td>
+            <td class="cell-num col-active">20</td>
+            <td style="color:#b87fe8;font-weight:700;">∞</td>
+            <td style="color:#7ec850;font-weight:700;">∞</td>
+          </tr>
+          <tr>
+            <td>За руль (тип машины)</td>
+            <td class="cell-no">✗</td>
+            <td style="color:#90a8c0;font-size:11px;">Silver+</td>
+            <td class="col-active" style="color:#e8c84a;font-size:11px;">Gold+</td>
+            <td style="color:#b87fe8;font-size:11px;">Prem.+</td>
+            <td style="color:#7ec850;font-size:11px;">Все</td>
+          </tr>
+          <tr>
+            <td>Скидка на продвижение</td>
+            <td class="cell-no">—</td>
+            <td class="cell-num">5%</td>
+            <td class="cell-num col-active">10%</td>
+            <td class="cell-num">20%</td>
+            <td class="cell-num" style="color:#7ec850;">30%</td>
+          </tr>
+          <tr>
+            <td>Приоритет в ленте</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-yes">✓</td>
+            <td class="cell-yes col-active">✓✓</td>
+            <td class="cell-yes">✓✓</td>
+            <td class="cell-yes" style="color:#7ec850;">★★★</td>
+          </tr>
+          <tr>
+            <td>Приглашения от VIP-владельцев</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-no col-active">✗</td>
+            <td class="cell-yes">✓</td>
+            <td class="cell-yes" style="color:#7ec850;">✓</td>
+          </tr>
+          <tr>
+            <td>Видеть кто катает VIP 🔒</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-no col-active">✗</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-yes" style="color:#7ec850;">✓</td>
+          </tr>
+          <tr>
+            <td>VIP-free доступ к машинам</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-no col-active">✗</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-yes" style="color:#7ec850;">✓</td>
+          </tr>
+          <tr>
+            <td>Особая метка в профиле</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-no col-active">✗</td>
+            <td class="cell-yes">✓</td>
+            <td class="cell-yes" style="color:#7ec850;">✓ 👑</td>
+          </tr>
+          <tr>
+            <td>Приоритет поддержки</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-no">✗</td>
+            <td class="cell-no col-active">✗</td>
+            <td class="cell-yes">✓</td>
+            <td class="cell-yes" style="color:#7ec850;">✓</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- VIP-примечание в виде таблицы -->
+    <div class="vip-note">
+      <strong>🔒 Строка «Видеть кто катает VIP»</strong><br>
+      Когда VIP-участник едет на машине с режимом «VIP-free» — его имя и фото в ленте и карточке машины скрыты для всех, кроме других VIP-пользователей и администраторов. Это защищает приватность топ-участников.
+    </div>
+
+  </div><!-- /view-table -->
+
+  <!-- Нижняя навигация -->
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goPage('index.html')"><i class="fas fa-home"></i><span>Лента</span></button>
+    <button class="nav-item" onclick="goPage('partners.html')"><i class="fas fa-handshake"></i><span>Партнёры</span></button>
+    <button class="nav-item" onclick="goPage('rating.html')"><i class="fas fa-trophy"></i><span>Рейтинг</span></button>
+    <button class="nav-item active" onclick="goPage('profile.html')"><i class="fas fa-user"></i><span>Профиль</span></button>
+  </nav>
+</div>
+
+<div id="app-toast"></div>
+<script>
+// ── Демо-роли ──
+const ROLES = {
+  bronze:  { icon: '🥉', name: 'Bronze',  color: '#c87941', trips: 3,  progress: 60, label: 'Bronze — 0 поездок', next: 'Silver — 6 поездок' },
+  silver:  { icon: '🥈', name: 'Silver',  color: '#90a8c0', trips: 12, progress: 80, label: 'Silver — 6 поездок', next: 'Gold — 21 поездка' },
+  gold:    { icon: '🥇', name: 'Gold',    color: '#e8c84a', trips: 14, progress: 28, label: 'Gold — 21 поездка',  next: 'Premium — 51 поездок' },
+  premium: { icon: '💎', name: 'Premium', color: '#b87fe8', trips: 58, progress: 15, label: 'Premium — 51 поездок', next: 'VIP — по приглашению' },
+  vip:     { icon: '👑', name: 'VIP',     color: '#7ec850', trips: 87, progress: 100,label: 'VIP — топ участник', next: '' }
+};
+let currentRole = 'gold';
+
+function setDemoRole(role) {
+  currentRole = role;
+  const r = ROLES[role];
+  // Обновляем баннер
+  document.getElementById('my-level-icon').textContent = r.icon;
+  document.getElementById('my-level-name').textContent = r.name;
+  document.getElementById('my-level-name').style.color = r.color;
+  document.getElementById('my-trips-num').textContent = r.trips;
+  document.getElementById('my-progress').style.width = r.progress + '%';
+  document.getElementById('my-progress-labels').innerHTML = '<span>' + r.label + '</span><span>' + r.next + '</span>';
+  document.getElementById('demo-role-label').textContent = r.icon + ' ' + r.name;
+
+  // Активная карточка
+  ['bronze','silver','gold','premium','vip'].forEach(lv => {
+    const card = document.getElementById('card-' + lv);
+    const badge = document.getElementById('badge-' + lv);
+    if (lv === role) {
+      card.classList.add('active-level');
+      badge.style.display = 'inline-block';
+    } else {
+      card.classList.remove('active-level');
+      badge.style.display = 'none';
+    }
+  });
+
+  // VIP-видимость
+  const isVip = (role === 'vip');
+  document.getElementById('vip-drivers-perk').style.display = isVip ? 'block' : 'none';
+  document.getElementById('vip-active-note').style.display = isVip ? 'block' : 'none';
+
+  // Подсвечиваем строку в шпаргалке
+  const cheatIds = ['bronze','silver','gold','premium','vip'];
+  cheatIds.forEach(lv => {
+    const el = document.getElementById('cheat-' + lv);
+    if (el) el.style.background = (lv === role) ? 'rgba(232,200,74,0.07)' : 'transparent';
+  });
+
+  showToast(r.icon + ' Демо-роль: ' + r.name);
+}
+
+function toggleVipMode() {
+  setDemoRole(currentRole === 'vip' ? 'gold' : 'vip');
+}
+
+function switchView(view, btn) {
+  document.getElementById('view-cards').style.display = view === 'cards' ? 'block' : 'none';
+  document.getElementById('view-table').style.display = view === 'table' ? 'block' : 'none';
+  document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function buyLevel(plan) { showToast('💳 Оформление: ' + plan); }
+function goPage(url) { window.location.href = url; }
+function showToast(msg) {
+  const t = document.getElementById('app-toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2200);
+}
+</script>
+</body>
+</html>

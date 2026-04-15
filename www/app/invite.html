@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f0f0f">
+<title>Sharecar — Мои приглашения</title>
+<link rel="stylesheet" href="../css/app.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sharecar">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<script src="/js/pwa.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<style>
+/* ── Ссылка-карточка ── */
+.invite-link-card {
+  margin: 16px;
+  background: linear-gradient(135deg, #111a08, #1a2610);
+  border: 1px solid rgba(126,200,80,0.3);
+  border-radius: 16px;
+  padding: 20px;
+}
+.invite-link-display {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(126,200,80,0.2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #7ec850;
+  font-family: 'SF Mono', monospace;
+  word-break: break-all;
+  margin: 14px 0 12px;
+}
+.invite-share-btns { display: flex; gap: 8px; }
+
+/* ── Статистика ── */
+.invite-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 0 16px 16px; }
+.istat { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+.istat-num { font-size: 26px; font-weight: 900; color: var(--accent); }
+.istat-lbl { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* ── Дерево приглашённых ── */
+.invited-section { margin: 0 16px 80px; }
+.invited-title { font-size: 13px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.invited-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 12px;
+  margin-bottom: 8px;
+}
+.invited-row.with-children { border-left: 3px solid rgba(126,200,80,0.35); }
+.invited-av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+.invited-name { font-size: 13px; font-weight: 600; }
+.invited-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.invited-status { margin-left: auto; text-align: right; flex-shrink: 0; }
+.status-active { color: #4caf7d; font-size: 11px; font-weight: 600; }
+.status-new    { color: #4a8fe8; font-size: 11px; font-weight: 600; }
+.status-inactive { color: var(--text3); font-size: 11px; }
+
+/* Вложенные (кого пригласил пользователь) */
+.sub-invited { margin-left: 28px; border-left: 1px dashed rgba(255,255,255,0.1); padding-left: 12px; margin-bottom: 8px; }
+.sub-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; background: var(--bg3);
+  border-radius: 10px; margin-bottom: 6px;
+  font-size: 12px;
+}
+.sub-av { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+
+/* ── Пустое состояние ── */
+.empty-invite { text-align: center; padding: 32px 20px; color: var(--text3); }
+.empty-invite i { font-size: 36px; opacity: 0.2; margin-bottom: 12px; }
+
+/* ── Как это работает ── */
+.how-card { margin: 0 16px 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.how-step { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; color: var(--text2); line-height: 1.5; }
+.how-step:last-child { border-bottom: none; }
+.how-num { width: 24px; height: 24px; border-radius: 50%; background: rgba(232,200,74,0.1); color: var(--accent); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <!-- Верхняя панель -->
+  <div class="top-bar">
+    <button class="top-bar-action" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+    <div class="top-bar-title">Мои приглашения</div>
+    <button class="top-bar-action" onclick="showHowItWorks()"><i class="fas fa-question-circle"></i></button>
+  </div>
+
+  <!-- Моя реферальная ссылка -->
+  <div class="invite-link-card">
+    <div style="font-size:14px;font-weight:700;color:#7ec850;display:flex;align-items:center;gap:8px;">
+      <i class="fas fa-link"></i> Моя ссылка-приглашение
+    </div>
+    <div style="font-size:12px;color:rgba(126,200,80,0.7);margin-top:4px;">Поделись с другом — он придёт под твоим именем</div>
+    <div class="invite-link-display" id="invite-link">shercar.app/join?ref=sergey_m</div>
+    <div class="invite-share-btns">
+      <button class="btn btn-primary" style="flex:1;" onclick="copyLink()"><i class="fas fa-copy"></i> Скопировать</button>
+      <button class="btn btn-secondary" style="flex:0 0 auto;" onclick="shareLink()"><i class="fas fa-share-alt"></i></button>
+      <button class="btn btn-secondary" style="flex:0 0 auto;" onclick="shareViaTelegram()"><i class="fab fa-telegram"></i></button>
+    </div>
+  </div>
+
+  <!-- Статистика -->
+  <div class="invite-stats">
+    <div class="istat">
+      <div class="istat-num">3</div>
+      <div class="istat-lbl">Приглашено</div>
+    </div>
+    <div class="istat">
+      <div class="istat-num" style="color:#4caf7d;">2</div>
+      <div class="istat-lbl">Активны</div>
+    </div>
+    <div class="istat">
+      <div class="istat-num" style="color:#b87fe8;">7</div>
+      <div class="istat-lbl">Их поездок</div>
+    </div>
+  </div>
+
+  <!-- Как это работает -->
+  <div class="how-card" id="how-card">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;">Как работают приглашения</div>
+    <div class="how-step">
+      <div class="how-num">1</div>
+      <div>Скопируй свою ссылку и отправь другу любым способом</div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">2</div>
+      <div>Друг регистрируется — он сразу привязан к тебе в системе</div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">3</div>
+      <div>В своём профиле ты видишь кого пригласил и как они развиваются</div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">4</div>
+      <div>Администратор видит всё дерево приглашений — кто от кого пришёл</div>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3);">
+      💡 В будущем: бонусы за активных приглашённых, реферальные программы и другие мотивации
+    </div>
+  </div>
+
+  <!-- Приглашённые -->
+  <div class="invited-section">
+    <div class="invited-title">Кого пригласил</div>
+
+    <!-- Участник 1 — активен, сам пригласил ещё одного -->
+    <div class="invited-row with-children">
+      <div class="invited-av" style="background:#1e2010;color:#e8c84a;">Н</div>
+      <div style="flex:1;min-width:0;">
+        <div class="invited-name">Никита В.</div>
+        <div class="invited-sub">@nikita_v · 🥈 Silver · 8 поездок · Екатеринбург</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px;"><i class="fas fa-calendar" style="margin-right:3px;"></i>Пришёл 15 мар. · 26 дней назад</div>
+      </div>
+      <div class="invited-status">
+        <div class="status-active"><i class="fas fa-circle" style="font-size:8px;"></i> Активен</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px;">8 поездок</div>
+      </div>
+    </div>
+    <!-- Его приглашённые (вложенный уровень) -->
+    <div class="sub-invited">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Никита пригласил:</div>
+      <div class="sub-row">
+        <div class="sub-av" style="background:#1a100a;color:#c87941;">А</div>
+        <div style="flex:1;">
+          <div style="font-weight:600;">Артём Д.</div>
+          <div style="color:var(--text3);">@artem_d · 🥉 Bronze · 5 поездок</div>
+        </div>
+        <div style="color:var(--text3);font-size:10px;">8 апр.</div>
+      </div>
+    </div>
+
+    <!-- Участник 2 — активен -->
+    <div class="invited-row">
+      <div class="invited-av" style="background:#0f1520;color:#90a8c0;">М</div>
+      <div style="flex:1;min-width:0;">
+        <div class="invited-name">Марина К.</div>
+        <div class="invited-sub">@marina_k · 🥇 Gold · 12 поездок · Москва</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px;"><i class="fas fa-calendar" style="margin-right:3px;"></i>Пришла 2 апр. · 8 дней назад</div>
+      </div>
+      <div class="invited-status">
+        <div class="status-active"><i class="fas fa-circle" style="font-size:8px;"></i> Активна</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px;">12 поездок</div>
+      </div>
+    </div>
+
+    <!-- Участник 3 — неактивен -->
+    <div class="invited-row">
+      <div class="invited-av" style="background:#1a1010;color:#666;">В</div>
+      <div style="flex:1;min-width:0;">
+        <div class="invited-name" style="color:var(--text2);">Валентина Р.</div>
+        <div class="invited-sub">@val_r · 🥉 Bronze · 3 поездки · Ростов-на-Дону</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px;"><i class="fas fa-calendar" style="margin-right:3px;"></i>Пришла 1 мар. · 40 дней назад</div>
+      </div>
+      <div class="invited-status">
+        <div class="status-inactive"><i class="fas fa-circle" style="font-size:8px;"></i> Малоактивна</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px;">3 поездки</div>
+      </div>
+    </div>
+
+    <!-- Кнопка пригласить ещё -->
+    <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="copyLink()">
+      <i class="fas fa-user-plus"></i> Пригласить ещё друга
+    </button>
+
+    <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:14px;">
+      Дерево приглашений доступно администраторам платформы
+    </div>
+  </div>
+
+  <!-- Нижняя навигация -->
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goPage('index.html')"><i class="fas fa-home"></i><span>Лента</span></button>
+    <button class="nav-item" onclick="goPage('partners.html')"><i class="fas fa-handshake"></i><span>Партнёры</span></button>
+    <button class="nav-item" onclick="goPage('rating.html')"><i class="fas fa-trophy"></i><span>Рейтинг</span></button>
+    <button class="nav-item active" onclick="goPage('profile.html')"><i class="fas fa-user"></i><span>Профиль</span></button>
+  </nav>
+</div>
+
+<div id="app-toast"></div>
+
+<script>
+function copyLink() {
+  const link = document.getElementById('invite-link').textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(link).then(() => showToast('✅ Ссылка скопирована!'));
+  } else {
+    showToast('✅ shercar.app/join?ref=sergey_m');
+  }
+}
+
+function shareLink() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'Sharecar — платформа автомобильных впечатлений',
+      text: 'Присоединяйся! Катайся на крутых машинах или дай другим прокатиться на своей.',
+      url: 'https://shercar.app/join?ref=sergey_m'
+    });
+  } else {
+    copyLink();
+  }
+}
+
+function shareViaTelegram() {
+  const text = encodeURIComponent('Привет! Я в Sharecar — платформе где можно прокатиться на крутых машинах. Заходи: shercar.app/join?ref=sergey_m');
+  window.open('https://t.me/share/url?url=https://shercar.app/join?ref=sergey_m&text=' + text, '_blank');
+}
+
+function showHowItWorks() {
+  const card = document.getElementById('how-card');
+  card.scrollIntoView({ behavior: 'smooth' });
+  card.style.border = '1px solid rgba(232,200,74,0.4)';
+  setTimeout(() => card.style.border = '1px solid var(--border)', 1500);
+}
+
+function goPage(url) { window.location.href = url; }
+function showToast(msg) {
+  const t = document.getElementById('app-toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+</script>
+</body>
+</html>

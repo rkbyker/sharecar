@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#0f0f0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Sharecar — Лента</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    /* ── Feed card ─────────────────────────────── */
+    .feed-card {
+      background: #141428;
+      border-radius: 16px;
+      margin: 0 12px 16px;
+      overflow: hidden;
+      border: 1px solid #1e1e3a;
+      cursor: pointer;
+      transition: transform .15s;
+    }
+    .feed-card:active { transform: scale(.98); }
+
+    .feed-photo {
+      aspect-ratio: 3/2;
+      background: #1a1a2e;
+      position: relative;
+      overflow: hidden;
+    }
+    .feed-photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .feed-photo .no-photo {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px;
+      background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
+    }
+    .photo-count {
+      position: absolute; bottom: 8px; right: 8px;
+      background: rgba(0,0,0,.6); color: #fff;
+      border-radius: 8px; padding: 2px 8px; font-size: 12px;
+    }
+
+    /* Badges */
+    .badge-class {
+      position: absolute; top: 8px; left: 8px;
+      background: rgba(0,0,0,.7);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 6px;
+      padding: 2px 8px; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .badge-free {
+      position: absolute; top: 8px; right: 8px;
+      background: #22c55e; color: #000;
+      border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700;
+    }
+
+    /* Card body */
+    .feed-body { padding: 12px 14px 14px; }
+    .feed-title { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+    .feed-sub { font-size: 13px; color: #777; margin-bottom: 8px; }
+
+    .feed-owner {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 8px;
+    }
+    .owner-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .owner-name { font-size: 13px; color: #aaa; }
+    .owner-badge {
+      font-size: 10px; padding: 1px 6px;
+      border-radius: 4px; font-weight: 600;
+    }
+
+    .feed-tags {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;
+    }
+    .tag {
+      background: rgba(255,255,255,.06);
+      border-radius: 6px; padding: 3px 8px; font-size: 11px; color: #999;
+    }
+
+    .feed-footer {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .feed-price { font-size: 18px; font-weight: 700; color: #f59e0b; }
+    .feed-price .per { font-size: 12px; color: #666; font-weight: 400; }
+    .price-free { color: #22c55e; }
+
+    .feed-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-like {
+      background: none; border: none; cursor: pointer;
+      color: #555; font-size: 15px; padding: 4px;
+      display: flex; align-items: center; gap: 4px;
+      transition: color .2s;
+    }
+    .btn-like.liked { color: #ef4444; }
+    .btn-like span { font-size: 12px; color: #666; }
+    .btn-open {
+      background: #f59e0b; color: #000;
+      border: none; border-radius: 8px;
+      padding: 8px 16px; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ── Top bar ────────────────────────────────── */
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px 8px;
+      position: sticky; top: 0; z-index: 100;
+      background: #0f0f0f;
+    }
+    .logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+    .logo span { color: #f59e0b; }
+    .top-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      width: 36px; height: 36px;
+      background: #1a1a2e; border: none; border-radius: 10px;
+      color: #aaa; cursor: pointer; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .icon-btn .badge-dot {
+      position: absolute; top: -2px; right: -2px;
+      width: 8px; height: 8px; background: #ef4444; border-radius: 50%;
+    }
+
+    /* ── Filters & Sort ─────────────────────────── */
+    .filter-bar {
+      padding: 0 12px 8px;
+      display: flex; gap: 8px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .chip {
+      flex-shrink: 0; padding: 6px 14px;
+      background: #1a1a2e; border: 1px solid #2a2a4a;
+      border-radius: 20px; color: #aaa; font-size: 13px;
+      cursor: pointer; white-space: nowrap; transition: all .2s;
+    }
+    .chip.active { background: #f59e0b; border-color: #f59e0b; color: #000; font-weight: 600; }
+
+    .sort-bar {
+      padding: 0 12px 12px;
+      display: flex; gap: 8px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .sort-chip {
+      flex-shrink: 0; padding: 5px 12px;
+      background: transparent; border: 1px solid #2a2a4a;
+      border-radius: 16px; color: #666; font-size: 12px;
+      cursor: pointer; white-space: nowrap; transition: all .2s;
+    }
+    .sort-chip.active { border-color: #f59e0b; color: #f59e0b; }
+
+    /* ── Feed container ─────────────────────────── */
+    .feed-container { padding-bottom: 80px; }
+    .empty-feed {
+      padding: 60px 20px;
+      text-align: center; color: #555;
+    }
+    .empty-feed .icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* ── Bottom nav ─────────────────────────────── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0f0f0f; border-top: 1px solid #1e1e3a;
+      display: flex; z-index: 100;
+    }
+    .nav-btn {
+      flex: 1; padding: 10px 0 12px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; text-decoration: none; color: #555; font-size: 10px;
+      cursor: pointer; border: none; background: none;
+    }
+    .nav-btn i { font-size: 20px; }
+    .nav-btn.active { color: #f59e0b; }
+
+    /* ── Filter overlay ─────────────────────────── */
+    .filter-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.7); display: none;
+    }
+    .filter-sheet {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: #141428; border-radius: 20px 20px 0 0;
+      padding: 20px; max-height: 80vh; overflow-y: auto;
+    }
+    .filter-handle {
+      width: 40px; height: 4px;
+      background: #333; border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+    .filter-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .filter-label {
+      font-size: 12px; color: #888; margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .filter-input {
+      width: 100%; background: #1a1a2e; border: 1px solid #2a2a4a;
+      border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 14px;
+      margin-bottom: 12px; box-sizing: border-box; outline: none;
+    }
+    .filter-row { display: flex; gap: 10px; }
+    .filter-row .filter-input { flex: 1; }
+    .filter-btns { display: flex; gap: 10px; margin-top: 8px; }
+    .btn-reset {
+      flex: 1; padding: 12px; background: #1a1a2e;
+      border: 1px solid #2a2a4a; border-radius: 10px;
+      color: #aaa; font-size: 14px; cursor: pointer;
+    }
+    .btn-apply {
+      flex: 2; padding: 12px; background: #f59e0b;
+      border: none; border-radius: 10px;
+      color: #000; font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+
+    .loader {
+      text-align: center; padding: 40px; color: #555;
+    }
+    .loader i { font-size: 32px; animation: spin .8s linear infinite; color: #f59e0b; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="logo">Share<span>car</span></div>
+    <div class="top-actions">
+      <button class="icon-btn" onclick="showFilters()" title="Фильтры">
+        <i class="fa fa-sliders-h"></i>
+      </button>
+      <button class="icon-btn" onclick="goPage('search.html')" title="Поиск">
+        <i class="fa fa-search"></i>
+      </button>
+      <button class="icon-btn" onclick="goPage('add-car.html')" title="Добавить машину">
+        <i class="fa fa-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- CLASS FILTER CHIPS -->
+  <div class="filter-bar" id="class-bar">
+    <div class="chip active" data-class="all" onclick="setClass('all', this)">Все</div>
+    <div class="chip" data-class="city" onclick="setClass('city', this)">🚗 Город</div>
+    <div class="chip" data-class="ring" onclick="setClass('ring', this)">🏁 Кольцо</div>
+    <div class="chip" data-class="drift" onclick="setClass('drift', this)">💨 Дрифт</div>
+    <div class="chip" data-class="sport" onclick="setClass('sport', this)">🏎 Спорт</div>
+    <div class="chip" data-class="offroad" onclick="setClass('offroad', this)">🚙 Оффроуд</div>
+    <div class="chip" data-class="special" onclick="setClass('special', this)">⚡ Спецтех</div>
+    <div class="chip" data-class="business" onclick="setClass('business', this)">🏢 Бизнес</div>
+  </div>
+
+  <!-- SORT CHIPS -->
+  <div class="sort-bar" id="sort-bar">
+    <div class="sort-chip active" data-sort="new" onclick="setSort('new', this)">🕒 Новые</div>
+    <div class="sort-chip" data-sort="hp_desc" onclick="setSort('hp_desc', this)">⚡ Мощность ↓</div>
+    <div class="sort-chip" data-sort="hp_asc" onclick="setSort('hp_asc', this)">⚡ Мощность ↑</div>
+    <div class="sort-chip" data-sort="price_asc" onclick="setSort('price_asc', this)">💰 Цена ↑</div>
+    <div class="sort-chip" data-sort="price_desc" onclick="setSort('price_desc', this)">💰 Цена ↓</div>
+    <div class="sort-chip" data-sort="popular" onclick="setSort('popular', this)">❤️ Популярные</div>
+  </div>
+
+  <!-- FEED -->
+  <div class="feed-container" id="feed">
+    <div class="loader" id="loader"><i class="fa fa-circle-notch"></i></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active"><i class="fa fa-home"></i>Лента</button>
+    <button class="nav-btn" onclick="goPage('partners.html')"><i class="fa fa-handshake"></i>Партнёры</button>
+    <button class="nav-btn" onclick="goPage('rating.html')"><i class="fa fa-trophy"></i>Рейтинг</button>
+    <button class="nav-btn" onclick="goPage('profile.html')"><i class="fa fa-user"></i>Профиль</button>
+  </nav>
+
+  <!-- FILTER OVERLAY -->
+  <div class="filter-overlay" id="filter-overlay" onclick="closeFilters(event)">
+    <div class="filter-sheet">
+      <div class="filter-handle"></div>
+      <div class="filter-title">Фильтры</div>
+
+      <div class="filter-label">Город</div>
+      <input class="filter-input" id="f-city" placeholder="Например: Москва">
+
+      <div class="filter-label">Мощность (л.с.)</div>
+      <div class="filter-row">
+        <input class="filter-input" id="f-hp-min" type="number" placeholder="от">
+        <input class="filter-input" id="f-hp-max" type="number" placeholder="до">
+      </div>
+
+      <div class="filter-label">Стоимость поездки (₽)</div>
+      <div class="filter-row">
+        <input class="filter-input" id="f-price-min" type="number" placeholder="от">
+        <input class="filter-input" id="f-price-max" type="number" placeholder="до">
+      </div>
+
+      <div class="filter-label">Только бесплатные</div>
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;">
+        <input type="checkbox" id="f-free" style="width:18px;height:18px;accent-color:#f59e0b;">
+        <span style="color:#ccc;font-size:14px;">Показать только бесплатные</span>
+      </label>
+
+      <div class="filter-btns">
+        <button class="btn-reset" onclick="resetFilters()">Сбросить</button>
+        <button class="btn-apply" onclick="applyFilters()">Применить</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="global-toast"></div>
+
+  <script type="module">
+    import { supabase, requireAuth, getProfile, getLevel, showToast } from '../js/supabase.js';
+
+    // ── State ──────────────────────────────────────────────────────────────────
+    let currentUser = null;
+    let currentProfile = null;
+    let allCars = [];
+    let likedIds = new Set();
+    let currentClass = 'all';
+    let currentSort = 'new';
+    let filters = {};
+
+    // Expose globals
+    window.setClass = setClass;
+    window.setSort = setSort;
+    window.showFilters = showFilters;
+    window.closeFilters = closeFilters;
+    window.resetFilters = resetFilters;
+    window.applyFilters = applyFilters;
+    window.goPage = (p) => window.location.href = p;
+    window.toggleLike = toggleLike;
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = '/app/auth.html';
+        return;
+      }
+      currentUser = session.user;
+      currentProfile = await getProfile(currentUser.id);
+      await loadLikes();
+      await loadFeed();
+    }
+
+    // ── Load likes ─────────────────────────────────────────────────────────────
+    async function loadLikes() {
+      const { data } = await supabase
+        .from('likes')
+        .select('car_id')
+        .eq('user_id', currentUser.id);
+      if (data) likedIds = new Set(data.map(l => l.car_id));
+    }
+
+    // ── Load cars from Supabase ────────────────────────────────────────────────
+    async function loadFeed() {
+      document.getElementById('loader').style.display = 'block';
+      document.getElementById('feed').innerHTML = '<div class="loader" id="loader"><i class="fa fa-circle-notch"></i></div>';
+
+      let query = supabase
+        .from('cars')
+        .select(`
+          *,
+          profiles:owner_id (
+            id, first_name, last_name, level, account_type, org_name, rating_driver, trips_driven
+          )
+        `)
+        .eq('status', 'published');
+
+      // Class filter
+      if (currentClass !== 'all') query = query.eq('car_class', currentClass);
+
+      // Extra filters
+      if (filters.city) query = query.ilike('city', `%${filters.city}%`);
+      if (filters.hpMin) query = query.gte('horsepower', filters.hpMin);
+      if (filters.hpMax) query = query.lte('horsepower', filters.hpMax);
+      if (filters.priceMin) query = query.gte('price_driver', filters.priceMin);
+      if (filters.priceMax) query = query.lte('price_driver', filters.priceMax);
+      if (filters.free) query = query.eq('is_free', true);
+
+      // Sorting
+      if (currentSort === 'new')        query = query.order('created_at', { ascending: false });
+      else if (currentSort === 'hp_desc') query = query.order('horsepower', { ascending: false });
+      else if (currentSort === 'hp_asc')  query = query.order('horsepower', { ascending: true });
+      else if (currentSort === 'price_asc')  query = query.order('price_driver', { ascending: true });
+      else if (currentSort === 'price_desc') query = query.order('price_driver', { ascending: false });
+      else if (currentSort === 'popular') query = query.order('likes', { ascending: false });
+
+      query = query.limit(50);
+
+      const { data: cars, error } = await query;
+
+      if (error) {
+        document.getElementById('feed').innerHTML = `
+          <div class="empty-feed">
+            <div class="icon">⚠️</div>
+            <div>Ошибка загрузки. Попробуйте позже.</div>
+          </div>`;
+        return;
+      }
+
+      allCars = cars || [];
+      renderFeed();
+    }
+
+    // ── Render ─────────────────────────────────────────────────────────────────
+    function renderFeed() {
+      const feed = document.getElementById('feed');
+      if (!allCars.length) {
+        feed.innerHTML = `
+          <div class="empty-feed">
+            <div class="icon">🚗</div>
+            <div style="font-size:16px;font-weight:600;margin-bottom:8px;">Машин пока нет</div>
+            <div style="color:#666;">Будьте первым — добавьте свою!</div>
+            <button onclick="goPage('add-car.html')"
+              style="margin-top:20px;padding:12px 24px;background:#f59e0b;color:#000;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;">
+              + Добавить машину
+            </button>
+          </div>`;
+        return;
+      }
+
+      feed.innerHTML = allCars.map((car, i) => buildCard(car, i)).join('');
+    }
+
+    const CLASS_ICONS = { ring:'🏁', drift:'💨', city:'🚗', offroad:'🚙', special:'⚡', sport:'🏎', business:'🏢' };
+    const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
+
+    function buildCard(car, idx) {
+      const owner = car.profiles || {};
+      const ownerName = owner.org_name || `${owner.first_name || ''} ${owner.last_name || ''}`.trim() || 'Владелец';
+      const initials = ownerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
+      const level = owner.level || 'bronze';
+      const lvlColor = LEVEL_COLORS[level] || '#888';
+      const isLiked = likedIds.has(car.id);
+
+      // Photo
+      const photos = car.photos || [];
+      let photoHtml = '';
+      if (photos.length > 0) {
+        photoHtml = `<img src="${photos[0]}" alt="${car.brand} ${car.model}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=no-photo>${CLASS_ICONS[car.car_class]||'🚗'}</div>'">`;
+      } else {
+        photoHtml = `<div class="no-photo">${CLASS_ICONS[car.car_class] || '🚗'}</div>`;
+      }
+
+      // Price
+      let priceHtml = '';
+      const discount = currentProfile ? getDiscountPct(currentProfile.level) : 0;
+      if (car.is_free) {
+        priceHtml = `<div class="feed-price price-free">Бесплатно</div>`;
+      } else {
+        const p = car.price_driver || 0;
+        const discounted = discount > 0 ? Math.round(p * (1 - discount / 100)) : p;
+        if (discount > 0 && discounted < p) {
+          priceHtml = `<div class="feed-price">
+            <span style="text-decoration:line-through;color:#555;font-size:14px;">${p.toLocaleString('ru')} ₽</span>
+            ${discounted.toLocaleString('ru')} ₽ <span class="per">/ поездка</span>
+          </div>`;
+        } else {
+          priceHtml = `<div class="feed-price">${p.toLocaleString('ru')} ₽ <span class="per">/ поездка</span></div>`;
+        }
+      }
+
+      // Tags
+      const tags = [];
+      if (car.horsepower) tags.push(`⚡ ${car.horsepower} л.с.`);
+      if (car.city) tags.push(`📍 ${car.city}`);
+      if (car.car_class) tags.push(CLASS_ICONS[car.car_class] + ' ' + car.car_class);
+      const tagsHtml = tags.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('');
+
+      const cardLink = car.account_type === 'business'
+        ? `business-card.html?id=${car.id}`
+        : `car-card.html?id=${car.id}`;
+
+      return `
+        <div class="feed-card" data-id="${car.id}"
+             data-class="${car.car_class}" data-hp="${car.horsepower||0}"
+             data-price="${car.price_driver||0}" data-free="${car.is_free}">
+          <div class="feed-photo" onclick="goPage('${cardLink}')">
+            ${photoHtml}
+            ${photos.length > 1 ? `<div class="photo-count">${photos.length} фото</div>` : ''}
+            <div class="badge-class">${CLASS_ICONS[car.car_class] || ''} ${car.car_class || ''}</div>
+            ${car.is_free ? '<div class="badge-free">FREE</div>' : ''}
+          </div>
+          <div class="feed-body">
+            <div class="feed-title" onclick="goPage('${cardLink}')">${car.brand} ${car.model} ${car.year || ''}</div>
+            <div class="feed-sub">${car.city || ''}${car.horsepower ? ' · ' + car.horsepower + ' л.с.' : ''}</div>
+            <div class="feed-owner">
+              <div class="owner-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};">
+                <span style="color:${lvlColor}">${initials}</span>
+              </div>
+              <span class="owner-name">${ownerName}</span>
+              <span class="owner-badge" style="background:${lvlColor}20;color:${lvlColor};">
+                ${level.charAt(0).toUpperCase() + level.slice(1)}
+              </span>
+            </div>
+            <div class="feed-tags">${tagsHtml}</div>
+            <div class="feed-footer">
+              ${priceHtml}
+              <div class="feed-actions">
+                <button class="btn-like ${isLiked ? 'liked' : ''}"
+                        id="like-${car.id}"
+                        onclick="event.stopPropagation();toggleLike('${car.id}')">
+                  <i class="fa${isLiked ? 's' : 'r'} fa-heart"></i>
+                  <span>${car.likes || 0}</span>
+                </button>
+                <button class="btn-open" onclick="goPage('${cardLink}')">Смотреть</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function getDiscountPct(level) {
+      const discounts = { bronze: 0, silver: 5, gold: 10, premium: 15, vip: 20 };
+      return discounts[level] || 0;
+    }
+
+    // ── Sort ───────────────────────────────────────────────────────────────────
+    function setSort(sort, el) {
+      currentSort = sort;
+      document.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      loadFeed();
+    }
+
+    // ── Class filter ───────────────────────────────────────────────────────────
+    function setClass(cls, el) {
+      currentClass = cls;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      loadFeed();
+    }
+
+    // ── Filter overlay ─────────────────────────────────────────────────────────
+    function showFilters() {
+      document.getElementById('filter-overlay').style.display = 'block';
+    }
+    function closeFilters(e) {
+      if (e && e.target !== document.getElementById('filter-overlay')) return;
+      document.getElementById('filter-overlay').style.display = 'none';
+    }
+    function resetFilters() {
+      document.getElementById('f-city').value = '';
+      document.getElementById('f-hp-min').value = '';
+      document.getElementById('f-hp-max').value = '';
+      document.getElementById('f-price-min').value = '';
+      document.getElementById('f-price-max').value = '';
+      document.getElementById('f-free').checked = false;
+      filters = {};
+      document.getElementById('filter-overlay').style.display = 'none';
+      loadFeed();
+      showToast('Фильтры сброшены');
+    }
+    function applyFilters() {
+      filters = {
+        city: document.getElementById('f-city').value.trim() || null,
+        hpMin: document.getElementById('f-hp-min').value || null,
+        hpMax: document.getElementById('f-hp-max').value || null,
+        priceMin: document.getElementById('f-price-min').value || null,
+        priceMax: document.getElementById('f-price-max').value || null,
+        free: document.getElementById('f-free').checked,
+      };
+      document.getElementById('filter-overlay').style.display = 'none';
+      loadFeed();
+    }
+
+    // ── Like ───────────────────────────────────────────────────────────────────
+    async function toggleLike(carId) {
+      if (!currentUser) { showToast('Войдите, чтобы лайкать', 'warn'); return; }
+      const wasLiked = likedIds.has(carId);
+      const btn = document.getElementById(`like-${carId}`);
+
+      if (wasLiked) {
+        likedIds.delete(carId);
+        await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('car_id', carId);
+        if (btn) {
+          btn.classList.remove('liked');
+          btn.querySelector('i').className = 'far fa-heart';
+          const cnt = btn.querySelector('span');
+          cnt.textContent = Math.max(0, parseInt(cnt.textContent) - 1);
+        }
+      } else {
+        likedIds.add(carId);
+        await supabase.from('likes').insert({ user_id: currentUser.id, car_id: carId });
+        if (btn) {
+          btn.classList.add('liked');
+          btn.querySelector('i').className = 'fas fa-heart';
+          const cnt = btn.querySelector('span');
+          cnt.textContent = parseInt(cnt.textContent) + 1;
+        }
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
