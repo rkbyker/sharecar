@@ -305,6 +305,9 @@
 
   <div id="global-toast"></div>
 
+  <script>
+    function goPage(p) { window.location.href = p; }
+  </script>
   <script type="module">
     import { supabase, requireAuth, getProfile, getLevel, showToast } from '../js/supabase.js';
     import '../js/nav.js';
