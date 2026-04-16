@@ -336,12 +336,6 @@
     window.setClass = setClass;
     window.setSort = setSort;
     window.toggleView = toggleView;
-    let currentView = 'grid';
-    function toggleView() {
-      currentView = currentView === 'grid' ? 'list' : 'grid';
-      document.getElementById('view-toggle-icon').className = currentView === 'grid' ? 'fa fa-th' : 'fa fa-list';
-      document.getElementById('feed').className = currentView === 'grid' ? 'feed-container' : 'feed-container feed-list';
-    }
     window.toggleSort = toggleSort;
 
     function toggleSort(type, el) {
