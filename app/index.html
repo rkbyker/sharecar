@@ -249,10 +249,8 @@
   <!-- SORT CHIPS -->
   <div class="sort-bar" id="sort-bar">
     <div class="sort-chip active" data-sort="new" onclick="setSort('new', this)">🕒 Новые</div>
-    <div class="sort-chip" data-sort="hp_desc" onclick="setSort('hp_desc', this)">⚡ Мощность ↓</div>
-    <div class="sort-chip" data-sort="hp_asc" onclick="setSort('hp_asc', this)">⚡ Мощность ↑</div>
-    <div class="sort-chip" data-sort="price_asc" onclick="setSort('price_asc', this)">💰 Цена ↑</div>
-    <div class="sort-chip" data-sort="price_desc" onclick="setSort('price_desc', this)">💰 Цена ↓</div>
+    <div class="sort-chip" id="chip-hp" data-sort="hp_desc" onclick="toggleSort('hp', this)">⚡ Мощность ↓</div>
+    <div class="sort-chip" id="chip-price" data-sort="price_asc" onclick="toggleSort('price', this)">💰 Цена ↑</div>
     <div class="sort-chip" data-sort="popular" onclick="setSort('popular', this)">❤️ Популярные</div>
   </div>
 
@@ -324,6 +322,21 @@
     // Expose globals
     window.setClass = setClass;
     window.setSort = setSort;
+    window.toggleSort = toggleSort;
+
+    function toggleSort(type, el) {
+      if (type === 'hp') {
+        const isDesc = el.dataset.sort === 'hp_desc';
+        el.dataset.sort = isDesc ? 'hp_asc' : 'hp_desc';
+        el.textContent = isDesc ? '⚡ Мощность ↑' : '⚡ Мощность ↓';
+        setSort(el.dataset.sort, el);
+      } else {
+        const isAsc = el.dataset.sort === 'price_asc';
+        el.dataset.sort = isAsc ? 'price_desc' : 'price_asc';
+        el.textContent = isAsc ? '💰 Цена ↓' : '💰 Цена ↑';
+        setSort(el.dataset.sort, el);
+      }
+    }
     window.showFilters = showFilters;
     window.closeFilters = closeFilters;
     window.resetFilters = resetFilters;
