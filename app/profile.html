@@ -208,11 +208,6 @@
     }
 
     /* ── Bottom nav ───────────────────── */
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #0f0f0f; border-top: 1px solid #1e1e3a;
-      display: flex; z-index: 100;
-    }
 
     .empty-state {
       text-align: center; padding: 40px 20px; color: #555;
@@ -407,6 +402,9 @@
 
   <div id="global-toast"></div>
 
+  <script>
+    function goPage(p) { window.location.href = p; }
+  </script>
   <script type="module">
     import { supabase, getLevel, showToast } from '../js/supabase.js';
     import '../js/nav.js';
