@@ -355,8 +355,8 @@
 
     // ── Load cars from Supabase ────────────────────────────────────────────────
     async function loadFeed() {
-      document.getElementById('loader').style.display = 'block';
-      document.getElementById('feed').innerHTML = '<div class="loader" id="loader"><i class="fa fa-circle-notch"></i></div>';
+
+      document.getElementById('feed').innerHTML = '<div style="text-align:center;padding:40px;"><i class="fa fa-circle-notch" style="font-size:28px;color:#f59e0b;animation:spin .8s linear infinite;"></i></div>';
 
       let query = supabase
         .from('cars')
