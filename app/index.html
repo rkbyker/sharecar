@@ -170,6 +170,12 @@
 
     /* ── Bottom nav ─────────────────────────────── */
 
+    /* ── List view ─────────────────────────────────── */
+    .feed-list .car-card { display:flex; flex-direction:row; height:100px; }
+    .feed-list .car-card .car-thumb { width:120px; min-width:120px; height:100px; border-radius:10px 0 0 10px; }
+    .feed-list .car-card .car-body { padding:10px 12px; display:flex; flex-direction:column; justify-content:center; }
+    .feed-list .car-card .car-price-row { margin-top:auto; }
+
     /* ── Filter overlay ─────────────────────────── */
     .filter-overlay {
       position: fixed; inset: 0; z-index: 200;
@@ -222,6 +228,7 @@
   <div class="top-bar">
     <div class="logo">Share<span>car</span></div>
     <div class="top-actions">
+      <button class="icon-btn" id="view-toggle-btn" onclick="toggleView()" title="Вид"><i class="fa fa-th" id="view-toggle-icon"></i></button>
       <button class="icon-btn" onclick="showFilters()" title="Фильтры">
         <i class="fa fa-sliders-h"></i>
       </button>
@@ -322,6 +329,13 @@
     // Expose globals
     window.setClass = setClass;
     window.setSort = setSort;
+    window.toggleView = toggleView;
+    let currentView = 'grid';
+    function toggleView() {
+      currentView = currentView === 'grid' ? 'list' : 'grid';
+      document.getElementById('view-toggle-icon').className = currentView === 'grid' ? 'fa fa-th' : 'fa fa-list';
+      document.getElementById('feed').className = currentView === 'grid' ? 'feed-container' : 'feed-container feed-list';
+    }
     window.toggleSort = toggleSort;
 
     function toggleSort(type, el) {
