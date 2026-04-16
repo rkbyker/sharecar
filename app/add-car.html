@@ -179,14 +179,25 @@
       <div class="form-group">
         <label class="form-label">Марка *</label>
         <input class="form-input" id="f-brand" list="brands-list" placeholder="BMW" required>
-        <datalist id="brands-list">
+                <datalist id="brands-list">
           <option value="Audi"><option value="BMW"><option value="Mercedes-Benz">
           <option value="Porsche"><option value="Ferrari"><option value="Lamborghini">
+          <option value="McLaren"><option value="Aston Martin"><option value="Bentley">
+          <option value="Rolls-Royce"><option value="Bugatti"><option value="Koenigsegg">
+          <option value="Alfa Romeo"><option value="Maserati"><option value="Pagani">
           <option value="Toyota"><option value="Nissan"><option value="Honda">
           <option value="Subaru"><option value="Mitsubishi"><option value="Lexus">
-          <option value="Lada"><option value="Aston Martin"><option value="McLaren">
-          <option value="Bentley"><option value="Rolls-Royce"><option value="Alfa Romeo">
-          <option value="Volkswagen"><option value="Hyundai"><option value="Kia">
+          <option value="Mazda"><option value="Infiniti"><option value="Acura">
+          <option value="Lada"><option value="Volkswagen"><option value="Skoda">
+          <option value="Hyundai"><option value="Kia"><option value="Genesis">
+          <option value="Ford"><option value="Chevrolet"><option value="Dodge">
+          <option value="Tesla"><option value="Rivian"><option value="Lucid">
+          <option value="Land Rover"><option value="Jaguar"><option value="Range Rover">
+          <option value="Volvo"><option value="Peugeot"><option value="Renault">
+          <option value="Haval"><option value="Geely"><option value="Chery">
+          <option value="BYD"><option value="GAZ"><option value="UAZ">
+          <option value="Zeekr"><option value="Li Auto"><option value="NIO">
+          <option value="Tank"><option value="Omoda"><option value="Exeed">
         </datalist>
       </div>
       <div class="form-group">
@@ -202,7 +213,22 @@
       </div>
       <div class="form-group">
         <label class="form-label">Цвет</label>
-        <input class="form-input" id="f-color" placeholder="Синий металлик">
+        <div class="color-picker" id="color-picker">
+        <div class="color-opt selected" data-color="Белый" style="background:#f0f0f0;" title="Белый"></div>
+        <div class="color-opt" data-color="Чёрный" style="background:#111;box-shadow:0 0 0 1px #333;" title="Чёрный"></div>
+        <div class="color-opt" data-color="Серебристый" style="background:linear-gradient(135deg,#aaa,#e0e0e0);" title="Серебристый"></div>
+        <div class="color-opt" data-color="Серый" style="background:#777;" title="Серый"></div>
+        <div class="color-opt" data-color="Красный" style="background:#dc2020;" title="Красный"></div>
+        <div class="color-opt" data-color="Синий" style="background:#1a55d4;" title="Синий"></div>
+        <div class="color-opt" data-color="Жёлтый" style="background:#eab308;" title="Жёлтый"></div>
+        <div class="color-opt" data-color="Зелёный" style="background:#16a34a;" title="Зелёный"></div>
+        <div class="color-opt" data-color="Оранжевый" style="background:#f97316;" title="Оранжевый"></div>
+        <div class="color-opt" data-color="Фиолетовый" style="background:#7c3aed;" title="Фиолетовый"></div>
+        <div class="color-opt" data-color="Золотой" style="background:linear-gradient(135deg,#b8860b,#ffd700);" title="Золотой"></div>
+        <div class="color-opt" data-color="Бежевый" style="background:#d4b896;" title="Бежевый"></div>
+      </div>
+      <div style="font-size:12px;color:#888;margin-top:6px;">Выбрано: <span id="color-label">Белый</span></div>
+      <input type="hidden" id="f-color" value="Белый">
       </div>
     </div>
 
@@ -262,6 +288,10 @@
           <option value="">— не указана —</option>
           <option value="AT">Автомат</option>
           <option value="MT">Механика</option>
+          <option value="Robot">Робот</option>
+          <option value="CVT">Вариатор</option>
+          <option value="Robot">Робот</option>
+          <option value="CVT">Вариатор</option>
         </select>
       </div>
     </div>
@@ -269,6 +299,11 @@
     <!-- ROLES & PRICING -->
     <div class="section-title">💰 Роли и стоимость</div>
 
+    <div style="background:#1a1a2e;border-radius:10px;padding:12px 14px;margin-bottom:14px;border:1px solid #2a2a4a;font-size:13px;color:#aaa;line-height:1.6;">
+      <b style="color:#f59e0b;">Кто может подать заявку на вашу машину?</b><br>
+      🚗 <b style="color:#fff;">Водитель</b> — другой пользователь сядет за руль, вы пассажир. Укажите цену.<br>
+      👥 <b style="color:#fff;">Пассажир</b> — вы за рулём, другой едет как пассажир. Укажите цену за место.
+    </div>
     <div class="role-row">
       <div class="role-chip selected" id="role-driver" onclick="toggleRole('driver')">
         🚗 Водитель
@@ -446,35 +481,35 @@
     }
 
     async function addPhotos(input) {
-      const files = Array.from(input.files);
-      if (!files.length) return;
-      if (uploadedPhotoUrls.length + files.length > 8) {
-        showToast('Максимум 8 фотографий', 'warn'); return;
-      }
-
+      // Сразу показываем локальное превью
+      const newFiles = Array.from(input.files);
+      if (!newFiles.length) return;
+      if (uploadedPhotoUrls.length + newFiles.length > 8) { showToast('Максимум 8 фотографий', 'warn'); return; }
+      const localPreviews = newFiles.map(f => ({ url: URL.createObjectURL(f), uploading: true, file: f }));
+      uploadedPhotoUrls.push(...localPreviews);
+      renderPhotoPreview();
       const prog = document.getElementById('upload-progress');
       const fill = document.getElementById('progress-fill');
       const status = document.getElementById('upload-status');
       prog.style.display = 'block';
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        status.textContent = `Загрузка ${i + 1} из ${files.length}...`;
-        fill.style.width = ((i / files.length) * 100) + '%';
-
+      for (let i = 0; i < newFiles.length; i++) {
+        const file = newFiles[i];
+        status.textContent = `Загрузка ${i+1} из ${newFiles.length}...`;
+        fill.style.width = ((i / newFiles.length) * 100) + '%';
         const ext = file.name.split('.').pop().toLowerCase();
         const path = `${currentUser.id}/${Date.now()}_${i}.${ext}`;
         const { error } = await supabase.storage.from('car-photos').upload(path, file);
-        if (error) { showToast('Ошибка загрузки фото', 'error'); continue; }
+        const idx = uploadedPhotoUrls.findIndex(u => u.file === file);
+        if (error) { uploadedPhotoUrls.splice(idx, 1); showToast('Ошибка загрузки', 'error'); continue; }
         const { data: { publicUrl } } = supabase.storage.from('car-photos').getPublicUrl(path);
-        uploadedPhotoUrls.push(publicUrl);
+        uploadedPhotoUrls[idx] = publicUrl;
+        renderPhotoPreview();
       }
-
       fill.style.width = '100%';
       status.textContent = '✅ Фото загружены!';
       setTimeout(() => { prog.style.display = 'none'; fill.style.width = '0%'; }, 1500);
-      renderPhotoPreview();
       input.value = '';
+      return;
     }
 
     function renderPhotoPreview() {
@@ -551,7 +586,7 @@
       }
 
       showToast(status === 'published' ? '🚀 Машина опубликована!' : '💾 Черновик сохранён', 'success');
-      setTimeout(() => window.location.href = 'profile.html', 1200);
+      setTimeout(() => window.location.href = status === 'published' ? 'index.html' : 'profile.html', 1200);
     }
 
     init();

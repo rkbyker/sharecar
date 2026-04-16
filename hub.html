@@ -81,6 +81,26 @@
   
   .divider { height: 1px; background: #1a1a1a; margin: 12px 0; }
 </style>
+<script type="module">
+  import { supabase } from '/js/supabase.js';
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const badge = document.getElementById('session-badge');
+    if (badge) {
+      if (session) {
+        badge.textContent = "✅ Сессия активна: " + session.user.email;
+        badge.style.background = "rgba(34,197,94,.15)";
+        badge.style.color = "#22c55e";
+        badge.style.borderColor = "#22c55e";
+      } else {
+        badge.textContent = "⚠️ Нет сессии — войдите через auth.html";
+        badge.style.background = "rgba(245,158,11,.1)";
+        badge.style.color = "#f59e0b";
+        badge.style.borderColor = "#f59e0b";
+      }
+    }
+  })();
+</script>
 </head>
 <body>
 <div class="hub">
@@ -88,6 +108,11 @@
     <div class="hub-logo">Sharecar</div>
     <p class="hub-subtitle">Платформа автомобильных впечатлений. Кликабельный прототип для тестирования UI/UX</p>
     <span class="hub-version">MVP Prototype v6 · Апрель 2026 · Партнёры, фильтры, бонусная система, машины в рейтинге</span>
+    <div id="session-badge" style="display:inline-block;margin-top:12px;padding:6px 16px;border-radius:20px;border:1px solid #333;font-size:12px;color:#666;">Проверка сессии...</div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;">
+      <a href="app/index.html" style="padding:8px 20px;background:rgba(232,200,74,.15);border:1px solid #e8c84a;border-radius:8px;color:#e8c84a;font-size:13px;font-weight:600;">▶ Открыть ленту</a>
+      <a href="app/auth.html" style="padding:8px 20px;background:#111;border:1px solid #333;border-radius:8px;color:#888;font-size:13px;">Войти / Регистрация</a>
+    </div>
   </div>
 
   <!-- ПРИЛОЖЕНИЕ -->

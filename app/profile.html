@@ -368,6 +368,29 @@
         <input class="settings-input" id="s-tg" placeholder="Telegram @username">
         <input class="settings-input" id="s-ig" placeholder="Instagram @username">
       </div>
+      <div class="settings-group">
+        <div class="settings-label">Тип аккаунта</div>
+        <div style="display:flex;gap:10px;margin-bottom:10px;">
+          <div id="type-personal" onclick="selectAccountType('personal')"
+            style="flex:1;padding:12px;border-radius:10px;border:2px solid #2a2a4a;text-align:center;cursor:pointer;background:#1a1a2e;">
+            <div style="font-size:22px;">👤</div>
+            <div style="font-size:12px;color:#ccc;margin-top:4px;font-weight:600;">Частное лицо</div>
+          </div>
+          <div id="type-business" onclick="selectAccountType('business')"
+            style="flex:1;padding:12px;border-radius:10px;border:2px solid #2a2a4a;text-align:center;cursor:pointer;background:#1a1a2e;">
+            <div style="font-size:22px;">🏢</div>
+            <div style="font-size:12px;color:#ccc;margin-top:4px;font-weight:600;">Организация / Клуб</div>
+          </div>
+        </div>
+        <div id="org-fields" style="display:none;">
+          <input class="settings-input" id="s-org" placeholder="Название организации / клуба">
+          <div id="org-status-block" style="margin-bottom:10px;"></div>
+          <button id="btn-org-apply" onclick="applyOrganization()"
+            style="width:100%;padding:12px;background:#1a1a2e;border:1px solid #f59e0b;color:#f59e0b;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;">
+            📋 Отправить на подтверждение
+          </button>
+        </div>
+      </div>
       <button class="btn-save" onclick="saveProfile()">Сохранить</button>
       <button class="btn-logout" onclick="logout()">Выйти из аккаунта</button>
     </div>
@@ -403,6 +426,35 @@
     window.logout = logout;
     window.uploadAvatar = uploadAvatar;
     window.goPage = (p) => window.location.href = p;
+
+    let currentAccountType = 'personal';
+    window.selectAccountType = selectAccountType;
+    window.applyOrganization = applyOrganization;
+
+    function selectAccountType(type, silent = false) {
+      currentAccountType = type;
+      const pEl = document.getElementById('type-personal');
+      const bEl = document.getElementById('type-business');
+      const orgFields = document.getElementById('org-fields');
+      if (!pEl) return;
+      pEl.style.borderColor = type === 'personal' ? '#f59e0b' : '#2a2a4a';
+      pEl.style.background = type === 'personal' ? 'rgba(245,158,11,.08)' : '#1a1a2e';
+      bEl.style.borderColor = type === 'business' ? '#f59e0b' : '#2a2a4a';
+      bEl.style.background = type === 'business' ? 'rgba(245,158,11,.08)' : '#1a1a2e';
+      orgFields.style.display = type === 'business' ? 'block' : 'none';
+    }
+
+    async function applyOrganization() {
+      const orgName = document.getElementById('s-org').value.trim();
+      if (!orgName) { showToast('Введите название организации', 'warn'); return; }
+      const { error } = await supabase.from('profiles').update({
+        org_name: orgName, org_pending: true, account_type: 'business'
+      }).eq('id', currentUser.id);
+      if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
+      showToast('✅ Заявка отправлена!', 'success');
+      document.getElementById('org-status-block').innerHTML = '<div style="background:rgba(245,158,11,.1);border:1px solid #f59e0b;border-radius:8px;padding:10px 12px;font-size:13px;color:#f59e0b;">⏳ Заявка отправлена — ожидает подтверждения</div>';
+      document.getElementById('btn-org-apply').style.display = 'none';
+    }
 
     async function init() {
       const { data: { session } } = await supabase.auth.getSession();
@@ -502,7 +554,7 @@
           : `<div class="car-thumb">${CLASS_ICONS[car.car_class] || '🚗'}</div>`;
         const sc = STATUS_COLORS[car.status] || '#555';
         return `
-          <div class="car-card-item">
+          <div class="car-card-item" onclick="goPage('car-card.html?id=${car.id}')" style="cursor:pointer;">
             <div class="car-thumb">${thumb}</div>
             <div class="car-info">
               <div class="car-name">${car.brand} ${car.model} ${car.year || ''}</div>

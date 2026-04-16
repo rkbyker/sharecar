@@ -3,636 +3,333 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f0f0f">
 <title>Sharecar — Кабинет владельца</title>
 <link rel="stylesheet" href="../css/app.css">
-<link rel="manifest" href="/manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Sharecar">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
-<script src="/js/pwa.js" defer></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
 <style>
-/* Кредитный виджет */
-.credits-widget {
-  margin: 14px 16px 0;
-  background: linear-gradient(135deg, #111a08, #0a1415);
-  border: 1px solid rgba(232,200,74,0.25);
-  border-radius: 16px; padding: 16px 18px;
-  display: flex; align-items: center; gap: 16px;
-}
-.credits-amount { font-size: 32px; font-weight: 900; color: var(--accent); }
-.credits-label  { font-size: 11px; color: var(--text3); margin-top: 1px; }
-.credits-badge  { font-size: 10px; padding: 3px 8px; border-radius: 10px; background: rgba(76,175,125,0.15); color: #4caf7d; font-weight: 600; }
-
-/* Карточка поездки */
-.trip-card {
-  margin: 0 16px 10px;
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 14px; overflow: hidden;
-}
-.trip-card-header {
-  padding: 12px 14px; display: flex; align-items: center; gap: 10px;
-  border-bottom: 1px solid var(--border);
-}
-.trip-card-body { padding: 12px 14px; }
-.trip-confirm-row {
-  background: linear-gradient(135deg, rgba(232,200,74,0.06), rgba(76,175,125,0.04));
-  border-top: 1px solid rgba(232,200,74,0.15);
-  padding: 12px 14px;
-}
-.trip-status { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px; }
-.ts-waiting  { background: rgba(232,200,74,0.12); color: #e8c84a; }
-.ts-done     { background: rgba(76,175,125,0.12); color: #4caf7d; }
-.ts-pending  { background: rgba(74,143,232,0.12); color: #4a8fe8; }
-
-/* Уведомление о кредитах */
-.credit-notify {
-  background: linear-gradient(135deg, rgba(232,200,74,0.1), rgba(76,175,125,0.06));
-  border: 1px solid rgba(232,200,74,0.3);
-  border-radius: 12px; padding: 12px 14px;
-  display: flex; align-items: center; gap: 10px;
-  margin: 0 16px 10px;
-  animation: shine 2s infinite;
-}
-@keyframes shine {
-  0%,100% { border-color: rgba(232,200,74,0.3); }
-  50%      { border-color: rgba(232,200,74,0.6); box-shadow: 0 0 12px rgba(232,200,74,0.12); }
-}
-
-/* Механика - инфо */
-.mechanics-block {
-  margin: 14px 16px;
-  background: var(--bg3); border-radius: 12px; padding: 14px;
-}
-.mech-step {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 8px 0; border-bottom: 1px solid var(--border);
-}
-.mech-step:last-child { border-bottom: none; padding-bottom: 0; }
-.mech-num {
-  width: 24px; height: 24px; border-radius: 50%;
-  background: rgba(232,200,74,0.15); color: var(--accent);
-  font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 1px;
-}
+body { background:#0f0f0f;padding-bottom:40px; }
+.top-bar { display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #1e1e3a;position:sticky;top:0;background:#0f0f0f;z-index:100; }
+.back-btn { background:#1a1a2e;border:none;color:#aaa;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0; }
+.page-title { font-size:16px;font-weight:700;flex:1; }
+.tabs-row { display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid #1e1e3a; }
+.tabs-row::-webkit-scrollbar { display:none; }
+.tab-btn { flex-shrink:0;padding:12px 16px;font-size:13px;font-weight:500;color:#666;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s; }
+.tab-btn.active { color:#f59e0b;border-bottom-color:#f59e0b; }
+.tab-content { display:none;padding:16px; }
+.tab-content.active { display:block; }
+.car-header { background:#141428;border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid #1e1e3a;display:flex;gap:12px;align-items:center; }
+.car-header-thumb { width:72px;height:56px;border-radius:8px;object-fit:cover;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0; }
+.car-header-info .car-title { font-size:16px;font-weight:700; }
+.car-header-info .car-sub { font-size:12px;color:#888;margin-top:2px; }
+.stats-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px; }
+.stat-card { background:#141428;border-radius:12px;padding:14px;border:1px solid #1e1e3a;text-align:center; }
+.stat-card .val { font-size:24px;font-weight:700;color:#f59e0b; }
+.stat-card .lbl { font-size:11px;color:#666;margin-top:2px; }
+.credits-block { background:linear-gradient(135deg,#0a1a0a,#111a08);border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px; }
+.credits-val { font-size:28px;font-weight:900;color:#22c55e; }
+.credits-info .lbl { font-size:11px;color:#888; }
+.req-card { background:#141428;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #1e1e3a; }
+.req-header { display:flex;align-items:center;gap:10px;margin-bottom:8px; }
+.req-avatar { width:38px;height:38px;border-radius:50%;background:#2a2a4a;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0; }
+.req-name { font-size:14px;font-weight:600; }
+.req-meta { font-size:12px;color:#888;margin-top:1px; }
+.req-price { font-size:16px;font-weight:700;color:#f59e0b; }
+.req-actions { display:flex;gap:8px;margin-top:10px; }
+.btn-accept { flex:1;padding:9px;background:#22c55e;color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer; }
+.btn-reject { padding:9px 14px;background:#1a1a2e;border:1px solid #ef4444;border-radius:8px;color:#ef4444;font-size:13px;font-weight:600;cursor:pointer; }
+.btn-chat { padding:9px 14px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:8px;color:#aaa;font-size:13px;cursor:pointer; }
+.trip-card { background:#141428;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #1e1e3a; }
+.trip-header { display:flex;justify-content:space-between;margin-bottom:8px; }
+.trip-user { font-size:14px;font-weight:600; }
+.trip-status { font-size:11px;padding:3px 9px;border-radius:8px;font-weight:600; }
+.st-pending { background:rgba(245,158,11,.15);color:#f59e0b; }
+.st-confirmed { background:rgba(34,197,94,.15);color:#22c55e; }
+.st-completed { background:rgba(100,100,100,.15);color:#888; }
+.trip-detail { font-size:12px;color:#888;line-height:1.8; }
+.trip-price { font-size:15px;font-weight:700;color:#f59e0b; }
+.empty-state { text-align:center;padding:40px 20px;color:#555; }
+.empty-state .icon { font-size:40px;margin-bottom:12px; }
+.loader-wrap { text-align:center;padding:40px;color:#555; }
+.loader-wrap i { font-size:28px;animation:spin .8s linear infinite;color:#f59e0b; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.settings-input { width:100%;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:10px;padding:12px 14px;color:#fff;font-size:15px;margin-bottom:10px;box-sizing:border-box;outline:none; }
+.settings-input:focus { border-color:#f59e0b; }
+.btn-save { width:100%;padding:14px;background:#f59e0b;color:#000;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px; }
+.section-label { font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:500;margin-top:16px; }
+.section-label:first-child { margin-top:0; }
 </style>
 </head>
 <body>
-<div class="app-container">
 
   <div class="top-bar">
-    <button class="top-bar-action" onclick="scGoBack()"><i class="fas fa-arrow-left"></i></button>
-    <div class="top-bar-title">Кабинет владельца</div>
-    <button class="top-bar-action" onclick="goPage('add-car.html')"><i class="fas fa-plus"></i></button>
+    <button class="back-btn" onclick="scGoBack()"><i class="fa fa-arrow-left"></i></button>
+    <div class="page-title" id="page-title">Кабинет владельца</div>
+    <button class="back-btn" onclick="goToEdit()"><i class="fa fa-pencil"></i></button>
   </div>
 
-  <!-- Вкладки -->
-  <div class="tabs" id="owner-tabs">
-    <button class="tab-item active" onclick="switchTab('overview')">Обзор</button>
-    <button class="tab-item" onclick="switchTab('requests')">Заявки <span style="background:#e05050;color:#fff;border-radius:10px;padding:1px 5px;font-size:10px;">3</span></button>
-    <button class="tab-item" onclick="switchTab('trips')">Поездки <span id="trips-badge" style="background:var(--accent);color:#000;border-radius:10px;padding:1px 5px;font-size:10px;">1</span></button>
-    <button class="tab-item" onclick="switchTab('settings')">Настройки</button>
-    <button class="tab-item" onclick="switchTab('promote')">Буст</button>
+  <div class="tabs-row">
+    <button class="tab-btn active" onclick="switchTab('overview')">📊 Обзор</button>
+    <button class="tab-btn" onclick="switchTab('requests')">📩 Заявки <span id="req-badge" style="display:none;background:#ef4444;color:#fff;border-radius:8px;padding:1px 5px;font-size:10px;"></span></button>
+    <button class="tab-btn" onclick="switchTab('trips')">🗓 Поездки</button>
+    <button class="tab-btn" onclick="switchTab('settings')">⚙️ Настройки</button>
   </div>
 
-  <!-- ═══ ОБЗОР ═══ -->
-  <div id="tab-overview">
-
-    <!-- Кредитный виджет -->
-    <div class="credits-widget">
-      <div style="font-size:26px;">⚡</div>
-      <div style="flex:1;">
-        <div class="credits-amount" id="credits-amount">1 240</div>
-        <div class="credits-label">кредитов · 1 кредит = 1 ₽</div>
-        <div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;">
-          <span class="credits-badge">+450 ожидают</span>
-          <span style="font-size:10px;color:var(--text3);padding:3px 0;">Подтверди поездку → получи кредиты</span>
+  <div class="tab-content active" id="tab-overview">
+    <div id="overview-loader" class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+    <div id="overview-content" style="display:none;">
+      <div class="car-header">
+        <div class="car-header-thumb" id="car-thumb">🚗</div>
+        <div class="car-header-info">
+          <div class="car-title" id="car-title">—</div>
+          <div class="car-sub" id="car-sub">—</div>
         </div>
       </div>
-      <button class="btn btn-secondary btn-sm" onclick="switchTab('trips')">
-        <i class="fas fa-check-circle"></i>
+      <div class="credits-block">
+        <div style="font-size:26px;">⚡</div>
+        <div class="credits-info" style="flex:1;">
+          <div class="credits-val" id="credits-val">0</div>
+          <div class="lbl">кредитов на счету</div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="val" id="stat-requests">0</div><div class="lbl">Заявок</div></div>
+        <div class="stat-card"><div class="val" id="stat-trips">0</div><div class="lbl">Поездок</div></div>
+        <div class="stat-card"><div class="val" id="stat-rating">5.0</div><div class="lbl">Рейтинг ★</div></div>
+        <div class="stat-card"><div class="val" id="stat-likes">0</div><div class="lbl">Лайков</div></div>
+      </div>
+      <button onclick="goPage('boost.html')"
+        style="width:100%;padding:13px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">
+        🚀 Поднять машину в топ (Буст)
       </button>
     </div>
-
-    <div style="padding:14px 16px 0;">
-      <div style="background:var(--bg2);border-radius:12px;padding:14px;border:1px solid var(--border);display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-        <div style="font-size:36px;">🏎</div>
-        <div style="flex:1;">
-          <div style="font-size:15px;font-weight:700;">BMW M3 Competition</div>
-          <div style="font-size:12px;color:var(--text2);">2022 · Москва</div>
-          <div style="display:flex;gap:6px;margin-top:6px;">
-            <span class="badge badge-green">Активна</span>
-            <span class="badge badge-yellow">💰 5 000 ₽</span>
-          </div>
-        </div>
-        <button class="btn btn-secondary btn-sm" onclick="goPage('car-card.html')"><i class="fas fa-eye"></i></button>
-      </div>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-value">87</div><div class="stat-label">Заявок</div></div>
-      <div class="stat-card"><div class="stat-value" style="color:#4caf7d;">9</div><div class="stat-label">Поездок</div></div>
-      <div class="stat-card"><div class="stat-value">62%</div><div class="stat-label">Одобрение</div></div>
-      <div class="stat-card"><div class="stat-value">★ 4.9</div><div class="stat-label">Рейтинг</div></div>
-    </div>
-
-    <div style="padding:0 16px 14px;">
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;">
-        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">💰 Доход за апрель</div>
-        <div style="font-size:28px;font-weight:700;color:var(--accent);">27 500 ₽</div>
-        <div style="font-size:12px;color:var(--text2);margin-top:4px;">5 поездок × 5 000 ₽</div>
-        <div class="progress-bar" style="margin-top:12px;"><div class="progress-fill" style="width:68%;"></div></div>
-        <div style="font-size:11px;color:var(--text2);margin-top:4px;">68% от прошлого месяца</div>
-        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:12px;color:var(--text2);">⚡ Кредиты за скидки</div>
-          <div style="font-size:14px;font-weight:700;color:var(--accent);">790 кредитов</div>
-        </div>
-        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Из 5 подтверждённых поездок · −10% Gold = 500₽ × 5 = 2500 кр. → 790 зачтено</div>
-      </div>
-    </div>
-
-    <!-- Как работает система -->
-    <div style="margin:0 16px 16px;">
-      <div style="font-size:13px;font-weight:700;margin-bottom:10px;">⚡ Как работает система кредитов</div>
-      <div class="mechanics-block">
-        <div class="mech-step">
-          <div class="mech-num">1</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.6;">Пользователь едет на твоей машине со скидкой уровня (например −10% для Gold)</div>
-        </div>
-        <div class="mech-step">
-          <div class="mech-num">2</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.6;">После поездки он подтверждает её — это нужно <strong style="color:var(--text1);">чтобы оставить отзыв</strong> и засчитать поездку в уровень</div>
-        </div>
-        <div class="mech-step">
-          <div class="mech-num">3</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.6;">Ты получаешь уведомление: <em>«Сергей подтвердил поездку»</em> → нажимаешь <strong style="color:#4caf7d;">«Принять кредиты»</strong></div>
-        </div>
-        <div class="mech-step">
-          <div class="mech-num">4</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.6;">На счёт начисляется компенсация скидки в кредитах — их можно потратить на <strong style="color:var(--accent);">буст объявления</strong></div>
-        </div>
-      </div>
-    </div>
   </div>
 
-  <!-- ═══ ЗАЯВКИ ═══ -->
-  <div id="tab-requests" style="display:none;">
-    <div style="padding:14px 16px 0;font-size:13px;font-weight:600;color:var(--text2);">Входящие заявки на BMW M3</div>
-
-    <div style="margin:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
-
-      <!-- Заявка 1 -->
-      <div style="padding:14px;border-bottom:1px solid var(--border);">
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <div class="avatar avatar-md" style="background:#1e2838;">М</div>
-          <div style="flex:1;">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <span style="font-size:14px;font-weight:600;">Мария С.</span>
-              <span class="badge badge-silver">Silver</span>
-              <span style="font-size:11px;color:var(--accent);">★ 4.7</span>
-            </div>
-            <div style="font-size:12px;color:var(--text2);margin-top:3px;">За руль · 5 000 ₽ → 4 750 ₽ (−5% Silver)</div>
-            <div style="font-size:12px;color:var(--text2);margin-top:3px;font-style:italic;">"Мечтаю попробовать M3, у меня Golf GTI"</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:4px;">4 поездки · уровень одобрения 82%</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px;">💰 Скидка: −250 ₽ → ты получишь <strong style="color:var(--accent);">+250 кредитов</strong> после подтверждения</div>
-            <div style="display:flex;gap:8px;margin-top:10px;">
-              <button class="btn btn-success btn-sm" onclick="acceptReq(this)"><i class="fas fa-check"></i> Принять</button>
-              <button class="btn btn-secondary btn-sm" onclick="goPage('chat.html')"><i class="fas fa-comment"></i> Чат</button>
-              <button class="btn btn-danger btn-sm" onclick="rejectReq(this)"><i class="fas fa-times"></i> Откл.</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Заявка 2 — ниже уровня -->
-      <div style="padding:14px;border-bottom:1px solid var(--border);opacity:0.55;">
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <div class="avatar avatar-md" style="background:#201010;">А</div>
-          <div style="flex:1;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span style="font-size:14px;font-weight:600;">Алексей Н.</span>
-              <span class="badge badge-bronze">Bronze</span>
-            </div>
-            <div style="font-size:12px;color:#e05050;margin-top:3px;">⚠️ Уровень Bronze — ниже минимума (Gold)</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:3px;">Автоотклонение по настройкам</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Заявка 3 — VIP -->
-      <div style="padding:14px;">
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <div class="avatar avatar-md" style="background:#0a1505;color:#7ec850;">Д</div>
-          <div style="flex:1;">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <span style="font-size:14px;font-weight:600;">Дмитрий В.</span>
-              <span class="badge badge-vip">👑 VIP</span>
-              <span style="font-size:11px;color:var(--accent);">★ 5.0</span>
-            </div>
-            <div style="font-size:12px;color:#7ec850;margin-top:3px;">VIP · скидка −20% · компенсация +1 000 кр.</div>
-            <div style="font-size:12px;color:var(--text2);margin-top:3px;font-style:italic;">"Владелец AMG GT, хочу сравнить с M3"</div>
-            <div style="display:flex;gap:8px;margin-top:10px;">
-              <button class="btn btn-success btn-sm" onclick="acceptReq(this)"><i class="fas fa-check"></i> Принять</button>
-              <button class="btn btn-danger btn-sm" onclick="rejectReq(this)"><i class="fas fa-times"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="tab-content" id="tab-requests">
+    <div id="requests-list"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
   </div>
 
-  <!-- ═══ ПОЕЗДКИ ═══ -->
-  <div id="tab-trips" style="display:none;">
-
-    <div style="padding:14px 16px 8px;display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-size:13px;font-weight:600;color:var(--text2);">История и подтверждения</div>
-      <span style="font-size:11px;color:var(--text3);">9 всего</span>
-    </div>
-
-    <!-- ⚡ Ожидает подтверждения (пульсирует) -->
-    <div class="credit-notify" id="credit-notify">
-      <div style="font-size:24px;flex-shrink:0;">⚡</div>
-      <div style="flex:1;">
-        <div style="font-size:13px;font-weight:700;color:var(--accent);">Ожидают начисления: +450 кр.</div>
-        <div style="font-size:11px;color:var(--text2);margin-top:2px;">Сергей М. подтвердил поездку и оставил отзыв</div>
-      </div>
-      <button class="btn btn-primary btn-sm" onclick="acceptCredits()"><i class="fas fa-plus"></i> Принять</button>
-    </div>
-
-    <!-- Карточка 1: ожидает подтверждения от ВЛАДЕЛЬЦА -->
-    <div class="trip-card" id="trip-1">
-      <div class="trip-card-header">
-        <div class="avatar avatar-sm" style="background:#1e2010;color:#e8c84a;">С</div>
-        <div style="flex:1;">
-          <div style="font-size:13px;font-weight:600;">Сергей М. <span class="trip-status ts-waiting">⏳ Ожидает тебя</span></div>
-          <div style="font-size:11px;color:var(--text2);margin-top:1px;">🥇 Gold · ★ 4.8</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:13px;font-weight:700;color:#4caf7d;">4 500 ₽</div>
-          <div style="font-size:10px;color:var(--text3);">−10% Gold</div>
-        </div>
-      </div>
-      <div class="trip-card-body">
-        <div style="font-size:12px;color:var(--text2);line-height:1.9;">
-          📅 10 апреля 2026 · 14:00<br>
-          📍 Метро Коломенская<br>
-          ⭐ Оставил отзыв: <strong style="color:#e8c84a;">«Невероятно! BMW M3 — это другой уровень!»</strong>
-        </div>
-      </div>
-      <div class="trip-confirm-row">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">
-          <i class="fas fa-info-circle" style="color:var(--accent);margin-right:4px;"></i>
-          Сергей подтвердил поездку. Нажми «Принять» — тебе начислят <strong style="color:var(--accent);">+450 кредитов</strong> (компенсация скидки −10% от 4 500 ₽).
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-primary" style="flex:1;" onclick="acceptTripCredits('trip-1', 450)">
-            <i class="fas fa-bolt"></i> Принять +450 кр.
-          </button>
-          <button class="btn btn-secondary btn-sm" onclick="goPage('chat.html')">
-            <i class="fas fa-comment"></i> Чат
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Карточка 2: завершена, кредиты уже зачтены -->
-    <div class="trip-card">
-      <div class="trip-card-header">
-        <div class="avatar avatar-sm" style="background:#1e2030;color:#b87fe8;">И</div>
-        <div style="flex:1;">
-          <div style="font-size:13px;font-weight:600;">Иван П. <span class="trip-status ts-done">✅ Завершена</span></div>
-          <div style="font-size:11px;color:var(--text2);margin-top:1px;">💎 Premium · ★ 4.9</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:13px;font-weight:700;color:#4caf7d;">4 250 ₽</div>
-          <div style="font-size:10px;color:var(--text3);">−15% Premium</div>
-        </div>
-      </div>
-      <div class="trip-card-body">
-        <div style="font-size:12px;color:var(--text2);line-height:1.9;">
-          📅 8 апреля 2026 · 11:00<br>
-          📍 Метро Коломенская<br>
-          ⭐ <span style="color:#e8c84a;">★★★★★</span> «Потрясающий владелец, дал полную свободу»
-        </div>
-        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
-          <span style="font-size:11px;background:rgba(76,175,125,0.12);color:#4caf7d;padding:3px 10px;border-radius:10px;font-weight:600;">⚡ +750 кр. зачтено</span>
-          <span style="font-size:11px;color:var(--text3);">3 апр. в 18:22</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Карточка 3: завершена без подтверждения -->
-    <div class="trip-card">
-      <div class="trip-card-header">
-        <div class="avatar avatar-sm" style="background:#1a100a;color:#c87941;">Р</div>
-        <div style="flex:1;">
-          <div style="font-size:13px;font-weight:600;">Роман Т. <span class="trip-status ts-pending">↩ Нет подтв.</span></div>
-          <div style="font-size:11px;color:var(--text2);margin-top:1px;">💎 Premium · ★ 4.7</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:13px;font-weight:700;color:var(--text2);">4 250 ₽</div>
-          <div style="font-size:10px;color:var(--text3);">−15% Premium</div>
-        </div>
-      </div>
-      <div class="trip-card-body">
-        <div style="font-size:12px;color:var(--text2);line-height:1.9;">
-          📅 5 апреля 2026 · 16:00<br>
-          📍 Парковка ТЦ Москва<br>
-          <span style="color:var(--text3);">Отзыв не оставлен · кредиты не начислены</span>
-        </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--text3);">
-          <i class="fas fa-clock" style="margin-right:4px;"></i>Подтверждение истекает через 3 дня · Роман ещё может оставить отзыв
-        </div>
-      </div>
-    </div>
-
-    <!-- Карточка 4: старая, истекла -->
-    <div class="trip-card" style="opacity:0.55;">
-      <div class="trip-card-header">
-        <div class="avatar avatar-sm" style="background:#1e1810;color:#b87fe8;">К</div>
-        <div style="flex:1;">
-          <div style="font-size:13px;font-weight:600;">Константин А. <span class="trip-status ts-pending">❌ Истекло</span></div>
-          <div style="font-size:11px;color:var(--text2);margin-top:1px;">💎 Premium · ★ 5.0</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:13px;font-weight:700;color:var(--text3);">4 250 ₽</div>
-          <div style="font-size:10px;color:var(--text3);">−15%</div>
-        </div>
-      </div>
-      <div class="trip-card-body">
-        <div style="font-size:12px;color:var(--text3);line-height:1.8;">
-          📅 28 марта 2026<br>
-          Подтверждение не получено — кредиты сгорели
-        </div>
-      </div>
-    </div>
-
-    <!-- Итог по кредитам -->
-    <div style="margin:4px 16px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;">
-      <div style="font-size:13px;font-weight:600;margin-bottom:10px;">⚡ Кредиты за апрель</div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-        <span style="color:var(--text2);">Поездок подтверждено</span><span style="font-weight:600;">5 из 9</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-        <span style="color:var(--text2);">Зачислено</span><span style="font-weight:600;color:#4caf7d;">+790 кр.</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-        <span style="color:var(--text2);">Ожидают</span><span style="font-weight:600;color:var(--accent);">+450 кр.</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px;">
-        <span style="color:var(--text2);">Сгорело (нет подтв.)</span><span style="font-weight:600;color:#e05050;">−750 кр.</span>
-      </div>
-      <div style="font-size:11px;color:var(--text3);padding-top:10px;border-top:1px solid var(--border);">
-        💡 Подсказка: можно пополнить баланс кредитов напрямую → <button onclick="goPage('boost.html')" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;font-family:inherit;padding:0;">пополнить</button>
-      </div>
-    </div>
+  <div class="tab-content" id="tab-trips">
+    <div id="trips-list"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
   </div>
 
-  <!-- ═══ НАСТРОЙКИ ═══ -->
-  <div id="tab-settings" style="display:none;">
-    <div style="padding:16px;">
-      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;">Условия доступа</div>
-
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <div class="toggle-title">Принимать платные заявки</div>
-          <div class="toggle-desc">Зарабатывайте 5 000 ₽ за поездку</div>
-        </div>
-        <label class="toggle"><input type="checkbox" checked id="t-paid"><span class="toggle-slider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <div class="toggle-title">Принимать бесплатные заявки</div>
-          <div class="toggle-desc">Gold+ может ездить бесплатно</div>
-        </div>
-        <label class="toggle"><input type="checkbox" checked id="t-free"><span class="toggle-slider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <div class="toggle-title">Только по инвайту</div>
-          <div class="toggle-desc">Вы сами выбираете, кого допустить</div>
-        </div>
-        <label class="toggle"><input type="checkbox" id="t-invite"><span class="toggle-slider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <div class="toggle-title">Автоподтверждение поездок</div>
-          <div class="toggle-desc">Поездка будет засчитана через 7 дней, даже если пользователь не оставил отзыв (кредиты не начисляются)</div>
-        </div>
-        <label class="toggle"><input type="checkbox" id="t-auto"><span class="toggle-slider"></span></label>
-      </div>
-
-      <div class="form-group" style="margin-top:16px;">
-        <label class="form-label">Минимальный уровень водителя</label>
-        <select style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text1);font-family:inherit;font-size:14px;padding:10px;width:100%;outline:none;appearance:none;">
-          <option>Silver (от 6 поездок)</option>
-          <option selected>Gold (от 21 поездки)</option>
-          <option>Premium (от 51 поездки)</option>
-          <option>VIP только</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Пассажиры</label>
-        <select style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text1);font-family:inherit;font-size:14px;padding:10px;width:100%;outline:none;appearance:none;">
-          <option>Только водитель</option>
-          <option selected>1 пассажир</option>
-          <option>До 2 пассажиров</option>
-        </select>
-      </div>
-      <button class="btn btn-primary btn-full" onclick="saveSettings()"><i class="fas fa-save"></i> Сохранить</button>
-    </div>
-
-    <div style="padding:0 16px 16px;">
-      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px;">Расписание</div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
-        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:13px;">Пн–Чт · 18:00–21:00</div>
-          <span class="badge badge-green">Доступно</span>
-        </div>
-        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:13px;">Пятница</div>
-          <span class="badge badge-red">Занято</span>
-        </div>
-        <div style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:13px;">Суббота · 11:00–19:00</div>
-          <span class="badge badge-green">Доступно</span>
-        </div>
-      </div>
-      <button class="btn btn-secondary btn-full" style="margin-top:10px;" onclick="showToast('Редактирование расписания')"><i class="fas fa-calendar-edit"></i> Изменить расписание</button>
-    </div>
+  <div class="tab-content" id="tab-settings">
+    <div id="settings-content"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
   </div>
 
-  <!-- ═══ БУСТ / ПРОДВИЖЕНИЕ ═══ -->
-  <div id="tab-promote" style="display:none;">
-    <div style="padding:16px;">
+  <div id="global-toast"></div>
 
-      <!-- Баланс кредитов -->
-      <div class="credits-widget" style="margin:0 0 16px;">
-        <div style="font-size:26px;">⚡</div>
-        <div style="flex:1;">
-          <div class="credits-amount" id="credits-amount-2">1 240</div>
-          <div class="credits-label">кредитов для буста</div>
-        </div>
-        <button class="btn btn-secondary btn-sm" onclick="showToast('Пополнение кредитов')">
-          <i class="fas fa-plus"></i> Пополнить
-        </button>
-      </div>
+  <script type="module">
+    import { supabase, showToast } from '../js/supabase.js';
+    import '../js/nav.js';
 
-      <div style="background:rgba(232,200,74,0.08);border:1px solid rgba(232,200,74,0.2);border-radius:12px;padding:14px;margin-bottom:16px;">
-        <div style="font-size:13px;font-weight:600;color:var(--accent);">⭐ Текущая позиция: #14 из 384</div>
-        <div style="font-size:12px;color:var(--text2);margin-top:4px;">Активных бустов нет</div>
-      </div>
+    let currentUser = null;
+    let carId = null;
+    let car = null;
 
-      <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Пакеты буста</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;" onclick="buyBoost('1 час',50)">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <div style="font-size:14px;font-weight:600;">🔥 Горящее предложение · 1 час</div>
-              <div style="font-size:12px;color:var(--text2);margin-top:3px;">Выделение + позиция в Топ</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:16px;font-weight:700;color:var(--accent);">50 кр.</div>
-              <div style="font-size:10px;color:var(--text3);">= 50 ₽</div>
-            </div>
-          </div>
-        </div>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;" onclick="buyBoost('1 день',240)">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <div style="font-size:14px;font-weight:600;">⭐ Топ ленты · 1 день</div>
-              <div style="font-size:12px;color:var(--text2);margin-top:3px;">ТОП-5 + золотой бейдж</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:16px;font-weight:700;color:var(--accent);">240 кр.</div>
-              <div style="font-size:10px;color:var(--text3);">= 240 ₽</div>
-            </div>
-          </div>
-        </div>
-        <div style="background:var(--bg2);border:1px solid rgba(232,200,74,0.3);border-radius:12px;padding:14px;cursor:pointer;" onclick="buyBoost('1 неделя',990)">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <div style="font-size:14px;font-weight:600;">🌟 Топ ленты · 1 неделя <span class="badge badge-yellow" style="font-size:10px;">Хит</span></div>
-              <div style="font-size:12px;color:var(--text2);margin-top:3px;">Всегда ТОП-3 + Push-уведомления</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:16px;font-weight:700;color:var(--accent);">990 кр.</div>
-              <div style="font-size:10px;color:#4caf7d;">−30% выгода</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    window.switchTab = switchTab;
+    window.goPage = (p) => window.location.href = p;
+    window.goToEdit = () => { if (carId) window.location.href = `add-car.html?edit=${carId}`; };
+    window.acceptRequest = acceptRequest;
+    window.rejectRequest = rejectRequest;
+    window.savePricing = savePricing;
 
-      <div style="margin-top:18px;background:var(--bg3);border-radius:12px;padding:14px;">
-        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">📈 Бесплатный рост позиции</div>
-        <div style="font-size:12px;color:var(--text2);line-height:2.2;">
-          ✅ Получить подтверждение поездок — <span style="color:var(--accent);">+5 позиций</span><br>
-          ✅ Хорошие отзывы — <span style="color:var(--accent);">+3 позиции</span><br>
-          ✅ Высокий уровень одобрения — <span style="color:var(--accent);">+3 позиции</span><br>
-          ✅ Больше поездок за месяц — <span style="color:var(--accent);">+4 позиции</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Нижняя навигация -->
-  <nav class="bottom-nav">
-    <button class="nav-item" onclick="goPage('index.html')"><i class="fas fa-home"></i><span>Лента</span></button>
-    <button class="nav-item" onclick="goPage('partners.html')"><i class="fas fa-handshake"></i><span>Партнёры</span></button>
-    <button class="nav-item" onclick="goPage('rating.html')"><i class="fas fa-trophy"></i><span>Рейтинг</span></button>
-    <button class="nav-item active"><i class="fas fa-user"></i><span>Профиль</span></button>
-  </nav>
-</div>
-
-<div id="app-toast" style="display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:13px;z-index:9999;white-space:nowrap;box-shadow:var(--shadow);"></div>
-
-<script>
-const TABS = ['overview','requests','trips','settings','promote'];
-let creditsBalance = 1240;
-
-function switchTab(tab) {
-  TABS.forEach(t => {
-    const el = document.getElementById('tab-' + t);
-    if (el) el.style.display = t === tab ? 'block' : 'none';
-  });
-  document.querySelectorAll('#owner-tabs .tab-item').forEach((btn, i) => {
-    btn.classList.toggle('active', TABS[i] === tab);
-  });
-}
-
-function acceptReq(btn) {
-  const row = btn.closest('[style*="padding:14px"]');
-  const actDiv = row.querySelector('[style*="gap:8px;margin-top:10px"]') || row.querySelector('[style*="gap:8px;margin-top"]');
-  if (actDiv) actDiv.innerHTML = '<span style="color:#4caf7d;font-size:13px;font-weight:600;"><i class="fas fa-check-circle"></i> Принято! Напишите детали в чате</span>';
-  showToast('✅ Заявка принята! Договоритесь о времени в чате');
-}
-
-function rejectReq(btn) {
-  const row = btn.closest('[style*="padding:14px"]');
-  row.style.opacity = '0.4';
-  showToast('Заявка отклонена');
-}
-
-function acceptTripCredits(tripId, amount) {
-  // Скрыть notify-баннер
-  const notify = document.getElementById('credit-notify');
-  if (notify) notify.style.display = 'none';
-
-  // Обновить карточку поездки
-  const card = document.getElementById(tripId);
-  if (card) {
-    const footer = card.querySelector('.trip-confirm-row');
-    if (footer) {
-      footer.innerHTML = `<div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:11px;background:rgba(76,175,125,0.12);color:#4caf7d;padding:4px 12px;border-radius:10px;font-weight:600;">⚡ +${amount} кр. зачислено</span>
-        <span style="font-size:11px;color:var(--text3);">только что</span>
-      </div>`;
+    function switchTab(name) {
+      document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        b.classList.toggle('active', ['overview','requests','trips','settings'][i] === name);
+      });
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
     }
-    const badge = card.querySelector('.trip-status');
-    if (badge) { badge.className = 'trip-status ts-done'; badge.textContent = '✅ Завершена'; }
-  }
 
-  // Обновить баланс
-  creditsBalance += amount;
-  const el1 = document.getElementById('credits-amount');
-  const el2 = document.getElementById('credits-amount-2');
-  if (el1) el1.textContent = creditsBalance.toLocaleString('ru');
-  if (el2) el2.textContent = creditsBalance.toLocaleString('ru');
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { window.location.href = '/app/auth.html'; return; }
+      currentUser = session.user;
+      const params = new URLSearchParams(location.search);
+      carId = params.get('car');
+      if (!carId) {
+        const { data: cars } = await supabase.from('cars').select('id').eq('owner_id', currentUser.id).limit(1);
+        if (cars && cars.length) { carId = cars[0].id; }
+        else {
+          document.getElementById('overview-loader').style.display = 'none';
+          document.getElementById('overview-content').style.display = 'block';
+          document.getElementById('car-title').textContent = 'Нет машин';
+          document.getElementById('car-sub').textContent = 'Добавьте машину в профиле';
+          return;
+        }
+      }
+      await loadCar();
+      await loadOverview();
+      await loadRequests();
+      await loadTrips();
+      loadSettings();
+    }
 
-  // Убрать бейдж
-  const badge = document.getElementById('trips-badge');
-  if (badge) badge.style.display = 'none';
+    async function loadCar() {
+      const { data } = await supabase.from('cars').select('*').eq('id', carId).single();
+      car = data;
+      if (!car) return;
+      document.getElementById('page-title').textContent = `${car.brand} ${car.model}`;
+      document.getElementById('car-title').textContent = `${car.brand} ${car.model} ${car.year || ''}`;
+      document.getElementById('car-sub').textContent = `${car.city || ''} · ${car.status === 'published' ? '✅ Активна' : '📝 Черновик'}`;
+      const thumb = document.getElementById('car-thumb');
+      if (car.photos && car.photos[0]) {
+        thumb.innerHTML = `<img src="${car.photos[0]}" style="width:72px;height:56px;border-radius:8px;object-fit:cover;">`;
+      }
+    }
 
-  showToast('⚡ +' + amount + ' кредитов зачислено!');
-}
+    async function loadOverview() {
+      const { data: profile } = await supabase.from('profiles').select('credits').eq('id', currentUser.id).single();
+      document.getElementById('credits-val').textContent = profile?.credits || 0;
+      document.getElementById('stat-likes').textContent = car?.likes || 0;
+      document.getElementById('stat-rating').textContent = (car?.rating || 5).toFixed(1);
+      const { count: reqCount } = await supabase.from('requests').select('*', { count:'exact', head:true }).eq('car_id', carId);
+      document.getElementById('stat-requests').textContent = reqCount || 0;
+      const { count: tripCount } = await supabase.from('requests').select('*', { count:'exact', head:true }).eq('car_id', carId).eq('status', 'completed');
+      document.getElementById('stat-trips').textContent = tripCount || 0;
+      document.getElementById('overview-loader').style.display = 'none';
+      document.getElementById('overview-content').style.display = 'block';
+    }
 
-// Из виджета обзора
-function acceptCredits() { acceptTripCredits('trip-1', 450); }
+    async function loadRequests() {
+      const { data: reqs } = await supabase
+        .from('requests')
+        .select('*, profiles:requester_id(first_name, last_name, level, rating_driver, avatar_url)')
+        .eq('car_id', carId)
+        .in('status', ['pending', 'accepted'])
+        .order('created_at', { ascending: false });
+      const container = document.getElementById('requests-list');
+      const pending = reqs?.filter(r => r.status === 'pending') || [];
+      if (pending.length > 0) {
+        const badge = document.getElementById('req-badge');
+        badge.textContent = pending.length;
+        badge.style.display = 'inline';
+      }
+      if (!reqs || !reqs.length) {
+        container.innerHTML = `<div class="empty-state"><div class="icon">📩</div>Нет активных заявок</div>`;
+        return;
+      }
+      const LEVEL_LABELS = { bronze:'🥉 Bronze', silver:'🥈 Silver', gold:'🥇 Gold', premium:'💎 Premium', vip:'👑 VIP' };
+      container.innerHTML = reqs.map(r => {
+        const p = r.profiles || {};
+        const name = `${p.first_name||''} ${p.last_name||''}`.trim() || 'Пользователь';
+        const initials = name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+        const price = r.role === 'driver' ? (car?.price_driver||0) : (car?.price_passenger||0);
+        return `<div class="req-card">
+          <div class="req-header">
+            <div class="req-avatar">${initials}</div>
+            <div style="flex:1;">
+              <div class="req-name">${name}</div>
+              <div class="req-meta">${LEVEL_LABELS[p.level]||'🥉 Bronze'} · ★ ${(p.rating_driver||5).toFixed(1)}</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="req-price">${price.toLocaleString()} ₽</div>
+              <div style="font-size:11px;color:#888;">${r.role==='driver'?'🚗 Водитель':'👥 Пассажир'}</div>
+            </div>
+          </div>
+          ${r.message?`<div style="font-size:13px;color:#ccc;font-style:italic;margin-bottom:8px;">"${r.message}"</div>`:''}
+          <div style="font-size:11px;color:#666;margin-bottom:8px;">${new Date(r.created_at).toLocaleDateString('ru-RU')}</div>
+          ${r.status==='pending'?`<div class="req-actions">
+            <button class="btn-accept" onclick="acceptRequest('${r.id}')">✅ Принять</button>
+            <button class="btn-chat" onclick="goPage('chat.html?request=${r.id}')">💬 Чат</button>
+            <button class="btn-reject" onclick="rejectRequest('${r.id}')">✕</button>
+          </div>`:`<div style="font-size:12px;color:#22c55e;font-weight:600;">✅ Заявка принята</div>`}
+        </div>`;
+      }).join('');
+    }
 
-function saveSettings() { showToast('✅ Настройки сохранены'); }
+    async function acceptRequest(reqId) {
+      const { error } = await supabase.from('requests').update({ status:'accepted' }).eq('id', reqId);
+      if (error) { showToast('Ошибка: '+error.message, 'error'); return; }
+      showToast('✅ Заявка принята!', 'success');
+      await loadRequests();
+    }
 
-function buyBoost(plan, cost) {
-  if (creditsBalance < cost) {
-    showToast('⚠️ Недостаточно кредитов — пополните баланс');
-    return;
-  }
-  creditsBalance -= cost;
-  const el1 = document.getElementById('credits-amount');
-  const el2 = document.getElementById('credits-amount-2');
-  if (el1) el1.textContent = creditsBalance.toLocaleString('ru');
-  if (el2) el2.textContent = creditsBalance.toLocaleString('ru');
-  showToast('🚀 Буст «' + plan + '» активирован! −' + cost + ' кр.');
-}
+    async function rejectRequest(reqId) {
+      const { error } = await supabase.from('requests').update({ status:'rejected' }).eq('id', reqId);
+      if (error) { showToast('Ошибка: '+error.message, 'error'); return; }
+      showToast('Заявка отклонена', 'warn');
+      await loadRequests();
+    }
 
-function goPage(url) { window.location.href = url; }
+    async function loadTrips() {
+      const { data: trips } = await supabase
+        .from('requests')
+        .select('*, profiles:requester_id(first_name, last_name, level, rating_driver)')
+        .eq('car_id', carId)
+        .in('status', ['accepted', 'completed', 'confirmed'])
+        .order('created_at', { ascending: false });
+      const container = document.getElementById('trips-list');
+      if (!trips || !trips.length) {
+        container.innerHTML = `<div class="empty-state"><div class="icon">🗓</div>Нет поездок</div>`;
+        return;
+      }
+      const STATUS_LABELS = { accepted:'Принята', confirmed:'Подтверждена', completed:'Завершена' };
+      const STATUS_CSS = { accepted:'st-pending', confirmed:'st-confirmed', completed:'st-completed' };
+      container.innerHTML = trips.map(t => {
+        const p = t.profiles || {};
+        const name = `${p.first_name||''} ${p.last_name||''}`.trim() || 'Пользователь';
+        const price = t.role==='driver' ? (car?.price_driver||0) : (car?.price_passenger||0);
+        return `<div class="trip-card">
+          <div class="trip-header">
+            <div>
+              <div class="trip-user">${name}</div>
+              <div style="font-size:12px;color:#888;">${t.role==='driver'?'🚗 Водитель':'👥 Пассажир'}</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="trip-price">${price.toLocaleString()} ₽</div>
+              <span class="trip-status ${STATUS_CSS[t.status]||'st-completed'}">${STATUS_LABELS[t.status]||t.status}</span>
+            </div>
+          </div>
+          <div class="trip-detail">📅 ${new Date(t.created_at).toLocaleDateString('ru-RU')}
+            ${t.status==='accepted'?`<br><button style="margin-top:8px;padding:7px 14px;background:#f59e0b;color:#000;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;" onclick="confirmTrip('${t.id}')">✅ Подтвердить завершение</button>`:''}
+          </div>
+        </div>`;
+      }).join('');
+    }
 
-function showToast(msg) {
-  const t = document.getElementById('app-toast');
-  t.textContent = msg; t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3000);
-}
-</script>
+    window.confirmTrip = async function(tripId) {
+      const { error } = await supabase.from('requests').update({ status:'completed' }).eq('id', tripId);
+      if (error) { showToast('Ошибка', 'error'); return; }
+      showToast('✅ Поездка завершена!', 'success');
+      await loadTrips(); await loadOverview();
+    };
+
+    function loadSettings() {
+      if (!car) return;
+      document.getElementById('settings-content').innerHTML = `
+        <div class="section-label">Цена для водителя (₽)</div>
+        <input class="settings-input" id="s-price-driver" type="number" value="${car.price_driver||0}">
+        <div class="section-label">Цена для пассажира (₽)</div>
+        <input class="settings-input" id="s-price-passenger" type="number" value="${car.price_passenger||0}">
+        <div class="section-label">Расписание / Условия</div>
+        <textarea class="settings-input" id="s-schedule" rows="3">${car.schedule||''}</textarea>
+        <div class="section-label">Минимальный уровень участника</div>
+        <select class="settings-input" id="s-min-level">
+          <option value="bronze" ${car.min_level==='bronze'?'selected':''}>🥉 Bronze (все)</option>
+          <option value="silver" ${car.min_level==='silver'?'selected':''}>🥈 Silver</option>
+          <option value="gold" ${car.min_level==='gold'?'selected':''}>🥇 Gold</option>
+          <option value="premium" ${car.min_level==='premium'?'selected':''}>💎 Premium</option>
+          <option value="vip" ${car.min_level==='vip'?'selected':''}>👑 VIP</option>
+        </select>
+        <button class="btn-save" onclick="savePricing()">Сохранить изменения</button>`;
+    }
+
+    async function savePricing() {
+      const updates = {
+        price_driver: parseInt(document.getElementById('s-price-driver').value)||0,
+        price_passenger: parseInt(document.getElementById('s-price-passenger').value)||0,
+        schedule: document.getElementById('s-schedule').value.trim(),
+        min_level: document.getElementById('s-min-level').value,
+      };
+      const { error } = await supabase.from('cars').update(updates).eq('id', carId);
+      if (error) { showToast('Ошибка: '+error.message, 'error'); return; }
+      showToast('✅ Сохранено!', 'success');
+      car = { ...car, ...updates };
+    }
+
+    init();
+  </script>
 </body>
 </html>
