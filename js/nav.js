@@ -1,5 +1,17 @@
-The page could not be found
+const stack = [];
 
-NOT_FOUND
+window.scGoBack = function() {
+  if (stack.length > 1) {
+    stack.pop();
+    window.location.href = stack[stack.length - 1];
+  } else {
+    history.back();
+  }
+};
 
-fra1::m8b9w-1776267683169-03da8706c1ee
+(function() {
+  const current = location.pathname + location.search;
+  if (!stack.length || stack[stack.length - 1] !== current) {
+    stack.push(current);
+  }
+})();
