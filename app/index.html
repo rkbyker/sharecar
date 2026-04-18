@@ -182,6 +182,9 @@
     .feed-grid2 .feed-card .car-body { padding:8px 10px; }
     .feed-grid2 .feed-card .owner-row { display:none; }
 
+    .fdot { width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.4); }
+    .fdot.active { background:#fff; }
+
     .feed-list .feed-card { display:flex; flex-direction:row; height:100px; margin:0 12px 8px; }
     .feed-list .feed-card .car-thumb { width:120px; min-width:120px; height:100px; border-radius:10px 0 0 10px; }
     .feed-list .feed-card .car-body { padding:10px 12px; display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden; }
@@ -439,6 +442,27 @@
         if (!chips.querySelector('.f-chip.active')) anyChip.classList.add('active');
       }
     }
+    // Feed photo swipe
+    const _fTouchX = {};
+    const _fIdx = {};
+    window.fts = (e, id) => { _fTouchX[id] = e.touches[0].clientX; };
+    window.fte = (e, id) => {
+      const dx = e.changedTouches[0].clientX - (_fTouchX[id] || 0);
+      if (Math.abs(dx) < 40) return;
+      const el = document.getElementById('fsl-' + id);
+      if (!el) return;
+      const count = el.children.length;
+      _fIdx[id] = ((_fIdx[id] || 0) + (dx < 0 ? 1 : -1) + count) % count;
+      el.style.transform = `translateX(-${_fIdx[id] * 100}%)`;
+      el.parentNode.querySelectorAll('.fdot').forEach((d, i) => d.classList.toggle('active', i === _fIdx[id]));
+    };
+    window.jumpFeed = (id, i) => {
+      const el = document.getElementById('fsl-' + id);
+      if (!el) return;
+      _fIdx[id] = i;
+      el.style.transform = `translateX(-${i * 100}%)`;
+      el.parentNode.querySelectorAll('.fdot').forEach((d, j) => d.classList.toggle('active', j === i));
+    };
     window.toggleView = toggleView;
     window.toggleSort = toggleSort;
 
@@ -577,7 +601,11 @@
       // Photo
       const photos = car.photos || [];
       let photoHtml = '';
-      if (photos.length > 0) {
+      if (photos.length > 1) {
+        const slides = photos.map((url, i) => `<div class="fslide" style="flex-shrink:0;width:100%;height:100%;"><img src="${url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;"></div>`).join('');
+        const dots = photos.map((_, i) => `<span class="fdot${i===0?' active':''}" onclick="event.stopPropagation();jumpFeed('${car.id}',${i})"></span>`).join('');
+        photoHtml = `<div class="fslides" id="fsl-${car.id}" style="display:flex;height:100%;transition:transform .3s;" ontouchstart="fts(event,'${car.id}')" ontouchend="fte(event,'${car.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div>`;
+      } else if (photos.length === 1) {
         photoHtml = `<img src="${photos[0]}" alt="${car.brand} ${car.model}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=no-photo>${CLASS_ICONS[car.car_class]||'🚗'}</div>'">`;
       } else {
         photoHtml = `<div class="no-photo">${CLASS_ICONS[car.car_class] || '🚗'}</div>`;
