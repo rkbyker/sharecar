@@ -485,14 +485,14 @@
       const newFiles = Array.from(input.files);
       if (!newFiles.length) return;
       if (uploadedPhotoUrls.length + newFiles.length > 8) { showToast('Максимум 8 фотографий', 'warn'); return; }
-      const localPreviews = newFiles.map(f => ({ url: URL.createObjectURL(f), uploading: true, file: f }));
+      const startIdx = uploadedPhotoUrls.length;
+      const localPreviews = newFiles.map(f => URL.createObjectURL(f));
       uploadedPhotoUrls.push(...localPreviews);
       renderPhotoPreview();
       const prog = document.getElementById('upload-progress');
       const fill = document.getElementById('progress-fill');
       const status = document.getElementById('upload-status');
       prog.style.display = 'block';
-      const startIdx = uploadedPhotoUrls.length - newFiles.length;
       for (let i = 0; i < newFiles.length; i++) {
         const file = newFiles[i];
         status.textContent = `Загрузка ${i+1} из ${newFiles.length}...`;
