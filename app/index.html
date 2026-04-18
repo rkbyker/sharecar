@@ -171,10 +171,11 @@
     /* ── Bottom nav ─────────────────────────────── */
 
     /* ── List view ─────────────────────────────────── */
-    .feed-list .car-card { display:flex; flex-direction:row; height:100px; }
-    .feed-list .car-card .car-thumb { width:120px; min-width:120px; height:100px; border-radius:10px 0 0 10px; }
-    .feed-list .car-card .car-body { padding:10px 12px; display:flex; flex-direction:column; justify-content:center; }
-    .feed-list .car-card .car-price-row { margin-top:auto; }
+    .feed-list .feed-card { display:flex; flex-direction:row; height:100px; margin:0 12px 8px; }
+    .feed-list .feed-card .car-thumb { width:120px; min-width:120px; height:100px; border-radius:10px 0 0 10px; }
+    .feed-list .feed-card .car-body { padding:10px 12px; display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden; }
+    .feed-list .feed-card .car-price-row { margin-top:auto; }
+    .feed-list .feed-card .car-title { font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
     /* ── Filter overlay ─────────────────────────── */
     .filter-overlay {
