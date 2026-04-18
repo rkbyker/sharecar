@@ -170,6 +170,10 @@
 
     /* ── Bottom nav ─────────────────────────────── */
 
+    .filter-chips { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px; }
+    .f-chip { padding:6px 12px;border-radius:20px;border:1px solid #2a2a4a;color:#888;font-size:12px;cursor:pointer;background:#1a1a2e; }
+    .f-chip.active { border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1); }
+
     /* ── List view ─────────────────────────────────── */
     /* Grid 2-col view */
     .feed-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 12px 80px; }
@@ -292,6 +296,61 @@
       <div class="filter-label">Город</div>
       <input class="filter-input" id="f-city" placeholder="Например: Москва">
 
+      <div class="filter-label">Роль</div>
+      <div class="filter-chips">
+        <div class="f-chip active" data-val="" onclick="selectChip(this,'role')">Любая</div>
+        <div class="f-chip" data-val="driver" onclick="selectChip(this,'role')">🚗 Водитель</div>
+        <div class="f-chip" data-val="passenger" onclick="selectChip(this,'role')">👥 Пассажир</div>
+      </div>
+
+      <div class="filter-label">Тип поездки</div>
+      <div class="filter-chips">
+        <div class="f-chip active" data-val="" onclick="selectChip(this,'trip')">Любой</div>
+        <div class="f-chip" data-val="city" onclick="selectChip(this,'trip')">🚗 Город</div>
+        <div class="f-chip" data-val="ring" onclick="selectChip(this,'trip')">🏁 Кольцо</div>
+        <div class="f-chip" data-val="drift" onclick="selectChip(this,'trip')">💨 Дрифт</div>
+        <div class="f-chip" data-val="sport" onclick="selectChip(this,'trip')">🏎 Спорт</div>
+        <div class="f-chip" data-val="offroad" onclick="selectChip(this,'trip')">🚙 Оффроуд</div>
+        <div class="f-chip" data-val="business" onclick="selectChip(this,'trip')">🏢 Бизнес</div>
+      </div>
+
+      <div class="filter-label">Цвет</div>
+      <div class="filter-chips">
+        <div class="f-chip active" data-val="" onclick="selectChip(this,'color')">Любой</div>
+        <div class="f-chip" data-val="Белый" onclick="selectChip(this,'color')">⬜ Белый</div>
+        <div class="f-chip" data-val="Чёрный" onclick="selectChip(this,'color')">⬛ Чёрный</div>
+        <div class="f-chip" data-val="Серебристый" onclick="selectChip(this,'color')">🪙 Серебристый</div>
+        <div class="f-chip" data-val="Серый" onclick="selectChip(this,'color')">🩶 Серый</div>
+        <div class="f-chip" data-val="Красный" onclick="selectChip(this,'color')">🟥 Красный</div>
+        <div class="f-chip" data-val="Синий" onclick="selectChip(this,'color')">🟦 Синий</div>
+        <div class="f-chip" data-val="Жёлтый" onclick="selectChip(this,'color')">🟨 Жёлтый</div>
+        <div class="f-chip" data-val="Зелёный" onclick="selectChip(this,'color')">🟩 Зелёный</div>
+        <div class="f-chip" data-val="Оранжевый" onclick="selectChip(this,'color')">🟧 Оранжевый</div>
+      </div>
+
+      <div class="filter-label">Коробка передач</div>
+      <div class="filter-chips">
+        <div class="f-chip active" data-val="" onclick="selectChip(this,'trans')">Любая</div>
+        <div class="f-chip" data-val="AT" onclick="selectChip(this,'trans')">Автомат</div>
+        <div class="f-chip" data-val="MT" onclick="selectChip(this,'trans')">Механика</div>
+        <div class="f-chip" data-val="Robot" onclick="selectChip(this,'trans')">Робот</div>
+        <div class="f-chip" data-val="CVT" onclick="selectChip(this,'trans')">Вариатор</div>
+      </div>
+
+      <div class="filter-label">Привод</div>
+      <div class="filter-chips">
+        <div class="f-chip active" data-val="" onclick="selectChip(this,'drive')">Любой</div>
+        <div class="f-chip" data-val="FWD" onclick="selectChip(this,'drive')">Передний</div>
+        <div class="f-chip" data-val="RWD" onclick="selectChip(this,'drive')">Задний</div>
+        <div class="f-chip" data-val="AWD" onclick="selectChip(this,'drive')">Полный</div>
+      </div>
+
+      <div class="filter-label">Объём двигателя (л)</div>
+      <div class="filter-row">
+        <input class="filter-input" id="f-vol-min" type="number" step="0.1" placeholder="от">
+        <input class="filter-input" id="f-vol-max" type="number" step="0.1" placeholder="до">
+      </div>
+
       <div class="filter-label">Мощность (л.с.)</div>
       <div class="filter-row">
         <input class="filter-input" id="f-hp-min" type="number" placeholder="от">
@@ -354,6 +413,11 @@
     // Expose globals
     window.setClass = setClass;
     window.setSort = setSort;
+    window.selectChip = selectChip;
+    function selectChip(el, group) {
+      el.closest('.filter-chips').querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+    }
     window.toggleView = toggleView;
     window.toggleSort = toggleSort;
 
@@ -424,6 +488,14 @@
       if (filters.priceMin) query = query.gte('price_driver', filters.priceMin);
       if (filters.priceMax) query = query.lte('price_driver', filters.priceMax);
       if (filters.free) query = query.eq('is_free', true);
+      if (filters.color) query = query.ilike('color', `%${filters.color}%`);
+      if (filters.trans) query = query.eq('transmission', filters.trans);
+      if (filters.drive) query = query.eq('drive_type', filters.drive);
+      if (filters.volMin) query = query.gte('engine_volume', filters.volMin);
+      if (filters.volMax) query = query.lte('engine_volume', filters.volMax);
+      if (filters.role === 'driver') query = query.eq('allow_driver', true);
+      if (filters.role === 'passenger') query = query.eq('allow_passenger', true);
+      if (filters.trip) query = query.eq('car_class', filters.trip);
 
       // Sorting
       if (currentSort === 'new')        query = query.order('created_at', { ascending: false });
@@ -622,15 +694,28 @@
       document.getElementById('f-hp-max').value = '';
       document.getElementById('f-price-min').value = '';
       document.getElementById('f-price-max').value = '';
+      document.getElementById('f-vol-min').value = '';
+      document.getElementById('f-vol-max').value = '';
       document.getElementById('f-free').checked = false;
+      document.querySelectorAll('.filter-chips').forEach(group => {
+        group.querySelectorAll('.f-chip').forEach((c,i) => c.classList.toggle('active', i===0));
+      });
       filters = {};
       document.getElementById('filter-overlay').style.display = 'none';
       loadFeed();
       showToast('Фильтры сброшены');
     }
     function applyFilters() {
+      const getChip = (group) => document.querySelector(`.filter-chips .f-chip.active[onclick*="'${group}'"]`)?.dataset.val || null;
       filters = {
         city: document.getElementById('f-city').value.trim() || null,
+        role: getChip('role'),
+        trip: getChip('trip'),
+        color: getChip('color'),
+        trans: getChip('trans'),
+        drive: getChip('drive'),
+        volMin: document.getElementById('f-vol-min').value || null,
+        volMax: document.getElementById('f-vol-max').value || null,
         hpMin: document.getElementById('f-hp-min').value || null,
         hpMax: document.getElementById('f-hp-max').value || null,
         priceMin: document.getElementById('f-price-min').value || null,
