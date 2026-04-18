@@ -492,17 +492,17 @@
       const fill = document.getElementById('progress-fill');
       const status = document.getElementById('upload-status');
       prog.style.display = 'block';
+      const startIdx = uploadedPhotoUrls.length - newFiles.length;
       for (let i = 0; i < newFiles.length; i++) {
         const file = newFiles[i];
         status.textContent = `Загрузка ${i+1} из ${newFiles.length}...`;
         fill.style.width = ((i / newFiles.length) * 100) + '%';
         const ext = file.name.split('.').pop().toLowerCase();
-        const path = `${currentUser.id}/${Date.now()}_${i}.${ext}`;
-        const { error } = await supabase.storage.from('car-photos').upload(path, file);
-        const idx = uploadedPhotoUrls.findIndex(u => u.file === file);
-        if (error) { uploadedPhotoUrls.splice(idx, 1); showToast('Ошибка загрузки', 'error'); continue; }
-        const { data: { publicUrl } } = supabase.storage.from('car-photos').getPublicUrl(path);
-        uploadedPhotoUrls[idx] = publicUrl;
+        const storagePath = `${currentUser.id}/${Date.now()}_${i}.${ext}`;
+        const { error } = await supabase.storage.from('car-photos').upload(storagePath, file);
+        if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка загрузки', 'error'); continue; }
+        const { data: { publicUrl } } = supabase.storage.from('car-photos').getPublicUrl(storagePath);
+        uploadedPhotoUrls[startIdx + i] = publicUrl;
         renderPhotoPreview();
       }
       fill.style.width = '100%';
