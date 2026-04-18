@@ -643,15 +643,15 @@
       return `
         <div class="feed-card" data-id="${car.id}"
              data-class="${car.car_class}" data-hp="${car.horsepower||0}"
-             data-price="${car.price_driver||0}" data-free="${car.is_free}">
-          <div class="feed-photo" onclick="goPage('${cardLink}')">
+             data-price="${car.price_driver||0}" data-free="${car.is_free}"
+             onclick="goPage('${cardLink}')">
+          <div class="feed-photo">
             ${photoHtml}
             ${photos.length > 1 ? `<div class="photo-count">${photos.length} фото</div>` : ''}
-            <div class="badge-class">${CLASS_ICONS[car.car_class] || ''} ${car.car_class || ''}</div>
             ${car.is_free ? '<div class="badge-free">FREE</div>' : ''}
           </div>
           <div class="feed-body">
-            <div class="feed-title" onclick="goPage('${cardLink}')">${car.brand} ${car.model} ${car.year || ''}</div>
+            <div class="feed-title">${car.brand} ${car.model} ${car.year || ''}</div>
             <div class="feed-sub">${car.city || ''}${car.horsepower ? ' · ' + car.horsepower + ' л.с.' : ''}</div>
             <div class="feed-owner">
               <div class="owner-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};">
@@ -672,7 +672,7 @@
                   <i class="fa${isLiked ? 's' : 'r'} fa-heart"></i>
                   <span>${car.likes || 0}</span>
                 </button>
-                <button class="btn-open" onclick="goPage('${cardLink}')">Смотреть</button>
+
               </div>
             </div>
           </div>
@@ -797,6 +797,9 @@
       if (wasLiked) {
         likedIds.delete(carId);
         await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('car_id', carId);
+        // Обновляем счётчик в таблице cars
+        const { data: carRow } = await supabase.from('cars').select('likes').eq('id', carId).single();
+        if (carRow) await supabase.from('cars').update({ likes: Math.max(0, (carRow.likes||0) - 1) }).eq('id', carId);
         if (btn) {
           btn.classList.remove('liked');
           btn.querySelector('i').className = 'far fa-heart';
@@ -806,6 +809,9 @@
       } else {
         likedIds.add(carId);
         await supabase.from('likes').insert({ user_id: currentUser.id, car_id: carId });
+        // Обновляем счётчик в таблице cars
+        const { data: carRow } = await supabase.from('cars').select('likes').eq('id', carId).single();
+        if (carRow) await supabase.from('cars').update({ likes: (carRow.likes||0) + 1 }).eq('id', carId);
         if (btn) {
           btn.classList.add('liked');
           btn.querySelector('i').className = 'fas fa-heart';
