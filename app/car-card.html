@@ -491,6 +491,12 @@
       const isOwner = currentUser.id === car.owner_id;
       document.getElementById('owner-controls').style.display = isOwner ? 'block' : 'none';
       document.getElementById('apply-bar').style.display = isOwner ? 'none' : 'flex';
+      if (isOwner) {
+        const likeTop = document.getElementById('like-btn-top');
+        const likeBig = document.getElementById('btn-like-big');
+        if (likeTop) likeTop.style.display = 'none';
+        if (likeBig) likeBig.style.display = 'none';
+      }
 
       updateLikeBtnBig();
       document.getElementById('loader-wrap').style.display = 'none';
