@@ -567,7 +567,7 @@
         city:          document.getElementById('f-city').value.trim() || 'Москва',
         min_level:     document.getElementById('f-min-level').value,
         schedule:      document.getElementById('f-schedule').value.trim() || null,
-        photos:        uploadedPhotoUrls,
+        photos:        uploadedPhotoUrls.filter(u => typeof u === 'string' && u.startsWith('http')),
         account_type:  selectedClass === 'business' ? 'business' : 'personal',
       };
 
