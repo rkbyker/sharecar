@@ -321,17 +321,22 @@
 
   <script>
     function goPage(p) { window.location.href = p; }
-    let currentView = 'single';
     const viewStates = ['single','grid2','list'];
     const viewIcons = ['fa fa-th-large','fa fa-th','fa fa-list'];
     const viewClasses = ['feed-container','feed-container feed-grid2','feed-container feed-list'];
+    let currentView = localStorage.getItem('sc_view') || 'single';
+    function applyView() {
+      const idx = viewStates.indexOf(currentView);
+      document.getElementById('view-toggle-icon').className = viewIcons[idx];
+      document.getElementById('feed').className = viewClasses[idx];
+    }
     function toggleView() {
       const idx = viewStates.indexOf(currentView);
       currentView = viewStates[(idx+1) % viewStates.length];
-      const newIdx = viewStates.indexOf(currentView);
-      document.getElementById('view-toggle-icon').className = viewIcons[newIdx];
-      document.getElementById('feed').className = viewClasses[newIdx];
+      localStorage.setItem('sc_view', currentView);
+      applyView();
     }
+    applyView();
   </script>
   <script type="module">
     import { supabase, requireAuth, getProfile, getLevel, showToast } from '../js/supabase.js';
