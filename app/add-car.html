@@ -502,6 +502,7 @@
         const { error } = await supabase.storage.from('car-photos').upload(storagePath, file);
         if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка загрузки', 'error'); continue; }
         const { data: { publicUrl } } = supabase.storage.from('car-photos').getPublicUrl(storagePath);
+        console.log('publicUrl:', publicUrl);
         uploadedPhotoUrls[startIdx + i] = publicUrl;
         renderPhotoPreview();
       }
