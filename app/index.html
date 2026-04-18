@@ -171,6 +171,13 @@
     /* ── Bottom nav ─────────────────────────────── */
 
     /* ── List view ─────────────────────────────────── */
+    /* Grid 2-col view */
+    .feed-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 12px 80px; }
+    .feed-grid2 .feed-card { margin:0; border-radius:12px; }
+    .feed-grid2 .feed-card .car-title { font-size:12px; }
+    .feed-grid2 .feed-card .car-body { padding:8px 10px; }
+    .feed-grid2 .feed-card .owner-row { display:none; }
+
     .feed-list .feed-card { display:flex; flex-direction:row; height:100px; margin:0 12px 8px; }
     .feed-list .feed-card .car-thumb { width:120px; min-width:120px; height:100px; border-radius:10px 0 0 10px; }
     .feed-list .feed-card .car-body { padding:10px 12px; display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden; }
@@ -229,7 +236,7 @@
   <div class="top-bar">
     <div class="logo">Share<span>car</span></div>
     <div class="top-actions">
-      <button class="icon-btn" id="view-toggle-btn" onclick="toggleView()" title="Вид"><i class="fa fa-th" id="view-toggle-icon"></i></button>
+      <button class="icon-btn" id="view-toggle-btn" onclick="toggleView()" title="Вид"><i class="fa fa-th-large" id="view-toggle-icon"></i></button>
       <button class="icon-btn" onclick="showFilters()" title="Фильтры">
         <i class="fa fa-sliders-h"></i>
       </button>
@@ -313,11 +320,16 @@
 
   <script>
     function goPage(p) { window.location.href = p; }
-    let currentView = 'grid';
+    let currentView = 'single';
+    const viewStates = ['single','grid2','list'];
+    const viewIcons = ['fa fa-th-large','fa fa-th','fa fa-list'];
+    const viewClasses = ['feed-container','feed-container feed-grid2','feed-container feed-list'];
     function toggleView() {
-      currentView = currentView === 'grid' ? 'list' : 'grid';
-      document.getElementById('view-toggle-icon').className = currentView === 'grid' ? 'fa fa-th' : 'fa fa-list';
-      document.getElementById('feed').className = currentView === 'grid' ? 'feed-container' : 'feed-container feed-list';
+      const idx = viewStates.indexOf(currentView);
+      currentView = viewStates[(idx+1) % viewStates.length];
+      const newIdx = viewStates.indexOf(currentView);
+      document.getElementById('view-toggle-icon').className = viewIcons[newIdx];
+      document.getElementById('feed').className = viewClasses[newIdx];
     }
   </script>
   <script type="module">
