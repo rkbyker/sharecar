@@ -228,7 +228,12 @@
   <div id="profile-content" style="display:none;">
 
     <!-- HEADER -->
-    <div class="profile-header">
+    <div class="profile-header" style="position:relative;">
+      <button id="dots-btn" onclick="toggleDotsMenu()" style="position:absolute;top:12px;right:12px;background:none;border:none;color:#aaa;font-size:20px;cursor:pointer;z-index:10;">⋯</button>
+      <div id="dots-menu" style="display:none;position:absolute;top:44px;right:12px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:8px;z-index:100;min-width:160px;">
+        <div onclick="switchTab('favorites');toggleDotsMenu()" style="padding:10px 14px;cursor:pointer;color:#fff;font-size:14px;border-radius:8px;" onmouseover="this.style.background='#2a2a4a'" onmouseout="this.style.background='none'">❤️ Избранное</div>
+        <div onclick="switchTab('settings');toggleDotsMenu()" style="padding:10px 14px;cursor:pointer;color:#fff;font-size:14px;border-radius:8px;" onmouseover="this.style.background='#2a2a4a'" onmouseout="this.style.background='none'">⚙️ Настройки</div>
+      </div>
       <div class="avatar-wrap">
         <div class="avatar" id="avatar-el"></div>
         <div class="avatar-edit-btn" onclick="document.getElementById('avatar-input').click()">
@@ -284,7 +289,7 @@
       <button class="tab-btn" onclick="switchTab('trips')">📋 Поездки</button>
       <button class="tab-btn" onclick="switchTab('reviews')">⭐ Отзывы</button>
       <button class="tab-btn" onclick="switchTab('racing')">🏆 Гонки</button>
-      <button class="tab-btn" onclick="switchTab('settings')">⚙️ Настройки</button>
+
     </div>
 
     <!-- CARS TAB -->
@@ -340,6 +345,12 @@
     </div>
 
     <!-- SETTINGS TAB -->
+    <div class="tab-content" id="tab-favorites">
+      <div id="favorites-list">
+        <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+      </div>
+    </div>
+
     <div class="tab-content" id="tab-settings">
       <div class="settings-group">
         <div class="settings-label">Имя</div>
@@ -420,6 +431,46 @@
     ];
 
     window.switchTab = switchTab;
+
+    function toggleDotsMenu() {
+      const menu = document.getElementById('dots-menu');
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#dots-btn') && !e.target.closest('#dots-menu')) {
+        const menu = document.getElementById('dots-menu');
+        if (menu) menu.style.display = 'none';
+      }
+    });
+    window.toggleDotsMenu = toggleDotsMenu;
+
+    async function loadFavorites() {
+      if (!currentUser) return;
+      const list = document.getElementById('favorites-list');
+      list.innerHTML = '<div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>';
+      const { data: likes } = await supabase.from('likes').select('car_id').eq('user_id', currentUser.id);
+      if (!likes || !likes.length) {
+        list.innerHTML = '<div class="empty-state"><div class="icon">❤️</div><div>Нет избранных машин</div></div>';
+        return;
+      }
+      const ids = likes.map(l => l.car_id);
+      const { data: cars } = await supabase.from('cars').select('*').in('id', ids);
+      if (!cars || !cars.length) {
+        list.innerHTML = '<div class="empty-state"><div class="icon">❤️</div><div>Нет избранных машин</div></div>';
+        return;
+      }
+      list.innerHTML = cars.map(car => `
+        <div onclick="goPage('car-card.html?id=${car.id}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#141428;border-radius:12px;margin-bottom:10px;cursor:pointer;border:1px solid #1e1e3a;">
+          <div style="width:60px;height:60px;border-radius:8px;overflow:hidden;background:#1a1a2e;flex-shrink:0;">
+            ${car.photos && car.photos[0] ? `<img src="${car.photos[0]}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:24px;">🚗</div>'}
+          </div>
+          <div style="flex:1;overflow:hidden;">
+            <div style="font-weight:700;font-size:14px;">${car.brand} ${car.model} ${car.year||''}</div>
+            <div style="font-size:12px;color:#aaa;">${car.city||''} · ${car.horsepower||0} л.с.</div>
+            <div style="font-size:13px;color:#f59e0b;font-weight:700;">${car.price_driver ? car.price_driver.toLocaleString('ru') + ' ₽' : 'Бесплатно'}</div>
+          </div>
+        </div>`).join('');
+    }
     window.saveProfile = saveProfile;
     window.logout = logout;
     window.uploadAvatar = uploadAvatar;
