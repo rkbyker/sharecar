@@ -93,6 +93,10 @@
     }
     .feed-price { font-size: 18px; font-weight: 700; color: #f59e0b; }
     .feed-price .per { font-size: 12px; color: #666; font-weight: 400; }
+    .feed-price-block { display:flex; flex-direction:column; gap:2px; }
+    .feed-price-row { display:flex; align-items:center; gap:6px; }
+    .feed-price-label { font-size:11px; color:#aaa; }
+    .feed-price-val { font-size:14px; font-weight:700; color:#f59e0b; }
     .price-free { color: #22c55e; }
 
     .feed-actions { display: flex; gap: 8px; align-items: center; }
@@ -634,16 +638,22 @@
       if (car.is_free) {
         priceHtml = `<div class="feed-price price-free">Бесплатно</div>`;
       } else {
-        const p = car.price_driver || 0;
-        const discounted = discount > 0 ? Math.round(p * (1 - discount / 100)) : p;
-        if (discount > 0 && discounted < p) {
-          priceHtml = `<div class="feed-price">
-            <span style="text-decoration:line-through;color:#555;font-size:14px;">${p.toLocaleString('ru')} ₽</span>
-            ${discounted.toLocaleString('ru')} ₽ <span class="per">/ поездка</span>
-          </div>`;
-        } else {
-          priceHtml = `<div class="feed-price">${p.toLocaleString('ru')} ₽ <span class="per">/ поездка</span></div>`;
+        const rows = [];
+        if (car.has_driver_role && car.price_driver) {
+          const orig = car.price_driver;
+          const final = discount > 0 ? Math.round(orig * (1 - discount / 100)) : orig;
+          rows.push(`<div class="feed-price-row"><span class="feed-price-label">🚗 За рулём</span><span class="feed-price-val">${final.toLocaleString('ru')} ₽</span></div>`);
         }
+        if (car.has_passenger_role && car.price_passenger) {
+          const orig = car.price_passenger;
+          const final = discount > 0 ? Math.round(orig * (1 - discount / 100)) : orig;
+          rows.push(`<div class="feed-price-row"><span class="feed-price-label">👤 Пассажир</span><span class="feed-price-val">${final.toLocaleString('ru')} ₽</span></div>`);
+        }
+        if (rows.length === 0) {
+          const p = car.price_driver || 0;
+          rows.push(`<div class="feed-price-row"><span class="feed-price-val">${p.toLocaleString('ru')} ₽</span></div>`);
+        }
+        priceHtml = `<div class="feed-price-block">${rows.join('')}</div>`;
       }
 
       // Tags
