@@ -197,7 +197,9 @@
     .feed-list .feed-card { display:flex; flex-direction:row; height:100px; margin:0 12px 8px; }
     .feed-list .feed-card .feed-photo { width:120px; min-width:120px; height:100px; border-radius:10px 0 0 10px; }
     .feed-list .feed-card .feed-body { padding:8px 12px; display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden; }
-    .feed-list .feed-card .feed-title { font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px; }
+    .feed-list .feed-card .feed-list-top { display:flex; justify-content:space-between; align-items:flex-start; gap:6px; }
+    .feed-list .feed-card .feed-title { font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; margin-bottom:2px; }
+    .feed-list .feed-card .feed-city { font-size:11px; color:#aaa; white-space:nowrap; flex-shrink:0; }
     .feed-list .feed-card .feed-sub { font-size:11px; color:#aaa; margin-bottom:2px; }
     .feed-list .feed-card .feed-owner { display:none; }
     .feed-list .feed-card .feed-tags { display:none; }
@@ -666,8 +668,11 @@
             ${car.is_free ? '<div class="badge-free">FREE</div>' : ''}
           </div>
           <div class="feed-body">
-            <div class="feed-title">${car.brand} ${car.model} ${car.year || ''}</div>
-            <div class="feed-sub">${car.city || ''}${car.horsepower ? ' · ' + car.horsepower + ' л.с.' : ''}</div>
+            <div class="feed-list-top">
+              <div class="feed-title">${car.brand} ${car.model} ${car.year || ''}</div>
+              ${car.city ? `<div class="feed-city">${car.city}</div>` : ''}
+            </div>
+            <div class="feed-sub">${car.horsepower ? '⚡ ' + car.horsepower + ' л.с.' : ''}${car.car_class ? ' · ' + (CLASS_ICONS[car.car_class]||'') + ' ' + car.car_class : ''}</div>
             <div class="feed-owner">
               <div class="owner-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};">
                 <span style="color:${lvlColor}">${initials}</span>
