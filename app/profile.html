@@ -775,6 +775,7 @@
       });
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       document.getElementById('tab-' + tab).classList.add('active');
+      if (tab === 'favorites') loadFavorites();
     }
 
     async function saveProfile() {
