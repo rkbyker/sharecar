@@ -827,26 +827,26 @@
       if (wasLiked) {
         likedIds.delete(carId);
         await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('car_id', carId);
-        // Обновляем счётчик в таблице cars
-        const { data: carRow } = await supabase.from('cars').select('likes').eq('id', carId).single();
-        if (carRow) await supabase.from('cars').update({ likes: Math.max(0, (carRow.likes||0) - 1) }).eq('id', carId);
+        // Считаем реальное количество лайков
+        const { count } = await supabase.from('likes').select('*', { count: 'exact', head: true }).eq('car_id', carId);
+        await supabase.from('cars').update({ likes: count || 0 }).eq('id', carId);
         if (btn) {
           btn.classList.remove('liked');
           btn.querySelector('i').className = 'far fa-heart';
           const cnt = btn.querySelector('span');
-          cnt.textContent = Math.max(0, parseInt(cnt.textContent) - 1);
+          cnt.textContent = count || 0;
         }
       } else {
         likedIds.add(carId);
         await supabase.from('likes').insert({ user_id: currentUser.id, car_id: carId });
-        // Обновляем счётчик в таблице cars
-        const { data: carRow } = await supabase.from('cars').select('likes').eq('id', carId).single();
-        if (carRow) await supabase.from('cars').update({ likes: (carRow.likes||0) + 1 }).eq('id', carId);
+        // Считаем реальное количество лайков
+        const { count } = await supabase.from('likes').select('*', { count: 'exact', head: true }).eq('car_id', carId);
+        await supabase.from('cars').update({ likes: count || 0 }).eq('id', carId);
         if (btn) {
           btn.classList.add('liked');
           btn.querySelector('i').className = 'fas fa-heart';
           const cnt = btn.querySelector('span');
-          cnt.textContent = parseInt(cnt.textContent) + 1;
+          cnt.textContent = count || 0;
         }
       }
     }

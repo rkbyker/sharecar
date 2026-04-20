@@ -588,16 +588,16 @@
     }
 
     async function toggleLike() {
-      const { data: carRow } = await supabase.from('cars').select('likes').eq('id', CAR_ID).single();
       if (isLiked) {
         await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('car_id', CAR_ID);
-        if (carRow) await supabase.from('cars').update({ likes: Math.max(0, (carRow.likes||0) - 1) }).eq('id', CAR_ID);
         isLiked = false;
       } else {
         await supabase.from('likes').insert({ user_id: currentUser.id, car_id: CAR_ID });
-        if (carRow) await supabase.from('cars').update({ likes: (carRow.likes||0) + 1 }).eq('id', CAR_ID);
         isLiked = true;
       }
+      // Считаем реальное количество лайков
+      const { count } = await supabase.from('likes').select('*', { count: 'exact', head: true }).eq('car_id', CAR_ID);
+      await supabase.from('cars').update({ likes: count || 0 }).eq('id', CAR_ID);
       updateLikeBtnTop();
       updateLikeBtnBig();
     }
