@@ -195,10 +195,16 @@
     .fdot.active { background:#fff; }
 
     .feed-list .feed-card { display:flex; flex-direction:row; height:100px; margin:0 12px 8px; }
-    .feed-list .feed-card .car-thumb { width:120px; min-width:120px; height:100px; border-radius:10px 0 0 10px; }
-    .feed-list .feed-card .car-body { padding:10px 12px; display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden; }
-    .feed-list .feed-card .car-price-row { margin-top:auto; }
-    .feed-list .feed-card .car-title { font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .feed-list .feed-card .feed-photo { width:120px; min-width:120px; height:100px; border-radius:10px 0 0 10px; }
+    .feed-list .feed-card .feed-body { padding:8px 12px; display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden; }
+    .feed-list .feed-card .feed-title { font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px; }
+    .feed-list .feed-card .feed-sub { font-size:11px; color:#aaa; margin-bottom:2px; }
+    .feed-list .feed-card .feed-owner { display:none; }
+    .feed-list .feed-card .feed-tags { display:none; }
+    .feed-list .feed-card .feed-footer { margin-top:auto; display:flex; align-items:center; justify-content:space-between; }
+    .feed-list .feed-card .feed-price { font-size:12px; }
+    .feed-list .feed-card .btn-like span { display:none; }
+    .feed-list .feed-card .per { display:none; }
 
     /* ── Filter overlay ─────────────────────────── */
     .filter-overlay {
