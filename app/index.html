@@ -181,6 +181,15 @@
     .feed-grid2 .feed-card .car-title { font-size:12px; }
     .feed-grid2 .feed-card .car-body { padding:8px 10px; }
     .feed-grid2 .feed-card .owner-row { display:none; }
+    .feed-grid2 .feed-card .feed-owner { display:none; }
+    .feed-grid2 .feed-card .feed-tags { display:none; }
+    .feed-grid2 .feed-card .feed-sub { display:none; }
+    .feed-grid2 .feed-card .feed-title { font-size:12px; font-weight:600; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .feed-grid2 .feed-card .feed-footer { flex-direction:column; gap:4px; align-items:flex-start; }
+    .feed-grid2 .feed-card .feed-price { font-size:12px; }
+    .feed-grid2 .feed-card .feed-actions { width:100%; justify-content:flex-end; }
+    .feed-grid2 .feed-card .btn-like span { display:none; }
+    .feed-grid2 .feed-card .badge-grid2 { display:inline-block; font-size:10px; background:#1e1e3a; color:#aaa; border-radius:6px; padding:2px 6px; margin-bottom:4px; }
 
     .fdot { width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.4); }
     .fdot.active { background:#fff; }
@@ -662,6 +671,7 @@
                 ${level.charAt(0).toUpperCase() + level.slice(1)}
               </span>
             </div>
+            <span class="badge-grid2">${CLASS_ICONS[car.car_class] || ''} ${car.car_class || ''}</span>
             <div class="feed-tags">${tagsHtml}</div>
             <div class="feed-footer">
               ${priceHtml}
