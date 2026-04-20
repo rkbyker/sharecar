@@ -820,16 +820,13 @@
 
     // ── Like ───────────────────────────────────────────────────────────────────
     async function toggleLike(carId) {
-      console.log('toggleLike called', carId, 'user:', currentUser?.id);
       if (!currentUser) { showToast('Войдите, чтобы лайкать', 'warn'); return; }
       const wasLiked = likedIds.has(carId);
       const btn = document.getElementById(`like-${carId}`);
-      console.log('wasLiked:', wasLiked, 'btn:', btn);
 
       if (wasLiked) {
         likedIds.delete(carId);
-        const { error: delErr } = await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('car_id', carId);
-        console.log('delete error:', delErr);
+        await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('car_id', carId);
         // Считаем реальное количество лайков
         const { count } = await supabase.from('likes').select('*', { count: 'exact', head: true }).eq('car_id', carId);
         await supabase.from('cars').update({ likes: count || 0 }).eq('id', carId);
