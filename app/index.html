@@ -648,10 +648,10 @@
 
       // Tags
       const tags = [];
-      if (car.horsepower) tags.push(`⚡ ${car.horsepower} л.с.`);
+      
       if (car.city) tags.push(`📍 ${car.city}`);
-      if (car.car_class) tags.push(CLASS_ICONS[car.car_class] + ' ' + car.car_class);
-      const tagsHtml = tags.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('');
+      
+      const tagsHtml = tags.map(t => `<span class="tag">${t}</span>`).join('');
 
       const cardLink = car.account_type === 'business'
         ? `business-card.html?id=${car.id}`
