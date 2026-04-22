@@ -539,7 +539,7 @@
         .select(`
           *,
           profiles:owner_id (
-            id, first_name, last_name, level, account_type, org_name, rating_driver, trips_driven
+            id, first_name, last_name, level, account_type, org_name, rating_driver, trips_driven, avatar_url
           )
         `)
         .eq('status', 'published');

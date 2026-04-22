@@ -465,8 +465,8 @@
         : `<span style="color:${lvlColor};">${initials}</span>`;
 
       document.getElementById('owner-block').innerHTML = `
-        <div class="owner-avatar" style="background:${lvlColor}20;border:2px solid ${lvlColor};cursor:${owner.avatar_url ? 'pointer' : 'default'};"
-          onclick="${owner.avatar_url ? `showLightbox('${owner.avatar_url}')` : ''}">
+        <div class="owner-avatar" style="background:${lvlColor}20;border:2px solid ${lvlColor};${owner.avatar_url ? 'cursor:pointer;' : ''}"
+          ${owner.avatar_url ? `onclick="showLightbox('${owner.avatar_url}')"` : ''}>
           ${avatarContent}
         </div>
         <div class="owner-info">
