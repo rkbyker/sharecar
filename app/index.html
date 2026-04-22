@@ -613,6 +613,7 @@
 
     function buildCard(car, idx) {
       const owner = car.profiles || {};
+      console.log('owner:', owner.first_name, 'avatar:', owner.avatar_url);
       const ownerName = owner.org_name || `${owner.first_name || ''} ${owner.last_name || ''}`.trim() || 'Владелец';
       const initials = ownerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
       const level = owner.level || 'bronze';
