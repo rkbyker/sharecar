@@ -296,6 +296,7 @@
       renderHeader();
       await loadMessages();
       setupRealtime();
+      renderReviewBtn();
 
       document.getElementById('loader-full').style.display = 'none';
       document.getElementById('chat-wrap').style.display = 'flex';
@@ -514,7 +515,48 @@
       appendSystemMsg(`✅ Поездка подтверждена владельцем${creditsForOwner > 0 ? ` · +${creditsForOwner} кредитов` : ''}`);
       document.getElementById('owner-done-btn')?.remove();
       showToast(creditsForOwner > 0 ? `+${creditsForOwner} кредитов!` : 'Поездка завершена!', 'success');
+
+      // Системное сообщение про отзыв
+      await supabase.from('messages').insert({
+        request_id: REQUEST_ID,
+        sender_id: currentUser.id,
+        content: '⭐ Поездка завершена! Вы сможете оставить отзыв через 24 часа.',
+        is_system: true,
+      });
+      renderReviewBtn();
     };
+
+    function renderReviewBtn() {
+      // Показываем кнопку отзыва если поездка завершена и прошло 24ч
+      if (!request || request.status !== 'completed') return;
+      if (request.user_confirmed) return; // уже оставил отзыв
+
+      const completedAt = request.owner_confirmed_at ? new Date(request.owner_confirmed_at) : null;
+      const now = new Date();
+      const hoursLeft = completedAt ? Math.max(0, 24 - (now - completedAt) / 3600000) : 24;
+
+      const existing = document.getElementById('review-btn-wrap');
+      if (existing) existing.remove();
+
+      const wrap = document.createElement('div');
+      wrap.id = 'review-btn-wrap';
+      wrap.style.cssText = 'padding:12px 16px;border-top:1px solid #1e1e3a;';
+
+      if (hoursLeft > 0) {
+        const h = Math.ceil(hoursLeft);
+        wrap.innerHTML = `<div style="text-align:center;color:#888;font-size:13px;padding:8px;">
+          ⭐ Отзыв можно оставить через ${h} ч.
+        </div>`;
+      } else {
+        wrap.innerHTML = `<button onclick="openRatingModal()" style="width:100%;padding:12px;background:#f59e0b;color:#000;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">
+          ⭐ Оставить отзыв
+        </button>`;
+      }
+
+      // Вставляем перед quick-replies
+      const qr = document.getElementById('quick-replies');
+      if (qr) qr.parentNode.insertBefore(wrap, qr);
+    }
 
     window.openRatingModal = function() {
       document.getElementById('rating-car-name').textContent = car ? `${car.brand} ${car.model}` : '';
