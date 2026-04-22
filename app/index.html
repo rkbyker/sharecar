@@ -100,6 +100,22 @@
     .price-free { color: #22c55e; }
 
     .feed-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-write {
+      background: #f59e0b;
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      font-size: 16px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .feed-grid2 .feed-card .btn-write { width:30px; height:30px; font-size:13px; }
+    .feed-list .feed-card .btn-write { display:none; }
     .btn-like {
       background: none; border: none; cursor: pointer;
       color: #555; font-size: 15px; padding: 4px;
@@ -698,13 +714,16 @@
             <div class="feed-footer">
               ${priceHtml}
               <div class="feed-actions">
+                ${currentUser && car.profiles && car.profiles.id !== currentUser.id ? `
+                <button class="btn-write" onclick="event.stopPropagation();goPage('car-card.html?id=${car.id}')">
+                  💬
+                </button>` : ''}
                 <button class="btn-like ${isLiked ? 'liked' : ''}"
                         id="like-${car.id}"
                         onclick="event.stopPropagation();toggleLike('${car.id}')">
                   <i class="fa${isLiked ? 's' : 'r'} fa-heart"></i>
                   <span>${car.likes || 0}</span>
                 </button>
-
               </div>
             </div>
           </div>
