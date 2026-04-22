@@ -663,10 +663,15 @@
               <div class="trip-date">${dt}</div>
               <div class="trip-price">${t.price ? t.price.toLocaleString('ru') + ' ₽' : 'Бесплатно'}</div>
             </div>
-            ${t.status === 'accepted' ? `
+            ${['pending','accepted','completed'].includes(t.status) ? `
               <button onclick="openChat('${t.id}')"
                 style="width:100%;margin-top:8px;padding:8px;background:#3b82f6;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">
-                Открыть чат
+                💬 Открыть чат
+              </button>` : ''}
+            ${t.status === 'pending' ? `
+              <button onclick="cancelTrip('${t.id}')"
+                style="width:100%;margin-top:6px;padding:8px;background:#1e1e3a;color:#ef4444;border:1px solid #ef4444;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">
+                ✕ Отменить заявку
               </button>` : ''}
             ${t.status === 'completed' && !t.user_confirmed ? `
               <button onclick="confirmTrip('${t.id}')"
@@ -820,6 +825,13 @@
     }
 
     window.openChat = (reqId) => goPage(`chat.html?request=${reqId}`);
+    window.cancelTrip = async (reqId) => {
+      if (!confirm('Отменить заявку?')) return;
+      await supabase.from('requests').update({ status: 'cancelled' }).eq('id', reqId);
+      showToast('Заявка отменена', 'warn');
+      loadTrips();
+    };
+
     window.confirmTrip = async (reqId) => {
       await supabase.from('requests').update({ user_confirmed: true, status: 'completed' }).eq('id', reqId);
       showToast('Поездка подтверждена! Оставьте отзыв.', 'success');
