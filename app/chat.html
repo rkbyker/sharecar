@@ -330,7 +330,7 @@
         ? ['Когда вам удобно?', 'Расскажите о себе', 'Место встречи скоро напишу']
         : ['Когда удобно?', 'Где встречаемся?', 'Готов к поездке', 'Спасибо за поездку!'];
       document.getElementById('quick-replies').innerHTML = quickReplies
-        .map(t => `<div class="qr-btn" onclick="sendQuick('${t}')">${t}</div>`).join('');
+        .map(t => `<div class="qr-btn" onclick="insertQuick('${t}')">${t}</div>`).join('');
 
       // Action banners for owner
       if (isOwner && request.status === 'pending') {
@@ -440,15 +440,9 @@
       scrollBottom();
     }
 
-    window.sendQuick = async function(text) {
-      const { error } = await supabase.from('messages').insert({
-        request_id: REQUEST_ID,
-        sender_id: currentUser.id,
-        content: text,
-      });
-      if (error) { showToast('Ошибка отправки', 'error'); return; }
-      await loadMessages();
-      scrollBottom();
+    window.insertQuick = function(text) {
+      const input = document.getElementById('msg-input');
+      if (input) { input.value = text; input.focus(); }
     };
 
     window.acceptRequest = async function() {
