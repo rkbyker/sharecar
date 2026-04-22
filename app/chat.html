@@ -431,14 +431,31 @@
       input.value = '';
       autoResize(input);
 
-      const { error } = await supabase.from('messages').insert({
+      // Показываем сообщение сразу (оптимистично)
+      const tempMsg = {
+        id: 'temp-' + Date.now(),
+        sender_id: currentUser.id,
+        content: text,
+        created_at: new Date().toISOString(),
+      };
+      appendMessage(tempMsg);
+      scrollBottom();
+
+      const { data: saved, error } = await supabase.from('messages').insert({
         request_id: REQUEST_ID,
         sender_id: currentUser.id,
         content: text,
-      });
+      }).select().single();
 
-      if (error) { showToast('Ошибка отправки', 'error'); return; }
-      scrollBottom();
+      if (error) {
+        showToast('Ошибка отправки', 'error');
+        document.querySelector(`[data-id="${tempMsg.id}"]`)?.remove();
+        return;
+      }
+
+      // Заменяем временное сообщение на настоящее
+      const tempEl = document.querySelector(`[data-id="${tempMsg.id}"]`);
+      if (tempEl && saved) tempEl.setAttribute('data-id', saved.id);
     }
 
     window.insertQuick = function(text) {
