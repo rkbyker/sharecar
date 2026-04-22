@@ -613,9 +613,11 @@
 
     function buildCard(car, idx) {
       const owner = car.profiles || {};
-      console.log('owner:', owner.first_name, 'avatar:', owner.avatar_url);
       const ownerName = owner.org_name || `${owner.first_name || ''} ${owner.last_name || ''}`.trim() || 'Владелец';
       const initials = ownerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
+      const avatarHtml = owner.avatar_url
+        ? '<img src="' + owner.avatar_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+        : '<span style="color:' + (LEVEL_COLORS[owner.level || 'bronze'] || '#888') + '">' + initials + '</span>';
       const level = owner.level || 'bronze';
       const lvlColor = LEVEL_COLORS[level] || '#888';
       const isLiked = likedIds.has(car.id);
@@ -686,7 +688,7 @@
             <div class="feed-sub">${car.horsepower ? '⚡ ' + car.horsepower + ' л.с.' : ''}${car.car_class ? ' · ' + (CLASS_ICONS[car.car_class]||'') + ' ' + car.car_class : ''}</div>
             <div class="feed-owner">
               <div class="owner-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};overflow:hidden;">
-                ${owner.avatar_url ? '<img src="' + owner.avatar_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' : '<span style="color:' + lvlColor + '">' + initials + '</span>'}
+                ${avatarHtml}
               </div>
               <span class="owner-name">${ownerName}</span>
               <span class="owner-badge" style="background:${lvlColor}20;color:${lvlColor};">
