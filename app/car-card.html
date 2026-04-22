@@ -517,21 +517,6 @@
         }
       }
 
-      // Check existing request
-      if (!isOwner) {
-        const { data: existingReq } = await supabase
-          .from('requests')
-          .select('id')
-          .eq('car_id', CAR_ID)
-          .eq('requester_id', currentUser.id)
-          .maybeSingle();
-        if (existingReq) {
-          document.getElementById('btn-apply').style.display = 'none';
-          document.getElementById('btn-msg').style.display = 'flex';
-          window._existingReqId = existingReq.id;
-        }
-      }
-
       // Owner controls or apply bar
       const isOwner = currentUser.id === car.owner_id;
       document.getElementById('owner-controls').style.display = isOwner ? 'block' : 'none';
