@@ -509,17 +509,15 @@
 
       // Check existing request
       if (!isOwner) {
-        const { data: existingReq } = await supabase
-          .from('requests')
-          .select('id')
-          .eq('car_id', CAR_ID)
-          .eq('requester_id', currentUser.id)
-          .maybeSingle();
-        if (existingReq) {
-          document.getElementById('btn-apply').style.display = 'none';
-          document.getElementById('btn-msg').style.display = 'flex';
-          window._existingReqId = existingReq.id;
-        }
+        supabase.from('requests').select('id')
+          .eq('car_id', CAR_ID).eq('requester_id', currentUser.id)
+          .maybeSingle().then(function(res) {
+            if (res.data) {
+              document.getElementById('btn-apply').style.display = 'none';
+              document.getElementById('btn-msg').style.display = 'flex';
+              window._existingReqId = res.data.id;
+            }
+          });
       }
       if (isOwner) {
         const likeTop = document.getElementById('like-btn-top');
