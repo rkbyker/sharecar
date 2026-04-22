@@ -684,8 +684,10 @@
             </div>
             <div class="feed-sub">${car.horsepower ? '⚡ ' + car.horsepower + ' л.с.' : ''}${car.car_class ? ' · ' + (CLASS_ICONS[car.car_class]||'') + ' ' + car.car_class : ''}</div>
             <div class="feed-owner">
-              <div class="owner-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};">
-                <span style="color:${lvlColor}">${initials}</span>
+              <div class="owner-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};overflow:hidden;">
+                ${owner.avatar_url
+                  ? `<img src="${owner.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                  : `<span style="color:${lvlColor}">${initials}</span>`}
               </div>
               <span class="owner-name">${ownerName}</span>
               <span class="owner-badge" style="background:${lvlColor}20;color:${lvlColor};">

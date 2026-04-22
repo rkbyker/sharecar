@@ -203,6 +203,12 @@
     .loader-wrap i { font-size: 32px; animation: spin .8s linear infinite; color: #f59e0b; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
+  <style>
+    .lightbox { display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.9);z-index:9999;align-items:center;justify-content:center; }
+    .lightbox.active { display:flex; }
+    .lightbox img { max-width:90vw;max-height:90vh;border-radius:12px;object-fit:contain; }
+    .lightbox-close { position:absolute;top:16px;right:16px;color:#fff;font-size:28px;cursor:pointer;background:none;border:none; }
+  </style>
 </head>
 <body>
 
@@ -318,6 +324,12 @@
 
     window.slideGallery = slideGallery;
     window.toggleLike = toggleLike;
+
+    function showLightbox(url) {
+      document.getElementById('lightbox-img').src = url;
+      document.getElementById('lightbox').classList.add('active');
+    }
+    window.showLightbox = showLightbox;
     window.openApplyModal = openApplyModal;
     window.closeApplyModal = closeApplyModal;
     window.submitRequest = submitRequest;
@@ -453,7 +465,8 @@
         : `<span style="color:${lvlColor};">${initials}</span>`;
 
       document.getElementById('owner-block').innerHTML = `
-        <div class="owner-avatar" style="background:${lvlColor}20;border:2px solid ${lvlColor};">
+        <div class="owner-avatar" style="background:${lvlColor}20;border:2px solid ${lvlColor};cursor:${owner.avatar_url ? 'pointer' : 'default'};"
+          onclick="${owner.avatar_url ? `showLightbox('${owner.avatar_url}')` : ''}">
           ${avatarContent}
         </div>
         <div class="owner-info">
@@ -709,5 +722,9 @@
       if (dy > 80) { showToast('🔄 Обновление...'); setTimeout(() => init(), 300); }
     }, { passive: true });
   </script>
+  <div class="lightbox" id="lightbox" onclick="document.getElementById('lightbox').classList.remove('active')">
+    <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('active')">✕</button>
+    <img id="lightbox-img" src="" alt="Фото профиля">
+  </div>
 </body>
 </html>
