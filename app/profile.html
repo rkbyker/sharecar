@@ -232,6 +232,7 @@
       <button id="dots-btn" onclick="toggleDotsMenu()" style="position:absolute;top:12px;right:12px;background:none;border:none;color:#aaa;font-size:20px;cursor:pointer;z-index:10;">⋯</button>
       <div id="dots-menu" style="display:none;position:absolute;top:44px;right:12px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:8px;z-index:100;min-width:160px;">
         <div onclick="switchTab('favorites');toggleDotsMenu()" style="padding:10px 14px;cursor:pointer;color:#fff;font-size:14px;border-radius:8px;" onmouseover="this.style.background='#2a2a4a'" onmouseout="this.style.background='none'">❤️ Избранное</div>
+        <div onclick="goPage('messages.html');toggleDotsMenu()" style="padding:10px 14px;cursor:pointer;color:#fff;font-size:14px;border-radius:8px;" onmouseover="this.style.background='#2a2a4a'" onmouseout="this.style.background='none'">💬 Сообщения</div>
         <div onclick="switchTab('settings');toggleDotsMenu()" style="padding:10px 14px;cursor:pointer;color:#fff;font-size:14px;border-radius:8px;" onmouseover="this.style.background='#2a2a4a'" onmouseout="this.style.background='none'">⚙️ Настройки</div>
       </div>
       <div class="avatar-wrap">
@@ -776,6 +777,9 @@
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       document.getElementById('tab-' + tab).classList.add('active');
       if (tab === 'favorites') loadFavorites();
+      if (tab === 'trips') loadTrips();
+      if (tab === 'reviews') loadReviews();
+      if (tab === 'racing') loadRacing && loadRacing();
     }
 
     async function saveProfile() {
