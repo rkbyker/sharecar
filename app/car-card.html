@@ -502,6 +502,11 @@
           car.hashtags.map(t => `<span class="hashtag">#${t}</span>`).join('');
       }
 
+      // Owner controls or apply bar
+      const isOwner = currentUser.id === car.owner_id;
+      document.getElementById('owner-controls').style.display = isOwner ? 'block' : 'none';
+      document.getElementById('apply-bar').style.display = isOwner ? 'none' : 'flex';
+
       // Check existing request
       if (!isOwner) {
         const { data: existingReq } = await supabase
@@ -516,11 +521,6 @@
           window._existingReqId = existingReq.id;
         }
       }
-
-      // Owner controls or apply bar
-      const isOwner = currentUser.id === car.owner_id;
-      document.getElementById('owner-controls').style.display = isOwner ? 'block' : 'none';
-      document.getElementById('apply-bar').style.display = isOwner ? 'none' : 'flex';
       if (isOwner) {
         const likeTop = document.getElementById('like-btn-top');
         const likeBig = document.getElementById('btn-like-big');
