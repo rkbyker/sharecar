@@ -570,10 +570,10 @@
         const dt = new Date(r.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'short' });
         return `
           <div class="review-item">
-            <div class="review-header">
+            <div class="review-header" onclick="goPage('user-profile.html?id=${r.reviewer_id}')" style="cursor:pointer;">
               <div class="review-avatar">${rname[0] || '?'}</div>
               <div>
-                <div style="font-size:13px;font-weight:600;">${rname}</div>
+                <div style="font-size:13px;font-weight:600;">${rname} <span style="font-size:11px;color:#f59e0b;">→</span></div>
                 <div class="review-stars">${stars}</div>
               </div>
               <div style="margin-left:auto;font-size:11px;color:#555;">${dt}</div>

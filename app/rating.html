@@ -498,7 +498,7 @@
         const lvlColor = LEVEL_COLORS[p.level] || '#888';
         const pts = p.score || p.trips_drove || p.totalPts || 0;
         return `
-          <div class="podium-item ${pl.cls}" style="order:${pl.order}">
+          <div class="podium-item ${pl.cls}" style="order:${pl.order};cursor:pointer;" onclick="goPage('${currentUser && p.id === currentUser.id ? 'profile.html' : 'user-profile.html?id=' + p.id}')">
             <div class="podium-place">${pl.icon}</div>
             <div class="podium-avatar" style="width:${pl.size}px;height:${pl.size}px;background:${lvlColor}20;border:2px solid ${lvlColor};">
               ${p.avatar_url ? `<img src="${p.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : `<span style="color:${lvlColor};">${initials}</span>`}
@@ -528,7 +528,7 @@
           ? `${p.trips_driven || 0} поездок · ★ ${(p.rating_driver || 5).toFixed(1)}`
           : `${p.trips_rode || 0} пассажиром · ★ ${(p.rating_passenger || 5).toFixed(1)}`;
         return `
-          <div class="rt-row${isMe ? ' me' : ''}">
+          <div class="rt-row${isMe ? ' me' : ''}" onclick="goPage('${isMe ? 'profile.html' : 'user-profile.html?id=' + p.id}')" style="cursor:pointer;">
             <div class="rt-rank ${rankClass}">${rankIcon || (i + 1)}</div>
             <div class="rt-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};">
               ${p.avatar_url ? `<img src="${p.avatar_url}" alt="${name}">` : `<span style="color:${lvlColor};">${initials}</span>`}
