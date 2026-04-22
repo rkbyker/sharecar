@@ -585,6 +585,7 @@
       }
 
       allCars = cars || [];
+      if (allCars[0]) console.log('first car owner:', JSON.stringify(allCars[0].profiles));
       renderFeed();
     }
 
