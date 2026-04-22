@@ -441,11 +441,13 @@
     }
 
     window.sendQuick = async function(text) {
-      await supabase.from('messages').insert({
+      const { error } = await supabase.from('messages').insert({
         request_id: REQUEST_ID,
         sender_id: currentUser.id,
         content: text,
       });
+      if (error) { showToast('Ошибка отправки', 'error'); return; }
+      await loadMessages();
       scrollBottom();
     };
 

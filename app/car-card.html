@@ -148,6 +148,7 @@
       cursor: pointer;
     }
     .btn-apply:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-msg { background: #1e1e3a; border: 1px solid #f59e0b; color: #f59e0b; }
     .btn-like-big {
       width: 52px; height: 52px; background: #141428;
       border: 1px solid #2a2a4a; border-radius: 12px;
@@ -281,6 +282,7 @@
   <!-- APPLY BAR -->
   <div class="apply-bar" id="apply-bar" style="display:none;">
     <button class="btn-like-big" id="btn-like-big" onclick="toggleLike()"><i class="far fa-heart"></i></button>
+    <button class="btn-apply btn-msg" id="btn-msg" style="display:none;" onclick="goToChat()">💬 Написать</button>
     <button class="btn-apply" id="btn-apply" onclick="openApplyModal()">Подать заявку</button>
   </div>
 
@@ -500,6 +502,36 @@
           car.hashtags.map(t => `<span class="hashtag">#${t}</span>`).join('');
       }
 
+      // Check existing request
+      if (!isOwner) {
+        const { data: existingReq } = await supabase
+          .from('requests')
+          .select('id')
+          .eq('car_id', CAR_ID)
+          .eq('requester_id', currentUser.id)
+          .maybeSingle();
+        if (existingReq) {
+          document.getElementById('btn-apply').style.display = 'none';
+          document.getElementById('btn-msg').style.display = 'flex';
+          window._existingReqId = existingReq.id;
+        }
+      }
+
+      // Check existing request
+      if (!isOwner) {
+        const { data: existingReq } = await supabase
+          .from('requests')
+          .select('id')
+          .eq('car_id', CAR_ID)
+          .eq('requester_id', currentUser.id)
+          .maybeSingle();
+        if (existingReq) {
+          document.getElementById('btn-apply').style.display = 'none';
+          document.getElementById('btn-msg').style.display = 'flex';
+          window._existingReqId = existingReq.id;
+        }
+      }
+
       // Owner controls or apply bar
       const isOwner = currentUser.id === car.owner_id;
       document.getElementById('owner-controls').style.display = isOwner ? 'block' : 'none';
@@ -699,6 +731,11 @@
       showToast('✅ Заявка отправлена!', 'success');
       setTimeout(() => goPage(`chat.html?request=${req.id}`), 1000);
     }
+
+    function goToChat() {
+      if (window._existingReqId) goPage('chat.html?request=' + window._existingReqId);
+    }
+    window.goToChat = goToChat;
 
     init();
     // Pull to refresh
