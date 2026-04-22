@@ -476,8 +476,8 @@
           ${owner.avatar_url ? `onclick="showLightbox('${owner.avatar_url}')"` : ''}>
           ${avatarContent}
         </div>
-        <div class="owner-info">
-          <div class="owner-name">${ownerName}</div>
+        <div class="owner-info" onclick="goPage('user-profile.html?id=${owner.id}')" style="cursor:pointer;flex:1;">
+          <div class="owner-name">${ownerName} <span style="font-size:11px;color:#f59e0b;">→</span></div>
           <div class="owner-meta">
             ${owner.city || ''} · ${owner.trips_driven || 0} поездок
           </div>
