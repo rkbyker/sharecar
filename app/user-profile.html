@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Профиль</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f0f0f; color: #fff; font-family: -apple-system, sans-serif; padding-bottom: 80px; }
+    .bottom-nav { position:fixed; bottom:0; left:0; right:0; height:60px; background:#0f0f0f; border-top:1px solid #1e1e3a; display:flex; align-items:center; justify-content:space-around; z-index:200; transform:none; margin:0; }
+    .nav-item { background:none; border:none; color:#555; font-size:11px; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:8px 12px; }
+    .nav-item.active, .nav-item:active { color:#f59e0b; }
+    .nav-item i { font-size:18px; }
+
+    .top-bar { display:flex; align-items:center; padding:14px 16px; gap:12px; border-bottom:1px solid #1e1e3a; }
+    .back-btn { background:none; border:none; color:#fff; font-size:20px; cursor:pointer; padding:4px 8px; }
+
+    .profile-header { text-align:center; padding:24px 16px 16px; }
+    .avatar { width:90px; height:90px; border-radius:50%; background:#1e1e3a; margin:0 auto 12px; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:700; cursor:pointer; border:3px solid #f59e0b; }
+    .avatar img { width:100%; height:100%; object-fit:cover; }
+    .profile-name { font-size:22px; font-weight:700; margin-bottom:4px; }
+    .profile-nick { color:#888; font-size:14px; margin-bottom:8px; }
+    .level-badge { display:inline-block; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; margin-bottom:16px; }
+
+    .profile-stats { display:flex; justify-content:space-around; padding:16px; background:#141428; border-radius:12px; margin:0 16px 16px; }
+    .stat-item { text-align:center; }
+    .stat-val { font-size:20px; font-weight:700; color:#f59e0b; }
+    .stat-lbl { font-size:11px; color:#888; margin-top:2px; }
+
+    .btn-message { display:block; margin:0 16px 16px; padding:14px; background:#f59e0b; color:#000; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; width:calc(100% - 32px); text-align:center; }
+
+    .section { margin:0 16px 16px; }
+    .section-title { font-size:13px; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
+
+    .bio-text { background:#141428; border-radius:12px; padding:14px; font-size:14px; color:#ccc; line-height:1.5; }
+
+    .car-card { background:#141428; border-radius:12px; padding:14px; margin-bottom:10px; cursor:pointer; border:1px solid #1e1e3a; display:flex; gap:12px; align-items:center; }
+    .car-thumb { width:70px; height:50px; border-radius:8px; object-fit:cover; background:#1e1e3a; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:24px; }
+    .car-info { flex:1; }
+    .car-name { font-size:15px; font-weight:600; margin-bottom:4px; }
+    .car-meta { font-size:12px; color:#888; }
+    .car-price { font-size:14px; font-weight:700; color:#f59e0b; white-space:nowrap; }
+
+    .review-item { background:#141428; border-radius:12px; padding:14px; margin-bottom:10px; }
+    .review-header { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .review-avatar { width:36px; height:36px; border-radius:50%; background:#1e1e3a; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; }
+    .review-name { font-size:14px; font-weight:600; }
+    .review-stars { color:#f59e0b; font-size:12px; }
+    .review-text { font-size:13px; color:#ccc; line-height:1.5; }
+
+    .empty-state { text-align:center; padding:30px; color:#555; font-size:14px; }
+
+    .loader-wrap { text-align:center; padding:60px; color:#555; }
+    .loader-wrap i { font-size:28px; animation:spin .8s linear infinite; color:#f59e0b; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* Lightbox */
+    .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:1000; align-items:center; justify-content:center; }
+    .lightbox.active { display:flex; }
+    .lightbox img { max-width:90vw; max-height:90vh; border-radius:12px; object-fit:contain; }
+    .lightbox-close { position:absolute; top:20px; right:20px; background:none; border:none; color:#fff; font-size:28px; cursor:pointer; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="back-btn" onclick="history.back()"><i class="fa fa-arrow-left"></i></button>
+  <span style="font-size:16px;font-weight:600;">Профиль</span>
+</div>
+
+<div id="loader-wrap" class="loader-wrap">
+  <i class="fa fa-circle-notch"></i>
+</div>
+
+<div id="profile-content" style="display:none;">
+  <div class="profile-header">
+    <div class="avatar" id="avatar-el" onclick="openAvatarLightbox()"></div>
+    <div class="profile-name" id="profile-name">—</div>
+    <div class="profile-nick" id="profile-nick"></div>
+    <div class="level-badge" id="level-badge">—</div>
+  </div>
+
+  <div class="profile-stats">
+    <div class="stat-item">
+      <div class="stat-val" id="stat-trips">0</div>
+      <div class="stat-lbl">Поездок</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val" id="stat-cars">0</div>
+      <div class="stat-lbl">Машин</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val" id="stat-rating">5.0</div>
+      <div class="stat-lbl">Рейтинг ★</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val" id="stat-score">0</div>
+      <div class="stat-lbl">Очки</div>
+    </div>
+  </div>
+
+  <button class="btn-message" id="btn-message" onclick="sendMessage()">💬 Написать</button>
+
+  <div class="section" id="bio-section" style="display:none;">
+    <div class="section-title">О себе</div>
+    <div class="bio-text" id="bio-text"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Машины</div>
+    <div id="cars-list"><div class="empty-state">Нет машин</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Отзывы</div>
+    <div id="reviews-list"><div class="empty-state">Нет отзывов</div></div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('active')">
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('active')">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
+  <button class="nav-item" onclick="goPage('partners.html')"><i class="fa fa-handshake"></i><span>Партнёры</span></button>
+  <button class="nav-item" onclick="goPage('rating.html')"><i class="fa fa-trophy"></i><span>Рейтинг</span></button>
+  <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
+</nav>
+
+<script>
+  function goPage(p) { window.location.href = p; }
+  function openAvatarLightbox() {
+    const img = document.getElementById('lightbox-img');
+    if (!img.src || img.src === window.location.href) return;
+    document.getElementById('lightbox').classList.add('active');
+  }
+</script>
+
+<script type="module">
+  import { supabase, requireAuth, showToast } from '../js/supabase.js';
+
+  const params = new URLSearchParams(location.search);
+  const USER_ID = params.get('id');
+  if (!USER_ID) { window.location.href = 'index.html'; }
+
+  const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
+  const CLASS_ICONS = { ring:'🏁', drift:'💨', city:'🚗', offroad:'🚙', special:'⚡', sport:'🏎', business:'🏢' };
+
+  let currentUser = null;
+  let profileData = null;
+
+  async function init() {
+    const { data: { user } } = await supabase.auth.getUser();
+    currentUser = user;
+
+    // Если это свой профиль — редирект
+    if (currentUser && currentUser.id === USER_ID) {
+      window.location.href = 'profile.html';
+      return;
+    }
+
+    await loadProfile();
+  }
+
+  async function loadProfile() {
+    const { data: p, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', USER_ID)
+      .single();
+
+    if (error || !p) {
+      document.getElementById('loader-wrap').innerHTML = '<div style="text-align:center;padding:40px;color:#888;">Профиль не найден</div>';
+      return;
+    }
+
+    profileData = p;
+    renderProfile(p);
+    await loadCars();
+    await loadReviews();
+
+    document.getElementById('loader-wrap').style.display = 'none';
+    document.getElementById('profile-content').style.display = 'block';
+  }
+
+  function renderProfile(p) {
+    const LEVEL_LABELS = { bronze:'Bronze', silver:'Silver', gold:'Gold', premium:'Premium', vip:'VIP' };
+    const level = p.level || 'bronze';
+    const color = LEVEL_COLORS[level] || '#888';
+    const name = p.org_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Пользователь';
+    const initials = name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase() || '?';
+
+    // Avatar
+    const avatarEl = document.getElementById('avatar-el');
+    if (p.avatar_url) {
+      avatarEl.innerHTML = `<img src="${p.avatar_url}" alt="${name}">`;
+      document.getElementById('lightbox-img').src = p.avatar_url;
+    } else {
+      avatarEl.innerHTML = `<span style="color:${color}">${initials}</span>`;
+      avatarEl.style.cursor = 'default';
+    }
+
+    document.getElementById('profile-name').textContent = name;
+    document.getElementById('profile-nick').textContent = p.nickname ? '@' + p.nickname : '';
+
+    const badge = document.getElementById('level-badge');
+    badge.textContent = LEVEL_LABELS[level] || level;
+    badge.style.background = color + '20';
+    badge.style.color = color;
+    badge.style.border = '1px solid ' + color + '40';
+
+    document.getElementById('stat-trips').textContent = p.trips_driven || 0;
+    document.getElementById('stat-rating').textContent = (p.rating_driver || 5).toFixed(1);
+    document.getElementById('stat-score').textContent = p.score || 0;
+
+    if (p.bio) {
+      document.getElementById('bio-section').style.display = 'block';
+      document.getElementById('bio-text').textContent = p.bio;
+    }
+
+    // Скрываем кнопку Написать если не авторизован
+    if (!currentUser) {
+      document.getElementById('btn-message').style.display = 'none';
+    }
+  }
+
+  async function loadCars() {
+    const { data: cars } = await supabase
+      .from('cars')
+      .select('id, brand, model, year, photos, price_driver, car_class, city, is_free')
+      .eq('owner_id', USER_ID)
+      .eq('status', 'published');
+
+    const container = document.getElementById('cars-list');
+    if (!cars || !cars.length) {
+      container.innerHTML = '<div class="empty-state">Нет машин</div>';
+      document.getElementById('stat-cars').textContent = 0;
+      return;
+    }
+
+    document.getElementById('stat-cars').textContent = cars.length;
+
+    container.innerHTML = cars.map(car => {
+      const photo = car.photos?.[0];
+      const thumbHtml = photo
+        ? `<img src="${photo}" class="car-thumb" style="width:70px;height:50px;border-radius:8px;object-fit:cover;">`
+        : `<div class="car-thumb">${CLASS_ICONS[car.car_class] || '🚗'}</div>`;
+      const price = car.is_free ? 'Бесплатно' : (car.price_driver ? car.price_driver.toLocaleString('ru') + ' ₽' : '—');
+      return `
+        <div class="car-card" onclick="goPage('car-card.html?id=${car.id}')">
+          ${thumbHtml}
+          <div class="car-info">
+            <div class="car-name">${car.brand} ${car.model} ${car.year || ''}</div>
+            <div class="car-meta">${car.city || ''} ${car.car_class ? '· ' + (CLASS_ICONS[car.car_class] || '') + ' ' + car.car_class : ''}</div>
+          </div>
+          <div class="car-price">${price}</div>
+        </div>`;
+    }).join('');
+  }
+
+  async function loadReviews() {
+    const { data: reviews } = await supabase
+      .from('reviews')
+      .select('*, profiles:reviewer_id(first_name, last_name, avatar_url)')
+      .eq('reviewed_id', USER_ID)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    const container = document.getElementById('reviews-list');
+    if (!reviews || !reviews.length) {
+      container.innerHTML = '<div class="empty-state">Нет отзывов</div>';
+      return;
+    }
+
+    container.innerHTML = reviews.map(r => {
+      const reviewer = r.profiles || {};
+      const rname = `${reviewer.first_name || ''} ${reviewer.last_name || ''}`.trim() || 'Пользователь';
+      const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
+      const avatarHtml = reviewer.avatar_url
+        ? `<img src="${reviewer.avatar_url}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
+        : `<span>${rname[0] || '?'}</span>`;
+      return `
+        <div class="review-item">
+          <div class="review-header">
+            <div class="review-avatar">${avatarHtml}</div>
+            <div>
+              <div class="review-name">${rname}</div>
+              <div class="review-stars">${stars}</div>
+            </div>
+          </div>
+          ${r.text ? `<div class="review-text">${r.text}</div>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  window.sendMessage = async function() {
+    if (!currentUser) { showToast('Войдите чтобы написать', 'warn'); return; }
+    // Ищем существующий запрос между пользователями
+    const { data: req } = await supabase
+      .from('requests')
+      .select('id')
+      .or(`requester_id.eq.${currentUser.id},owner_id.eq.${currentUser.id}`)
+      .or(`owner_id.eq.${USER_ID},requester_id.eq.${USER_ID}`)
+      .limit(1)
+      .maybeSingle();
+
+    if (req) {
+      goPage('chat.html?request=' + req.id);
+    } else {
+      showToast('Подайте заявку на объявление чтобы начать чат', 'warn');
+    }
+  };
+
+  init();
+</script>
+</body>
+</html>

@@ -630,7 +630,7 @@
     async function loadTrips() {
       const { data: trips } = await supabase
         .from('requests')
-        .select('*, cars(brand, model, year)')
+        .select('*, car_id, owner_id, cars(id, brand, model, year)')
         .eq('requester_id', currentUser.id)
         .order('created_at', { ascending: false })
         .limit(20);
@@ -655,8 +655,8 @@
         const dt = new Date(t.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'short' });
         return `
           <div class="trip-item">
-            <div class="trip-header">
-              <div class="trip-title">${car ? car.brand + ' ' + car.model : 'Машина'}</div>
+            <div class="trip-header" onclick="goPage('car-card.html?id=${t.car_id}')" style="cursor:pointer;">
+              <div class="trip-title">${car ? car.brand + ' ' + car.model : 'Машина'} <span style="font-size:11px;color:#f59e0b;">→</span></div>
               <span class="trip-status" style="background:${s.color}20;color:${s.color};">${s.label}</span>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;">
