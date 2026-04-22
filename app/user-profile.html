@@ -164,6 +164,33 @@
     }
 
     await loadProfile();
+    if (currentUser) await checkReviewBtn();
+  }
+
+  async function checkReviewBtn() {
+    const { data: req } = await supabase
+      .from('requests')
+      .select('id, status, owner_confirmed_at, user_confirmed')
+      .eq('owner_id', USER_ID)
+      .eq('requester_id', currentUser.id)
+      .eq('status', 'completed')
+      .maybeSingle();
+
+    if (!req || req.user_confirmed) return;
+
+    const completedAt = req.owner_confirmed_at ? new Date(req.owner_confirmed_at) : null;
+    const hoursLeft = completedAt ? Math.max(0, 24 - (new Date() - completedAt) / 3600000) : 24;
+
+    const btn = document.getElementById('btn-message');
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'margin: 0 16px 16px;';
+
+    if (hoursLeft <= 0) {
+      wrap.innerHTML = '<button onclick="window.location.href=\'chat.html?request=' + req.id + '\'" style="width:100%;padding:14px;background:#f59e0b;color:#000;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">⭐ Оставить отзыв</button>';
+    } else {
+      wrap.innerHTML = '<div style="text-align:center;color:#888;font-size:13px;padding:8px 0;">⭐ Отзыв можно оставить через ' + Math.ceil(hoursLeft) + ' ч.</div>';
+    }
+    btn.parentNode.insertBefore(wrap, btn.nextSibling);
   }
 
   async function loadProfile() {

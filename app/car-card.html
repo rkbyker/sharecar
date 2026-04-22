@@ -514,13 +514,26 @@
 
       // Check existing request
       if (!isOwner) {
-        supabase.from('requests').select('id')
+        supabase.from('requests').select('id, status, owner_confirmed_at, user_confirmed')
           .eq('car_id', CAR_ID).eq('requester_id', currentUser.id)
           .maybeSingle().then(function(res) {
             if (res.data) {
+              const req = res.data;
               document.getElementById('btn-apply').style.display = 'none';
               document.getElementById('btn-msg').style.display = 'flex';
-              window._existingReqId = res.data.id;
+              window._existingReqId = req.id;
+
+              // Показываем кнопку отзыва если поездка завершена и прошло 24ч
+              if (req.status === 'completed' && !req.user_confirmed) {
+                const completedAt = req.owner_confirmed_at ? new Date(req.owner_confirmed_at) : null;
+                const hoursLeft = completedAt ? Math.max(0, 24 - (new Date() - completedAt) / 3600000) : 24;
+                const applyBar = document.getElementById('apply-bar');
+                if (hoursLeft <= 0) {
+                  applyBar.innerHTML += `<button onclick="openRatingModal()" style="flex:1;padding:14px;background:#f59e0b;color:#000;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">⭐ Оставить отзыв</button>`;
+                } else {
+                  applyBar.innerHTML += `<div style="flex:1;text-align:center;color:#888;font-size:13px;">⭐ Отзыв через ${Math.ceil(hoursLeft)} ч.</div>`;
+                }
+              }
             }
           });
       }
