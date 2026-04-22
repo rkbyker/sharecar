@@ -105,16 +105,17 @@
       border: none;
       border-radius: 8px;
       color: #000;
-      font-size: 16px;
-      width: 36px;
-      height: 36px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       flex-shrink: 0;
+      white-space: nowrap;
     }
-    .feed-grid2 .feed-card .btn-write { width:30px; height:30px; font-size:13px; }
+    .feed-grid2 .feed-card .btn-write { font-size:11px; padding:4px 8px; }
     .feed-list .feed-card .btn-write { display:none; }
     .btn-like {
       background: none; border: none; cursor: pointer;
@@ -715,8 +716,8 @@
               ${priceHtml}
               <div class="feed-actions">
                 ${currentUser && car.profiles && car.profiles.id !== currentUser.id ? `
-                <button class="btn-write" onclick="event.stopPropagation();goPage('car-card.html?id=${car.id}')">
-                  💬
+                <button class="btn-write" onclick="event.stopPropagation();goPage('car-card.html?id=${car.id}#apply')">
+                  Написать
                 </button>` : ''}
                 <button class="btn-like ${isLiked ? 'liked' : ''}"
                         id="like-${car.id}"

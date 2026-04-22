@@ -148,6 +148,7 @@
       cursor: pointer;
     }
     .btn-apply:disabled { opacity: .5; cursor: not-allowed; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
     .btn-msg { background: #f59e0b; border: none; color: #000; font-weight: 700; }
     .btn-like-big {
       width: 52px; height: 52px; background: #141428;
@@ -719,6 +720,16 @@
       if (window._existingReqId) goPage('chat.html?request=' + window._existingReqId);
     }
     window.goToChat = goToChat;
+
+    // Если открыли с #apply — скроллим к кнопке заявки
+    if (window.location.hash === '#apply') {
+      setTimeout(() => {
+        const applyBar = document.getElementById('apply-bar');
+        if (applyBar) applyBar.scrollIntoView({ behavior: 'smooth' });
+        const btnApply = document.getElementById('btn-apply');
+        if (btnApply) btnApply.style.animation = 'pulse 1s 2';
+      }, 1000);
+    }
 
     init();
     // Pull to refresh
