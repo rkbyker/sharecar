@@ -402,6 +402,7 @@
     }
 
     function setupRealtime() {
+      // Realtime подписка
       realtimeChannel = supabase
         .channel(`chat-${REQUEST_ID}`)
         .on('postgres_changes', {
@@ -411,7 +412,6 @@
           filter: `request_id=eq.${REQUEST_ID}`
         }, (payload) => {
           const msg = payload.new;
-          // Don't duplicate own messages
           if (!document.querySelector(`[data-id="${msg.id}"]`)) {
             appendMessage(msg);
             scrollBottom();
@@ -420,7 +420,33 @@
             }
           }
         })
-        .subscribe();
+        .subscribe((status) => {
+          console.log('Realtime status:', status);
+        });
+
+      // Fallback polling каждые 3 секунды
+      let lastMsgTime = new Date().toISOString();
+      setInterval(async () => {
+        const { data: newMsgs } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('request_id', REQUEST_ID)
+          .gt('created_at', lastMsgTime)
+          .order('created_at', { ascending: true });
+
+        if (newMsgs && newMsgs.length) {
+          newMsgs.forEach(msg => {
+            if (!document.querySelector(`[data-id="${msg.id}"]`)) {
+              appendMessage(msg);
+              scrollBottom();
+              if (msg.sender_id !== currentUser.id) {
+                document.getElementById('status-dot').style.background = '#22c55e';
+              }
+            }
+          });
+          lastMsgTime = newMsgs[newMsgs.length - 1].created_at;
+        }
+      }, 3000);
     }
 
     async function sendMsg() {
