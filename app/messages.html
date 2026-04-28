@@ -31,6 +31,10 @@
     .msg-name { font-size:15px; font-weight:600; margin-bottom:2px; }
     .msg-car { font-size:12px; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .msg-last { font-size:12px; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .msg-item.unread { background:#1a1a2e; border-left:3px solid #f59e0b; }
+    .msg-item.unread .msg-last { color:#fff; font-weight:600; }
+    .msg-item.unread .msg-name { color:#f59e0b; }
+    .unread-count { background:#ef4444; color:#fff; font-size:11px; font-weight:700; min-width:20px; height:20px; border-radius:10px; display:flex; align-items:center; justify-content:center; padding:0 5px; margin-left:auto; }
     .msg-meta { text-align:right; flex-shrink:0; }
     .msg-time { font-size:11px; color:#555; margin-bottom:4px; }
     .msg-status { font-size:11px; padding:2px 8px; border-radius:10px; }
@@ -114,6 +118,33 @@
         });
       }
 
+      // Считаем непрочитанные для каждого чата
+      const { data: unreadMsgs } = await supabase
+        .from('messages')
+        .select('request_id')
+        .in('request_id', requestIds)
+        .neq('sender_id', currentUser.id)
+        .eq('is_read', false);
+
+      const unreadMap = {};
+      if (unreadMsgs) {
+        unreadMsgs.forEach(m => {
+          unreadMap[m.request_id] = (unreadMap[m.request_id] || 0) + 1;
+        });
+      }
+
+      // Обновляем бейдж
+      const totalUnread = Object.values(unreadMap).reduce((a, b) => a + b, 0);
+      const badge = document.querySelector('.nav-msg-badge');
+      if (badge) {
+        if (totalUnread > 0) {
+          badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+
       const STATUS = {
         pending: { label: 'Ожидает', cls: 'status-pending' },
         accepted: { label: 'Принята', cls: 'status-accepted' },
@@ -141,8 +172,9 @@
           ? `<img src="${other.avatar_url}">`
           : `<span style="color:${lvlColor}">${initials}</span>`;
 
+        const hasUnread = unreadMap[r.id] > 0;
         return `
-          <div class="msg-item" onclick="goPage('chat.html?request=${r.id}')">
+          <div class="msg-item${hasUnread ? ' unread' : ''}" onclick="goPage('chat.html?request=${r.id}')">
             <div class="msg-avatar" style="border:2px solid ${lvlColor}20;">${avatarHtml}</div>
             <div class="msg-info">
               <div class="msg-name">${name}</div>
@@ -152,6 +184,7 @@
             <div class="msg-meta">
               <div class="msg-time">${dt}</div>
               <div class="msg-status ${s.cls}">${s.label}</div>
+              ${hasUnread ? `<div class="unread-count">${unreadMap[r.id]}</div>` : ''}
             </div>
           </div>`;
       }).join('');
