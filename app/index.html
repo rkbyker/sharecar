@@ -330,7 +330,7 @@
   <nav class="bottom-nav">
     <button class="nav-item active" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
     <button class="nav-item" onclick="goPage('partners.html')"><i class="fa fa-handshake"></i><span>Партнёры</span></button>
-    <button class="nav-item" onclick="goPage('messages.html')"><i class="fa fa-comment"></i><span>Сообщения</span></button>
+    <button class="nav-item" onclick="goPage('messages.html')" style="position:relative;"><i class="fa fa-comment"></i><span>Сообщения</span><span class="nav-msg-badge nav-badge" style="display:none;"></span></button>
     <button class="nav-item" onclick="goPage('rating.html')"><i class="fa fa-trophy"></i><span>Рейтинг</span></button>
     <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
   </nav>
@@ -536,6 +536,7 @@
       currentProfile = await getProfile(currentUser.id);
       await loadLikes();
       await loadFeed();
+      if (window.updateMsgBadge) updateMsgBadge(supabase, currentUser.id);
     }
 
     // ── Load likes ─────────────────────────────────────────────────────────────

@@ -54,7 +54,7 @@
   <nav class="bottom-nav">
     <button class="nav-item" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
     <button class="nav-item" onclick="goPage('partners.html')"><i class="fa fa-handshake"></i><span>Партнёры</span></button>
-    <button class="nav-item active"><i class="fa fa-comment"></i><span>Сообщения</span></button>
+    <button class="nav-item active" style="position:relative;"><i class="fa fa-comment"></i><span>Сообщения</span><span class="nav-msg-badge nav-badge" style="display:none;"></span></button>
     <button class="nav-item" onclick="goPage('rating.html')"><i class="fa fa-trophy"></i><span>Рейтинг</span></button>
     <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
   </nav>
@@ -98,6 +98,22 @@
         return;
       }
 
+      // Загружаем последние сообщения для каждого чата
+      const requestIds = all.map(r => r.id);
+      const { data: lastMsgs } = await supabase
+        .from('messages')
+        .select('request_id, content, created_at, sender_id')
+        .in('request_id', requestIds)
+        .order('created_at', { ascending: false });
+
+      // Группируем по request_id — берём первое (последнее) для каждого
+      const lastMsgMap = {};
+      if (lastMsgs) {
+        lastMsgs.forEach(m => {
+          if (!lastMsgMap[m.request_id]) lastMsgMap[m.request_id] = m;
+        });
+      }
+
       const STATUS = {
         pending: { label: 'Ожидает', cls: 'status-pending' },
         accepted: { label: 'Принята', cls: 'status-accepted' },
@@ -115,7 +131,12 @@
         const lvlColor = LEVEL_COLORS[other.level || 'bronze'] || '#888';
         const car = r.cars || {};
         const s = STATUS[r.status] || { label: r.status, cls: 'status-pending' };
-        const dt = new Date(r.updated_at || r.created_at).toLocaleDateString('ru', { day:'numeric', month:'short' });
+        const lastMsg = lastMsgMap[r.id];
+        const lastText = lastMsg ? lastMsg.content : (r.message || 'Нет сообщений');
+        const isMe = lastMsg && lastMsg.sender_id === currentUser.id;
+        const dt = lastMsg
+          ? new Date(lastMsg.created_at).toLocaleDateString('ru', { day:'numeric', month:'short' })
+          : new Date(r.updated_at || r.created_at).toLocaleDateString('ru', { day:'numeric', month:'short' });
         const avatarHtml = other.avatar_url
           ? `<img src="${other.avatar_url}">`
           : `<span style="color:${lvlColor}">${initials}</span>`;
@@ -126,7 +147,7 @@
             <div class="msg-info">
               <div class="msg-name">${name}</div>
               <div class="msg-car">${car.brand || ''} ${car.model || ''} ${car.year || ''}</div>
-              <div class="msg-last">${r.message || 'Нет сообщений'}</div>
+              <div class="msg-last">${isMe ? 'Вы: ' : ''}${lastText}</div>
             </div>
             <div class="msg-meta">
               <div class="msg-time">${dt}</div>
