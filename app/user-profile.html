@@ -134,7 +134,8 @@
   function goPage(p) { window.location.href = p; }
   function openAvatarLightbox() {
     const img = document.getElementById('lightbox-img');
-    if (!img.src || img.src === window.location.href) return;
+    if (!img.dataset.url) return;
+    img.src = img.dataset.url;
     document.getElementById('lightbox').classList.add('active');
   }
 </script>
@@ -224,7 +225,7 @@
     const avatarEl = document.getElementById('avatar-el');
     if (p.avatar_url) {
       avatarEl.innerHTML = `<img src="${p.avatar_url}" alt="${name}">`;
-      document.getElementById('lightbox-img').src = p.avatar_url;
+      document.getElementById('lightbox-img').dataset.url = p.avatar_url;
     } else {
       avatarEl.innerHTML = `<span style="color:${color}">${initials}</span>`;
       avatarEl.style.cursor = 'default';
