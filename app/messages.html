@@ -124,7 +124,7 @@
         .select('request_id')
         .in('request_id', requestIds)
         .neq('sender_id', currentUser.id)
-        .eq('is_read', false);
+        .eq('read', false);
 
       const unreadMap = {};
       if (unreadMsgs) {

@@ -35,7 +35,7 @@ async function updateMsgBadge(supabase, userId) {
       .select('id', { count: 'exact', head: true })
       .in('request_id', ids)
       .neq('sender_id', userId)
-      .eq('is_read', false);
+      .eq('read', false);
 
     const badge = document.querySelector('.nav-msg-badge');
     if (badge) {
