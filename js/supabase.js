@@ -2,17 +2,9 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/+esm';
 
 const SUPABASE_URL = 'https://ktqiyywdgokktiwavgbq.supabase.co';
-const SUPABASE_PROXY = 'https://api.sharecar.pro';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0cWl5eXdkZ29ra3Rpd2F2Z2JxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NTIwNDYsImV4cCI6MjA5MTUyODA0Nn0.qoL7Xtff5pinPSZUWDlX1N1xvrA9BwUKXJM3MJe3D0M';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  global: {
-    fetch: (url, options = {}) => {
-      const newUrl = url.toString().replace(SUPABASE_URL, SUPABASE_PROXY);
-      return fetch(newUrl, options);
-    }
-  }
-});
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ─── Auth helpers ───────────────────────────────────────────────────────────
 
