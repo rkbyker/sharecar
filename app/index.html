@@ -280,6 +280,94 @@
     }
     .loader i { font-size: 32px; animation: spin .8s linear infinite; color: #f59e0b; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Tabs ─────────────────────────────────── */
+    .main-tabs {
+      display: flex;
+      border-bottom: 1px solid #1e1e3a;
+      background: #0f0f0f;
+      position: sticky;
+      top: 56px;
+      z-index: 90;
+    }
+    .main-tab {
+      flex: 1;
+      padding: 14px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #555;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+    }
+    .main-tab.active {
+      color: #fff;
+      border-bottom-color: #fff;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    /* Events feed */
+    .event-card {
+      background: #141428;
+      border-radius: 16px;
+      margin: 0 12px 16px;
+      overflow: hidden;
+      border: 1px solid #1e1e3a;
+      cursor: pointer;
+      transition: transform .15s;
+    }
+    .event-card:active { transform: scale(.98); }
+    .event-cover {
+      aspect-ratio: 16/7;
+      background: #1a1a2e;
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 56px;
+    }
+    .event-cover img { width:100%; height:100%; object-fit:cover; display:block; }
+    .event-type-pill {
+      position: absolute; top: 10px; left: 10px;
+      background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
+      color: #fff; padding: 4px 10px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+    }
+    .event-date-pill {
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
+      color: #fff; padding: 4px 10px; border-radius: 20px;
+      font-size: 12px;
+    }
+    .event-body { padding: 14px; }
+    .event-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .event-meta-row { display: flex; gap: 14px; font-size: 13px; color: #777; margin-bottom: 10px; }
+    .event-meta-row span { display: flex; align-items: center; gap: 4px; }
+    .event-footer { display: flex; align-items: center; justify-content: space-between; }
+    .event-price-free { color: #22c55e; font-weight: 600; font-size: 14px; }
+    .event-price-paid { color: #f59e0b; font-weight: 700; font-size: 16px; }
+    .event-rsvp-btn {
+      background: #1e1e3a; color: #fff; border: none;
+      padding: 8px 18px; border-radius: 20px; font-size: 13px;
+      font-weight: 600; cursor: pointer; transition: background .2s;
+    }
+    .event-rsvp-btn:hover { background: #2a2a4a; }
+    .events-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 16px 8px;
+    }
+    .events-header-title { font-size: 18px; font-weight: 700; }
+    .create-event-btn {
+      background: #fff; color: #000;
+      border: none; border-radius: 20px;
+      padding: 8px 16px; font-size: 13px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+    }
+    .events-container { padding-bottom: 80px; }
+    .empty-events {
+      text-align: center; padding: 60px 20px; color: #555;
+    }
+    .empty-events .icon { font-size: 48px; margin-bottom: 12px; }
   </style>
 </head>
 <body>
@@ -301,29 +389,49 @@
     </div>
   </div>
 
-  <!-- CLASS FILTER CHIPS -->
-  <div class="filter-bar" id="class-bar">
-    <div class="chip active" data-class="all" onclick="setClass('all', this)">Все</div>
-    <div class="chip" data-class="city" onclick="setClass('city', this)">🚗 Город</div>
-    <div class="chip" data-class="ring" onclick="setClass('ring', this)">🏁 Кольцо</div>
-    <div class="chip" data-class="drift" onclick="setClass('drift', this)">💨 Дрифт</div>
-    <div class="chip" data-class="sport" onclick="setClass('sport', this)">🏎 Спорт</div>
-    <div class="chip" data-class="offroad" onclick="setClass('offroad', this)">🚙 Оффроуд</div>
-    <div class="chip" data-class="special" onclick="setClass('special', this)">⚡ Спецтех</div>
-    <div class="chip" data-class="business" onclick="setClass('business', this)">🏢 Бизнес</div>
+  <!-- MAIN TABS -->
+  <div class="main-tabs">
+    <div class="main-tab active" id="tab-events" onclick="switchTab('events')">🎉 Мероприятия</div>
+    <div class="main-tab" id="tab-cars" onclick="switchTab('cars')">🚗 Автомобили</div>
   </div>
 
-  <!-- SORT CHIPS -->
-  <div class="sort-bar" id="sort-bar">
-    <div class="sort-chip active" data-sort="new" onclick="setSort('new', this)">🕒 Новые</div>
-    <div class="sort-chip" id="chip-hp" data-sort="hp_desc" onclick="toggleSort('hp', this)">⚡ Мощность ↓</div>
-    <div class="sort-chip" id="chip-price" data-sort="price_asc" onclick="toggleSort('price', this)">💰 Цена ↑</div>
-    <div class="sort-chip" data-sort="popular" onclick="setSort('popular', this)">❤️ Популярные</div>
+  <!-- TAB: EVENTS -->
+  <div class="tab-panel active" id="panel-events">
+    <div class="events-header">
+      <div class="events-header-title">Мероприятия</div>
+      <button class="create-event-btn" onclick="goPage('create-event.html')">
+        <i class="fas fa-plus"></i> Создать
+      </button>
+    </div>
+    <div class="events-container" id="events-feed">
+      <div class="loader" id="events-loader"><i class="fa fa-circle-notch"></i></div>
+    </div>
   </div>
 
-  <!-- FEED -->
-  <div class="feed-container" id="feed">
-    <div class="loader" id="loader"><i class="fa fa-circle-notch"></i></div>
+  <!-- TAB: CARS -->
+  <div class="tab-panel" id="panel-cars">
+    <!-- CLASS FILTER CHIPS -->
+    <div class="filter-bar" id="class-bar">
+      <div class="chip active" data-class="all" onclick="setClass('all', this)">Все</div>
+      <div class="chip" data-class="city" onclick="setClass('city', this)">🚗 Город</div>
+      <div class="chip" data-class="ring" onclick="setClass('ring', this)">🏁 Кольцо</div>
+      <div class="chip" data-class="drift" onclick="setClass('drift', this)">💨 Дрифт</div>
+      <div class="chip" data-class="sport" onclick="setClass('sport', this)">🏎 Спорт</div>
+      <div class="chip" data-class="offroad" onclick="setClass('offroad', this)">🚙 Оффроуд</div>
+      <div class="chip" data-class="special" onclick="setClass('special', this)">⚡ Спецтех</div>
+      <div class="chip" data-class="business" onclick="setClass('business', this)">🏢 Бизнес</div>
+    </div>
+    <!-- SORT CHIPS -->
+    <div class="sort-bar" id="sort-bar">
+      <div class="sort-chip active" data-sort="new" onclick="setSort('new', this)">🕒 Новые</div>
+      <div class="sort-chip" id="chip-hp" data-sort="hp_desc" onclick="toggleSort('hp', this)">⚡ Мощность ↓</div>
+      <div class="sort-chip" id="chip-price" data-sort="price_asc" onclick="toggleSort('price', this)">💰 Цена ↑</div>
+      <div class="sort-chip" data-sort="popular" onclick="setSort('popular', this)">❤️ Популярные</div>
+    </div>
+    <!-- FEED -->
+    <div class="feed-container" id="feed">
+      <div class="loader" id="loader"><i class="fa fa-circle-notch"></i></div>
+    </div>
   </div>
 
   <!-- BOTTOM NAV -->
@@ -451,10 +559,76 @@
       applyView();
     }
     applyView();
+
+    // ── Tab switching ──────────────────────────
+    let currentTab = localStorage.getItem('sc_tab') || 'events';
+
+    function switchTab(tab) {
+      currentTab = tab;
+      localStorage.setItem('sc_tab', tab);
+      document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
+      if (tab === 'events' && !window._eventsLoaded) loadEvents();
+    }
+
+    // Инициализируем нужную вкладку при загрузке
+    switchTab(currentTab);
   </script>
   <script type="module">
     import { supabase, requireAuth, getProfile, getLevel, showToast } from '../js/supabase.js';
     import '../js/nav.js';
+
+    // ── Events ─────────────────────────────────────────────────────────────────
+    const TYPE_LABELS = {drive:'🚗 Поездка',meet:'👋 Встреча',race:'🏁 Гонка',drift:'🌀 Дрифт',show:'🏆 Шоу',offroad:'🏔 Офроад',photo:'📸 Фотосессия',other:'📌 Другое'};
+    const TYPE_ICONS  = {drive:'🚗',meet:'👋',race:'🏁',drift:'🌀',show:'🏆',offroad:'🏔',photo:'📸',other:'📌'};
+
+    window.loadEvents = async function() {
+      window._eventsLoaded = true;
+      const container = document.getElementById('events-feed');
+      container.innerHTML = '<div class="loader"><i class="fa fa-circle-notch"></i></div>';
+
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error || !data || data.length === 0) {
+        container.innerHTML = `<div class="empty-events"><div class="icon">🎉</div><p>Мероприятий пока нет</p><p style="font-size:13px;margin-top:8px;color:#444">Создай первое!</p></div>`;
+        return;
+      }
+
+      container.innerHTML = data.map(ev => {
+        const ds = ev.date_start ? new Date(ev.date_start) : null;
+        const dateStr = ds ? ds.toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+        const loc = [ev.city, ev.address].filter(Boolean).join(', ');
+        const coverHtml = ev.cover_photo
+          ? `<img src="${ev.cover_photo}" alt="" loading="lazy">`
+          : `${TYPE_ICONS[ev.type] || '🎉'}`;
+        return `<div class="event-card" onclick="goPage('event-card.html?id=${ev.id}')">
+          <div class="event-cover">
+            ${coverHtml}
+            <span class="event-type-pill">${TYPE_LABELS[ev.type] || 'Мероприятие'}</span>
+            ${dateStr ? `<span class="event-date-pill">📅 ${dateStr}</span>` : ''}
+          </div>
+          <div class="event-body">
+            <div class="event-title">${ev.title}</div>
+            <div class="event-meta-row">
+              ${loc ? `<span>📍 ${loc}</span>` : ''}
+              <span>👥 ${ev.participants_count || 0} участников</span>
+              <span>❤️ ${ev.likes || 0}</span>
+            </div>
+            <div class="event-footer">
+              <span class="${ev.is_free ? 'event-price-free' : 'event-price-paid'}">${ev.is_free ? 'Бесплатно' : ev.price + ' ₽'}</span>
+              <button class="event-rsvp-btn" onclick="event.stopPropagation();goPage('event-card.html?id=${ev.id}')">Подробнее →</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    };
 
     // ── State ──────────────────────────────────────────────────────────────────
     let currentUser = null;

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#0f0f0f">
+  <title>Мероприятие — Sharecar</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f0f0f; color: #fff; font-family: -apple-system, sans-serif; padding-bottom: 80px; }
+    .cover-wrap { position: relative; width: 100%; height: 260px; background: #1e1e2e; overflow: hidden; }
+    .cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 64px; }
+    .back-btn { position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.6); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+    .share-btn { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.6); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+    .event-type-badge { position: absolute; bottom: 16px; left: 16px; background: #f59e0b; color: #000; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .content { padding: 20px 16px; }
+    .event-title { font-size: 24px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+    .event-meta { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .meta-row { display: flex; align-items: center; gap: 10px; color: #aaa; font-size: 14px; }
+    .meta-row i { width: 20px; color: #f59e0b; text-align: center; }
+    .meta-row span { color: #fff; }
+    .stats-row { display: flex; gap: 16px; margin-bottom: 20px; padding: 14px 16px; background: #1a1a2e; border-radius: 14px; }
+    .stat-item { flex: 1; text-align: center; }
+    .stat-val { font-size: 20px; font-weight: 800; color: #f59e0b; }
+    .stat-lbl { font-size: 11px; color: #666; margin-top: 2px; }
+    .rsvp-section { margin-bottom: 20px; }
+    .rsvp-title { font-size: 13px; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .rsvp-btns { display: flex; gap: 8px; }
+    .rsvp-btn { flex: 1; padding: 12px 8px; border-radius: 12px; border: 1px solid #2a2a4a; background: #1a1a2e; color: #aaa; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .rsvp-btn.active-going { background: #22c55e20; border-color: #22c55e; color: #22c55e; }
+    .rsvp-btn.active-maybe { background: #f59e0b20; border-color: #f59e0b; color: #f59e0b; }
+    .rsvp-btn.active-not { background: #ef444420; border-color: #ef4444; color: #ef4444; }
+    .section { margin-bottom: 24px; }
+    .section-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .section-title i { color: #f59e0b; }
+    .description { font-size: 14px; color: #ccc; line-height: 1.6; }
+    .organizer-card { display: flex; align-items: center; gap: 12px; padding: 14px; background: #1a1a2e; border-radius: 14px; cursor: pointer; }
+    .org-avatar { width: 48px; height: 48px; border-radius: 50%; background: #2a2a4a; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; overflow: hidden; flex-shrink: 0; }
+    .org-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .org-info { flex: 1; }
+    .org-name { font-size: 15px; font-weight: 600; }
+    .org-meta { font-size: 12px; color: #888; margin-top: 2px; }
+    .participants-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .participant-avatar { width: 44px; height: 44px; border-radius: 50%; background: #2a2a4a; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; overflow: hidden; cursor: pointer; border: 2px solid #1a1a2e; }
+    .participant-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .photos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; border-radius: 12px; overflow: hidden; }
+    .photo-item { aspect-ratio: 1; overflow: hidden; cursor: pointer; }
+    .photo-item img { width: 100%; height: 100%; object-fit: cover; }
+    .tags-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag { background: #1e1e3a; color: #f59e0b; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .comment-item { display: flex; gap: 10px; margin-bottom: 16px; }
+    .comment-avatar { width: 36px; height: 36px; border-radius: 50%; background: #2a2a4a; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; overflow: hidden; cursor: pointer; }
+    .comment-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .comment-body { flex: 1; background: #1a1a2e; border-radius: 12px; padding: 10px 12px; }
+    .comment-author { font-size: 13px; font-weight: 600; color: #f59e0b; cursor: pointer; }
+    .comment-text { font-size: 13px; color: #ccc; margin-top: 4px; line-height: 1.4; }
+    .comment-time { font-size: 11px; color: #555; margin-top: 6px; }
+    .comment-input-wrap { display: flex; gap: 10px; align-items: flex-end; margin-top: 16px; }
+    .comment-input { flex: 1; background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 12px; padding: 10px 14px; color: #fff; font-size: 14px; resize: none; min-height: 44px; max-height: 120px; outline: none; font-family: inherit; }
+    .comment-input:focus { border-color: #f59e0b; }
+    .comment-send { background: #f59e0b; color: #000; border: none; width: 44px; height: 44px; border-radius: 12px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .like-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid #2a2a4a; color: #aaa; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    .like-btn.liked { border-color: #ef4444; color: #ef4444; }
+    .share-chat-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid #3b82f6; color: #3b82f6; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+    .action-row { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
+    .lightbox-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; }
+    .loader { display: flex; align-items: center; justify-content: center; height: 50vh; }
+    .spinner { width: 40px; height: 40px; border: 3px solid #2a2a4a; border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-comments { text-align: center; color: #555; padding: 24px; font-size: 14px; }
+    .map-btn { display: flex; align-items: center; gap: 8px; background: #1a1a2e; border: 1px solid #2a2a4a; color: #aaa; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-size: 14px; width: 100%; margin-top: 8px; }
+    .map-btn i { color: #f59e0b; }
+    .price-badge { display: inline-flex; align-items: center; gap: 6px; background: #22c55e20; color: #22c55e; border: 1px solid #22c55e40; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+    .price-badge.paid { background: #f59e0b20; color: #f59e0b; border-color: #f59e0b40; }
+  </style>
+</head>
+<body>
+<div id="loader" class="loader"><div class="spinner"></div></div>
+<div id="event-content" style="display:none;">
+  <div class="cover-wrap" id="cover-wrap">
+    <div class="cover-placeholder" id="cover-placeholder">🚗</div>
+    <button class="back-btn" onclick="history.back()"><i class="fa fa-arrow-left"></i></button>
+    <button class="share-btn" onclick="shareEvent()"><i class="fa fa-share-alt"></i></button>
+    <div class="event-type-badge" id="type-badge">Мероприятие</div>
+  </div>
+  <div class="content">
+    <h1 class="event-title" id="event-title"></h1>
+    <div class="event-meta" id="event-meta"></div>
+    <div id="price-wrap" style="margin-bottom:16px;"></div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-val" id="stat-going">0</div><div class="stat-lbl">Пойдут</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-maybe">0</div><div class="stat-lbl">Возможно</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-likes">0</div><div class="stat-lbl">Лайков</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-comments">0</div><div class="stat-lbl">Комментов</div></div>
+    </div>
+    <div class="rsvp-section" id="rsvp-section">
+      <div class="rsvp-title">Вы пойдёте?</div>
+      <div class="rsvp-btns">
+        <button class="rsvp-btn" id="btn-going" onclick="setRsvp('going')">✅ Пойду</button>
+        <button class="rsvp-btn" id="btn-maybe" onclick="setRsvp('maybe')">🤔 Возможно</button>
+        <button class="rsvp-btn" id="btn-not" onclick="setRsvp('not_going')">❌ Не пойду</button>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="like-btn" id="like-btn" onclick="toggleLike()"><i class="fa fa-heart"></i> <span id="like-count">0</span></button>
+      <button class="share-chat-btn" onclick="shareToChat()"><i class="fa fa-comment"></i> Поделиться в чате</button>
+    </div>
+    <div class="section">
+      <div class="section-title"><i class="fa fa-user"></i> Организатор</div>
+      <div class="organizer-card" id="organizer-card" onclick="openOrganizer()">
+        <div class="org-avatar" id="org-avatar"></div>
+        <div class="org-info"><div class="org-name" id="org-name"></div><div class="org-meta" id="org-meta"></div></div>
+        <div style="color:#f59e0b;"><i class="fa fa-chevron-right"></i></div>
+      </div>
+    </div>
+    <div class="section" id="desc-section" style="display:none;">
+      <div class="section-title"><i class="fa fa-align-left"></i> Описание</div>
+      <div class="description" id="event-desc"></div>
+    </div>
+    <div class="section" id="participants-section">
+      <div class="section-title"><i class="fa fa-users"></i> Участники <span id="participants-count" style="color:#888;font-size:13px;font-weight:400;"></span></div>
+      <div class="participants-list" id="participants-list"></div>
+    </div>
+    <div class="section" id="tags-section" style="display:none;">
+      <div class="section-title"><i class="fa fa-tag"></i> Теги</div>
+      <div class="tags-wrap" id="tags-wrap"></div>
+    </div>
+    <div class="section" id="photos-section" style="display:none;">
+      <div class="section-title"><i class="fa fa-images"></i> Фото</div>
+      <div class="photos-grid" id="photos-grid"></div>
+    </div>
+    <div class="section">
+      <div class="section-title"><i class="fa fa-comments"></i> Комментарии</div>
+      <div id="comments-list"></div>
+      <div class="comment-input-wrap">
+        <textarea class="comment-input" id="comment-input" placeholder="Написать комментарий..." rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <button class="comment-send" onclick="sendComment()"><i class="fa fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('active')">
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('active')">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
+  <button class="nav-item" onclick="goPage('partners.html')"><i class="fa fa-handshake"></i><span>Партнёры</span></button>
+  <button class="nav-item" onclick="goPage('messages.html')" style="position:relative;"><i class="fa fa-comment"></i><span class="nav-msg-badge nav-badge" style="display:none;"></span><span>Сообщения</span></button>
+  <button class="nav-item" onclick="goPage('rating.html')"><i class="fa fa-trophy"></i><span>Рейтинг</span></button>
+  <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
+</nav>
+<script>
+function goPage(p){window.location.href=p;}
+function openLightbox(url){document.getElementById('lightbox-img').src=url;document.getElementById('lightbox').classList.add('active');}
+</script>
+<script type="module">
+import { supabase, showToast } from '../js/supabase.js';
+const params=new URLSearchParams(location.search);
+const EVENT_ID=params.get('id');
+if(!EVENT_ID){location.href='index.html';}
+let currentUser=null,event=null,myRsvp=null,myLike=null;
+const TYPE_LABELS={drive:'🚗 Поездка',show:'🏎️ Шоу',meet:'👋 Встреча',drift:'💨 Дрифт',offroad:'🏔️ Офроад',photo:'📸 Фотосессия',race:'🏁 Гонка',other:'⭐ Другое'};
+const TYPE_ICONS={drive:'🚗',show:'🏎️',meet:'👋',drift:'💨',offroad:'🏔️',photo:'📸',race:'🏁',other:'⭐'};
+const LEVEL_COLORS={bronze:'#cd7f32',silver:'#a8a9ad',gold:'#ffd700',premium:'#a855f7',vip:'#f59e0b'};
+async function init(){
+  const{data:{user}}=await supabase.auth.getUser();
+  currentUser=user;
+  if(!currentUser){location.href='auth.html';return;}
+  await loadEvent();await loadParticipants();await loadComments();await checkMyRsvp();await checkMyLike();
+  document.getElementById('loader').style.display='none';
+  document.getElementById('event-content').style.display='block';
+}
+async function loadEvent(){
+  const{data,error}=await supabase.from('events').select('*, profiles:owner_id(*)').eq('id',EVENT_ID).single();
+  if(error||!data){showToast('Мероприятие не найдено','error');return;}
+  event=data;renderEvent();
+}
+function renderEvent(){
+  if(event.cover_photo){const img=document.createElement('img');img.src=event.cover_photo;img.alt=event.title;document.getElementById('cover-placeholder').replaceWith(img);}
+  else{document.getElementById('cover-placeholder').textContent=TYPE_ICONS[event.type]||'🚗';}
+  document.getElementById('type-badge').textContent=TYPE_LABELS[event.type]||'Мероприятие';
+  document.getElementById('event-title').textContent=event.title;
+  const meta=[];
+  if(event.date_start){const d=new Date(event.date_start);meta.push(`<div class="meta-row"><i class="fa fa-calendar"></i><span>${d.toLocaleDateString('ru',{day:'numeric',month:'long',year:'numeric'})} в ${d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}</span></div>`);}
+  if(event.address||event.city){meta.push(`<div class="meta-row"><i class="fa fa-map-marker-alt"></i><span>${[event.address,event.city].filter(Boolean).join(', ')}</span></div>`);}
+  if(event.max_participants){meta.push(`<div class="meta-row"><i class="fa fa-users"></i><span>Лимит: ${event.max_participants} чел.</span></div>`);}
+  document.getElementById('event-meta').innerHTML=meta.join('');
+  if(event.address||event.city){const q=encodeURIComponent(`${event.address||''} ${event.city||''}`);document.getElementById('event-meta').innerHTML+=`<button class="map-btn" onclick="window.open('https://maps.google.com/?q=${q}','_blank')"><i class="fa fa-map"></i> Открыть на карте</button>`;}
+  document.getElementById('price-wrap').innerHTML=(!event.price||event.is_free)?'<span class="price-badge">🎉 Бесплатно</span>':`<span class="price-badge paid">💰 Взнос: ${event.price.toLocaleString('ru')} ₽</span>`;
+  document.getElementById('stat-likes').textContent=event.likes||0;
+  document.getElementById('stat-comments').textContent=event.comments_count||0;
+  document.getElementById('like-count').textContent=event.likes||0;
+  if(event.description){document.getElementById('desc-section').style.display='block';document.getElementById('event-desc').textContent=event.description;}
+  if(event.tags?.length){document.getElementById('tags-section').style.display='block';document.getElementById('tags-wrap').innerHTML=event.tags.map(t=>`<span class="tag">#${t}</span>`).join('');}
+  if(event.photos?.length){document.getElementById('photos-section').style.display='block';document.getElementById('photos-grid').innerHTML=event.photos.map(p=>`<div class="photo-item" onclick="openLightbox('${p}')"><img src="${p}" alt=""></div>`).join('');}
+  const owner=event.profiles;
+  if(owner){
+    const name=`${owner.first_name||''} ${owner.last_name||''}`.trim()||'Пользователь';
+    const lvlColor=LEVEL_COLORS[owner.level]||'#888';
+    const initials=name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    document.getElementById('org-avatar').style.cssText=`background:${lvlColor}20;border:2px solid ${lvlColor};width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;overflow:hidden;flex-shrink:0;`;
+    document.getElementById('org-avatar').innerHTML=owner.avatar_url?`<img src="${owner.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:`<span style="color:${lvlColor};">${initials}</span>`;
+    document.getElementById('org-name').textContent=name;
+    document.getElementById('org-meta').textContent=`${(owner.level?.charAt(0).toUpperCase()+owner.level?.slice(1))||'Bronze'} · ${owner.city||''}`;
+    if(owner.id===currentUser.id)document.getElementById('rsvp-section').style.display='none';
+  }
+}
+async function loadParticipants(){
+  const{data}=await supabase.from('event_participants').select('*, profiles:user_id(*)').eq('event_id',EVENT_ID).in('status',['going','maybe']).limit(20);
+  if(!data)return;
+  document.getElementById('stat-going').textContent=data.filter(p=>p.status==='going').length;
+  document.getElementById('stat-maybe').textContent=data.filter(p=>p.status==='maybe').length;
+  document.getElementById('participants-count').textContent=`(${data.length})`;
+  const list=document.getElementById('participants-list');
+  list.innerHTML=data.slice(0,12).map(p=>{
+    const pr=p.profiles;if(!pr)return'';
+    const name=`${pr.first_name||''} ${pr.last_name||''}`.trim()||'?';
+    const initials=name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const lvlColor=LEVEL_COLORS[pr.level]||'#888';
+    return`<div class="participant-avatar" style="background:${lvlColor}20;border-color:${lvlColor};" onclick="goPage('user-profile.html?id=${pr.id}')" title="${name}">${pr.avatar_url?`<img src="${pr.avatar_url}">`:`<span style="color:${lvlColor};font-size:13px;font-weight:700;">${initials}</span>`}</div>`;
+  }).join('');
+  if(data.length===0)list.innerHTML='<div style="color:#555;font-size:13px;">Пока нет участников. Будь первым!</div>';
+}
+async function loadComments(){
+  const{data}=await supabase.from('event_comments').select('*, profiles:user_id(*)').eq('event_id',EVENT_ID).order('created_at',{ascending:true}).limit(50);
+  const list=document.getElementById('comments-list');
+  if(!data||!data.length){list.innerHTML='<div class="empty-comments">Комментариев пока нет 💬</div>';return;}
+  list.innerHTML=data.map(c=>{
+    const pr=c.profiles;
+    const name=pr?`${pr.first_name||''} ${pr.last_name||''}`.trim():'Пользователь';
+    const initials=name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const lvlColor=LEVEL_COLORS[pr?.level]||'#888';
+    const dt=new Date(c.created_at).toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const isMe=c.user_id===currentUser?.id;
+    return`<div class="comment-item"><div class="comment-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${pr?.avatar_url?`<img src="${pr.avatar_url}">`:`<span style="color:${lvlColor};font-size:12px;font-weight:700;">${initials}</span>`}</div><div class="comment-body"><div class="comment-author" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${name}</div><div class="comment-text">${c.content}</div><div class="comment-time">${dt}</div></div></div>`;
+  }).join('');
+}
+async function checkMyRsvp(){
+  const{data}=await supabase.from('event_participants').select('id,status').eq('event_id',EVENT_ID).eq('user_id',currentUser.id).maybeSingle();
+  myRsvp=data;updateRsvpUI();
+}
+async function checkMyLike(){
+  const{data}=await supabase.from('event_likes').select('id').eq('event_id',EVENT_ID).eq('user_id',currentUser.id).maybeSingle();
+  myLike=data;
+  if(myLike)document.getElementById('like-btn').classList.add('liked');
+}
+function updateRsvpUI(){
+  document.getElementById('btn-going').className='rsvp-btn'+(myRsvp?.status==='going'?' active-going':'');
+  document.getElementById('btn-maybe').className='rsvp-btn'+(myRsvp?.status==='maybe'?' active-maybe':'');
+  document.getElementById('btn-not').className='rsvp-btn'+(myRsvp?.status==='not_going'?' active-not':'');
+}
+window.setRsvp=async function(status){
+  if(myRsvp){
+    if(myRsvp.status===status){await supabase.from('event_participants').delete().eq('id',myRsvp.id);myRsvp=null;showToast('Отклик отменён');}
+    else{await supabase.from('event_participants').update({status}).eq('id',myRsvp.id);myRsvp.status=status;showToast('Статус обновлён','success');}
+  }else{
+    const{data}=await supabase.from('event_participants').insert({event_id:EVENT_ID,user_id:currentUser.id,status}).select().single();
+    myRsvp=data;showToast(status==='going'?'✅ Вы идёте!':status==='maybe'?'🤔 Возможно':'❌ Отмечено','success');
+  }
+  updateRsvpUI();await loadParticipants();
+};
+window.toggleLike=async function(){
+  if(myLike){await supabase.from('event_likes').delete().eq('id',myLike.id);event.likes=Math.max(0,(event.likes||1)-1);myLike=null;document.getElementById('like-btn').classList.remove('liked');}
+  else{const{data}=await supabase.from('event_likes').insert({event_id:EVENT_ID,user_id:currentUser.id}).select().single();event.likes=(event.likes||0)+1;myLike=data;document.getElementById('like-btn').classList.add('liked');}
+  await supabase.from('events').update({likes:event.likes}).eq('id',EVENT_ID);
+  document.getElementById('like-count').textContent=event.likes;
+  document.getElementById('stat-likes').textContent=event.likes;
+};
+window.sendComment=async function(){
+  const input=document.getElementById('comment-input');
+  const text=input.value.trim();if(!text)return;
+  input.value='';input.style.height='auto';
+  await supabase.from('event_comments').insert({event_id:EVENT_ID,user_id:currentUser.id,content:text});
+  event.comments_count=(event.comments_count||0)+1;
+  await supabase.from('events').update({comments_count:event.comments_count}).eq('id',EVENT_ID);
+  document.getElementById('stat-comments').textContent=event.comments_count;
+  await loadComments();
+};
+window.openOrganizer=function(){const owner=event.profiles;if(!owner)return;goPage(owner.id===currentUser.id?'profile.html':'user-profile.html?id='+owner.id);};
+window.shareEvent=async function(){const url=`https://sharecar.pro/app/event-card.html?id=${EVENT_ID}`;if(navigator.share)await navigator.share({title:event.title,url});else{await navigator.clipboard.writeText(url);showToast('Ссылка скопирована','success');}};
+window.shareToChat=function(){sessionStorage.setItem('shareEvent',JSON.stringify({id:EVENT_ID,title:event.title}));goPage('messages.html?share=event');};
+supabase.channel(`event-${EVENT_ID}`).on('postgres_changes',{event:'INSERT',schema:'public',table:'event_comments',filter:`event_id=eq.${EVENT_ID}`},()=>loadComments()).subscribe();
+init();
+</script>
+</body>
+</html>
