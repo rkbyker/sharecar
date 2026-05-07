@@ -976,22 +976,7 @@
     }
     function closeNewTopicModal() { document.getElementById('new-topic-modal').classList.remove('open'); }
 
-    async function submitNewTopic() {
-      if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
-      const title = document.getElementById('new-topic-title').value.trim();
-      const content = document.getElementById('new-topic-content').value.trim();
-      if (!title) { showToast('Введи заголовок', 'error'); return; }
-      if (!content) { showToast('Введи текст темы', 'error'); return; }
-      const { data, error } = await supabase.from('forum_topics').insert({
-        category_id: newTopicCatId, author_id: currentUser_forum.id, title, content
-      }).select().single();
-      if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
-      closeNewTopicModal();
-      document.getElementById('new-topic-title').value = '';
-      document.getElementById('new-topic-content').value = '';
-      showToast('Тема создана!', 'success');
-      openCategory(newTopicCatId, currentCategoryName);
-    }
+
 
     async function likeReply(replyId, btn) {
       if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
