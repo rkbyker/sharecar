@@ -145,6 +145,137 @@
     }
     .my-rank-label { font-size: 12px; color: #888; }
     .my-rank-val { font-size: 18px; font-weight: 700; color: #f59e0b; }
+
+    /* ── Forum ─────────────────────────────────── */
+    .forum-wrap { padding: 0 0 100px; }
+    .forum-categories { padding: 12px 12px 0; display: flex; flex-direction: column; gap: 8px; }
+    .forum-cat-card {
+      background: #141414; border: 1px solid #1e1e1e; border-radius: 14px;
+      padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+      cursor: pointer; transition: border-color .2s;
+    }
+    .forum-cat-card:active { border-color: #444; }
+    .forum-cat-icon { font-size: 28px; width: 44px; text-align: center; flex-shrink: 0; }
+    .forum-cat-info { flex: 1; min-width: 0; }
+    .forum-cat-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+    .forum-cat-desc { font-size: 12px; color: #666; }
+    .forum-cat-count { font-size: 12px; color: #555; white-space: nowrap; }
+    .forum-cat-arrow { color: #333; font-size: 14px; }
+
+    .forum-topics-wrap { display: none; padding: 0 0 100px; }
+    .forum-topics-wrap.open { display: block; }
+    .forum-back-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px; border-bottom: 1px solid #1e1e1e;
+      position: sticky; top: 100px; background: #0f0f0f; z-index: 80;
+    }
+    .forum-back-btn { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; }
+    .forum-back-title { font-size: 16px; font-weight: 700; flex: 1; }
+    .new-topic-btn {
+      background: #fff; color: #000; border: none; border-radius: 20px;
+      padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .topics-list { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+    .topic-card {
+      background: #141414; border: 1px solid #1e1e1e; border-radius: 14px;
+      padding: 14px; cursor: pointer; transition: border-color .2s;
+    }
+    .topic-card:active { border-color: #444; }
+    .topic-pinned { color: #f59e0b; font-size: 11px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+    .topic-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
+    .topic-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #666; flex-wrap: wrap; }
+    .topic-solved { color: #22c55e; font-weight: 600; }
+    .topic-actions { display: flex; gap: 14px; margin-top: 10px; }
+    .topic-action { background: none; border: none; color: #666; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: color .2s; }
+    .topic-action:hover { color: #fff; }
+    .topic-action.liked { color: #ef4444; }
+
+    /* Thread view */
+    .thread-wrap { display: none; padding: 0 0 100px; }
+    .thread-wrap.open { display: block; }
+    .thread-back-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px; border-bottom: 1px solid #1e1e1e;
+      position: sticky; top: 100px; background: #0f0f0f; z-index: 80;
+    }
+    .thread-title { font-size: 15px; font-weight: 700; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .thread-op {
+      padding: 16px; border-bottom: 1px solid #1e1e1e;
+      background: #0c0c1a;
+    }
+    .thread-op-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; line-height: 1.4; }
+    .thread-op-content { font-size: 14px; color: #ccc; line-height: 1.7; white-space: pre-wrap; }
+    .thread-op-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+    .thread-author { display: flex; align-items: center; gap: 8px; }
+    .thread-author-av { width: 30px; height: 30px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; overflow: hidden; }
+    .thread-author-av img { width: 100%; height: 100%; object-fit: cover; }
+    .thread-author-name { font-size: 13px; color: #aaa; }
+    .thread-op-time { font-size: 11px; color: #555; }
+    .replies-list { padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; }
+    .reply-card { background: #141414; border: 1px solid #1e1e1e; border-radius: 12px; padding: 14px; }
+    .reply-card.solution { border-color: #22c55e44; background: #0a1f0a; }
+    .reply-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .reply-author { display: flex; align-items: center; gap: 8px; }
+    .reply-av { width: 28px; height: 28px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; overflow: hidden; }
+    .reply-av img { width: 100%; height: 100%; object-fit: cover; }
+    .reply-name { font-size: 13px; font-weight: 600; }
+    .reply-time { font-size: 11px; color: #555; }
+    .reply-content { font-size: 14px; color: #ccc; line-height: 1.6; white-space: pre-wrap; }
+    .reply-footer { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+    .solution-badge { color: #22c55e; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+    .reply-form-wrap {
+      position: fixed; bottom: 70px; left: 0; right: 0;
+      background: #111; border-top: 1px solid #1e1e1e;
+      padding: 10px 12px; display: none; z-index: 60;
+    }
+    .reply-form-wrap.open { display: flex; gap: 10px; align-items: flex-end; }
+    .reply-textarea {
+      flex: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 12px;
+      color: #fff; padding: 10px 12px; font-size: 14px; resize: none;
+      min-height: 42px; max-height: 120px; font-family: inherit; outline: none;
+    }
+    .reply-send-btn {
+      background: #fff; color: #000; border: none; border-radius: 50%;
+      width: 42px; height: 42px; display: flex; align-items: center;
+      justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 16px;
+    }
+
+    /* New topic modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.85);
+      z-index: 300; display: none; align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet {
+      background: #111; border-radius: 20px 20px 0 0; padding: 20px 16px 40px;
+      width: 100%; max-width: 480px; border: 1px solid #1e1e1e;
+    }
+    .modal-handle { width: 36px; height: 4px; background: #333; border-radius: 2px; margin: 0 auto 16px; }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+    .modal-input {
+      width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 12px;
+      color: #fff; padding: 12px 14px; font-size: 15px; margin-bottom: 10px;
+      font-family: inherit; outline: none;
+    }
+    .modal-textarea {
+      width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 12px;
+      color: #fff; padding: 12px 14px; font-size: 14px; resize: none; height: 120px;
+      font-family: inherit; outline: none; margin-bottom: 14px;
+    }
+    .modal-submit {
+      width: 100%; background: #fff; color: #000; border: none; border-radius: 12px;
+      padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+    .modal-cancel {
+      width: 100%; background: none; border: none; color: #666;
+      padding: 10px; font-size: 14px; cursor: pointer; margin-top: 6px;
+    }
+
+    /* Records tab */
+    .records-wrap { padding: 16px 12px 100px; }
+    .records-coming { text-align: center; padding: 60px 20px; color: #555; }
+    .records-coming .icon { font-size: 48px; margin-bottom: 12px; }
   </style>
 </head>
 <body>
@@ -155,9 +286,11 @@
 
   <!-- Main tabs -->
   <div class="main-tabs">
-    <div class="main-tab active" onclick="switchMain('drivers')">🚗 Водители</div>
+    <div class="main-tab" onclick="switchMain('drivers')">🚗 Водители</div>
     <div class="main-tab" onclick="switchMain('passengers')">👥 Пассажиры</div>
     <div class="main-tab" onclick="switchMain('sport')">🏁 Спорт</div>
+    <div class="main-tab" onclick="switchMain('forum')">💬 Форум</div>
+    <div class="main-tab active" onclick="switchMain('records')">🏆 Рекорды</div>
   </div>
 
   <!-- DRIVERS TAB -->
@@ -245,6 +378,65 @@
     </div>
     <div class="rating-table" id="sport-table">
       <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+    </div>
+  </div>
+
+  <!-- FORUM TAB -->
+  <div class="tab-section" id="sec-forum">
+    <div class="forum-wrap" id="forum-wrap">
+      <!-- Список категорий -->
+      <div class="forum-categories" id="forum-cats-list">
+        <div style="text-align:center;padding:40px;color:#555"><i class="fa fa-circle-notch fa-spin"></i></div>
+      </div>
+    </div>
+
+    <!-- Список тем категории -->
+    <div class="forum-topics-wrap" id="forum-topics-wrap">
+      <div class="forum-back-bar">
+        <button class="forum-back-btn" onclick="backToCategories()"><i class="fas fa-arrow-left"></i></button>
+        <span class="forum-back-title" id="forum-cat-title"></span>
+        <button class="new-topic-btn" onclick="openNewTopicModal()"><i class="fas fa-plus"></i> Тема</button>
+      </div>
+      <div class="topics-list" id="topics-list"></div>
+    </div>
+
+    <!-- Просмотр темы -->
+    <div class="thread-wrap" id="thread-wrap">
+      <div class="thread-back-bar">
+        <button class="forum-back-btn" onclick="backToTopics()"><i class="fas fa-arrow-left"></i></button>
+        <span class="thread-title" id="thread-title-bar"></span>
+      </div>
+      <div class="thread-op" id="thread-op"></div>
+      <div class="replies-list" id="replies-list"></div>
+    </div>
+
+    <!-- Форма ответа -->
+    <div class="reply-form-wrap" id="reply-form">
+      <textarea class="reply-textarea" id="reply-textarea" placeholder="Написать ответ..." rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+      <button class="reply-send-btn" onclick="sendReply()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <!-- RECORDS TAB -->
+  <div class="tab-section" id="sec-records">
+    <div class="records-wrap">
+      <div class="records-coming">
+        <div class="icon">🏆</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:8px">Рекорды треков</div>
+        <div style="font-size:14px;color:#555;line-height:1.6">Здесь будут лучшие результаты заездов на треках.<br>Добавь свой рекорд через страницу трека.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW TOPIC MODAL -->
+  <div class="modal-overlay" id="new-topic-modal" onclick="if(event.target===this)closeNewTopicModal()">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Новая тема</div>
+      <input class="modal-input" id="new-topic-title" placeholder="Заголовок темы *" maxlength="120">
+      <textarea class="modal-textarea" id="new-topic-content" placeholder="Опиши тему подробнее..."></textarea>
+      <button class="modal-submit" onclick="submitNewTopic()">Опубликовать</button>
+      <button class="modal-cancel" onclick="closeNewTopicModal()">Отмена</button>
     </div>
   </div>
 
@@ -576,6 +768,217 @@
       ptr_indicator.style.transform = 'scaleX(0)';
       if (dy > 80) { showToast('🔄 Обновление...'); setTimeout(() => init(), 300); }
     }, { passive: true });
+  
+    // ── FORUM ──────────────────────────────────────────
+    let currentCategoryId = null;
+    let currentCategoryName = '';
+    let currentTopicId = null;
+    let currentUser_forum = null;
+
+    async function initForum() {
+      const { data: { user } } = await supabase.auth.getUser();
+      currentUser_forum = user;
+      loadCategories();
+    }
+
+    async function loadCategories() {
+      const { data } = await supabase.from('forum_categories').select('*').order('sort_order');
+      const list = document.getElementById('forum-cats-list');
+      if (!data || !data.length) { list.innerHTML = '<div style="text-align:center;padding:40px;color:#555">Категорий нет</div>'; return; }
+      list.innerHTML = data.map(cat => `
+        <div class="forum-cat-card" onclick="openCategory('${cat.id}','${escHtml(cat.name)}')">
+          <div class="forum-cat-icon">${cat.icon || '💬'}</div>
+          <div class="forum-cat-info">
+            <div class="forum-cat-name">${cat.name}</div>
+            <div class="forum-cat-desc">${cat.description || ''}</div>
+          </div>
+          <div class="forum-cat-count">${cat.topics_count || 0} тем</div>
+          <i class="fas fa-chevron-right forum-cat-arrow"></i>
+        </div>`).join('');
+    }
+
+    async function openCategory(catId, catName) {
+      currentCategoryId = catId;
+      currentCategoryName = catName;
+      document.getElementById('forum-cat-title').textContent = catName;
+      document.getElementById('forum-wrap').style.display = 'none';
+      document.getElementById('forum-topics-wrap').classList.add('open');
+      document.getElementById('thread-wrap').classList.remove('open');
+      document.getElementById('reply-form').classList.remove('open');
+      const { data } = await supabase.from('forum_topics')
+        .select('*, profiles(first_name, avatar_url)')
+        .eq('category_id', catId)
+        .order('is_pinned', { ascending: false })
+        .order('last_reply_at', { ascending: false })
+        .limit(50);
+      const list = document.getElementById('topics-list');
+      if (!data || !data.length) { list.innerHTML = '<div style="text-align:center;padding:40px;color:#555">Тем пока нет. Создай первую!</div>'; return; }
+      list.innerHTML = data.map(t => `
+        <div class="topic-card" onclick="openThread('${t.id}','${escHtml(t.title)}')">
+          ${t.is_pinned ? '<div class="topic-pinned">📌 Закреплено</div>' : ''}
+          <div class="topic-title">${t.title}</div>
+          <div class="topic-meta">
+            <span>${t.profiles?.first_name || 'Участник'}</span>
+            <span>💬 ${t.replies_count || 0}</span>
+            <span>❤️ ${t.likes || 0}</span>
+            <span>👁 ${t.views || 0}</span>
+            ${t.is_solved ? '<span class="topic-solved">✅ Решено</span>' : ''}
+            <span>${timeAgo(t.created_at)}</span>
+          </div>
+        </div>`).join('');
+    }
+
+    function backToCategories() {
+      document.getElementById('forum-wrap').style.display = '';
+      document.getElementById('forum-topics-wrap').classList.remove('open');
+      document.getElementById('thread-wrap').classList.remove('open');
+      document.getElementById('reply-form').classList.remove('open');
+    }
+
+    async function openThread(topicId, topicTitle) {
+      currentTopicId = topicId;
+      document.getElementById('thread-title-bar').textContent = topicTitle;
+      document.getElementById('forum-topics-wrap').classList.remove('open');
+      document.getElementById('thread-wrap').classList.add('open');
+      document.getElementById('reply-form').classList.add('open');
+      // increment views
+      await supabase.from('forum_topics').update({ views: supabase.rpc('increment', { x: 1 }) }).eq('id', topicId);
+      const [topicRes, repliesRes] = await Promise.all([
+        supabase.from('forum_topics').select('*, profiles(first_name, last_name, avatar_url)').eq('id', topicId).single(),
+        supabase.from('forum_replies').select('*, profiles(first_name, last_name, avatar_url)').eq('topic_id', topicId).order('created_at')
+      ]);
+      if (topicRes.data) renderThreadOp(topicRes.data);
+      if (repliesRes.data) renderReplies(repliesRes.data);
+    }
+
+    function renderThreadOp(t) {
+      const av = t.profiles?.avatar_url;
+      const name = (t.profiles?.first_name || '') + (t.profiles?.last_name ? ' ' + t.profiles.last_name : '');
+      document.getElementById('thread-op').innerHTML = `
+        <div class="thread-op-title">${t.title}</div>
+        <div class="thread-op-content">${escHtml(t.content)}</div>
+        <div class="thread-op-footer">
+          <div class="thread-author">
+            <div class="thread-author-av">${av ? `<img src="${av}">` : (name[0]||'?')}</div>
+            <span class="thread-author-name">${name || 'Участник'}</span>
+          </div>
+          <span class="thread-op-time">${timeAgo(t.created_at)}</span>
+        </div>`;
+    }
+
+    function renderReplies(replies) {
+      const list = document.getElementById('replies-list');
+      if (!replies.length) { list.innerHTML = '<div style="text-align:center;padding:30px;color:#555;font-size:14px">Будь первым кто ответит!</div>'; return; }
+      list.innerHTML = replies.map(r => {
+        const av = r.profiles?.avatar_url;
+        const name = (r.profiles?.first_name || '') + (r.profiles?.last_name ? ' ' + r.profiles.last_name : '');
+        return `<div class="reply-card ${r.is_solution ? 'solution' : ''}">
+          <div class="reply-header">
+            <div class="reply-author">
+              <div class="reply-av">${av ? `<img src="${av}">` : (name[0]||'?')}</div>
+              <div>
+                <div class="reply-name">${name || 'Участник'}</div>
+                <div class="reply-time">${timeAgo(r.created_at)}</div>
+              </div>
+            </div>
+            ${r.is_solution ? '<span class="solution-badge">✅ Решение</span>' : ''}
+          </div>
+          <div class="reply-content">${escHtml(r.content)}</div>
+          <div class="reply-footer">
+            <button class="topic-action" onclick="likeReply('${r.id}',this)"><i class="fas fa-heart"></i> ${r.likes || 0}</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function backToTopics() {
+      document.getElementById('thread-wrap').classList.remove('open');
+      document.getElementById('reply-form').classList.remove('open');
+      document.getElementById('forum-topics-wrap').classList.add('open');
+    }
+
+    async function sendReply() {
+      if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
+      const textarea = document.getElementById('reply-textarea');
+      const text = textarea.value.trim();
+      if (!text) return;
+      textarea.value = ''; textarea.style.height = 'auto';
+      const { data, error } = await supabase.from('forum_replies').insert({
+        topic_id: currentTopicId, author_id: currentUser_forum.id, content: text
+      }).select('*, profiles(first_name, last_name, avatar_url)').single();
+      if (!error && data) {
+        const list = document.getElementById('replies-list');
+        if (list.querySelector('[style*="Будь первым"]')) list.innerHTML = '';
+        const av = data.profiles?.avatar_url;
+        const name = (data.profiles?.first_name || '') + (data.profiles?.last_name ? ' ' + data.profiles.last_name : '');
+        list.insertAdjacentHTML('beforeend', `<div class="reply-card">
+          <div class="reply-header">
+            <div class="reply-author">
+              <div class="reply-av">${av ? `<img src="${av}">` : (name[0]||'?')}</div>
+              <div><div class="reply-name">${name||'Я'}</div><div class="reply-time">Только что</div></div>
+            </div>
+          </div>
+          <div class="reply-content">${escHtml(text)}</div>
+          <div class="reply-footer"><button class="topic-action"><i class="fas fa-heart"></i> 0</button></div>
+        </div>`);
+        list.lastElementChild.scrollIntoView({behavior:'smooth'});
+        await supabase.from('forum_topics').update({ replies_count: (await supabase.from('forum_topics').select('replies_count').eq('id',currentTopicId).single()).data?.replies_count + 1 || 1, last_reply_at: new Date().toISOString() }).eq('id', currentTopicId);
+      }
+    }
+
+    let newTopicCatId = null;
+    function openNewTopicModal() {
+      newTopicCatId = currentCategoryId;
+      document.getElementById('new-topic-modal').classList.add('open');
+    }
+    function closeNewTopicModal() { document.getElementById('new-topic-modal').classList.remove('open'); }
+
+    async function submitNewTopic() {
+      if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
+      const title = document.getElementById('new-topic-title').value.trim();
+      const content = document.getElementById('new-topic-content').value.trim();
+      if (!title) { showToast('Введи заголовок', 'error'); return; }
+      if (!content) { showToast('Введи текст темы', 'error'); return; }
+      const { data, error } = await supabase.from('forum_topics').insert({
+        category_id: newTopicCatId, author_id: currentUser_forum.id, title, content
+      }).select().single();
+      if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
+      closeNewTopicModal();
+      document.getElementById('new-topic-title').value = '';
+      document.getElementById('new-topic-content').value = '';
+      showToast('Тема создана!', 'success');
+      openCategory(newTopicCatId, currentCategoryName);
+    }
+
+    async function likeReply(replyId, btn) {
+      if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
+      btn.classList.toggle('liked');
+      const liked = btn.classList.contains('liked');
+      const cur = parseInt(btn.textContent.trim().split(' ').pop()) || 0;
+      btn.innerHTML = `<i class="fas fa-heart"></i> ${liked ? cur+1 : cur-1}`;
+      if (liked) await supabase.from('forum_replies').update({ likes: cur+1 }).eq('id', replyId);
+      else await supabase.from('forum_replies').update({ likes: Math.max(0,cur-1) }).eq('id', replyId);
+    }
+
+    function timeAgo(ts) {
+      const diff = (Date.now() - new Date(ts)) / 1000;
+      if (diff < 60) return 'только что';
+      if (diff < 3600) return Math.floor(diff/60) + ' мин назад';
+      if (diff < 86400) return Math.floor(diff/3600) + ' ч назад';
+      return Math.floor(diff/86400) + ' дн назад';
+    }
+    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // Инициализация форума при переключении на вкладку
+    const origSwitchMain = window.switchMain;
+    window.switchMain = function(tab) {
+      origSwitchMain(tab);
+      if (tab === 'forum') initForum();
+    };
+
+    // Запускаем records по умолчанию
+    switchMain('records');
+
   </script>
 </body>
 </html>
