@@ -181,20 +181,23 @@ window.createEvent=async function(){
     const{error}=await supabase.storage.from('photos').upload(fileName,file,{upsert:true});
     if(!error){const{data:urlData}=supabase.storage.from('photos').getPublicUrl(fileName);finalCoverUrl=urlData.publicUrl;}
   }
-  const{data,error}=await supabase.from('events').insert({
-    owner_id:currentUser.id,title,
-    description:description||null,
-    type:selectedType,
-    cover_photo:finalCoverUrl,
-    city:city||null,address:address||null,
-    date_start:dateStart?new Date(dateStart).toISOString():null,
-    date_end:dateEnd?new Date(dateEnd).toISOString():null,
-    max_participants:maxParticipants||null,
-    is_free:isFree,
-    price:isFree?0:price,
-    tags:tags.length?tags:null,
-    status:'active'
-  }).select().single();
+  const insertData = {
+    owner_id: currentUser.id,
+    title: title,
+    description: description || null,
+    type: selectedType,
+    cover_photo: finalCoverUrl,
+    city: city || null,
+    address: address || null,
+    date_start: dateStart ? new Date(dateStart).toISOString() : null,
+    date_end: dateEnd ? new Date(dateEnd).toISOString() : null,
+    max_participants: maxParticipants || null,
+    is_free: isFree,
+    price: isFree ? 0 : price,
+    tags: tags && tags.length ? tags : null,
+    status: 'active'
+  };
+  const {data, error} = await supabase.from('events').insert(insertData).select().single();
   if(error){showToast('Ошибка: '+error.message,'error');btn.disabled=false;btn.textContent='🚀 Создать мероприятие';return;}
   showToast('Мероприятие создано! 🎉','success');
   setTimeout(()=>{location.href='event-card.html?id='+data.id;},1000);

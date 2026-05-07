@@ -506,8 +506,7 @@
     let driverSort = 'score', passSort = 'score', sportSort = 'points';
 
     window.switchMain = switchMain;
-    window.setDriverSort = setDriverSort;
-    window.setPassSort = setPassSort;
+
     window.setSportSort = setSportSort;
     window.filterDrivers = filterDrivers;
     window.filterPassengers = filterPassengers;
@@ -516,7 +515,7 @@
 
     const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
 
-    window.init = async function init() {
+    window.init = async function() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { window.location.href = '/app/auth.html'; return; }
       currentUser = session.user;
@@ -672,7 +671,7 @@
       renderSportTable(aggArr);
     }
 
-    function setSportSort(sort, el) {
+    window.setSportSort = function(sort, el) {
       sportSort = sort;
       document.querySelectorAll('#sec-sport .sort-chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
@@ -970,7 +969,7 @@
     }
 
     let newTopicCatId = null;
-    function openNewTopicModal() {
+    window.openNewTopicModal = function() {
       newTopicCatId = currentCategoryId;
       document.getElementById('new-topic-modal').classList.add('open');
     }
