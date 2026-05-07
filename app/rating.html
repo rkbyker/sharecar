@@ -516,7 +516,7 @@
 
     const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
 
-    async function init() {
+    window.init = async function init() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { window.location.href = '/app/auth.html'; return; }
       currentUser = session.user;
@@ -526,7 +526,7 @@
     }
 
     // ── Drivers ───────────────────────────────────────────────────────────────
-    async function loadDrivers() {
+    window.loadDrivers = async function() {
       const { data } = await supabase
         .from('profiles')
         .select('id, first_name, last_name, level, city, score, rating_driver, trips_driven, avatar_url')
@@ -548,20 +548,20 @@
       }
     }
 
-    function renderDrivers(arr) {
+    window.renderDrivers = function(arr) {
       const sorted = [...arr].sort((a, b) => (b[driverSort] || 0) - (a[driverSort] || 0));
       renderPodium('drivers-podium', sorted.slice(0, 3));
       renderTable('drivers-table', sorted, 'driver');
     }
 
-    function setDriverSort(sort, el) {
+    window.setDriverSort = function(sort, el) {
       driverSort = sort;
       document.querySelectorAll('#d-sort-tabs .sort-chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
       renderDrivers(driversAll);
     }
 
-    function filterDrivers(q) {
+    window.filterDrivers = function(q) {
       const filtered = q
         ? driversAll.filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(q.toLowerCase()))
         : driversAll;
@@ -569,7 +569,7 @@
     }
 
     // ── Passengers ────────────────────────────────────────────────────────────
-    async function loadPassengers() {
+    window.loadPassengers = async function() {
       const { data } = await supabase
         .from('profiles')
         .select('id, first_name, last_name, level, city, score, rating_passenger, trips_rode, avatar_url')
@@ -590,20 +590,20 @@
       }
     }
 
-    function renderPassengers(arr) {
+    window.renderPassengers = function(arr) {
       const sorted = [...arr].sort((a, b) => (b[passSort] || 0) - (a[passSort] || 0));
       renderPodium('passengers-podium', sorted.slice(0, 3));
       renderTable('passengers-table', sorted, 'passenger');
     }
 
-    function setPassSort(sort, el) {
+    window.setPassSort = function(sort, el) {
       passSort = sort;
       document.querySelectorAll('#sec-passengers .sort-chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
       renderPassengers(passengersAll);
     }
 
-    function filterPassengers(q) {
+    window.filterPassengers = function(q) {
       const filtered = q
         ? passengersAll.filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(q.toLowerCase()))
         : passengersAll;
@@ -611,7 +611,7 @@
     }
 
     // ── Sport ─────────────────────────────────────────────────────────────────
-    async function loadTracks() {
+    window.loadTracks = async function() {
       const { data: tracks } = await supabase
         .from('racing_tracks')
         .select('id, name, category')
@@ -818,13 +818,13 @@
     let currentTopicId = null;
     let currentUser_forum = null;
 
-    async function initForum() {
+    window.initForum = async function() {
       const { data: { user } } = await supabase.auth.getUser();
       currentUser_forum = user;
       loadCategories();
     }
 
-    async function loadCategories() {
+    window.loadCategories = async function() {
       const { data } = await supabase.from('forum_categories').select('*').order('sort_order');
       const list = document.getElementById('forum-cats-list');
       if (!data || !data.length) { list.innerHTML = '<div style="text-align:center;padding:40px;color:#555">Категорий нет</div>'; return; }
@@ -840,7 +840,7 @@
         </div>`).join('');
     }
 
-    async function openCategory(catId, catName) {
+    window.openCategory = async function(catId, catName) {
       currentCategoryId = catId;
       currentCategoryName = catName;
       document.getElementById('forum-cat-title').textContent = catName;
@@ -871,14 +871,14 @@
         </div>`).join('');
     }
 
-    function backToCategories() {
+    window.backToCategories = function() {
       document.getElementById('forum-wrap').style.display = '';
       document.getElementById('forum-topics-wrap').classList.remove('open');
       document.getElementById('thread-wrap').classList.remove('open');
       document.getElementById('reply-form').classList.remove('open');
     }
 
-    async function openThread(topicId, topicTitle) {
+    window.openThread = async function(topicId, topicTitle) {
       currentTopicId = topicId;
       document.getElementById('thread-title-bar').textContent = topicTitle;
       document.getElementById('forum-topics-wrap').classList.remove('open');
@@ -894,7 +894,7 @@
       if (repliesRes.data) renderReplies(repliesRes.data);
     }
 
-    function renderThreadOp(t) {
+    window.renderThreadOp = function(t) {
       const av = t.profiles?.avatar_url;
       const name = (t.profiles?.first_name || '') + (t.profiles?.last_name ? ' ' + t.profiles.last_name : '');
       document.getElementById('thread-op').innerHTML = `
@@ -909,7 +909,7 @@
         </div>`;
     }
 
-    function renderReplies(replies) {
+    window.renderReplies = function(replies) {
       const list = document.getElementById('replies-list');
       if (!replies.length) { list.innerHTML = '<div style="text-align:center;padding:30px;color:#555;font-size:14px">Будь первым кто ответит!</div>'; return; }
       list.innerHTML = replies.map(r => {
@@ -934,13 +934,13 @@
       }).join('');
     }
 
-    function backToTopics() {
+    window.backToTopics = function() {
       document.getElementById('thread-wrap').classList.remove('open');
       document.getElementById('reply-form').classList.remove('open');
       document.getElementById('forum-topics-wrap').classList.add('open');
     }
 
-    async function sendReply() {
+    window.sendReply = async function() {
       if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
       const textarea = document.getElementById('reply-textarea');
       const text = textarea.value.trim();
@@ -974,11 +974,11 @@
       newTopicCatId = currentCategoryId;
       document.getElementById('new-topic-modal').classList.add('open');
     }
-    function closeNewTopicModal() { document.getElementById('new-topic-modal').classList.remove('open'); }
+    window.closeNewTopicModal = function() { document.getElementById('new-topic-modal').classList.remove('open'); };
 
 
 
-    async function likeReply(replyId, btn) {
+    window.likeReply = async function(replyId, btn) {
       if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
       btn.classList.toggle('liked');
       const liked = btn.classList.contains('liked');
@@ -988,14 +988,14 @@
       else await supabase.from('forum_replies').update({ likes: Math.max(0,cur-1) }).eq('id', replyId);
     }
 
-    function timeAgo(ts) {
+    window.timeAgo = function(ts) {
       const diff = (Date.now() - new Date(ts)) / 1000;
       if (diff < 60) return 'только что';
       if (diff < 3600) return Math.floor(diff/60) + ' мин назад';
       if (diff < 86400) return Math.floor(diff/3600) + ' ч назад';
       return Math.floor(diff/86400) + ' дн назад';
     }
-    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    window.escHtml = function(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     // Инициализация форума при переключении на вкладку
     const origSwitchMain = window.switchMain;
@@ -1005,7 +1005,7 @@
     };
 
     // ── TOP TAB SWITCH ─────────────────────────
-    function switchTop(tab) {
+    window.switchTop = function(tab) {
       document.querySelectorAll('#top-tab-forum,#top-tab-rating').forEach(t=>t.classList.remove('active'));
       document.getElementById('top-tab-'+tab).classList.add('active');
       document.getElementById('top-panel-forum').style.display = tab==='forum' ? 'block' : 'none';
@@ -1027,7 +1027,7 @@
     let activeCatFilter = '';
     let allTopicsCache = [];
 
-    async function loadAllTopicsForForum() {
+    window.loadAllTopicsForForum = async function() {
       const { data: cats } = await supabase.from('forum_categories').select('*').order('sort_order');
       if (cats) {
         const bar = document.getElementById('cat-filter-bar');
@@ -1050,18 +1050,18 @@
       renderTopicsInForum(allTopicsCache);
     }
 
-    function selectCatFilter(el, catId) {
+    window.selectCatFilter = function(el, catId) {
       document.querySelectorAll('#cat-filter-bar .sort-chip').forEach(c=>c.classList.remove('active'));
       el.classList.add('active');
       activeCatFilter = catId;
       applyForumFilters();
     }
 
-    function filterTopicsGlobal(q) {
+    window.filterTopicsGlobal = function(q) {
       applyForumFilters(q);
     }
 
-    function applyForumFilters(q) {
+    window.applyForumFilters = function(q) {
       const query = (q !== undefined ? q : document.getElementById('forum-search').value).toLowerCase();
       let list = allTopicsCache;
       if (activeCatFilter) list = list.filter(t => t.category_id === activeCatFilter);
@@ -1069,7 +1069,7 @@
       renderTopicsInForum(list);
     }
 
-    function renderTopicsInForum(topics) {
+    window.renderTopicsInForum = function(topics) {
       const list = document.getElementById('topics-list');
       if (!list) return;
       if (!topics.length) {
