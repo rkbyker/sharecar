@@ -286,15 +286,41 @@
 
   <!-- Main tabs -->
   <div class="main-tabs">
-    <div class="main-tab" onclick="switchMain('drivers')">🚗 Водители</div>
-    <div class="main-tab" onclick="switchMain('passengers')">👥 Пассажиры</div>
-    <div class="main-tab" onclick="switchMain('sport')">🏁 Спорт</div>
-    <div class="main-tab" onclick="switchMain('forum')">💬 Форум</div>
-    <div class="main-tab active" onclick="switchMain('records')">🏆 Рекорды</div>
+    <div class="main-tab active" id="top-tab-forum" onclick="switchTop('forum')">💬 Форум</div>
+    <div class="main-tab" id="top-tab-rating" onclick="switchTop('rating')">🏆 Рейтинг</div>
+  </div>
+
+  <!-- FORUM PANEL -->
+  <div id="top-panel-forum" style="display:block">
+    <!-- поиск + фильтры форума -->
+    <div style="padding:12px 12px 0;display:flex;gap:8px;align-items:center">
+      <div style="flex:1;position:relative">
+        <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#555;font-size:13px"></i>
+        <input id="forum-search" type="text" placeholder="Поиск по темам..." oninput="filterTopicsGlobal(this.value)"
+          style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;color:#fff;padding:9px 12px 9px 34px;font-size:14px;outline:none">
+      </div>
+      <button onclick="openNewTopicModal()" style="background:#fff;color:#000;border:none;border-radius:12px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">
+        <i class="fas fa-plus"></i> Тема
+      </button>
+    </div>
+    <!-- фильтр по категории -->
+    <div style="display:flex;overflow-x:auto;gap:8px;padding:10px 12px;scrollbar-width:none" id="cat-filter-bar">
+      <div class="sort-chip active" data-cat="" onclick="selectCatFilter(this,'')">Все</div>
+    </div>
+  </div>
+
+  <!-- RATING PANEL sub-tabs -->
+  <div id="top-panel-rating" style="display:none">
+    <div class="main-tabs" style="border-top:none;top:auto;position:relative">
+      <div class="main-tab active" onclick="switchMain('drivers')">🚗 Водители</div>
+      <div class="main-tab" onclick="switchMain('passengers')">👥 Пассажиры</div>
+      <div class="main-tab" onclick="switchMain('sport')">🏁 Спорт</div>
+      <div class="main-tab" onclick="switchMain('records')">🏆 Рекорды</div>
+    </div>
   </div>
 
   <!-- DRIVERS TAB -->
-  <div class="tab-section active" id="sec-drivers">
+  <div class="tab-section" id="sec-drivers">
     <div class="podium" id="drivers-podium">
       <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
     </div>
@@ -976,8 +1002,155 @@
       if (tab === 'forum') initForum();
     };
 
-    // Запускаем records по умолчанию
-    switchMain('records');
+    // ── TOP TAB SWITCH ─────────────────────────
+    function switchTop(tab) {
+      document.querySelectorAll('#top-tab-forum,#top-tab-rating').forEach(t=>t.classList.remove('active'));
+      document.getElementById('top-tab-'+tab).classList.add('active');
+      document.getElementById('top-panel-forum').style.display = tab==='forum' ? 'block' : 'none';
+      document.getElementById('top-panel-rating').style.display = tab==='rating' ? 'block' : 'none';
+      document.getElementById('sec-forum').style.display = tab==='forum' ? 'block' : 'none';
+      // rating sections
+      ['sec-drivers','sec-passengers','sec-sport','sec-records'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.style.display='none';
+      });
+      if(tab==='rating') {
+        switchMain('drivers');
+      } else {
+        initForum();
+      }
+    }
+
+    // ── FORUM CATEGORY FILTER ────────────────────
+    let activeCatFilter = '';
+    let allTopicsCache = [];
+
+    async function loadAllTopicsForForum() {
+      const { data: cats } = await supabase.from('forum_categories').select('*').order('sort_order');
+      if (cats) {
+        const bar = document.getElementById('cat-filter-bar');
+        cats.forEach(cat => {
+          const chip = document.createElement('div');
+          chip.className = 'sort-chip';
+          chip.dataset.cat = cat.id;
+          chip.textContent = (cat.icon||'') + ' ' + cat.name;
+          chip.onclick = () => selectCatFilter(chip, cat.id);
+          bar.appendChild(chip);
+        });
+      }
+      const { data: topics } = await supabase
+        .from('forum_topics')
+        .select('*, profiles(first_name, avatar_url), forum_categories(name, icon)')
+        .order('is_pinned', { ascending: false })
+        .order('last_reply_at', { ascending: false })
+        .limit(100);
+      allTopicsCache = topics || [];
+      renderTopicsInForum(allTopicsCache);
+    }
+
+    function selectCatFilter(el, catId) {
+      document.querySelectorAll('#cat-filter-bar .sort-chip').forEach(c=>c.classList.remove('active'));
+      el.classList.add('active');
+      activeCatFilter = catId;
+      applyForumFilters();
+    }
+
+    function filterTopicsGlobal(q) {
+      applyForumFilters(q);
+    }
+
+    function applyForumFilters(q) {
+      const query = (q !== undefined ? q : document.getElementById('forum-search').value).toLowerCase();
+      let list = allTopicsCache;
+      if (activeCatFilter) list = list.filter(t => t.category_id === activeCatFilter);
+      if (query) list = list.filter(t => t.title.toLowerCase().includes(query) || (t.content||'').toLowerCase().includes(query));
+      renderTopicsInForum(list);
+    }
+
+    function renderTopicsInForum(topics) {
+      const list = document.getElementById('topics-list');
+      if (!list) return;
+      if (!topics.length) {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:#555">Тем не найдено</div>';
+        return;
+      }
+      list.innerHTML = topics.map(t => `
+        <div class="topic-card" onclick="openThread('${t.id}','${escHtml(t.title)}')">
+          ${t.is_pinned ? '<div class="topic-pinned">📌 Закреплено</div>' : ''}
+          <div style="font-size:11px;color:#555;margin-bottom:4px">${t.forum_categories?.icon||''} ${t.forum_categories?.name||''}</div>
+          <div class="topic-title">${t.title}</div>
+          <div class="topic-meta">
+            <span>${t.profiles?.first_name||'Участник'}</span>
+            <span>💬 ${t.replies_count||0}</span>
+            <span>❤️ ${t.likes||0}</span>
+            <span>👁 ${t.views||0}</span>
+            ${t.is_solved ? '<span class="topic-solved">✅ Решено</span>' : ''}
+            <span>${timeAgo(t.created_at)}</span>
+          </div>
+        </div>`).join('');
+    }
+
+    // Переопределяем initForum чтобы грузила все топики
+    const _origInitForum = window.initForum;
+    window.initForum = async function() {
+      const { data: { user } } = await supabase.auth.getUser();
+      currentUser_forum = user;
+      // показываем topics-list вместо категорий
+      document.getElementById('forum-wrap').style.display = '';
+      document.getElementById('forum-cats-list').style.display = 'none';
+      if (!allTopicsCache.length) await loadAllTopicsForForum();
+    };
+
+    // Переопределяем openThread чтобы topics-list был виден при возврате
+    const _origBackToTopics = window.backToTopics;
+    window.backToTopics = function() {
+      document.getElementById('thread-wrap').classList.remove('open');
+      document.getElementById('reply-form').classList.remove('open');
+      document.getElementById('forum-wrap').style.display = '';
+    };
+
+    // Переопределяем openNewTopicModal — категорию выбираем в модалке
+    window.openNewTopicModal = function() {
+      newTopicCatId = null;
+      document.getElementById('new-topic-modal').classList.add('open');
+      // добавляем селект категории если нет
+      if (!document.getElementById('new-topic-cat-select')) {
+        supabase.from('forum_categories').select('*').order('sort_order').then(({data})=>{
+          if (!data) return;
+          const sel = document.createElement('select');
+          sel.id = 'new-topic-cat-select';
+          sel.style.cssText='width:100%;background:#1a1a1a;border:1px solid #333;border-radius:12px;color:#fff;padding:12px 14px;font-size:14px;margin-bottom:10px;font-family:inherit;outline:none;appearance:none';
+          sel.innerHTML = '<option value="">Выбери категорию *</option>' + data.map(c=>`<option value="${c.id}">${c.icon||''} ${c.name}</option>`).join('');
+          const titleInput = document.getElementById('new-topic-title');
+          titleInput.parentNode.insertBefore(sel, titleInput);
+        });
+      }
+    };
+
+    const _origSubmit = window.submitNewTopic;
+    window.submitNewTopic = async function() {
+      const sel = document.getElementById('new-topic-cat-select');
+      if (sel && sel.value) newTopicCatId = sel.value;
+      if (!newTopicCatId) { showToast('Выбери категорию', 'error'); return; }
+      if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
+      const title = document.getElementById('new-topic-title').value.trim();
+      const content_txt = document.getElementById('new-topic-content').value.trim();
+      if (!title) { showToast('Введи заголовок', 'error'); return; }
+      if (!content_txt) { showToast('Введи текст темы', 'error'); return; }
+      const { data, error } = await supabase.from('forum_topics').insert({
+        category_id: newTopicCatId, author_id: currentUser_forum.id, title, content: content_txt
+      }).select('*, profiles(first_name,avatar_url), forum_categories(name,icon)').single();
+      if (error) { showToast('Ошибка: '+error.message,'error'); return; }
+      closeNewTopicModal();
+      document.getElementById('new-topic-title').value='';
+      document.getElementById('new-topic-content').value='';
+      showToast('Тема создана!','success');
+      allTopicsCache.unshift(data);
+      renderTopicsInForum(allTopicsCache);
+    };
+
+    // Старт — форум открыт по умолчанию
+    switchTop('forum');
 
   </script>
 </body>
