@@ -111,15 +111,15 @@
 
   <div class="form-section">
     <div class="form-section-title">Фото</div>
-    <div class="photos-upload-area" id="photos-upload-area" onclick="document.getElementById('photos-input').click()">
-      <div class="photos-upload-placeholder" id="photos-placeholder">
+    <div class="photos-upload-area" id="photos-upload-area">
+      <div class="photos-upload-placeholder" id="photos-placeholder" onclick="document.getElementById('photos-input').click()">
         <i class="fa fa-images"></i>
         <span>Нажми чтобы добавить фото (можно несколько)</span>
       </div>
       <div class="photos-grid-preview" id="photos-grid-preview" style="display:none"></div>
       <div class="add-more-btn" id="add-more-btn" style="display:none" onclick="document.getElementById('photos-input').click()"><i class="fa fa-plus"></i> Добавить ещё</div>
     </div>
-    <input type="file" id="photos-input" accept="image/*" multiple style="display:none" onchange="handlePhotosChange(this)">
+    <input type="file" id="photos-input" accept="image/jpeg,image/png,image/webp,image/gif" multiple style="display:none" onchange="handlePhotosChange(this)">
     <p class="hint">Первое фото — обложка. Нажми на любое фото чтобы сделать его обложкой.</p>
   </div>
 
