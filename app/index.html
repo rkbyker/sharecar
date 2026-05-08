@@ -585,7 +585,9 @@
     import '../js/nav.js';
 
     // Auto-load events after module init
-    if (!window._eventsLoaded && (localStorage.getItem('sc_tab') || 'events') === 'events') {
+    const _startTab = localStorage.getItem('sc_tab') || 'events';
+    if (_startTab === 'events') {
+      window._eventsLoaded = true;
       window._loadEvents();
     }
 
