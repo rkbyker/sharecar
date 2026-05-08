@@ -161,6 +161,12 @@ async function init(){
   document.getElementById('date-end').min=nowStr;
 }
 window.createEvent=async function(){
+  // Получаем пользователя заново на случай если ещё не загружен
+  if(!currentUser){
+    const {data:{user}} = await supabase.auth.getUser();
+    if(!user){location.href='auth.html';return;}
+    currentUser = user;
+  }
   const title=document.getElementById('title').value.trim();
   const description=document.getElementById('description').value.trim();
   const dateStart=document.getElementById('date-start').value;
@@ -178,7 +184,7 @@ window.createEvent=async function(){
     const file=window._coverFile;
     const ext=file.name.split('.').pop();
     const fileName=`events/${currentUser.id}/${Date.now()}.${ext}`;
-    const{error}=await supabase.storage.from('photos').upload(fileName,file,{upsert:true});
+    const{error}=await supabase.storage.from('photos').upload(fileName, file, {upsert: true, contentType: file.type});
     if(!error){const{data:urlData}=supabase.storage.from('photos').getPublicUrl(fileName);finalCoverUrl=urlData.publicUrl;}
   }
   const insertData = {
