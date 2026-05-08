@@ -481,7 +481,7 @@ function renderReplies(replies) {
         '<div class="reply-time">' + timeAgo(r.created_at) + '</div>' +
       '</div>' +
       '<div class="reply-body">' + esc(r.content) + '</div>' +
-      '<div class="reply-actions"><button class="reply-like-btn" onclick="likeReply('' + r.id + '',this)"><i class="fa fa-heart"></i> <span>' + (r.likes || 0) + '</span></button></div>';
+      '<div class="reply-actions"><button class="reply-like-btn" onclick="likeReply(this.dataset.rid,this)" data-rid="' + r.id + '"><i class="fa fa-heart"></i> <span>' + (r.likes || 0) + '</span></button></div>';
     list.appendChild(card);
   });
 }
