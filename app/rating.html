@@ -341,7 +341,13 @@ async function loadForum() {
 
 function renderCatChips() {
   const wrap = document.getElementById('forum-cats');
-  wrap.innerHTML = '<div class="cat-chip active" data-cat="" onclick="selectCat(this,\'\')">Все</div>';
+  wrap.innerHTML = '';
+  const all = document.createElement('div');
+  all.className = 'cat-chip active';
+  all.dataset.cat = '';
+  all.textContent = 'Все';
+  all.onclick = function() { selectCat(all, ''); };
+  wrap.appendChild(all);
   topicsCats.forEach(function(c) {
     const chip = document.createElement('div');
     chip.className = 'cat-chip';
