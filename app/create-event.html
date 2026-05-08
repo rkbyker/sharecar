@@ -35,12 +35,18 @@
     .type-btn.active { background: #f59e0b20; border-color: #f59e0b; }
     .type-btn.active .type-label { color: #f59e0b; }
 
-    .cover-upload { width: 100%; height: 160px; background: #0f0f1a; border: 2px dashed #2a2a4a; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; gap: 8px; overflow: hidden; position: relative; transition: border-color 0.2s; }
-    .cover-upload:active { border-color: #f59e0b; }
-    .cover-upload i { font-size: 32px; color: #555; }
-    .cover-upload span { font-size: 13px; color: #555; }
-    .cover-upload img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .remove-cover { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; z-index: 2; }
+    .photos-upload-area { width:100%; min-height:100px; background:#0f0f1a; border:2px dashed #2a2a4a; border-radius:12px; padding:12px; cursor:pointer; transition:border-color 0.2s; }
+    .photos-upload-area:active { border-color:#f59e0b; }
+    .photos-upload-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px 0; }
+    .photos-upload-placeholder i { font-size:32px; color:#555; }
+    .photos-upload-placeholder span { font-size:13px; color:#555; }
+    .photos-grid-preview { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .photo-thumb { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:2px solid transparent; cursor:pointer; }
+    .photo-thumb img { width:100%; height:100%; object-fit:cover; }
+    .photo-thumb.is-cover { border-color:#f59e0b; }
+    .photo-thumb .cover-badge { position:absolute; bottom:4px; left:4px; background:#f59e0b; color:#000; font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px; }
+    .photo-thumb .remove-photo { position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.7); border:none; color:#fff; width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center; }
+    .add-more-btn { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:10px; background:#1a1a2e; border:1px dashed #2a2a4a; border-radius:10px; padding:10px; color:#888; font-size:13px; cursor:pointer; }
 
     .toggle-row { display: flex; align-items: center; justify-content: space-between; }
     .toggle-label { font-size: 14px; color: #ccc; }
@@ -104,13 +110,17 @@
   </div>
 
   <div class="form-section">
-    <div class="form-section-title">Фото обложки</div>
-    <div class="cover-upload" id="cover-upload" onclick="document.getElementById('cover-input').click()">
-      <i class="fa fa-camera"></i>
-      <span>Нажми чтобы добавить фото</span>
+    <div class="form-section-title">Фото</div>
+    <div class="photos-upload-area" id="photos-upload-area" onclick="document.getElementById('photos-input').click()">
+      <div class="photos-upload-placeholder" id="photos-placeholder">
+        <i class="fa fa-images"></i>
+        <span>Нажми чтобы добавить фото (можно несколько)</span>
+      </div>
+      <div class="photos-grid-preview" id="photos-grid-preview" style="display:none"></div>
+      <div class="add-more-btn" id="add-more-btn" style="display:none" onclick="document.getElementById('photos-input').click()"><i class="fa fa-plus"></i> Добавить ещё</div>
     </div>
-    <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCoverChange(this)">
-    <p class="hint">Рекомендуемый размер: 1200×630</p>
+    <input type="file" id="photos-input" accept="image/*" multiple style="display:none" onchange="handlePhotosChange(this)">
+    <p class="hint">Первое фото — обложка. Нажми на любое фото чтобы сделать его обложкой.</p>
   </div>
 
   <div class="form-section">
@@ -179,7 +189,8 @@
   let selectedType = 'drive';
   let isFree       = true;
   let tags         = [];
-  let coverFile    = null;
+  let photoFiles = []; // массив {file, url, isCover}
+  let coverFile = null; // для обратной совместимости
 
   function showToast(msg, type) {
     const t = document.getElementById('toast');
@@ -232,25 +243,60 @@
     ).join('');
   }
 
-  function handleCoverChange(input) {
-    const file = input.files[0];
-    if (!file) return;
-    coverFile = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      document.getElementById('cover-upload').innerHTML =
-        '<img src="' + e.target.result + '" alt="">' +
-        '<button class="remove-cover" onclick="removeCover(event)"><i class="fa fa-times"></i></button>';
-    };
-    reader.readAsDataURL(file);
+  function handlePhotosChange(input) {
+    const files = Array.from(input.files);
+    if (!files.length) return;
+    files.forEach(function(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const isCover = photoFiles.length === 0;
+        photoFiles.push({ file: file, url: e.target.result, isCover: isCover });
+        if (isCover) coverFile = file;
+        renderPhotoPreviews();
+      };
+      reader.readAsDataURL(file);
+    });
+    input.value = '';
   }
 
-  function removeCover(e) {
+  function renderPhotoPreviews() {
+    const placeholder = document.getElementById('photos-placeholder');
+    const grid = document.getElementById('photos-grid-preview');
+    const addMore = document.getElementById('add-more-btn');
+    if (photoFiles.length === 0) {
+      placeholder.style.display = 'flex';
+      grid.style.display = 'none';
+      addMore.style.display = 'none';
+      return;
+    }
+    placeholder.style.display = 'none';
+    grid.style.display = 'grid';
+    addMore.style.display = 'flex';
+    grid.innerHTML = photoFiles.map(function(p, i) {
+      return '<div class="photo-thumb' + (p.isCover ? ' is-cover' : '') + '" onclick="setCover(' + i + ')">' +
+        '<img src="' + p.url + '" alt="">' +
+        (p.isCover ? '<div class="cover-badge">ОБЛОЖКА</div>' : '') +
+        '<button class="remove-photo" onclick="removePhoto(event,' + i + ')"><i class="fa fa-times"></i></button>' +
+        '</div>';
+    }).join('');
+  }
+
+  function setCover(idx) {
+    photoFiles.forEach(function(p, i) { p.isCover = (i === idx); });
+    coverFile = photoFiles[idx].file;
+    renderPhotoPreviews();
+  }
+
+  function removePhoto(e, idx) {
     e.stopPropagation();
-    coverFile = null;
-    document.getElementById('cover-upload').innerHTML =
-      '<i class="fa fa-camera"></i><span>Нажми чтобы добавить фото</span>';
-    document.getElementById('cover-input').value = '';
+    photoFiles.splice(idx, 1);
+    if (photoFiles.length > 0 && !photoFiles.some(function(p) { return p.isCover; })) {
+      photoFiles[0].isCover = true;
+      coverFile = photoFiles[0].file;
+    } else if (photoFiles.length === 0) {
+      coverFile = null;
+    }
+    renderPhotoPreviews();
   }
 
   async function submitEvent() {
@@ -277,17 +323,21 @@
     btn.textContent = 'Создаём...';
 
     let finalCoverUrl = null;
-    if (coverFile) {
+    let finalPhotos = [];
+    if (photoFiles.length > 0) {
       try {
-        const ext  = coverFile.name.split('.').pop().toLowerCase();
-        const path = 'events/' + currentUser.id + '/' + Date.now() + '.' + ext;
-        const { error: upErr } = await sb.storage.from('photos').upload(path, coverFile, { upsert: true, contentType: coverFile.type });
-        if (!upErr) {
-          const { data: urlData } = sb.storage.from('photos').getPublicUrl(path);
-          finalCoverUrl = urlData.publicUrl;
-        } else {
-          console.warn('Обложка не загружена:', upErr.message);
+        for (let i = 0; i < photoFiles.length; i++) {
+          const pf = photoFiles[i];
+          const ext = pf.file.name.split('.').pop().toLowerCase();
+          const fpath = 'events/' + currentUser.id + '/' + Date.now() + '_' + i + '.' + ext;
+          const { error: upErr } = await sb.storage.from('photos').upload(fpath, pf.file, { upsert: true, contentType: pf.file.type });
+          if (!upErr) {
+            const { data: urlData } = sb.storage.from('photos').getPublicUrl(fpath);
+            finalPhotos.push(urlData.publicUrl);
+            if (pf.isCover) finalCoverUrl = urlData.publicUrl;
+          }
         }
+        if (!finalCoverUrl && finalPhotos.length > 0) finalCoverUrl = finalPhotos[0];
       } catch(e) { console.warn('upload error:', e); }
     }
 
@@ -297,6 +347,7 @@
       description:      description || null,
       type:             selectedType,
       cover_photo:      finalCoverUrl,
+      photos:           finalPhotos.length ? finalPhotos : null,
       city:             city || null,
       address:          address || null,
       date_start:       dateStart ? new Date(dateStart).toISOString() : null,
