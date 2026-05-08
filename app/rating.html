@@ -282,6 +282,7 @@ const SUPA_URL = 'https://ktqiyywdgokktiwavgbq.supabase.co';
 const SUPA_KEY = 'sb_publishable_UqkqWGlqU0Slw7a4azOoGg_l8E3vUYP';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
+function goPage(p){window.location.href=p;}
 let currentUser = null;
 let driversAll = [], passengersAll = [], sportAll = [];
 let dSort = 'score', pSort = 'score', sSort = 'points';
