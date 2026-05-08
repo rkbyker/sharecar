@@ -249,6 +249,11 @@
   async function handlePhotosChange(input) {
     const newFiles = Array.from(input.files);
     if (!newFiles.length) return;
+    if (!currentUser) {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { location.href = 'auth.html'; return; }
+      currentUser = session.user;
+    }
     if (uploadedPhotoUrls.length + newFiles.length > 8) { showToast('Максимум 8 фотографий', 'error'); return; }
     const startIdx = uploadedPhotoUrls.length;
     const localPreviews = newFiles.map(function(f) { return URL.createObjectURL(f); });
