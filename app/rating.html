@@ -4,377 +4,242 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <meta name="theme-color" content="#0f0f0f">
-  <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Sharecar — Рейтинг</title>
   <link rel="stylesheet" href="../css/app.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
   <style>
-    body { background: #0f0f0f; padding-bottom: 80px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f0f0f; color: #fff; font-family: -apple-system, sans-serif; padding-bottom: 80px; }
 
-    .top-bar {
-      display: flex; align-items: center; justify-content: center;
-      padding: 14px 16px; position: sticky; top: 0; background: #0f0f0f; z-index: 100;
-      border-bottom: 1px solid #1e1e3a;
-    }
+    .top-bar { display: flex; align-items: center; justify-content: center; padding: 14px 16px; position: sticky; top: 0; background: #0f0f0f; z-index: 100; border-bottom: 1px solid #1e1e3a; }
     .logo { font-size: 18px; font-weight: 800; }
     .logo span { color: #f59e0b; }
 
-    /* Main tabs */
-    .main-tabs {
-      display: flex; background: #141428;
-      border-bottom: 1px solid #1e1e3a;
-    }
-    .main-tab {
-      flex: 1; padding: 12px 6px; text-align: center;
-      font-size: 13px; font-weight: 600; color: #555;
-      cursor: pointer; border-bottom: 2px solid transparent;
-      transition: all .2s;
-    }
-    .main-tab.active { color: #f59e0b; border-bottom-color: #f59e0b; }
+    .top-tabs { display: flex; background: #141414; border-bottom: 2px solid #1e1e3a; position: sticky; top: 49px; z-index: 90; }
+    .top-tab { flex: 1; padding: 13px 6px; text-align: center; font-size: 14px; font-weight: 700; color: #555; cursor: pointer; border-bottom: 3px solid transparent; transition: all .2s; margin-bottom: -2px; }
+    .top-tab.active { color: #f59e0b; border-bottom-color: #f59e0b; }
+    .top-panel { display: none; }
+    .top-panel.active { display: block; }
 
-    /* Podium */
-    .podium {
-      display: flex; align-items: flex-end; justify-content: center;
-      gap: 8px; padding: 20px 16px 16px;
-    }
+    .sub-tabs { display: flex; overflow-x: auto; scrollbar-width: none; background: #141428; border-bottom: 1px solid #1e1e3a; }
+    .sub-tabs::-webkit-scrollbar { display: none; }
+    .sub-tab { flex-shrink: 0; padding: 10px 16px; font-size: 13px; font-weight: 600; color: #555; cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; }
+    .sub-tab.active { color: #f59e0b; border-bottom-color: #f59e0b; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+
+    .podium { display: flex; align-items: flex-end; justify-content: center; gap: 8px; padding: 20px 16px 16px; }
     .podium-item { text-align: center; flex: 1; }
-    .podium-avatar {
-      margin: 0 auto 6px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; font-weight: 700;
-    }
+    .podium-avatar { margin: 0 auto 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; overflow: hidden; }
+    .podium-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
     .podium-place { font-size: 18px; margin-bottom: 4px; }
     .podium-name { font-size: 12px; font-weight: 600; color: #ccc; }
     .podium-pts { font-size: 13px; font-weight: 700; color: #f59e0b; }
-    .podium-item.first .podium-avatar { width: 68px; height: 68px; }
-    .podium-item.second .podium-avatar, .podium-item.third .podium-avatar { width: 52px; height: 52px; }
-    .podium-item.first { order: 2; }
-    .podium-item.second { order: 1; }
-    .podium-item.third { order: 3; }
+    .podium-item.p1 .podium-avatar { width: 68px; height: 68px; }
+    .podium-item.p2 .podium-avatar, .podium-item.p3 .podium-avatar { width: 52px; height: 52px; }
+    .podium-item.p1 { order: 2; } .podium-item.p2 { order: 1; } .podium-item.p3 { order: 3; }
 
-    /* Search */
-    .search-wrap {
-      padding: 0 14px 12px;
-    }
-    .search-input {
-      width: 100%; background: #141428; border: 1px solid #2a2a4a;
-      border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 14px;
-      outline: none; box-sizing: border-box;
-    }
+    .search-wrap { padding: 0 14px 12px; }
+    .search-input { width: 100%; background: #141428; border: 1px solid #2a2a4a; border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; }
     .search-input:focus { border-color: #f59e0b; }
 
-    /* Sort tabs */
-    .sort-tabs {
-      display: flex; overflow-x: auto; scrollbar-width: none;
-      padding: 0 14px 10px; gap: 8px;
-    }
-    .sort-tabs::-webkit-scrollbar { display: none; }
-    .sort-chip {
-      flex-shrink: 0; padding: 5px 12px;
-      background: transparent; border: 1px solid #2a2a4a;
-      border-radius: 14px; color: #666; font-size: 12px; cursor: pointer;
-    }
+    .sort-wrap { display: flex; overflow-x: auto; scrollbar-width: none; padding: 0 14px 10px; gap: 8px; }
+    .sort-wrap::-webkit-scrollbar { display: none; }
+    .sort-chip { flex-shrink: 0; padding: 5px 12px; background: transparent; border: 1px solid #2a2a4a; border-radius: 14px; color: #666; font-size: 12px; cursor: pointer; }
     .sort-chip.active { border-color: #f59e0b; color: #f59e0b; }
 
-    /* Table */
     .rating-table { width: 100%; padding: 0 14px; }
-    .rt-row {
-      display: flex; align-items: center; gap: 10px;
-      background: #141428; border-radius: 10px; padding: 10px 12px;
-      margin-bottom: 8px; border: 1px solid #1e1e3a;
-      cursor: pointer; transition: border-color .15s;
-    }
+    .rt-row { display: flex; align-items: center; gap: 10px; background: #141428; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid #1e1e3a; cursor: pointer; transition: border-color .15s; }
     .rt-row:hover { border-color: #f59e0b30; }
     .rt-row.me { border-color: #f59e0b; background: rgba(245,158,11,.05); }
     .rt-rank { font-size: 16px; font-weight: 700; width: 28px; text-align: center; flex-shrink: 0; }
-    .rt-rank.gold { color: #ffd700; }
-    .rt-rank.silver { color: #a8a9ad; }
-    .rt-rank.bronze { color: #cd7f32; }
-    .rt-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 700; flex-shrink: 0; overflow: hidden;
-    }
+    .rt-rank.gold { color: #ffd700; } .rt-rank.silver { color: #a8a9ad; } .rt-rank.bronze { color: #cd7f32; }
+    .rt-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; overflow: hidden; }
     .rt-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .rt-info { flex: 1; min-width: 0; }
     .rt-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rt-meta { font-size: 11px; color: #666; margin-top: 2px; }
     .rt-pts { font-size: 18px; font-weight: 800; color: #f59e0b; flex-shrink: 0; }
 
-    /* Sport section */
-    .sport-controls {
-      padding: 12px 14px; display: flex; gap: 10px; flex-wrap: wrap;
-    }
-    .sport-select {
-      flex: 1; background: #141428; border: 1px solid #2a2a4a;
-      border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 13px;
-      outline: none; min-width: 140px;
-    }
+    .my-rank-bar { margin: 0 14px 10px; background: linear-gradient(90deg,#1a1a2e,#1e1e3e); border: 1px solid #f59e0b30; border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+    .my-rank-label { font-size: 12px; color: #888; }
+    .my-rank-val { font-size: 18px; font-weight: 700; color: #f59e0b; }
 
-    /* RSKG info */
-    .rskg-info {
-      margin: 0 14px 12px;
-      background: #141428; border-radius: 10px; padding: 10px 14px;
-      border: 1px solid #1e1e3a;
-    }
+    .sport-controls { padding: 12px 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .sport-select { flex: 1; background: #141428; border: 1px solid #2a2a4a; border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 13px; outline: none; min-width: 140px; }
+    .rskg-info { margin: 0 14px 12px; background: #141428; border-radius: 10px; padding: 10px 14px; border: 1px solid #1e1e3a; }
     .rskg-title { font-size: 12px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
     .rskg-pts { display: flex; flex-wrap: wrap; gap: 6px; }
     .rskg-p { font-size: 11px; color: #ccc; }
     .rskg-p span { color: #f59e0b; font-weight: 700; }
 
-    /* Bottom nav */
-
     .loader-wrap { text-align: center; padding: 40px; color: #555; }
     .loader-wrap i { font-size: 28px; animation: spin .8s linear infinite; color: #f59e0b; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .empty-state { text-align: center; padding: 40px 20px; color: #555; }
     .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
 
-    /* Hidden tabs */
-    .tab-section { display: none; }
-    .tab-section.active { display: block; }
+    /* ФОРУМ */
+    .forum-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; }
+    .forum-title { font-size: 16px; font-weight: 700; }
+    .forum-new-btn { background: #f59e0b; color: #000; border: none; border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
-    /* My rank bar */
-    .my-rank-bar {
-      margin: 0 14px 10px;
-      background: linear-gradient(90deg, #1a1a2e, #1e1e3e);
-      border: 1px solid #f59e0b30; border-radius: 10px; padding: 10px 14px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .my-rank-label { font-size: 12px; color: #888; }
-    .my-rank-val { font-size: 18px; font-weight: 700; color: #f59e0b; }
+    .forum-search-row { display: flex; gap: 8px; padding: 0 16px 10px; }
+    .forum-search { flex: 1; background: #141428; border: 1px solid #2a2a4a; border-radius: 10px; padding: 9px 14px; color: #fff; font-size: 14px; outline: none; }
+    .forum-search:focus { border-color: #f59e0b; }
 
-    /* ── Forum ─────────────────────────────────── */
-    .forum-wrap { padding: 0 0 100px; }
-    .forum-categories { padding: 12px 12px 0; display: flex; flex-direction: column; gap: 8px; }
-    .forum-cat-card {
-      background: #141414; border: 1px solid #1e1e1e; border-radius: 14px;
-      padding: 14px 16px; display: flex; align-items: center; gap: 12px;
-      cursor: pointer; transition: border-color .2s;
-    }
-    .forum-cat-card:active { border-color: #444; }
-    .forum-cat-icon { font-size: 28px; width: 44px; text-align: center; flex-shrink: 0; }
-    .forum-cat-info { flex: 1; min-width: 0; }
-    .forum-cat-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
-    .forum-cat-desc { font-size: 12px; color: #666; }
-    .forum-cat-count { font-size: 12px; color: #555; white-space: nowrap; }
-    .forum-cat-arrow { color: #333; font-size: 14px; }
+    .forum-cats { display: flex; overflow-x: auto; scrollbar-width: none; padding: 0 16px 12px; gap: 8px; }
+    .forum-cats::-webkit-scrollbar { display: none; }
+    .cat-chip { flex-shrink: 0; padding: 6px 14px; background: #141428; border: 1px solid #2a2a4a; border-radius: 16px; font-size: 12px; color: #888; cursor: pointer; transition: all .2s; }
+    .cat-chip.active { background: #f59e0b20; border-color: #f59e0b; color: #f59e0b; }
 
-    .forum-topics-wrap { display: none; padding: 0 0 100px; }
-    .forum-topics-wrap.open { display: block; }
-    .forum-back-bar {
-      display: flex; align-items: center; gap: 10px;
-      padding: 14px 16px; border-bottom: 1px solid #1e1e1e;
-      position: sticky; top: 100px; background: #0f0f0f; z-index: 80;
-    }
-    .forum-back-btn { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; }
-    .forum-back-title { font-size: 16px; font-weight: 700; flex: 1; }
-    .new-topic-btn {
-      background: #fff; color: #000; border: none; border-radius: 20px;
-      padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .topics-list { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
-    .topic-card {
-      background: #141414; border: 1px solid #1e1e1e; border-radius: 14px;
-      padding: 14px; cursor: pointer; transition: border-color .2s;
-    }
-    .topic-card:active { border-color: #444; }
-    .topic-pinned { color: #f59e0b; font-size: 11px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
-    .topic-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
-    .topic-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #666; flex-wrap: wrap; }
-    .topic-solved { color: #22c55e; font-weight: 600; }
-    .topic-actions { display: flex; gap: 14px; margin-top: 10px; }
-    .topic-action { background: none; border: none; color: #666; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: color .2s; }
-    .topic-action:hover { color: #fff; }
-    .topic-action.liked { color: #ef4444; }
+    .topic-card { margin: 0 14px 10px; background: #141428; border: 1px solid #1e1e3a; border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: border-color .2s; }
+    .topic-card:hover { border-color: #f59e0b30; }
+    .topic-cover { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; display: block; }
+    .topic-cat-badge { display: inline-block; font-size: 11px; color: #f59e0b; background: #f59e0b20; border-radius: 8px; padding: 2px 8px; margin-bottom: 6px; }
+    .topic-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+    .topic-preview { font-size: 13px; color: #777; margin-bottom: 10px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .topic-footer { display: flex; align-items: center; gap: 10px; }
+    .topic-avatar { width: 24px; height: 24px; border-radius: 50%; background: #2a2a4a; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; overflow: hidden; }
+    .topic-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .topic-author { font-size: 12px; color: #888; flex: 1; }
+    .topic-stats { display: flex; gap: 10px; }
+    .topic-stat { font-size: 12px; color: #555; display: flex; align-items: center; gap: 4px; }
+    .topic-pinned { color: #f59e0b; font-size: 11px; font-weight: 600; }
 
-    /* Thread view */
-    .thread-wrap { display: none; padding: 0 0 100px; }
-    .thread-wrap.open { display: block; }
-    .thread-back-bar {
-      display: flex; align-items: center; gap: 10px;
-      padding: 14px 16px; border-bottom: 1px solid #1e1e1e;
-      position: sticky; top: 100px; background: #0f0f0f; z-index: 80;
-    }
-    .thread-title { font-size: 15px; font-weight: 700; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .thread-op {
-      padding: 16px; border-bottom: 1px solid #1e1e1e;
-      background: #0c0c1a;
-    }
-    .thread-op-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; line-height: 1.4; }
-    .thread-op-content { font-size: 14px; color: #ccc; line-height: 1.7; white-space: pre-wrap; }
-    .thread-op-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
-    .thread-author { display: flex; align-items: center; gap: 8px; }
-    .thread-author-av { width: 30px; height: 30px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; overflow: hidden; }
-    .thread-author-av img { width: 100%; height: 100%; object-fit: cover; }
-    .thread-author-name { font-size: 13px; color: #aaa; }
-    .thread-op-time { font-size: 11px; color: #555; }
-    .replies-list { padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; }
-    .reply-card { background: #141414; border: 1px solid #1e1e1e; border-radius: 12px; padding: 14px; }
-    .reply-card.solution { border-color: #22c55e44; background: #0a1f0a; }
-    .reply-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .reply-author { display: flex; align-items: center; gap: 8px; }
-    .reply-av { width: 28px; height: 28px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; overflow: hidden; }
-    .reply-av img { width: 100%; height: 100%; object-fit: cover; }
-    .reply-name { font-size: 13px; font-weight: 600; }
-    .reply-time { font-size: 11px; color: #555; }
-    .reply-content { font-size: 14px; color: #ccc; line-height: 1.6; white-space: pre-wrap; }
-    .reply-footer { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
-    .solution-badge { color: #22c55e; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
-    .reply-form-wrap {
-      position: fixed; bottom: 70px; left: 0; right: 0;
-      background: #111; border-top: 1px solid #1e1e1e;
-      padding: 10px 12px; display: none; z-index: 60;
-    }
-    .reply-form-wrap.open { display: flex; gap: 10px; align-items: flex-end; }
-    .reply-textarea {
-      flex: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 12px;
-      color: #fff; padding: 10px 12px; font-size: 14px; resize: none;
-      min-height: 42px; max-height: 120px; font-family: inherit; outline: none;
-    }
-    .reply-send-btn {
-      background: #fff; color: #000; border: none; border-radius: 50%;
-      width: 42px; height: 42px; display: flex; align-items: center;
-      justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 16px;
-    }
+    #forum-thread { display: none; }
+    .thread-back { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid #1e1e3a; }
+    .thread-back i { color: #f59e0b; }
+    .thread-back span { font-size: 14px; color: #aaa; }
+    .thread-op { margin: 14px; background: #141428; border: 1px solid #1e1e3a; border-radius: 14px; padding: 16px; }
+    .thread-op-cover { width: 100%; border-radius: 10px; margin-bottom: 12px; display: block; }
+    .thread-op-title { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+    .thread-op-body { font-size: 14px; color: #ccc; line-height: 1.6; white-space: pre-wrap; }
+    .thread-op-meta { font-size: 12px; color: #555; margin-top: 10px; }
 
-    /* New topic modal */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.85);
-      z-index: 300; display: none; align-items: flex-end; justify-content: center;
-    }
+    .replies-list { padding: 0 14px; }
+    .reply-card { background: #0f0f1e; border: 1px solid #1e1e3a; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+    .reply-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .reply-avatar { width: 32px; height: 32px; border-radius: 50%; background: #2a2a4a; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; overflow: hidden; }
+    .reply-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .reply-name { font-size: 13px; font-weight: 700; }
+    .reply-time { font-size: 11px; color: #555; margin-left: auto; }
+    .reply-body { font-size: 14px; color: #ccc; line-height: 1.5; white-space: pre-wrap; }
+    .reply-actions { display: flex; gap: 12px; margin-top: 8px; }
+    .reply-like-btn { background: none; border: none; color: #555; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0; }
+    .reply-like-btn.liked { color: #f59e0b; }
+
+    .reply-form { position: sticky; bottom: 70px; background: #0f0f0f; border-top: 1px solid #1e1e3a; padding: 10px 14px; display: flex; gap: 8px; align-items: flex-end; }
+    .reply-input { flex: 1; background: #141428; border: 1px solid #2a2a4a; border-radius: 12px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; resize: none; min-height: 42px; max-height: 120px; font-family: inherit; }
+    .reply-input:focus { border-color: #f59e0b; }
+    .reply-send-btn { background: #f59e0b; border: none; border-radius: 12px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: #000; font-size: 16px; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 500; align-items: flex-end; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal-sheet {
-      background: #111; border-radius: 20px 20px 0 0; padding: 20px 16px 40px;
-      width: 100%; max-width: 480px; border: 1px solid #1e1e1e;
-    }
-    .modal-handle { width: 36px; height: 4px; background: #333; border-radius: 2px; margin: 0 auto 16px; }
-    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-    .modal-input {
-      width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 12px;
-      color: #fff; padding: 12px 14px; font-size: 15px; margin-bottom: 10px;
-      font-family: inherit; outline: none;
-    }
-    .modal-textarea {
-      width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 12px;
-      color: #fff; padding: 12px 14px; font-size: 14px; resize: none; height: 120px;
-      font-family: inherit; outline: none; margin-bottom: 14px;
-    }
-    .modal-submit {
-      width: 100%; background: #fff; color: #000; border: none; border-radius: 12px;
-      padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer;
-    }
-    .modal-cancel {
-      width: 100%; background: none; border: none; color: #666;
-      padding: 10px; font-size: 14px; cursor: pointer; margin-top: 6px;
-    }
+    .modal-sheet { background: #141428; border-radius: 20px 20px 0 0; width: 100%; max-height: 92vh; overflow-y: auto; padding: 20px 16px 30px; position: relative; }
+    .modal-handle { width: 40px; height: 4px; background: #333; border-radius: 4px; margin: 0 auto 16px; }
+    .modal-title { font-size: 17px; font-weight: 800; margin-bottom: 16px; }
+    .modal-label { font-size: 13px; color: #888; margin-bottom: 6px; display: block; }
+    .modal-input { width: 100%; background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 14px; outline: none; font-family: inherit; margin-bottom: 14px; }
+    .modal-input:focus { border-color: #f59e0b; }
+    .modal-textarea { width: 100%; background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 14px; outline: none; font-family: inherit; resize: none; min-height: 120px; margin-bottom: 14px; }
+    .modal-textarea:focus { border-color: #f59e0b; }
+    .modal-select { width: 100%; background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 14px; outline: none; margin-bottom: 14px; }
+    .modal-select:focus { border-color: #f59e0b; }
+    .modal-photo-upload { width: 100%; height: 120px; background: #0f0f1a; border: 2px dashed #2a2a4a; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; gap: 6px; position: relative; overflow: hidden; margin-bottom: 14px; }
+    .modal-photo-upload i { font-size: 24px; color: #555; }
+    .modal-photo-upload span { font-size: 12px; color: #555; }
+    .modal-photo-upload img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .modal-photo-remove { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.7); border: none; color: #fff; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; z-index: 2; }
+    .modal-submit { width: 100%; padding: 14px; background: #f59e0b; color: #000; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; }
+    .modal-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    .modal-close-btn { position: absolute; top: 20px; right: 16px; background: none; border: none; color: #555; font-size: 20px; cursor: pointer; }
 
-    /* Records tab */
-    .records-wrap { padding: 16px 12px 100px; }
-    .records-coming { text-align: center; padding: 60px 20px; color: #555; }
-    .records-coming .icon { font-size: 48px; margin-bottom: 12px; }
+    #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1e1e3a; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; z-index: 1000; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    #toast.show { opacity: 1; }
+    #toast.error { background: #7f1d1d; color: #fca5a5; }
+    #toast.success { background: #14532d; color: #86efac; }
   </style>
 </head>
 <body>
 
-  <div class="top-bar">
-    <div class="logo">Share<span>car</span> — Рейтинг</div>
-  </div>
+<div class="top-bar"><div class="logo">Share<span>car</span></div></div>
 
-  <!-- Main tabs -->
-  <div class="main-tabs">
-    <div class="main-tab active" id="top-tab-forum" onclick="switchTop('forum')">💬 Форум</div>
-    <div class="main-tab" id="top-tab-rating" onclick="switchTop('rating')">🏆 Рейтинг</div>
-  </div>
+<div class="top-tabs">
+  <div class="top-tab active" id="tt-forum"  onclick="switchTop('forum')">💬 Форум</div>
+  <div class="top-tab"        id="tt-rating" onclick="switchTop('rating')">🏆 Рейтинг</div>
+</div>
 
-  <!-- FORUM PANEL -->
-  <div id="top-panel-forum" style="display:block">
-    <!-- поиск + фильтры форума -->
-    <div style="padding:12px 12px 0;display:flex;gap:8px;align-items:center">
-      <div style="flex:1;position:relative">
-        <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#555;font-size:13px"></i>
-        <input id="forum-search" type="text" placeholder="Поиск по темам..." oninput="filterTopicsGlobal(this.value)"
-          style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;color:#fff;padding:9px 12px 9px 34px;font-size:14px;outline:none">
-      </div>
-      <button onclick="openNewTopicModal()" style="background:#fff;color:#000;border:none;border-radius:12px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">
-        <i class="fas fa-plus"></i> Тема
-      </button>
+<!-- ФОРУМ -->
+<div class="top-panel active" id="panel-forum">
+  <div class="forum-header">
+    <div class="forum-title">Темы</div>
+    <button class="forum-new-btn" onclick="openNewTopicModal()"><i class="fa fa-plus"></i> Новая тема</button>
+  </div>
+  <div class="forum-search-row">
+    <input class="forum-search" id="forum-search" placeholder="Поиск по темам..." oninput="filterTopics(this.value)">
+  </div>
+  <div class="forum-cats" id="forum-cats">
+    <div class="cat-chip active" data-cat="" onclick="selectCat(this,'')">Все</div>
+  </div>
+  <div id="topics-list"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
+
+  <div id="forum-thread">
+    <div class="thread-back" onclick="closeThread()">
+      <i class="fa fa-arrow-left"></i><span>Назад к темам</span>
     </div>
-    <!-- фильтр по категории -->
-    <div style="display:flex;overflow-x:auto;gap:8px;padding:10px 12px;scrollbar-width:none" id="cat-filter-bar">
-      <div class="sort-chip active" data-cat="" onclick="selectCatFilter(this,'')">Все</div>
-    </div>
-  </div>
-
-  <!-- RATING PANEL sub-tabs -->
-  <div id="top-panel-rating" style="display:none">
-    <div class="main-tabs" style="border-top:none;top:auto;position:relative">
-      <div class="main-tab active" onclick="switchMain('drivers')">🚗 Водители</div>
-      <div class="main-tab" onclick="switchMain('passengers')">👥 Пассажиры</div>
-      <div class="main-tab" onclick="switchMain('sport')">🏁 Спорт</div>
-      <div class="main-tab" onclick="switchMain('records')">🏆 Рекорды</div>
+    <div id="thread-op"></div>
+    <div style="padding:0 14px 8px;font-size:13px;color:#555;font-weight:600;" id="replies-count-label"></div>
+    <div class="replies-list" id="replies-list"></div>
+    <div class="reply-form">
+      <textarea class="reply-input" id="reply-input" placeholder="Напиши ответ..." rows="1"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+      <button class="reply-send-btn" onclick="sendReply()"><i class="fa fa-paper-plane"></i></button>
     </div>
   </div>
+</div>
 
-  <!-- DRIVERS TAB -->
-  <div class="tab-section" id="sec-drivers">
-    <div class="podium" id="drivers-podium">
-      <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
-    </div>
+<!-- РЕЙТИНГ -->
+<div class="top-panel" id="panel-rating">
+  <div class="sub-tabs">
+    <div class="sub-tab active" id="st-drivers"    onclick="switchSub('drivers')">🚗 Водители</div>
+    <div class="sub-tab"        id="st-passengers" onclick="switchSub('passengers')">👥 Пассажиры</div>
+    <div class="sub-tab"        id="st-sport"      onclick="switchSub('sport')">🏁 Спорт</div>
+  </div>
+
+  <div class="tab-section active" id="sec-drivers">
+    <div class="podium" id="drivers-podium"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
     <div class="my-rank-bar" id="my-rank-drivers" style="display:none;">
-      <div>
-        <div class="my-rank-label">Вы в рейтинге</div>
-        <div class="my-rank-val" id="my-rank-d">#—</div>
-      </div>
+      <div><div class="my-rank-label">Вы в рейтинге</div><div class="my-rank-val" id="my-rank-d">#—</div></div>
       <div style="flex:1;text-align:right;font-size:13px;color:#aaa;" id="my-pts-d">— очков</div>
     </div>
-    <div class="sort-tabs" id="d-sort-tabs">
-      <div class="sort-chip active" data-sort="score" onclick="setDriverSort('score', this)">Очки</div>
-      <div class="sort-chip" data-sort="trips_driven" onclick="setDriverSort('trips_driven', this)">Поездок</div>
-      <div class="sort-chip" data-sort="rating_driver" onclick="setDriverSort('rating_driver', this)">Рейтинг ★</div>
+    <div class="sort-wrap" id="d-sort">
+      <div class="sort-chip active" onclick="setDSort('score',this)">Очки</div>
+      <div class="sort-chip" onclick="setDSort('trips_driven',this)">Поездок</div>
+      <div class="sort-chip" onclick="setDSort('rating_driver',this)">Рейтинг ★</div>
     </div>
-    <div class="search-wrap">
-      <input class="search-input" placeholder="Поиск водителя..." oninput="filterDrivers(this.value)">
-    </div>
-    <div class="rating-table" id="drivers-table">
-      <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
-    </div>
+    <div class="search-wrap"><input class="search-input" placeholder="Поиск водителя..." oninput="filterDrivers(this.value)"></div>
+    <div class="rating-table" id="drivers-table"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
   </div>
 
-  <!-- PASSENGERS TAB -->
   <div class="tab-section" id="sec-passengers">
-    <div class="podium" id="passengers-podium">
-      <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
-    </div>
+    <div class="podium" id="passengers-podium"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
     <div class="my-rank-bar" id="my-rank-passengers" style="display:none;">
-      <div>
-        <div class="my-rank-label">Вы в рейтинге</div>
-        <div class="my-rank-val" id="my-rank-p">#—</div>
-      </div>
+      <div><div class="my-rank-label">Вы в рейтинге</div><div class="my-rank-val" id="my-rank-p">#—</div></div>
       <div style="flex:1;text-align:right;font-size:13px;color:#aaa;" id="my-pts-p">— очков</div>
     </div>
-    <div class="sort-tabs">
-      <div class="sort-chip active" data-sort="score" onclick="setPassSort('score', this)">Очки</div>
-      <div class="sort-chip" data-sort="trips_rode" onclick="setPassSort('trips_rode', this)">Поездок</div>
-      <div class="sort-chip" data-sort="rating_passenger" onclick="setPassSort('rating_passenger', this)">Рейтинг ★</div>
+    <div class="sort-wrap" id="p-sort">
+      <div class="sort-chip active" onclick="setPSort('score',this)">Очки</div>
+      <div class="sort-chip" onclick="setPSort('trips_rode',this)">Поездок</div>
+      <div class="sort-chip" onclick="setPSort('rating_passenger',this)">Рейтинг ★</div>
     </div>
-    <div class="search-wrap">
-      <input class="search-input" placeholder="Поиск пассажира..." oninput="filterPassengers(this.value)">
-    </div>
-    <div class="rating-table" id="passengers-table">
-      <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
-    </div>
+    <div class="search-wrap"><input class="search-input" placeholder="Поиск пассажира..." oninput="filterPassengers(this.value)"></div>
+    <div class="rating-table" id="passengers-table"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
   </div>
 
-  <!-- SPORT TAB -->
   <div class="tab-section" id="sec-sport">
     <div class="sport-controls">
-      <select class="sport-select" id="track-select" onchange="loadSport()">
-        <option value="all">Все трассы</option>
-      </select>
+      <select class="sport-select" id="track-select" onchange="loadSport()"><option value="all">Все трассы</option></select>
       <select class="sport-select" id="category-select" onchange="loadSport()">
         <option value="all">Все категории</option>
         <option value="karting">🏎 Картинг</option>
@@ -385,835 +250,545 @@
     <div class="rskg-info">
       <div class="rskg-title">Система очков RSKG</div>
       <div class="rskg-pts">
-        <div class="rskg-p">1м: <span>25</span></div>
-        <div class="rskg-p">2м: <span>18</span></div>
-        <div class="rskg-p">3м: <span>15</span></div>
-        <div class="rskg-p">4м: <span>12</span></div>
-        <div class="rskg-p">5м: <span>10</span></div>
-        <div class="rskg-p">6м: <span>8</span></div>
-        <div class="rskg-p">7м: <span>6</span></div>
-        <div class="rskg-p">8м: <span>4</span></div>
-        <div class="rskg-p">9м: <span>2</span></div>
-        <div class="rskg-p">10м: <span>1</span></div>
+        <div class="rskg-p">1м: <span>25</span></div><div class="rskg-p">2м: <span>18</span></div>
+        <div class="rskg-p">3м: <span>15</span></div><div class="rskg-p">4м: <span>12</span></div>
+        <div class="rskg-p">5м: <span>10</span></div><div class="rskg-p">6м: <span>8</span></div>
+        <div class="rskg-p">7м: <span>6</span></div><div class="rskg-p">8м: <span>4</span></div>
+        <div class="rskg-p">9м: <span>2</span></div><div class="rskg-p">10м: <span>1</span></div>
       </div>
     </div>
-    <div class="sort-tabs">
-      <div class="sort-chip active" onclick="setSportSort('points', this)">Очки</div>
-      <div class="sort-chip" onclick="setSportSort('lap_time_ms', this)">Лучшее время</div>
-      <div class="sort-chip" onclick="setSportSort('runs', this)">Заездов</div>
+    <div class="sort-wrap" id="s-sort">
+      <div class="sort-chip active" onclick="setSSort('points',this)">Очки</div>
+      <div class="sort-chip" onclick="setSSort('lap_time_ms',this)">Лучшее время</div>
+      <div class="sort-chip" onclick="setSSort('runs',this)">Заездов</div>
     </div>
-    <div class="rating-table" id="sport-table">
-      <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
-    </div>
+    <div class="rating-table" id="sport-table"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
   </div>
+</div>
 
-  <!-- FORUM TAB -->
-  <div class="tab-section" id="sec-forum">
-    <div class="forum-wrap" id="forum-wrap">
-      <!-- Список категорий -->
-      <div class="forum-categories" id="forum-cats-list">
-        <div style="text-align:center;padding:40px;color:#555"><i class="fa fa-circle-notch fa-spin"></i></div>
-      </div>
-    </div>
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
+  <button class="nav-item" onclick="goPage('partners.html')"><i class="fas fa-search"></i><span>Поиск</span></button>
+  <button class="nav-item" onclick="goPage('messages.html')" style="position:relative;"><i class="fa fa-comment"></i><span>Сообщения</span><span class="nav-msg-badge nav-badge" style="display:none;"></span></button>
+  <button class="nav-item active"><i class="fa fa-trophy"></i><span>Рейтинг</span></button>
+  <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
+</nav>
 
-    <!-- Список тем категории -->
-    <div class="forum-topics-wrap" id="forum-topics-wrap">
-      <div class="forum-back-bar">
-        <button class="forum-back-btn" onclick="backToCategories()"><i class="fas fa-arrow-left"></i></button>
-        <span class="forum-back-title" id="forum-cat-title"></span>
-        <button class="new-topic-btn" onclick="openNewTopicModal()"><i class="fas fa-plus"></i> Тема</button>
-      </div>
-      <div class="topics-list" id="topics-list"></div>
+<div class="modal-overlay" id="new-topic-modal">
+  <div class="modal-sheet">
+    <button class="modal-close-btn" onclick="closeNewTopicModal()"><i class="fa fa-times"></i></button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">Новая тема</div>
+    <label class="modal-label">Категория *</label>
+    <select class="modal-select" id="topic-cat-select"><option value="">Выбери категорию...</option></select>
+    <label class="modal-label">Заголовок *</label>
+    <input class="modal-input" id="topic-title" placeholder="Тема разговора" maxlength="120">
+    <label class="modal-label">Текст *</label>
+    <textarea class="modal-textarea" id="topic-body" placeholder="Подробнее..."></textarea>
+    <label class="modal-label">Фото (необязательно)</label>
+    <div class="modal-photo-upload" id="topic-photo-wrap" onclick="document.getElementById('topic-photo-input').click()">
+      <i class="fa fa-image"></i><span>Нажми чтобы добавить</span>
     </div>
-
-    <!-- Просмотр темы -->
-    <div class="thread-wrap" id="thread-wrap">
-      <div class="thread-back-bar">
-        <button class="forum-back-btn" onclick="backToTopics()"><i class="fas fa-arrow-left"></i></button>
-        <span class="thread-title" id="thread-title-bar"></span>
-      </div>
-      <div class="thread-op" id="thread-op"></div>
-      <div class="replies-list" id="replies-list"></div>
-    </div>
-
-    <!-- Форма ответа -->
-    <div class="reply-form-wrap" id="reply-form">
-      <textarea class="reply-textarea" id="reply-textarea" placeholder="Написать ответ..." rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-      <button class="reply-send-btn" onclick="sendReply()"><i class="fas fa-paper-plane"></i></button>
-    </div>
+    <input type="file" id="topic-photo-input" accept="image/*" style="display:none" onchange="handleTopicPhoto(this)">
+    <button class="modal-submit" id="topic-submit-btn" onclick="submitTopic()">Опубликовать</button>
   </div>
+</div>
 
-  <!-- RECORDS TAB -->
-  <div class="tab-section" id="sec-records">
-    <div class="records-wrap">
-      <div class="records-coming">
-        <div class="icon">🏆</div>
-        <div style="font-size:18px;font-weight:700;margin-bottom:8px">Рекорды треков</div>
-        <div style="font-size:14px;color:#555;line-height:1.6">Здесь будут лучшие результаты заездов на треках.<br>Добавь свой рекорд через страницу трека.</div>
-      </div>
-    </div>
-  </div>
+<div id="toast"></div>
 
-  <!-- NEW TOPIC MODAL -->
-  <div class="modal-overlay" id="new-topic-modal" onclick="if(event.target===this)closeNewTopicModal()">
-    <div class="modal-sheet" style="max-height:90vh;overflow-y:auto">
-      <div class="modal-handle"></div>
-      <div class="modal-title">Новая тема</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPA_URL = 'https://ktqiyywdgokktiwavgbq.supabase.co';
+  const SUPA_KEY = 'sb_publishable_UqkqWGlqU0Slw7a4azOoGg_l8E3vUYP';
+  const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-      <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Категория *</div>
-      <select id="new-topic-cat-select" class="modal-input" style="appearance:none;cursor:pointer;margin-bottom:14px">
-        <option value="">Выбери категорию...</option>
-      </select>
+  let currentUser  = null;
+  let driversAll = [], passengersAll = [], sportAll = [];
+  let dSort = 'score', pSort = 'score', sSort = 'points';
+  let topicsAll = [], topicsCats = [];
+  let activeCat = '';
+  let currentTopicId = null;
+  let topicPhotoFile = null;
+  let ratingLoaded = false;
 
-      <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Заголовок *</div>
-      <input class="modal-input" id="new-topic-title" placeholder="Заголовок темы" maxlength="120" style="margin-bottom:14px">
+  const LVL = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
 
-      <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Текст *</div>
-      <textarea class="modal-textarea" id="new-topic-content" placeholder="Опиши тему подробнее..." style="margin-bottom:14px"></textarea>
+  function goPage(p) { window.location.href = p; }
 
-      <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Фото (необязательно)</div>
-      <div id="topic-photo-upload" onclick="document.getElementById('topic-photo-input').click()"
-        style="width:100%;height:100px;background:#1a1a1a;border:2px dashed #333;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:#555;font-size:13px;margin-bottom:14px;overflow:hidden;position:relative">
-        <i class="fas fa-camera"></i> Добавить фото
-      </div>
-      <input type="file" id="topic-photo-input" accept="image/*" style="display:none" onchange="previewTopicPhoto(this)">
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + (type||'info');
+    clearTimeout(t._t);
+    t._t = setTimeout(() => { t.className = ''; }, 3000);
+  }
 
-      <button class="modal-submit" onclick="submitNewTopic()">Опубликовать</button>
-      <button class="modal-cancel" onclick="closeNewTopicModal()">Отмена</button>
-    </div>
-  </div>
+  function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-    <button class="nav-item" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
-    <button class="nav-item" onclick="goPage('partners.html')"><i class="fas fa-search"></i><span>Поиск</span></button>
-    <button class="nav-item" onclick="goPage('messages.html')" style="position:relative;"><i class="fa fa-comment"></i><span>Сообщения</span><span class="nav-msg-badge nav-badge" style="display:none;"></span></button>
-    <button class="nav-item active"><i class="fa fa-trophy"></i><span>Рейтинг</span></button>
-    <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
-  </nav>
+  function timeAgo(ts) {
+    const sec = Math.floor((Date.now() - new Date(ts)) / 1000);
+    if (sec < 60)    return 'только что';
+    if (sec < 3600)  return Math.floor(sec/60) + ' мин назад';
+    if (sec < 86400) return Math.floor(sec/3600) + ' ч назад';
+    return Math.floor(sec/86400) + ' дн назад';
+  }
 
-  <div id="global-toast"></div>
+  function ini(first, last) {
+    return ((first||''[0])||'')+((last||''[0])||'')).toUpperCase();
+  }
 
-  <script>
-    function goPage(p) { window.location.href = p; }
-    // Глобальные обёртки — вызывают реальные функции из модуля после загрузки
-    function switchTop(t){ if(window._switchTop) window._switchTop(t); }
-    function switchMain(t){ if(window._switchMain) window._switchMain(t); }
-    function filterDrivers(q){ if(window._filterDrivers) window._filterDrivers(q); }
-    function filterPassengers(q){ if(window._filterPassengers) window._filterPassengers(q); }
-    function setDriverSort(s,el){ if(window._setDriverSort) window._setDriverSort(s,el); }
-    function setPassSort(s,el){ if(window._setPassSort) window._setPassSort(s,el); }
-    function setSportSort(s,el){ if(window._setSportSort) window._setSportSort(s,el); }
-    function openNewTopicModal(){ if(window._openNewTopicModal) window._openNewTopicModal(); }
-    function closeNewTopicModal(){ if(window._closeNewTopicModal) window._closeNewTopicModal(); }
-    function submitNewTopic(){ if(window._submitNewTopic) window._submitNewTopic(); }
-    function backToCategories(){ if(window._backToCategories) window._backToCategories(); }
-    function backToTopics(){ if(window._backToTopics) window._backToTopics(); }
-    function sendReply(){ if(window._sendReply) window._sendReply(); }
-    function selectCatFilter(el,v){ if(window._selectCatFilter) window._selectCatFilter(el,v); }
-    function previewTopicPhoto(i){ if(window._previewTopicPhoto) window._previewTopicPhoto(i); }
-    function removeTopicPhoto(e){ if(window._removeTopicPhoto) window._removeTopicPhoto(e); }
-  </script>
-  <script type="module">
-    import { supabase, showToast } from '../js/supabase.js';
-    import '../js/nav.js';
-
-    let currentUser = null;
-    let driversAll = [], passengersAll = [], sportAll = [];
-    let driverSort = 'score', passSort = 'score', sportSort = 'points';
-
-    window._switchMain = switchMain;
-
-    window._filterDrivers = filterDrivers;
-    window._filterPassengers = filterPassengers;
-    window.loadSport = loadSport;
-    window.goPage = (p) => window.location.href = p;
-
-    const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
-
-    window.init = async function() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { window.location.href = '/app/auth.html'; return; }
-      currentUser = session.user;
-
-      await Promise.all([loadDrivers(), loadPassengers(), loadTracks()]);
-      loadSport();
+  /* ── TOP TABS ── */
+  function switchTop(tab) {
+    document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.top-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tt-'+tab).classList.add('active');
+    document.getElementById('panel-'+tab).classList.add('active');
+    if (tab === 'rating' && !ratingLoaded) {
+      ratingLoaded = true;
+      loadDrivers(); loadPassengers(); loadTracks();
     }
+  }
 
-    // ── Drivers ───────────────────────────────────────────────────────────────
-    window.loadDrivers = async function() {
-      const { data } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, level, city, score, rating_driver, trips_driven, avatar_url')
-        .order('score', { ascending: false })
-        .limit(50);
+  function switchSub(sub) {
+    document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('st-'+sub).classList.add('active');
+    document.getElementById('sec-'+sub).classList.add('active');
+  }
 
-      driversAll = data || [];
-      renderDrivers(driversAll);
+  /* ── ФОРУМ ── */
+  async function loadForum() {
+    document.getElementById('topics-list').innerHTML = '<div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>';
+    const { data: cats } = await sb.from('forum_categories').select('*').order('sort_order');
+    topicsCats = cats || [];
+    renderCatChips();
+    fillModalCatSelect();
+    await loadTopics();
+  }
 
-      // My rank
-      if (currentUser) {
-        const myIdx = driversAll.findIndex(p => p.id === currentUser.id);
-        if (myIdx >= 0) {
-          const me = driversAll[myIdx];
-          document.getElementById('my-rank-drivers').style.display = 'flex';
-          document.getElementById('my-rank-d').textContent = `#${myIdx + 1}`;
-          document.getElementById('my-pts-d').textContent = `${me.score || 0} очков`;
-        }
-      }
+  function renderCatChips() {
+    const wrap = document.getElementById('forum-cats');
+    wrap.innerHTML = '<div class="cat-chip active" data-cat="" onclick="selectCat(this,\'\')" >Все</div>';
+    topicsCats.forEach(c => {
+      wrap.innerHTML += '<div class="cat-chip" data-cat="'+c.id+'" onclick="selectCat(this,\''+c.id+'\')">''+(c.icon||'')+' '+esc(c.name)+'</div>';
+    });
+  }
+
+  function fillModalCatSelect() {
+    const sel = document.getElementById('topic-cat-select');
+    sel.innerHTML = '<option value="">Выбери категорию...</option>';
+    topicsCats.forEach(c => {
+      sel.innerHTML += '<option value="'+c.id+'">''+(c.icon||'')+' '+esc(c.name)+'</option>';
+    });
+  }
+
+  async function loadTopics() {
+    let q = sb.from('forum_topics')
+      .select('id,title,content,is_pinned,views,likes,replies_count,created_at,category_id,cover_photo,author:profiles!author_id(first_name,last_name,avatar_url)')
+      .order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (activeCat) q = q.eq('category_id', activeCat);
+    const { data, error } = await q;
+    if (error) {
+      console.error(error);
+      document.getElementById('topics-list').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Ошибка загрузки</div>';
+      return;
     }
+    topicsAll = data || [];
+    renderTopics(topicsAll);
+  }
 
-    window.renderDrivers = function(arr) {
-      const sorted = [...arr].sort((a, b) => (b[driverSort] || 0) - (a[driverSort] || 0));
-      renderPodium('drivers-podium', sorted.slice(0, 3));
-      renderTable('drivers-table', sorted, 'driver');
-    }
+  function renderTopics(list) {
+    const wrap = document.getElementById('topics-list');
+    if (!list.length) { wrap.innerHTML = '<div class="empty-state"><div class="icon">💬</div>Тем пока нет. Создай первую!</div>'; return; }
+    wrap.innerHTML = list.map(t => {
+      const cat  = topicsCats.find(c => c.id === t.category_id);
+      const au   = t.author || {};
+      const name = ((au.first_name||'')+' '+(au.last_name||'')).trim() || 'Аноним';
+      const av   = ((au.first_name||''[0])||'')+((au.last_name||''[0])||'')).toUpperCase() || '?';
+      return '<div class="topic-card" onclick="openThread(\''+t.id+'\')">'+
+        (t.cover_photo ? '<img class="topic-cover" src="'+esc(t.cover_photo)+'" alt="">' : '')+
+        (t.is_pinned   ? '<div class="topic-pinned">📌 Закреплено</div>' : '')+
+        (cat           ? '<div class="topic-cat-badge">''+(cat.icon||'')+' '+esc(cat.name)+'</div>' : '')+
+        '<div class="topic-title">'+esc(t.title)+'</div>'+
+        '<div class="topic-preview">'+esc(t.content)+'</div>'+
+        '<div class="topic-footer">'+
+          '<div class="topic-avatar">''+(au.avatar_url?'<img src="'+esc(au.avatar_url)+'" alt="">':('<span>'+av+'</span>'))+'</div>'+
+          '<div class="topic-author">'+esc(name)+' · '+timeAgo(t.created_at)+'</div>'+
+          '<div class="topic-stats">'+
+            '<div class="topic-stat"><i class="fa fa-eye"></i> ''+(t.views||0)+'</div>'+
+            '<div class="topic-stat"><i class="fa fa-comment"></i> ''+(t.replies_count||0)+'</div>'+
+            '<div class="topic-stat"><i class="fa fa-heart"></i> ''+(t.likes||0)+'</div>'+
+          '</div></div></div>';
+    }).join('');
+  }
 
-    window._setDriverSort = function(sort, el) {
-      driverSort = sort;
-      document.querySelectorAll('#d-sort-tabs .sort-chip').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      renderDrivers(driversAll);
-    }
+  function selectCat(el, catId) {
+    activeCat = catId;
+    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    filterTopics(document.getElementById('forum-search').value);
+  }
 
-    window._filterDrivers = function(q) {
-      const filtered = q
-        ? driversAll.filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(q.toLowerCase()))
-        : driversAll;
-      renderTable('drivers-table', filtered, 'driver');
-    }
+  function filterTopics(q) {
+    let list = topicsAll;
+    if (activeCat) list = list.filter(t => t.category_id === activeCat);
+    if (q) { const low = q.toLowerCase(); list = list.filter(t => t.title.toLowerCase().includes(low) || (t.content||'').toLowerCase().includes(low)); }
+    renderTopics(list);
+  }
 
-    // ── Passengers ────────────────────────────────────────────────────────────
-    window.loadPassengers = async function() {
-      const { data } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, level, city, score, rating_passenger, trips_rode, avatar_url')
-        .order('trips_rode', { ascending: false })
-        .limit(50);
+  async function openThread(topicId) {
+    currentTopicId = topicId;
+    document.getElementById('topics-list').style.display = 'none';
+    document.querySelector('.forum-header').style.display = 'none';
+    document.querySelector('.forum-search-row').style.display = 'none';
+    document.getElementById('forum-cats').style.display = 'none';
+    document.getElementById('forum-thread').style.display = 'block';
+    document.getElementById('thread-op').innerHTML = '<div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>';
+    document.getElementById('replies-list').innerHTML = '';
 
-      passengersAll = data || [];
-      renderPassengers(passengersAll);
+    const { data: topic } = await sb.from('forum_topics')
+      .select('*,author:profiles!author_id(first_name,last_name,avatar_url)')
+      .eq('id', topicId).single();
+    if (topic) renderThreadOp(topic);
 
-      if (currentUser) {
-        const myIdx = passengersAll.findIndex(p => p.id === currentUser.id);
-        if (myIdx >= 0) {
-          const me = passengersAll[myIdx];
-          document.getElementById('my-rank-passengers').style.display = 'flex';
-          document.getElementById('my-rank-p').textContent = `#${myIdx + 1}`;
-          document.getElementById('my-pts-p').textContent = `${me.trips_rode || 0} поездок`;
-        }
-      }
-    }
+    const { data: replies } = await sb.from('forum_replies')
+      .select('*,author:profiles!author_id(first_name,last_name,avatar_url)')
+      .eq('topic_id', topicId).order('created_at', { ascending: true });
+    renderReplies(replies || []);
+  }
 
-    window.renderPassengers = function(arr) {
-      const sorted = [...arr].sort((a, b) => (b[passSort] || 0) - (a[passSort] || 0));
-      renderPodium('passengers-podium', sorted.slice(0, 3));
-      renderTable('passengers-table', sorted, 'passenger');
-    }
+  function renderThreadOp(t) {
+    const au   = t.author || {};
+    const name = ((au.first_name||'')+' '+(au.last_name||'')).trim() || 'Аноним';
+    const av   = (((au.first_name||''[0])||'')+((au.last_name||''[0])||'')).toUpperCase() || '?';
+    document.getElementById('thread-op').innerHTML =
+      '<div class="thread-op">'+
+      (t.cover_photo ? '<img class="thread-op-cover" src="'+esc(t.cover_photo)+'" alt="">' : '')+
+      '<div class="thread-op-title">'+esc(t.title)+'</div>'+
+      '<div class="thread-op-body">'+esc(t.content)+'</div>'+
+      '<div class="thread-op-meta">'+esc(name)+' · '+timeAgo(t.created_at)+'</div>'+
+      '</div>';
+  }
 
-    window._setPassSort = function(sort, el) {
-      passSort = sort;
-      document.querySelectorAll('#sec-passengers .sort-chip').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      renderPassengers(passengersAll);
-    }
+  function renderReplies(replies) {
+    const lbl = document.getElementById('replies-count-label');
+    lbl.textContent = replies.length ? replies.length+' ответов' : 'Ответов пока нет';
+    document.getElementById('replies-list').innerHTML = replies.map(r => {
+      const au   = r.author || {};
+      const name = ((au.first_name||'')+' '+(au.last_name||'')).trim() || 'Аноним';
+      const av   = (((au.first_name||''[0])||'')+((au.last_name||''[0])||'')).toUpperCase() || '?';
+      return '<div class="reply-card" id="reply-'+r.id+'">'+
+        '<div class="reply-header">'+
+          '<div class="reply-avatar">''+(au.avatar_url?'<img src="'+esc(au.avatar_url)+'" alt="">':('<span>'+av+'</span>'))+'</div>'+
+          '<div class="reply-name">'+esc(name)+'</div>'+
+          '<div class="reply-time">'+timeAgo(r.created_at)+'</div>'+
+        '</div>'+
+        '<div class="reply-body">'+esc(r.content)+'</div>'+
+        '<div class="reply-actions">'+
+          '<button class="reply-like-btn" onclick="likeReply(\''+r.id+'\',this)"><i class="fa fa-heart"></i> <span>''+(r.likes||0)+'</span></button>'+
+        '</div></div>';
+    }).join('');
+  }
 
-    window._filterPassengers = function(q) {
-      const filtered = q
-        ? passengersAll.filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(q.toLowerCase()))
-        : passengersAll;
-      renderTable('passengers-table', filtered, 'passenger');
-    }
+  function closeThread() {
+    currentTopicId = null;
+    document.getElementById('forum-thread').style.display = 'none';
+    document.getElementById('topics-list').style.display = 'block';
+    document.querySelector('.forum-header').style.display = 'flex';
+    document.querySelector('.forum-search-row').style.display = 'flex';
+    document.getElementById('forum-cats').style.display = 'flex';
+    loadTopics();
+  }
 
-    // ── Sport ─────────────────────────────────────────────────────────────────
-    window.loadTracks = async function() {
-      const { data: tracks } = await supabase
-        .from('racing_tracks')
-        .select('id, name, category')
-        .eq('active', true);
-      if (!tracks) return;
-      const sel = document.getElementById('track-select');
-      tracks.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t.id;
-        opt.textContent = t.name;
-        sel.appendChild(opt);
-      });
-    }
+  async function sendReply() {
+    if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
+    const input   = document.getElementById('reply-input');
+    const content = input.value.trim();
+    if (!content) { showToast('Напиши что-нибудь', 'error'); return; }
 
-    async function loadSport() {
-      document.getElementById('sport-table').innerHTML = '<div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>';
+    const { data, error } = await sb.from('forum_replies').insert({
+      topic_id: currentTopicId, author_id: currentUser.id, content
+    }).select('*,author:profiles!author_id(first_name,last_name,avatar_url)').single();
 
-      const trackId = document.getElementById('track-select').value;
-      const category = document.getElementById('category-select').value;
+    if (error) { showToast('Ошибка: '+error.message, 'error'); return; }
+    input.value = ''; input.style.height = 'auto';
 
-      let query = supabase
-        .from('racing_results')
-        .select(`
-          *,
-          profiles:user_id(id, first_name, last_name, level, avatar_url),
-          racing_tracks(name, category)
-        `);
+    sb.from('forum_topics').select('replies_count').eq('id', currentTopicId).single().then(({data:td})=>{
+      if (td) sb.from('forum_topics').update({ replies_count:(td.replies_count||0)+1, last_reply_at:new Date().toISOString() }).eq('id',currentTopicId);
+    });
 
-      if (trackId !== 'all') query = query.eq('track_id', trackId);
+    const au   = data.author || {};
+    const name = ((au.first_name||'')+' '+(au.last_name||'')).trim() || 'Аноним';
+    const av   = (((au.first_name||''[0])||'')+((au.last_name||''[0])||'')).toUpperCase() || '?';
+    const el   = document.createElement('div');
+    el.className = 'reply-card'; el.id = 'reply-'+data.id;
+    el.innerHTML =
+      '<div class="reply-header">'+
+        '<div class="reply-avatar">''+(au.avatar_url?'<img src="'+esc(au.avatar_url)+'" alt="">':('<span>'+av+'</span>'))+'</div>'+
+        '<div class="reply-name">'+esc(name)+'</div>'+
+        '<div class="reply-time">только что</div>'+
+      '</div>'+
+      '<div class="reply-body">'+esc(content)+'</div>'+
+      '<div class="reply-actions"><button class="reply-like-btn" onclick="likeReply(\''+data.id+'\',this)"><i class="fa fa-heart"></i> <span>0</span></button></div>';
+    document.getElementById('replies-list').appendChild(el);
+    el.scrollIntoView({ behavior:'smooth' });
+    const lbl = document.getElementById('replies-count-label');
+    lbl.textContent = (parseInt(lbl.textContent)||0)+1+' ответов';
+  }
 
-      const { data: results } = await query.limit(200);
-      if (!results) { document.getElementById('sport-table').innerHTML = '<div class="empty-state"><div class="icon">🏁</div>Нет результатов</div>'; return; }
+  async function likeReply(replyId, btn) {
+    if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
+    btn.classList.toggle('liked');
+    const span  = btn.querySelector('span');
+    const delta = btn.classList.contains('liked') ? 1 : -1;
+    span.textContent = (parseInt(span.textContent)||0) + delta;
+    const { data:r } = await sb.from('forum_replies').select('likes').eq('id', replyId).single();
+    if (r) await sb.from('forum_replies').update({ likes:(r.likes||0)+delta }).eq('id',replyId);
+  }
 
-      // Filter by category
-      let filtered = results;
-      if (category !== 'all') {
-        filtered = results.filter(r => r.racing_tracks?.category === category);
-      }
+  function openNewTopicModal() {
+    if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
+    topicPhotoFile = null;
+    document.getElementById('topic-title').value = '';
+    document.getElementById('topic-body').value = '';
+    document.getElementById('topic-cat-select').value = '';
+    document.getElementById('topic-photo-wrap').innerHTML = '<i class="fa fa-image"></i><span>Нажми чтобы добавить</span>';
+    document.getElementById('topic-photo-input').value = '';
+    document.getElementById('topic-submit-btn').disabled = false;
+    document.getElementById('topic-submit-btn').textContent = 'Опубликовать';
+    document.getElementById('new-topic-modal').classList.add('open');
+  }
 
-      // Aggregate by user
-      const byUser = {};
-      filtered.forEach(r => {
-        const uid = r.user_id;
-        if (!byUser[uid]) byUser[uid] = { user: r.profiles, totalPts: 0, runs: 0, bestTime: Infinity };
-        byUser[uid].totalPts += r.points || 0;
-        byUser[uid].runs += 1;
-        if (r.lap_time_ms && r.lap_time_ms < byUser[uid].bestTime) byUser[uid].bestTime = r.lap_time_ms;
-      });
+  function closeNewTopicModal() {
+    document.getElementById('new-topic-modal').classList.remove('open');
+  }
 
-      let aggArr = Object.values(byUser);
-
-      // Sort
-      if (sportSort === 'points') aggArr.sort((a, b) => b.totalPts - a.totalPts);
-      else if (sportSort === 'lap_time_ms') aggArr.sort((a, b) => (a.bestTime || 99999) - (b.bestTime || 99999));
-      else if (sportSort === 'runs') aggArr.sort((a, b) => b.runs - a.runs);
-
-      sportAll = aggArr;
-      renderSportTable(aggArr);
-    }
-
-    window._setSportSort = function(sort, el) {
-      sportSort = sort;
-      document.querySelectorAll('#sec-sport .sort-chip').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      if (sportAll.length) renderSportTable(sportAll);
-    }
-
-    function fmtLap(ms) {
-      if (!ms || ms === Infinity) return '—';
-      const m = Math.floor(ms / 60000);
-      const s = Math.floor((ms % 60000) / 1000);
-      const mss = Math.floor((ms % 1000) / 10);
-      return `${m}:${String(s).padStart(2,'0')}.${String(mss).padStart(2,'0')}`;
-    }
-
-    function renderSportTable(arr) {
-      const container = document.getElementById('sport-table');
-      if (!arr.length) {
-        container.innerHTML = '<div class="empty-state"><div class="icon">🏁</div>Нет результатов</div>';
-        return;
-      }
-      container.innerHTML = arr.slice(0, 50).map((item, i) => {
-        const u = item.user || {};
-        const name = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Гонщик';
-        const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-        const lvlColor = LEVEL_COLORS[u.level] || '#888';
-        const isMe = currentUser && u.id === currentUser.id;
-        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-        const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
-        return `
-          <div class="rt-row${isMe ? ' me' : ''}">
-            <div class="rt-rank ${rankClass}">${rankIcon || (i + 1)}</div>
-            <div class="rt-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};">
-              ${u.avatar_url ? `<img src="${u.avatar_url}" alt="${name}">` : `<span style="color:${lvlColor};">${initials}</span>`}
-            </div>
-            <div class="rt-info">
-              <div class="rt-name">${name} ${isMe ? '(вы)' : ''}</div>
-              <div class="rt-meta">Заездов: ${item.runs} · Лучшее: ${fmtLap(item.bestTime)}</div>
-            </div>
-            <div class="rt-pts">${item.totalPts}</div>
-          </div>`;
-      }).join('');
-    }
-
-    // ── Common render helpers ─────────────────────────────────────────────────
-    function renderPodium(containerId, top3) {
-      const container = document.getElementById(containerId);
-      if (!top3.length) { container.innerHTML = '<div class="empty-state">Нет данных</div>'; return; }
-
-      const PLACES = [
-        { cls: 'first',  icon: '🥇', size: 68, order: 2 },
-        { cls: 'second', icon: '🥈', size: 52, order: 1 },
-        { cls: 'third',  icon: '🥉', size: 52, order: 3 },
-      ];
-
-      container.innerHTML = top3.map((p, i) => {
-        const pl = PLACES[i];
-        const name = `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Пользователь';
-        const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-        const lvlColor = LEVEL_COLORS[p.level] || '#888';
-        const pts = p.score || p.trips_drove || p.totalPts || 0;
-        return `
-          <div class="podium-item ${pl.cls}" style="order:${pl.order};cursor:pointer;" onclick="goPage('${currentUser && p.id === currentUser.id ? 'profile.html' : 'user-profile.html?id=' + p.id}')">
-            <div class="podium-place">${pl.icon}</div>
-            <div class="podium-avatar" style="width:${pl.size}px;height:${pl.size}px;background:${lvlColor}20;border:2px solid ${lvlColor};">
-              ${p.avatar_url ? `<img src="${p.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : `<span style="color:${lvlColor};">${initials}</span>`}
-            </div>
-            <div class="podium-name">${name.split(' ')[0]}</div>
-            <div class="podium-pts">${pts} оч.</div>
-          </div>`;
-      }).join('');
-    }
-
-    function renderTable(containerId, arr, type) {
-      const container = document.getElementById(containerId);
-      if (!arr.length) {
-        container.innerHTML = '<div class="empty-state"><div class="icon">👤</div>Нет пользователей</div>';
-        return;
-      }
-
-      container.innerHTML = arr.slice(0, 50).map((p, i) => {
-        const name = `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Пользователь';
-        const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-        const lvlColor = LEVEL_COLORS[p.level] || '#888';
-        const isMe = currentUser && p.id === currentUser.id;
-        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-        const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
-        const pts = type === 'driver' ? (p.score || 0) : (p.trips_rode || 0);
-        const meta = type === 'driver'
-          ? `${p.trips_driven || 0} поездок · ★ ${(p.rating_driver || 5).toFixed(1)}`
-          : `${p.trips_rode || 0} пассажиром · ★ ${(p.rating_passenger || 5).toFixed(1)}`;
-        return `
-          <div class="rt-row${isMe ? ' me' : ''}" onclick="goPage('${isMe ? 'profile.html' : 'user-profile.html?id=' + p.id}')" style="cursor:pointer;">
-            <div class="rt-rank ${rankClass}">${rankIcon || (i + 1)}</div>
-            <div class="rt-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};">
-              ${p.avatar_url ? `<img src="${p.avatar_url}" alt="${name}">` : `<span style="color:${lvlColor};">${initials}</span>`}
-            </div>
-            <div class="rt-info">
-              <div class="rt-name">${name} ${isMe ? '(вы)' : ''}</div>
-              <div class="rt-meta">${meta} · ${p.city || ''}</div>
-            </div>
-            <div class="rt-pts">${pts}</div>
-          </div>`;
-      }).join('');
-    }
-
-    function switchMain(tab) {
-      document.querySelectorAll('.main-tab').forEach((t, i) => {
-        const tabs = ['drivers', 'passengers', 'sport'];
-        t.classList.toggle('active', tabs[i] === tab);
-      });
-      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
-      document.getElementById(`sec-${tab}`).classList.add('active');
-    }
-
-    init();
-    // Pull to refresh
-    let ptr_startY = 0, ptr_pulling = false;
-    const ptr_indicator = document.createElement('div');
-    ptr_indicator.style.cssText = 'position:fixed;top:0;left:0;right:0;height:4px;background:#f59e0b;transform:scaleX(0);transform-origin:left;transition:transform 0.2s;z-index:9999;';
-    document.body.appendChild(ptr_indicator);
-
-    document.addEventListener('touchstart', (e) => {
-      if (window.scrollY === 0) { ptr_startY = e.touches[0].clientY; ptr_pulling = true; }
-    }, { passive: true });
-
-    document.addEventListener('touchmove', (e) => {
-      if (!ptr_pulling) return;
-      const dy = e.touches[0].clientY - ptr_startY;
-      if (dy > 0) ptr_indicator.style.transform = `scaleX(${Math.min(dy / 100, 1)})`;
-    }, { passive: true });
-
-    document.addEventListener('touchend', (e) => {
-      if (!ptr_pulling) return;
-      ptr_pulling = false;
-      const dy = e.changedTouches[0].clientY - ptr_startY;
-      ptr_indicator.style.transform = 'scaleX(0)';
-      if (dy > 80) { showToast('🔄 Обновление...'); setTimeout(() => init(), 300); }
-    }, { passive: true });
-  
-    // ── FORUM ──────────────────────────────────────────
-    let currentCategoryId = null;
-    let currentCategoryName = '';
-    let currentTopicId = null;
-    let currentUser_forum = null;
-
-    window.initForum = async function() {
-      const { data: { user } } = await supabase.auth.getUser();
-      currentUser_forum = user;
-      loadCategories();
-    }
-
-    window.loadCategories = async function() {
-      const { data } = await supabase.from('forum_categories').select('*').order('sort_order');
-      const list = document.getElementById('forum-cats-list');
-      if (!data || !data.length) { list.innerHTML = '<div style="text-align:center;padding:40px;color:#555">Категорий нет</div>'; return; }
-      list.innerHTML = data.map(cat => `
-        <div class="forum-cat-card" onclick="openCategory('${cat.id}','${escHtml(cat.name)}')">
-          <div class="forum-cat-icon">${cat.icon || '💬'}</div>
-          <div class="forum-cat-info">
-            <div class="forum-cat-name">${cat.name}</div>
-            <div class="forum-cat-desc">${cat.description || ''}</div>
-          </div>
-          <div class="forum-cat-count">${cat.topics_count || 0} тем</div>
-          <i class="fas fa-chevron-right forum-cat-arrow"></i>
-        </div>`).join('');
-    }
-
-    window.openCategory = async function(catId, catName) {
-      currentCategoryId = catId;
-      currentCategoryName = catName;
-      document.getElementById('forum-cat-title').textContent = catName;
-      document.getElementById('forum-wrap').style.display = 'none';
-      document.getElementById('forum-topics-wrap').classList.add('open');
-      document.getElementById('thread-wrap').classList.remove('open');
-      document.getElementById('reply-form').classList.remove('open');
-      const { data } = await supabase.from('forum_topics')
-        .select('*, profiles(first_name, avatar_url)')
-        .eq('category_id', catId)
-        .order('is_pinned', { ascending: false })
-        .order('last_reply_at', { ascending: false })
-        .limit(50);
-      const list = document.getElementById('topics-list');
-      if (!data || !data.length) { list.innerHTML = '<div style="text-align:center;padding:40px;color:#555">Тем пока нет. Создай первую!</div>'; return; }
-      list.innerHTML = data.map(t => `
-        <div class="topic-card" onclick="openThread('${t.id}','${escHtml(t.title)}')">
-          ${t.is_pinned ? '<div class="topic-pinned">📌 Закреплено</div>' : ''}
-          <div class="topic-title">${t.title}</div>
-          <div class="topic-meta">
-            <span>${t.profiles?.first_name || 'Участник'}</span>
-            <span>💬 ${t.replies_count || 0}</span>
-            <span>❤️ ${t.likes || 0}</span>
-            <span>👁 ${t.views || 0}</span>
-            ${t.is_solved ? '<span class="topic-solved">✅ Решено</span>' : ''}
-            <span>${timeAgo(t.created_at)}</span>
-          </div>
-        </div>`).join('');
-    }
-
-    window._backToCategories = function() {
-      document.getElementById('forum-wrap').style.display = '';
-      document.getElementById('forum-topics-wrap').classList.remove('open');
-      document.getElementById('thread-wrap').classList.remove('open');
-      document.getElementById('reply-form').classList.remove('open');
-    }
-
-    window.openThread = async function(topicId, topicTitle) {
-      currentTopicId = topicId;
-      document.getElementById('thread-title-bar').textContent = topicTitle;
-      document.getElementById('forum-topics-wrap').classList.remove('open');
-      document.getElementById('thread-wrap').classList.add('open');
-      document.getElementById('reply-form').classList.add('open');
-      // increment views
-      await supabase.from('forum_topics').update({ views: supabase.rpc('increment', { x: 1 }) }).eq('id', topicId);
-      const [topicRes, repliesRes] = await Promise.all([
-        supabase.from('forum_topics').select('*, profiles(first_name, last_name, avatar_url)').eq('id', topicId).single(),
-        supabase.from('forum_replies').select('*, profiles(first_name, last_name, avatar_url)').eq('topic_id', topicId).order('created_at')
-      ]);
-      if (topicRes.data) renderThreadOp(topicRes.data);
-      if (repliesRes.data) renderReplies(repliesRes.data);
-    }
-
-    window.renderThreadOp = function(t) {
-      const av = t.profiles?.avatar_url;
-      const name = (t.profiles?.first_name || '') + (t.profiles?.last_name ? ' ' + t.profiles.last_name : '');
-      document.getElementById('thread-op').innerHTML = `
-        <div class="thread-op-title">${t.title}</div>
-        <div class="thread-op-content">${escHtml(t.content)}</div>
-        <div class="thread-op-footer">
-          <div class="thread-author">
-            <div class="thread-author-av">${av ? `<img src="${av}">` : (name[0]||'?')}</div>
-            <span class="thread-author-name">${name || 'Участник'}</span>
-          </div>
-          <span class="thread-op-time">${timeAgo(t.created_at)}</span>
-        </div>`;
-    }
-
-    window.renderReplies = function(replies) {
-      const list = document.getElementById('replies-list');
-      if (!replies.length) { list.innerHTML = '<div style="text-align:center;padding:30px;color:#555;font-size:14px">Будь первым кто ответит!</div>'; return; }
-      list.innerHTML = replies.map(r => {
-        const av = r.profiles?.avatar_url;
-        const name = (r.profiles?.first_name || '') + (r.profiles?.last_name ? ' ' + r.profiles.last_name : '');
-        return `<div class="reply-card ${r.is_solution ? 'solution' : ''}">
-          <div class="reply-header">
-            <div class="reply-author">
-              <div class="reply-av">${av ? `<img src="${av}">` : (name[0]||'?')}</div>
-              <div>
-                <div class="reply-name">${name || 'Участник'}</div>
-                <div class="reply-time">${timeAgo(r.created_at)}</div>
-              </div>
-            </div>
-            ${r.is_solution ? '<span class="solution-badge">✅ Решение</span>' : ''}
-          </div>
-          <div class="reply-content">${escHtml(r.content)}</div>
-          <div class="reply-footer">
-            <button class="topic-action" onclick="likeReply('${r.id}',this)"><i class="fas fa-heart"></i> ${r.likes || 0}</button>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    window._backToTopics = function() {
-      document.getElementById('thread-wrap').classList.remove('open');
-      document.getElementById('reply-form').classList.remove('open');
-      document.getElementById('forum-topics-wrap').classList.add('open');
-    }
-
-    window._sendReply = async function() {
-      if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
-      const textarea = document.getElementById('reply-textarea');
-      const text = textarea.value.trim();
-      if (!text) return;
-      textarea.value = ''; textarea.style.height = 'auto';
-      const { data, error } = await supabase.from('forum_replies').insert({
-        topic_id: currentTopicId, author_id: currentUser_forum.id, content: text
-      }).select('*, profiles(first_name, last_name, avatar_url)').single();
-      if (!error && data) {
-        const list = document.getElementById('replies-list');
-        if (list.querySelector('[style*="Будь первым"]')) list.innerHTML = '';
-        const av = data.profiles?.avatar_url;
-        const name = (data.profiles?.first_name || '') + (data.profiles?.last_name ? ' ' + data.profiles.last_name : '');
-        list.insertAdjacentHTML('beforeend', `<div class="reply-card">
-          <div class="reply-header">
-            <div class="reply-author">
-              <div class="reply-av">${av ? `<img src="${av}">` : (name[0]||'?')}</div>
-              <div><div class="reply-name">${name||'Я'}</div><div class="reply-time">Только что</div></div>
-            </div>
-          </div>
-          <div class="reply-content">${escHtml(text)}</div>
-          <div class="reply-footer"><button class="topic-action"><i class="fas fa-heart"></i> 0</button></div>
-        </div>`);
-        list.lastElementChild.scrollIntoView({behavior:'smooth'});
-        await supabase.from('forum_topics').update({ replies_count: (await supabase.from('forum_topics').select('replies_count').eq('id',currentTopicId).single()).data?.replies_count + 1 || 1, last_reply_at: new Date().toISOString() }).eq('id', currentTopicId);
-      }
-    }
-
-    let newTopicCatId = null;
-    window.openNewTopicModal = function() {
-      newTopicCatId = currentCategoryId;
-      document.getElementById('new-topic-modal').classList.add('open');
-    }
-    window._closeNewTopicModal = function() { document.getElementById('new-topic-modal').classList.remove('open'); };
-
-
-
-    window.likeReply = async function(replyId, btn) {
-      if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
-      btn.classList.toggle('liked');
-      const liked = btn.classList.contains('liked');
-      const cur = parseInt(btn.textContent.trim().split(' ').pop()) || 0;
-      btn.innerHTML = `<i class="fas fa-heart"></i> ${liked ? cur+1 : cur-1}`;
-      if (liked) await supabase.from('forum_replies').update({ likes: cur+1 }).eq('id', replyId);
-      else await supabase.from('forum_replies').update({ likes: Math.max(0,cur-1) }).eq('id', replyId);
-    }
-
-    window.timeAgo = function(ts) {
-      const diff = (Date.now() - new Date(ts)) / 1000;
-      if (diff < 60) return 'только что';
-      if (diff < 3600) return Math.floor(diff/60) + ' мин назад';
-      if (diff < 86400) return Math.floor(diff/3600) + ' ч назад';
-      return Math.floor(diff/86400) + ' дн назад';
-    }
-    window.escHtml = function(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    // Инициализация форума при переключении на вкладку
-    const origSwitchMain = window.switchMain;
-    window._switchMain = function(tab) {
-      origSwitchMain(tab);
-      if (tab === 'forum') initForum();
+  function handleTopicPhoto(input) {
+    const file = input.files[0]; if (!file) return;
+    topicPhotoFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('topic-photo-wrap').innerHTML =
+        '<img src="'+e.target.result+'" alt="">'+
+        '<button class="modal-photo-remove" onclick="removeTopicPhoto(event)"><i class="fa fa-times"></i></button>';
     };
+    reader.readAsDataURL(file);
+  }
 
-    // ── TOP TAB SWITCH ─────────────────────────
-    window._switchTop = function(tab) {
-      document.querySelectorAll('#top-tab-forum,#top-tab-rating').forEach(t=>t.classList.remove('active'));
-      document.getElementById('top-tab-'+tab).classList.add('active');
-      document.getElementById('top-panel-forum').style.display = tab==='forum' ? 'block' : 'none';
-      document.getElementById('top-panel-rating').style.display = tab==='rating' ? 'block' : 'none';
-      document.getElementById('sec-forum').style.display = tab==='forum' ? 'block' : 'none';
-      // rating sections
-      ['sec-drivers','sec-passengers','sec-sport','sec-records'].forEach(id=>{
-        const el=document.getElementById(id);
-        if(el) el.style.display='none';
-      });
-      if(tab==='rating') {
-        switchMain('drivers');
-      } else {
-        initForum();
+  function removeTopicPhoto(e) {
+    e.stopPropagation(); topicPhotoFile = null;
+    document.getElementById('topic-photo-wrap').innerHTML = '<i class="fa fa-image"></i><span>Нажми чтобы добавить</span>';
+    document.getElementById('topic-photo-input').value = '';
+  }
+
+  async function submitTopic() {
+    if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
+    const catId   = document.getElementById('topic-cat-select').value;
+    const title   = document.getElementById('topic-title').value.trim();
+    const content = document.getElementById('topic-body').value.trim();
+    if (!catId)   { showToast('Выбери категорию', 'error'); return; }
+    if (!title)   { showToast('Введи заголовок', 'error'); return; }
+    if (!content) { showToast('Введи текст темы', 'error'); return; }
+
+    const btn = document.getElementById('topic-submit-btn');
+    btn.disabled = true; btn.textContent = 'Публикуем...';
+
+    let coverUrl = null;
+    if (topicPhotoFile) {
+      try {
+        const ext  = topicPhotoFile.name.split('.').pop().toLowerCase();
+        const path = 'forum/'+currentUser.id+'/'+Date.now()+'.'+ext;
+        const { error:upErr } = await sb.storage.from('photos').upload(path, topicPhotoFile, { upsert:true, contentType:topicPhotoFile.type });
+        if (!upErr) { const { data:ud } = sb.storage.from('photos').getPublicUrl(path); coverUrl = ud.publicUrl; }
+        else console.warn('Фото темы не загружено:', upErr.message);
+      } catch(e) { console.warn(e); }
+    }
+
+    const { data, error } = await sb.from('forum_topics').insert({
+      category_id: catId, author_id: currentUser.id, title, content, cover_photo: coverUrl
+    }).select().single();
+
+    if (error) {
+      console.error(error);
+      showToast('Ошибка: '+error.message, 'error');
+      btn.disabled = false; btn.textContent = 'Опубликовать';
+      return;
+    }
+    closeNewTopicModal();
+    showToast('Тема создана! 🎉', 'success');
+    loadTopics();
+  }
+
+  /* ── РЕЙТИНГ ── */
+  async function loadDrivers() {
+    const { data } = await sb.from('profiles')
+      .select('id,first_name,last_name,level,city,score,rating_driver,trips_driven,avatar_url')
+      .order('score', { ascending:false }).limit(50);
+    driversAll = data || [];
+    renderDrivers(driversAll);
+    if (currentUser) {
+      const idx = driversAll.findIndex(p => p.id === currentUser.id);
+      if (idx >= 0) {
+        document.getElementById('my-rank-drivers').style.display = 'flex';
+        document.getElementById('my-rank-d').textContent = '#'+(idx+1);
+        document.getElementById('my-pts-d').textContent  = (driversAll[idx].score||0)+' очков';
       }
     }
+  }
 
-    // ── FORUM CATEGORY FILTER ────────────────────
-    let activeCatFilter = '';
-    let allTopicsCache = [];
+  function renderDrivers(arr) {
+    const s = [...arr].sort((a,b)=>(b[dSort]||0)-(a[dSort]||0));
+    renderPodium('drivers-podium', s.slice(0,3));
+    renderTable('drivers-table', s, 'driver');
+  }
 
-    window.loadAllTopicsForForum = async function() {
-      const { data: cats } = await supabase.from('forum_categories').select('*').order('sort_order');
-      if (cats) {
-        const bar = document.getElementById('cat-filter-bar');
-        cats.forEach(cat => {
-          const chip = document.createElement('div');
-          chip.className = 'sort-chip';
-          chip.dataset.cat = cat.id;
-          chip.textContent = (cat.icon||'') + ' ' + cat.name;
-          chip.onclick = () => selectCatFilter(chip, cat.id);
-          bar.appendChild(chip);
-        });
+  function setDSort(sort, el) {
+    dSort = sort;
+    document.querySelectorAll('#d-sort .sort-chip').forEach(c=>c.classList.remove('active')); el.classList.add('active');
+    renderDrivers(driversAll);
+  }
+
+  function filterDrivers(q) {
+    const f = q ? driversAll.filter(p=>(p.first_name+' '+p.last_name).toLowerCase().includes(q.toLowerCase())) : driversAll;
+    renderTable('drivers-table', f, 'driver');
+  }
+
+  async function loadPassengers() {
+    const { data } = await sb.from('profiles')
+      .select('id,first_name,last_name,level,city,score,rating_passenger,trips_rode,avatar_url')
+      .order('trips_rode', { ascending:false }).limit(50);
+    passengersAll = data || [];
+    renderPassengers(passengersAll);
+    if (currentUser) {
+      const idx = passengersAll.findIndex(p => p.id === currentUser.id);
+      if (idx >= 0) {
+        document.getElementById('my-rank-passengers').style.display = 'flex';
+        document.getElementById('my-rank-p').textContent = '#'+(idx+1);
+        document.getElementById('my-pts-p').textContent  = (passengersAll[idx].trips_rode||0)+' поездок';
       }
-      const { data: topics } = await supabase
-        .from('forum_topics')
-        .select('*, profiles(first_name, avatar_url)')
-        .order('is_pinned', { ascending: false })
-        .order('last_reply_at', { ascending: false })
-        .limit(100);
-      allTopicsCache = topics || [];
-      renderTopicsInForum(allTopicsCache);
     }
+  }
 
-    window._selectCatFilter = function(el, catId) {
-      document.querySelectorAll('#cat-filter-bar .sort-chip').forEach(c=>c.classList.remove('active'));
-      el.classList.add('active');
-      activeCatFilter = catId;
-      applyForumFilters();
-    }
+  function renderPassengers(arr) {
+    const s = [...arr].sort((a,b)=>(b[pSort]||0)-(a[pSort]||0));
+    renderPodium('passengers-podium', s.slice(0,3));
+    renderTable('passengers-table', s, 'passenger');
+  }
 
-    window.filterTopicsGlobal = function(q) {
-      applyForumFilters(q);
-    }
+  function setPSort(sort, el) {
+    pSort = sort;
+    document.querySelectorAll('#p-sort .sort-chip').forEach(c=>c.classList.remove('active')); el.classList.add('active');
+    renderPassengers(passengersAll);
+  }
 
-    window.applyForumFilters = function(q) {
-      const query = (q !== undefined ? q : document.getElementById('forum-search').value).toLowerCase();
-      let list = allTopicsCache;
-      if (activeCatFilter) list = list.filter(t => t.category_id === activeCatFilter);
-      if (query) list = list.filter(t => t.title.toLowerCase().includes(query) || (t.content||'').toLowerCase().includes(query));
-      renderTopicsInForum(list);
-    }
+  function filterPassengers(q) {
+    const f = q ? passengersAll.filter(p=>(p.first_name+' '+p.last_name).toLowerCase().includes(q.toLowerCase())) : passengersAll;
+    renderTable('passengers-table', f, 'passenger');
+  }
 
-    window.renderTopicsInForum = function(topics) {
-      const list = document.getElementById('topics-list');
-      if (!list) return;
-      if (!topics.length) {
-        list.innerHTML = '<div style="text-align:center;padding:40px;color:#555">Тем не найдено</div>';
-        return;
-      }
-      list.innerHTML = topics.map(t => `
-        <div class="topic-card" onclick="openThread('${t.id}','${escHtml(t.title)}')">
-          ${t.is_pinned ? '<div class="topic-pinned">📌 Закреплено</div>' : ''}
-          <div style="font-size:11px;color:#555;margin-bottom:4px">${t.''</div>
-          <div class="topic-title">${t.title}</div>
-          <div class="topic-meta">
-            <span>${t.profiles?.first_name||'Участник'}</span>
-            <span>💬 ${t.replies_count||0}</span>
-            <span>❤️ ${t.likes||0}</span>
-            <span>👁 ${t.views||0}</span>
-            ${t.is_solved ? '<span class="topic-solved">✅ Решено</span>' : ''}
-            <span>${timeAgo(t.created_at)}</span>
-          </div>
-        </div>`).join('');
-    }
+  async function loadTracks() {
+    const { data } = await sb.from('racing_tracks').select('id,name,category').eq('active',true);
+    if (!data) return;
+    const sel = document.getElementById('track-select');
+    data.forEach(t => { const o=document.createElement('option'); o.value=t.id; o.textContent=t.name; sel.appendChild(o); });
+  }
 
-    // Переопределяем initForum чтобы грузила все топики
-    const _origInitForum = window.initForum;
-    window.initForum = async function() {
-      const { data: { user } } = await supabase.auth.getUser();
-      currentUser_forum = user;
-      // показываем topics-list вместо категорий
-      document.getElementById('forum-wrap').style.display = '';
-      document.getElementById('forum-cats-list').style.display = 'none';
-      if (!allTopicsCache.length) await loadAllTopicsForForum();
-    };
+  async function loadSport() {
+    document.getElementById('sport-table').innerHTML = '<div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>';
+    const trackId  = document.getElementById('track-select').value;
+    const category = document.getElementById('category-select').value;
+    let q = sb.from('racing_results').select('*,profiles:user_id(id,first_name,last_name,level,avatar_url),racing_tracks(name,category)');
+    if (trackId !== 'all') q = q.eq('track_id', trackId);
+    const { data } = await q.limit(200);
+    if (!data) { document.getElementById('sport-table').innerHTML = '<div class="empty-state"><div class="icon">🏁</div>Нет результатов</div>'; return; }
+    let filtered = category !== 'all' ? data.filter(r=>r.racing_tracks?.category===category) : data;
+    const byUser = {};
+    filtered.forEach(r => {
+      if (!byUser[r.user_id]) byUser[r.user_id] = { user:r.profiles, totalPts:0, runs:0, bestTime:Infinity };
+      byUser[r.user_id].totalPts += r.points||0; byUser[r.user_id].runs++;
+      if (r.lap_time_ms && r.lap_time_ms < byUser[r.user_id].bestTime) byUser[r.user_id].bestTime = r.lap_time_ms;
+    });
+    let agg = Object.values(byUser);
+    if (sSort==='points')      agg.sort((a,b)=>b.totalPts-a.totalPts);
+    else if (sSort==='lap_time_ms') agg.sort((a,b)=>(a.bestTime||99999)-(b.bestTime||99999));
+    else agg.sort((a,b)=>b.runs-a.runs);
+    sportAll = agg; renderSportTable(agg);
+  }
 
-    // Переопределяем openThread чтобы topics-list был виден при возврате
-    const _origBackToTopics = window.backToTopics;
-    window.backToTopics = function() {
-      document.getElementById('thread-wrap').classList.remove('open');
-      document.getElementById('reply-form').classList.remove('open');
-      document.getElementById('forum-wrap').style.display = '';
-    };
+  function setSSort(sort, el) {
+    sSort = sort;
+    document.querySelectorAll('#s-sort .sort-chip').forEach(c=>c.classList.remove('active')); el.classList.add('active');
+    if (sportAll.length) renderSportTable(sportAll);
+  }
 
-    // Переопределяем openNewTopicModal — категорию выбираем в модалке
-    window._openNewTopicModal = async function() {
-      newTopicCatId = null;
-      window._topicPhotoFile = null;
-      // сбрасываем поля
-      document.getElementById('new-topic-title').value = '';
-      document.getElementById('new-topic-content').value = '';
-      document.getElementById('topic-photo-upload').innerHTML = '<i class="fas fa-camera"></i> Добавить фото';
-      document.getElementById('topic-photo-upload').style.height = '100px';
-      document.getElementById('topic-photo-input').value = '';
-      document.getElementById('new-topic-modal').classList.add('open');
-      // загружаем категории в селект
-      const sel = document.getElementById('new-topic-cat-select');
-      if (sel.options.length <= 1) {
-        const {data} = await supabase.from('forum_categories').select('*').order('sort_order');
-        if (data) {
-          data.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.id;
-            opt.textContent = (c.icon||'') + ' ' + c.name;
-            sel.appendChild(opt);
-          });
-        }
-      }
-    };
+  function fmtLap(ms) {
+    if (!ms||ms===Infinity) return '—';
+    return Math.floor(ms/60000)+':'+String(Math.floor((ms%60000)/1000)).padStart(2,'0')+'.'+String(Math.floor((ms%1000)/10)).padStart(2,'0');
+  }
 
-    window._previewTopicPhoto = function(input) {
-      const file = input.files[0];
-      if (!file) return;
-      window._topicPhotoFile = file;
-      const reader = new FileReader();
-      reader.onload = e => {
-        const box = document.getElementById('topic-photo-upload');
-        box.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><button onclick="removeTopicPhoto(event)" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:12px;cursor:pointer">✕</button>`;
-        box.style.height = '160px';
-      };
-      reader.readAsDataURL(file);
-    };
+  function renderSportTable(arr) {
+    const c = document.getElementById('sport-table');
+    if (!arr.length) { c.innerHTML='<div class="empty-state"><div class="icon">🏁</div>Нет результатов</div>'; return; }
+    c.innerHTML = arr.slice(0,50).map((item,i) => {
+      const u = item.user||{}; const name=((u.first_name||'')+' '+(u.last_name||'')).trim()||'Гонщик';
+      const av=(((u.first_name||''[0])||'')+((u.last_name||''[0])||'')).toUpperCase()||'?';
+      const lc=LVL[u.level]||'#888'; const isMe=currentUser&&u.id===currentUser.id;
+      const rk=i===0?'gold':i===1?'silver':i===2?'bronze':''; const ri=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+      return '<div class="rt-row'+(isMe?' me':'')+'">'+
+        '<div class="rt-rank '+(rk)+('">'+(ri||(i+1))+'</div>')+
+        '<div class="rt-avatar" style="background:'+(lc)+'20;border:1px solid '+(lc)+';">'+(u.avatar_url?'<img src="'+esc(u.avatar_url)+'" alt="">':('<span style="color:'+(lc)+';">'+av+'</span>'))+'</div>'+
+        '<div class="rt-info"><div class="rt-name">'+esc(name)+(isMe?' (вы)':'')+'</div><div class="rt-meta">Заездов: '+(item.runs)+' · Лучшее: '+fmtLap(item.bestTime)+'</div></div>'+
+        '<div class="rt-pts">'+(item.totalPts)+'</div></div>';
+    }).join('');
+  }
 
-    window._removeTopicPhoto = function(e) {
-      e.stopPropagation();
-      window._topicPhotoFile = null;
-      document.getElementById('topic-photo-upload').innerHTML = '<i class="fas fa-camera"></i> Добавить фото';
-      document.getElementById('topic-photo-upload').style.height = '100px';
-      document.getElementById('topic-photo-input').value = '';
-    };
+  function renderPodium(id, top3) {
+    const c = document.getElementById(id);
+    if (!top3.length) { c.innerHTML='<div class="empty-state">Нет данных</div>'; return; }
+    const PL=[{cls:'p1',icon:'🥇',size:68},{cls:'p2',icon:'🥈',size:52},{cls:'p3',icon:'🥉',size:52}];
+    c.innerHTML = top3.map((p,i)=>{
+      const pl=PL[i]; const name=((p.first_name||'')+' '+(p.last_name||'')).trim()||'Пользователь';
+      const av=(((p.first_name||''[0])||'')+((p.last_name||''[0])||'')).toUpperCase()||'?';
+      const lc=LVL[p.level]||'#888'; const pts=p.score||p.trips_rode||0;
+      return '<div class="podium-item '+(pl.cls)+'">'+
+        '<div class="podium-place">'+(pl.icon)+'</div>'+
+        '<div class="podium-avatar" style="width:'+(pl.size)+'px;height:'+(pl.size)+'px;background:'+(lc)+'20;border:2px solid '+(lc)+';">'+(p.avatar_url?'<img src="'+esc(p.avatar_url)+'" alt="">':('<span style="color:'+(lc)+';">'+av+'</span>'))+'</div>'+
+        '<div class="podium-name">'+(esc(name.split(' ')[0]))+'</div>'+
+        '<div class="podium-pts">'+(pts)+' оч.</div></div>';
+    }).join('');
+  }
 
-    window._submitNewTopic = async function() {
-      const sel = document.getElementById('new-topic-cat-select');
-      newTopicCatId = sel ? sel.value : null;
-      if (!newTopicCatId) { showToast('Выбери категорию', 'error'); return; }
-      if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
-      const title = document.getElementById('new-topic-title').value.trim();
-      const content_txt = document.getElementById('new-topic-content').value.trim();
-      if (!title) { showToast('Введи заголовок', 'error'); return; }
-      if (!content_txt) { showToast('Введи текст', 'error'); return; }
-      const submitBtn = document.querySelector('#new-topic-modal .modal-submit');
-      submitBtn.disabled = true; submitBtn.textContent = 'Публикуем...';
-      // загрузка фото
-      let photoUrl = null;
-      if (window._topicPhotoFile) {
-        const file = window._topicPhotoFile;
-        const ext = file.name.split('.').pop();
-        const fileName = 'forum/' + currentUser_forum.id + '/' + Date.now() + '.' + ext;
-        const { error: upErr } = await supabase.storage.from('photos').upload(fileName, file, {upsert:true});
-        if (!upErr) {
-          const { data: urlData } = supabase.storage.from('photos').getPublicUrl(fileName);
-          photoUrl = urlData.publicUrl;
-        }
-      }
-      const { data, error } = await supabase.from('forum_topics').insert({
-        category_id: newTopicCatId,
-        author_id: currentUser_forum.id,
-        title,
-        content: content_txt,
-        cover_photo: photoUrl
-      }).select('*, profiles(first_name,avatar_url), forum_categories(name,icon)').single();
-      submitBtn.disabled = false; submitBtn.textContent = 'Опубликовать';
-      if (error) { showToast('Ошибка: '+error.message,'error'); return; }
-      closeNewTopicModal();
-      showToast('Тема создана! 🎉','success');
-      allTopicsCache.unshift(data);
-      renderTopicsInForum(allTopicsCache);
-    };
+  function renderTable(id, arr, type) {
+    const c = document.getElementById(id);
+    if (!arr.length) { c.innerHTML='<div class="empty-state"><div class="icon">👤</div>Нет пользователей</div>'; return; }
+    c.innerHTML = arr.slice(0,50).map((p,i)=>{
+      const name=((p.first_name||'')+' '+(p.last_name||'')).trim()||'Пользователь';
+      const av=(((p.first_name||''[0])||'')+((p.last_name||''[0])||'')).toUpperCase()||'?';
+      const lc=LVL[p.level]||'#888'; const isMe=currentUser&&p.id===currentUser.id;
+      const rk=i===0?'gold':i===1?'silver':i===2?'bronze':''; const ri=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+      const pts=type==='driver'?(p.score||0):(p.trips_rode||0);
+      const meta=type==='driver'?(p.trips_driven||0)+' поездок · ★'+(p.rating_driver||5).toFixed(1):(p.trips_rode||0)+' пассажиром · ★'+(p.rating_passenger||5).toFixed(1);
+      return '<div class="rt-row'+(isMe?' me':'')+'">'+
+        '<div class="rt-rank '+(rk)+('">'+(ri||(i+1))+'</div>')+
+        '<div class="rt-avatar" style="background:'+(lc)+'20;border:1px solid '+(lc)+';">'+(p.avatar_url?'<img src="'+esc(p.avatar_url)+'" alt="">':('<span style="color:'+(lc)+';">'+av+'</span>'))+'</div>'+
+        '<div class="rt-info"><div class="rt-name">'+esc(name)+(isMe?' (вы)':'')+'</div><div class="rt-meta">'+(meta)+(p.city?' · '+esc(p.city):'')+'</div></div>'+
+        '<div class="rt-pts">'+(pts)+'</div></div>';
+    }).join('');
+  }
 
-    // Старт — форум открыт по умолчанию
-    switchTop('forum');
+  /* ── INIT ── */
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/app/auth.html'; return; }
+    currentUser = session.user;
+    await loadForum();
+  }
 
-  </script>
+  init();
+</script>
 </body>
 </html>

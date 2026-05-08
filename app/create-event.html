@@ -9,13 +9,17 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0f0f0f; color: #fff; font-family: -apple-system, sans-serif; padding-bottom: 100px; }
+    body { background: #0f0f0f; color: #fff; font-family: -apple-system, sans-serif; padding-bottom: 40px; }
+
     .top-bar { display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid #1e1e3a; position: sticky; top: 0; background: #0f0f0f; z-index: 10; }
     .top-bar h1 { font-size: 18px; font-weight: 700; flex: 1; }
     .back-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 4px; }
+
     .form-wrap { padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; }
+
     .form-section { background: #1a1a2e; border-radius: 16px; padding: 16px; }
     .form-section-title { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; }
+
     .form-group { margin-bottom: 14px; }
     .form-group:last-child { margin-bottom: 0; }
     .form-label { font-size: 13px; color: #aaa; margin-bottom: 6px; display: block; }
@@ -23,23 +27,28 @@
     .form-input:focus { border-color: #f59e0b; }
     .form-textarea { width: 100%; background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 14px; outline: none; font-family: inherit; resize: none; min-height: 100px; transition: border-color 0.2s; }
     .form-textarea:focus { border-color: #f59e0b; }
+
     .type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .type-btn { background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 12px; padding: 10px 4px; cursor: pointer; text-align: center; transition: all 0.2s; }
     .type-btn .type-icon { font-size: 22px; display: block; margin-bottom: 4px; }
     .type-btn .type-label { font-size: 10px; color: #888; }
     .type-btn.active { background: #f59e0b20; border-color: #f59e0b; }
     .type-btn.active .type-label { color: #f59e0b; }
-    .cover-upload { width: 100%; height: 160px; background: #0f0f1a; border: 2px dashed #2a2a4a; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; gap: 8px; overflow: hidden; position: relative; }
+
+    .cover-upload { width: 100%; height: 160px; background: #0f0f1a; border: 2px dashed #2a2a4a; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; gap: 8px; overflow: hidden; position: relative; transition: border-color 0.2s; }
+    .cover-upload:active { border-color: #f59e0b; }
     .cover-upload i { font-size: 32px; color: #555; }
     .cover-upload span { font-size: 13px; color: #555; }
     .cover-upload img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .cover-upload .remove-cover { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+    .remove-cover { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; z-index: 2; }
+
     .toggle-row { display: flex; align-items: center; justify-content: space-between; }
     .toggle-label { font-size: 14px; color: #ccc; }
     .toggle { width: 44px; height: 24px; background: #2a2a4a; border-radius: 12px; cursor: pointer; position: relative; transition: background 0.2s; border: none; }
     .toggle.on { background: #22c55e; }
-    .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+    .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
     .toggle.on::after { transform: translateX(20px); }
+
     .tags-input-wrap { display: flex; gap: 8px; margin-bottom: 10px; }
     .tags-input { flex: 1; background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; }
     .tags-input:focus { border-color: #f59e0b; }
@@ -47,20 +56,30 @@
     .tags-list { display: flex; flex-wrap: wrap; gap: 8px; }
     .tag-item { background: #1e1e3a; color: #f59e0b; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
     .tag-remove { background: none; border: none; color: #f59e0b; cursor: pointer; font-size: 14px; padding: 0; line-height: 1; }
+
     .submit-btn { width: 100%; padding: 16px; background: #f59e0b; color: #000; border: none; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
     .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .submit-btn:active { opacity: 0.8; }
     .hint { font-size: 12px; color: #555; margin-top: 6px; }
+
+    #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1e1e3a; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; z-index: 1000; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    #toast.show { opacity: 1; }
+    #toast.error { background: #7f1d1d; color: #fca5a5; }
+    #toast.success { background: #14532d; color: #86efac; }
   </style>
 </head>
 <body>
+
 <div class="top-bar">
   <button class="back-btn" onclick="history.back()"><i class="fa fa-arrow-left"></i></button>
   <h1>Новое мероприятие</h1>
 </div>
+
 <div class="form-wrap">
+
   <div class="form-section">
     <div class="form-section-title">Тип мероприятия</div>
-    <div class="type-grid" id="type-grid">
+    <div class="type-grid">
       <div class="type-btn active" data-type="drive" onclick="selectType('drive')"><span class="type-icon">🚗</span><span class="type-label">Поездка</span></div>
       <div class="type-btn" data-type="meet" onclick="selectType('meet')"><span class="type-icon">👋</span><span class="type-label">Встреча</span></div>
       <div class="type-btn" data-type="race" onclick="selectType('race')"><span class="type-icon">🏁</span><span class="type-label">Гонка</span></div>
@@ -71,26 +90,29 @@
       <div class="type-btn" data-type="other" onclick="selectType('other')"><span class="type-icon">⭐</span><span class="type-label">Другое</span></div>
     </div>
   </div>
+
   <div class="form-section">
     <div class="form-section-title">Основное</div>
     <div class="form-group">
       <label class="form-label">Название *</label>
-      <input class="form-input" id="title" placeholder="Например: Вечерний заезд по набережной" maxlength="100">
+      <input class="form-input" id="title" placeholder="Вечерний заезд по набережной" maxlength="100">
     </div>
     <div class="form-group">
       <label class="form-label">Описание</label>
-      <textarea class="form-textarea" id="description" placeholder="Расскажи подробнее о мероприятии..."></textarea>
+      <textarea class="form-textarea" id="description" placeholder="Расскажи подробнее..."></textarea>
     </div>
   </div>
+
   <div class="form-section">
     <div class="form-section-title">Фото обложки</div>
     <div class="cover-upload" id="cover-upload" onclick="document.getElementById('cover-input').click()">
       <i class="fa fa-camera"></i>
       <span>Нажми чтобы добавить фото</span>
     </div>
-    <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="uploadCover(this)">
+    <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCoverChange(this)">
     <p class="hint">Рекомендуемый размер: 1200×630</p>
   </div>
+
   <div class="form-section">
     <div class="form-section-title">Дата и место</div>
     <div class="form-group">
@@ -110,6 +132,7 @@
       <input class="form-input" id="address" placeholder="ул. Ленина 1, парковка ТЦ...">
     </div>
   </div>
+
   <div class="form-section">
     <div class="form-section-title">Участники</div>
     <div class="form-group">
@@ -127,88 +150,177 @@
       <input class="form-input" id="price" type="number" min="0" placeholder="500">
     </div>
   </div>
+
   <div class="form-section">
     <div class="form-section-title">Теги</div>
     <div class="tags-input-wrap">
-      <input class="tags-input" id="tag-input" placeholder="дрифт, классика, BMW..." maxlength="20" onkeydown="if(event.key==='Enter'){event.preventDefault();addTag();}">
+      <input class="tags-input" id="tag-input" placeholder="дрифт, классика, BMW..." maxlength="20"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();addTag();}">
       <button class="tag-add-btn" onclick="addTag()">+</button>
     </div>
     <div class="tags-list" id="tags-list"></div>
   </div>
-  <button class="submit-btn" id="submit-btn" onclick="createEvent()">🚀 Создать мероприятие</button>
+
+  <button class="submit-btn" id="submit-btn" onclick="submitEvent()">
+    🚀 Создать мероприятие
+  </button>
+
 </div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-let selectedType='drive',isFree=true,coverUrl=null,tags=[];
-function selectType(type){selectedType=type;document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));document.querySelector('[data-type="'+type+'"]').classList.add('active');}
-function toggleFree(){isFree=!isFree;document.getElementById('free-toggle').classList.toggle('on',isFree);document.getElementById('price-group').style.display=isFree?'none':'block';}
-function addTag(){const input=document.getElementById('tag-input');const val=input.value.trim().replace(/^#/,'').toLowerCase();if(!val||tags.includes(val)||tags.length>=10)return;tags.push(val);input.value='';renderTags();}
-function removeTag(tag){tags=tags.filter(t=>t!==tag);renderTags();}
-function renderTags(){document.getElementById('tags-list').innerHTML=tags.map(t=>`<div class="tag-item">#${t}<button class="tag-remove" onclick="removeTag('${t}')">✕</button></div>`).join('');}
-function uploadCover(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=(e)=>{document.getElementById('cover-upload').innerHTML=`<img src="${e.target.result}"><button class="remove-cover" onclick="removeCover(event)">✕</button>`;};reader.readAsDataURL(file);window._coverFile=file;}
-function removeCover(e){e.stopPropagation();window._coverFile=null;document.getElementById('cover-upload').innerHTML='<i class="fa fa-camera"></i><span>Нажми чтобы добавить фото</span>';document.getElementById('cover-input').value='';}
-function goPage(p){window.location.href=p;}
-</script>
-<script type="module">
-import { supabase, showToast } from '../js/supabase.js';
-let currentUser=null;
-async function init(){
-  const{data:{user}}=await supabase.auth.getUser();
-  if(!user){location.href='auth.html';return;}
-  currentUser=user;
-  const now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
-  const nowStr=now.toISOString().slice(0,16);
-  document.getElementById('date-start').min=nowStr;
-  document.getElementById('date-end').min=nowStr;
-}
-window.createEvent=async function(){
-  // Получаем пользователя заново на случай если ещё не загружен
-  if(!currentUser){
-    const {data:{user}} = await supabase.auth.getUser();
-    if(!user){location.href='auth.html';return;}
-    currentUser = user;
+  const SUPA_URL = 'https://ktqiyywdgokktiwavgbq.supabase.co';
+  const SUPA_KEY = 'sb_publishable_UqkqWGlqU0Slw7a4azOoGg_l8E3vUYP';
+  const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  let currentUser  = null;
+  let selectedType = 'drive';
+  let isFree       = true;
+  let tags         = [];
+  let coverFile    = null;
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + (type||'info');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = ''; }, 3000);
   }
-  const title=document.getElementById('title').value.trim();
-  const description=document.getElementById('description').value.trim();
-  const dateStart=document.getElementById('date-start').value;
-  const dateEnd=document.getElementById('date-end').value;
-  const city=document.getElementById('city').value.trim();
-  const address=document.getElementById('address').value.trim();
-  const maxParticipants=parseInt(document.getElementById('max-participants').value)||0;
-  const price=parseInt(document.getElementById('price').value)||0;
-  if(!title){showToast('Введи название','error');return;}
-  if(!dateStart){showToast('Укажи дату начала','error');return;}
-  const btn=document.getElementById('submit-btn');
-  btn.disabled=true;btn.textContent='Создаём...';
-  let finalCoverUrl=null;
-  if(window._coverFile){
-    const file=window._coverFile;
-    const ext=file.name.split('.').pop();
-    const fileName=`events/${currentUser.id}/${Date.now()}.${ext}`;
-    const{error}=await supabase.storage.from('photos').upload(fileName, file, {upsert: true, contentType: file.type});
-    if(!error){const{data:urlData}=supabase.storage.from('photos').getPublicUrl(fileName);finalCoverUrl=urlData.publicUrl;}
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = 'auth.html'; return; }
+    currentUser = session.user;
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const nowStr = now.toISOString().slice(0, 16);
+    document.getElementById('date-start').min = nowStr;
+    document.getElementById('date-end').min = nowStr;
   }
-  const insertData = {
-    owner_id: currentUser.id,
-    title: title,
-    description: description || null,
-    type: selectedType,
-    cover_photo: finalCoverUrl,
-    city: city || null,
-    address: address || null,
-    date_start: dateStart ? new Date(dateStart).toISOString() : null,
-    date_end: dateEnd ? new Date(dateEnd).toISOString() : null,
-    max_participants: maxParticipants || null,
-    is_free: isFree,
-    price: isFree ? 0 : price,
-    tags: tags && tags.length ? tags : null,
-    status: 'active'
-  };
-  const {data, error} = await supabase.from('events').insert(insertData).select().single();
-  if(error){showToast('Ошибка: '+error.message,'error');btn.disabled=false;btn.textContent='🚀 Создать мероприятие';return;}
-  showToast('Мероприятие создано! 🎉','success');
-  setTimeout(()=>{location.href='event-card.html?id='+data.id;},1000);
-};
-init();
+
+  function selectType(type) {
+    selectedType = type;
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-type="' + type + '"]').classList.add('active');
+  }
+
+  function toggleFree() {
+    isFree = !isFree;
+    document.getElementById('free-toggle').classList.toggle('on', isFree);
+    document.getElementById('price-group').style.display = isFree ? 'none' : 'block';
+  }
+
+  function addTag() {
+    const input = document.getElementById('tag-input');
+    const val = input.value.trim().replace(/^#/, '').toLowerCase();
+    if (!val || tags.includes(val) || tags.length >= 10) return;
+    tags.push(val);
+    input.value = '';
+    renderTags();
+  }
+
+  function removeTag(tag) {
+    tags = tags.filter(t => t !== tag);
+    renderTags();
+  }
+
+  function renderTags() {
+    document.getElementById('tags-list').innerHTML = tags.map(t =>
+      '<div class="tag-item">#' + t + '<button class="tag-remove" onclick="removeTag(\'' + t + '\')">✕</button></div>'
+    ).join('');
+  }
+
+  function handleCoverChange(input) {
+    const file = input.files[0];
+    if (!file) return;
+    coverFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('cover-upload').innerHTML =
+        '<img src="' + e.target.result + '" alt="">' +
+        '<button class="remove-cover" onclick="removeCover(event)"><i class="fa fa-times"></i></button>';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeCover(e) {
+    e.stopPropagation();
+    coverFile = null;
+    document.getElementById('cover-upload').innerHTML =
+      '<i class="fa fa-camera"></i><span>Нажми чтобы добавить фото</span>';
+    document.getElementById('cover-input').value = '';
+  }
+
+  async function submitEvent() {
+    if (!currentUser) {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { location.href = 'auth.html'; return; }
+      currentUser = session.user;
+    }
+
+    const title       = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const dateStart   = document.getElementById('date-start').value;
+    const dateEnd     = document.getElementById('date-end').value;
+    const city        = document.getElementById('city').value.trim();
+    const address     = document.getElementById('address').value.trim();
+    const maxP        = parseInt(document.getElementById('max-participants').value) || 0;
+    const price       = parseInt(document.getElementById('price').value) || 0;
+
+    if (!title)     { showToast('Введи название', 'error'); return; }
+    if (!dateStart) { showToast('Укажи дату начала', 'error'); return; }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Создаём...';
+
+    let finalCoverUrl = null;
+    if (coverFile) {
+      try {
+        const ext  = coverFile.name.split('.').pop().toLowerCase();
+        const path = 'events/' + currentUser.id + '/' + Date.now() + '.' + ext;
+        const { error: upErr } = await sb.storage.from('photos').upload(path, coverFile, { upsert: true, contentType: coverFile.type });
+        if (!upErr) {
+          const { data: urlData } = sb.storage.from('photos').getPublicUrl(path);
+          finalCoverUrl = urlData.publicUrl;
+        } else {
+          console.warn('Обложка не загружена:', upErr.message);
+        }
+      } catch(e) { console.warn('upload error:', e); }
+    }
+
+    const { data, error } = await sb.from('events').insert({
+      owner_id:         currentUser.id,
+      title,
+      description:      description || null,
+      type:             selectedType,
+      cover_photo:      finalCoverUrl,
+      city:             city || null,
+      address:          address || null,
+      date_start:       dateStart ? new Date(dateStart).toISOString() : null,
+      date_end:         dateEnd   ? new Date(dateEnd).toISOString()   : null,
+      max_participants: maxP || null,
+      is_free:          isFree,
+      price:            isFree ? 0 : price,
+      tags:             tags.length ? tags : null,
+      status:           'active'
+    }).select().single();
+
+    if (error) {
+      console.error('Ошибка:', error);
+      showToast('Ошибка: ' + error.message, 'error');
+      btn.disabled = false;
+      btn.textContent = '🚀 Создать мероприятие';
+      return;
+    }
+
+    showToast('Мероприятие создано! 🎉', 'success');
+    setTimeout(() => { location.href = 'event-card.html?id=' + data.id; }, 1200);
+  }
+
+  init();
 </script>
 </body>
 </html>
