@@ -394,7 +394,7 @@ window.renderEditPhotos=function(){
   grid.innerHTML=window._editPhotos.map(function(url,i){
     const isCover=url===window._editCoverUrl;
     return '<div class="edit-photo-item'+(isCover?' is-cover':'')+'">'
-      +'<img src="'+url+'" onclick="setEditCover(''+url+'')">'
+      +'<img src="'+url+'" onclick="setEditCover(this.dataset.url)" data-url="'+url+'">'
       +(isCover?'<div class="edit-photo-cover-badge">ОБЛОЖКА</div>':'')
       +'<button class="edit-photo-remove" onclick="removeEditPhoto('+i+')">✕</button>'
       +'</div>';
