@@ -1057,7 +1057,7 @@
       }
       const { data: topics } = await supabase
         .from('forum_topics')
-        .select('*, profiles(first_name, avatar_url), forum_categories(name, icon)')
+        .select('*, profiles(first_name, avatar_url)')
         .order('is_pinned', { ascending: false })
         .order('last_reply_at', { ascending: false })
         .limit(100);
@@ -1094,7 +1094,7 @@
       list.innerHTML = topics.map(t => `
         <div class="topic-card" onclick="openThread('${t.id}','${escHtml(t.title)}')">
           ${t.is_pinned ? '<div class="topic-pinned">📌 Закреплено</div>' : ''}
-          <div style="font-size:11px;color:#555;margin-bottom:4px">${t.forum_categories?.icon||''} ${t.forum_categories?.name||''}</div>
+          <div style="font-size:11px;color:#555;margin-bottom:4px">${t.''</div>
           <div class="topic-title">${t.title}</div>
           <div class="topic-meta">
             <span>${t.profiles?.first_name||'Участник'}</span>
