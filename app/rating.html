@@ -521,7 +521,7 @@ async function sendReply() {
       '<div class="reply-time">только что</div>' +
     '</div>' +
     '<div class="reply-body">' + esc(content) + '</div>' +
-    '<div class="reply-actions"><button class="reply-like-btn" onclick="likeReply('' + data.id + '',this)"><i class="fa fa-heart"></i> <span>0</span></button></div>';
+    '<div class="reply-actions"><button class="reply-like-btn" onclick="likeReply(this.dataset.rid,this)" data-rid="' + data.id + '"><i class="fa fa-heart"></i> <span>0</span></button></div>';
   document.getElementById('replies-list').appendChild(el);
   el.scrollIntoView({ behavior: 'smooth' });
   const lbl = document.getElementById('replies-count-label');
