@@ -78,6 +78,13 @@
     .map-btn i { color: #f59e0b; }
     .price-badge { display: inline-flex; align-items: center; gap: 6px; background: #22c55e20; color: #22c55e; border: 1px solid #22c55e40; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
     .price-badge.paid { background: #f59e0b20; color: #f59e0b; border-color: #f59e0b40; }
+      .edit-photo-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px; }
+    .edit-photo-item { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:2px solid transparent; }
+    .edit-photo-item.is-cover { border-color:#f59e0b; }
+    .edit-photo-item img { width:100%; height:100%; object-fit:cover; cursor:pointer; }
+    .edit-photo-cover-badge { position:absolute; bottom:4px; left:4px; background:#f59e0b; color:#000; font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px; }
+    .edit-photo-remove { position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.7); border:none; color:#fff; width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:11px; }
+    .edit-upload-btn { width:100%; padding:10px; background:#0f0f0f; border:2px dashed #2a2a4a; border-radius:10px; color:#888; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
   </style>
 </head>
 <body>
@@ -291,17 +298,9 @@ window.sendComment=async function(){
 };
 window.openEditModal=function(){
   if(!event)return;
-  window._editCoverFile=null;
-  const preview=document.getElementById('edit-cover-preview');
-  const removeBtn=document.getElementById('edit-cover-remove');
-  if(event.cover_photo){
-    preview.src=event.cover_photo;
-    preview.style.display='block';
-    removeBtn.style.display='block';
-  } else {
-    preview.style.display='none';
-    removeBtn.style.display='none';
-  }
+  window._editPhotos=Array.isArray(event.photos)&&event.photos.length?[...event.photos]:(event.cover_photo?[event.cover_photo]:[]);
+  window._editCoverUrl=event.cover_photo||window._editPhotos[0]||null;
+  renderEditPhotos();
   document.getElementById('edit-title').value=event.title||'';
   document.getElementById('edit-desc').value=event.description||'';
   document.getElementById('edit-city').value=event.city||'';
@@ -313,43 +312,53 @@ window.openEditModal=function(){
   }
   document.getElementById('edit-modal').style.display='block';
 };
-window.previewEditCover=function(input){
-  const file=input.files[0];
-  if(!file)return;
-  window._editCoverFile=file;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const preview=document.getElementById('edit-cover-preview');
-    preview.src=e.target.result;
-    preview.style.display='block';
-    document.getElementById('edit-cover-remove').style.display='block';
-  };
-  reader.readAsDataURL(file);
+window._editPhotos=[];
+window._editCoverUrl=null;
+window.handleEditPhotos=async function(input){
+  const files=Array.from(input.files);
+  if(!files.length)return;
+  if(window._editPhotos.length+files.length>8){alert('Максимум 8 фото');return;}
+  const prog=document.getElementById('edit-upload-progress');
+  prog.style.display='block';prog.textContent='Загрузка...';
+  for(let i=0;i<files.length;i++){
+    const file=files[i];
+    const ext=file.name.split('.').pop().toLowerCase();
+    const fpath='events/'+currentUser.id+'/'+Date.now()+'_'+i+'.'+ext;
+    const{error}=await supabase.storage.from('photos').upload(fpath,file,{upsert:true,contentType:file.type});
+    if(error){alert('Ошибка: '+error.message);continue;}
+    const{data:ud}=supabase.storage.from('photos').getPublicUrl(fpath);
+    window._editPhotos.push(ud.publicUrl);
+    if(!window._editCoverUrl)window._editCoverUrl=ud.publicUrl;
+    renderEditPhotos();
+  }
+  prog.style.display='none';
+  input.value='';
 };
-window.removeEditCover=function(e){
-  e.stopPropagation();
-  window._editCoverFile=null;
-  window._editCoverRemoved=true;
-  document.getElementById('edit-cover-preview').style.display='none';
-  document.getElementById('edit-cover-remove').style.display='none';
-  document.getElementById('edit-cover-input').value='';
+window.renderEditPhotos=function(){
+  const grid=document.getElementById('edit-photo-grid');
+  if(!window._editPhotos.length){grid.style.display='none';return;}
+  grid.style.display='grid';
+  grid.innerHTML=window._editPhotos.map(function(url,i){
+    const isCover=url===window._editCoverUrl;
+    return '<div class="edit-photo-item'+(isCover?' is-cover':'')+'">'
+      +'<img src="'+url+'" onclick="setEditCover(''+url+'')">'
+      +(isCover?'<div class="edit-photo-cover-badge">ОБЛОЖКА</div>':'')
+      +'<button class="edit-photo-remove" onclick="removeEditPhoto('+i+')">✕</button>'
+      +'</div>';
+  }).join('');
+};
+window.setEditCover=function(url){window._editCoverUrl=url;renderEditPhotos();};
+window.removeEditPhoto=function(idx){
+  if(window._editPhotos[idx]===window._editCoverUrl)window._editCoverUrl=window._editPhotos[idx+1]||window._editPhotos[0]||null;
+  window._editPhotos.splice(idx,1);
+  renderEditPhotos();
 };
 window.closeEditModal=function(){document.getElementById('edit-modal').style.display='none';};
 window.saveEvent=async function(){
   const title=document.getElementById('edit-title').value.trim();
   if(!title){alert('Введи название');return;}
-  let coverUrl=event.cover_photo||null;
-  if(window._editCoverFile){
-    const file=window._editCoverFile;
-    const ext=file.name.split('.').pop();
-    const fileName='events/'+currentUser.id+'/'+Date.now()+'.'+ext;
-    const{data:upData,error:upErr}=await supabase.storage.from('photos').upload(fileName,file,{upsert:true,contentType:file.type});
-    if(!upErr){const{data:urlData}=supabase.storage.from('photos').getPublicUrl(fileName);coverUrl=urlData.publicUrl;}
-  } else if(window._editCoverRemoved){
-    coverUrl=null;
-  }
-  window._editCoverFile=null;
-  window._editCoverRemoved=false;
+  const coverUrl=window._editCoverUrl||null;
+  const photosArr=window._editPhotos||[];
   const updates={
     title,
     description:document.getElementById('edit-desc').value.trim()||null,
@@ -357,6 +366,7 @@ window.saveEvent=async function(){
     address:document.getElementById('edit-address').value.trim()||null,
     date_start:document.getElementById('edit-date').value||null,
     cover_photo:coverUrl,
+    photos:photosArr.length?photosArr:null,
   };
   const{error}=await supabase.from('events').update(updates).eq('id',EVENT_ID);
   if(error){alert('Ошибка: '+error.message);return;}
@@ -402,14 +412,11 @@ init();
         <input id="edit-date" type="datetime-local" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;">
       </div>
       <div>
-        <div style="font-size:12px;color:#888;margin-bottom:6px;">Фото обложки</div>
-        <div id="edit-cover-wrap" onclick="document.getElementById('edit-cover-input').click()" style="width:100%;height:140px;background:#0f0f0f;border:2px dashed #2a2a4a;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;cursor:pointer;position:relative;overflow:hidden;">
-          <img id="edit-cover-preview" src="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
-          <i class="fa fa-image" style="font-size:28px;color:#444;"></i>
-          <span style="font-size:12px;color:#666;">Нажми чтобы выбрать фото</span>
-          <button id="edit-cover-remove" onclick="removeEditCover(event)" style="display:none;position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;">&times;</button>
-        </div>
-        <input type="file" id="edit-cover-input" accept="image/*" style="display:none" onchange="previewEditCover(this)">
+        <div style="font-size:12px;color:#888;margin-bottom:6px;">Фото</div>
+        <div class="edit-photo-grid" id="edit-photo-grid" style="display:none"></div>
+        <div class="edit-upload-btn" onclick="document.getElementById('edit-cover-input').click()"><i class="fa fa-images"></i> Добавить фото</div>
+        <input type="file" id="edit-cover-input" accept="image/*" multiple style="display:none" onchange="handleEditPhotos(this)">
+        <div id="edit-upload-progress" style="display:none;margin-top:8px;background:#1a1a2e;border-radius:8px;padding:8px 12px;font-size:12px;color:#888;">Загрузка...</div>
       </div>
       <div style="display:flex;gap:10px;margin-top:6px;">
         <button onclick="saveEvent()" style="flex:1;background:#f59e0b;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Сохранить</button>

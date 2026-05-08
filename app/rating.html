@@ -130,6 +130,13 @@
     .modal-photo-upload i { font-size: 24px; color: #555; }
     .modal-photo-upload span { font-size: 12px; color: #555; }
     .modal-photo-upload img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .topic-photo-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px; }
+    .topic-photo-item { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:2px solid transparent; }
+    .topic-photo-item.is-cover { border-color:#f59e0b; }
+    .topic-photo-item img { width:100%; height:100%; object-fit:cover; cursor:pointer; }
+    .topic-photo-cover-badge { position:absolute; bottom:4px; left:4px; background:#f59e0b; color:#000; font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px; }
+    .topic-photo-remove-btn { position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.7); border:none; color:#fff; width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:11px; }
+    .topic-upload-btn { width:100%; padding:10px; background:#0f0f1a; border:2px dashed #2a2a4a; border-radius:10px; color:#888; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:14px; }
     .modal-photo-remove { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.7); border: none; color: #fff; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; z-index: 2; }
     .modal-submit { width: 100%; padding: 14px; background: #f59e0b; color: #000; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; }
     .modal-submit:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -259,10 +266,10 @@
     <label class="modal-label">Текст *</label>
     <textarea class="modal-textarea" id="topic-body" placeholder="Подробнее..."></textarea>
     <label class="modal-label">Фото (необязательно)</label>
-    <div class="modal-photo-upload" id="topic-photo-wrap" onclick="document.getElementById('topic-photo-input').click()">
-      <i class="fa fa-image"></i><span>Нажми чтобы добавить</span>
-    </div>
-    <input type="file" id="topic-photo-input" accept="image/*" style="display:none" onchange="handleTopicPhoto(this)">
+    <div class="topic-photo-grid" id="new-topic-photo-grid" style="display:none"></div>
+    <div class="topic-upload-btn" onclick="document.getElementById('topic-photo-input').click()"><i class="fa fa-images"></i> Добавить фото</div>
+    <input type="file" id="topic-photo-input" accept="image/*" multiple style="display:none" onchange="handleTopicPhotos(this,'new')">
+    <div id="new-topic-upload-progress" style="display:none;margin-bottom:10px;font-size:12px;color:#888;">Загрузка...</div>
     <button class="modal-submit" id="topic-submit-btn" onclick="submitTopic()">Опубликовать</button>
   </div>
 </div>
@@ -479,18 +486,9 @@ async function openThread(topicId) {
 function openEditTopicModal() {
   const topicData = window._currentTopicData;
   if (!topicData) return;
-  window._editTopicCoverFile = null;
-  window._editTopicCoverRemoved = false;
-  const preview = document.getElementById('edit-topic-cover-preview');
-  const removeBtn = document.getElementById('edit-topic-cover-remove');
-  if (topicData.cover_photo) {
-    preview.src = topicData.cover_photo;
-    preview.style.display = 'block';
-    removeBtn.style.display = 'block';
-  } else {
-    preview.style.display = 'none';
-    removeBtn.style.display = 'none';
-  }
+  window._editTopicPhotos = Array.isArray(topicData.photos) && topicData.photos.length ? [...topicData.photos] : (topicData.cover_photo ? [topicData.cover_photo] : []);
+  window._editTopicCoverUrl = topicData.cover_photo || window._editTopicPhotos[0] || null;
+  renderTopicPhotos('edit');
   document.getElementById('edit-topic-title').value = topicData.title || '';
   document.getElementById('edit-topic-content').value = topicData.content || '';
   document.getElementById('edit-topic-modal').style.display = 'block';
@@ -498,45 +496,72 @@ function openEditTopicModal() {
 function closeEditTopicModal() {
   document.getElementById('edit-topic-modal').style.display = 'none';
 }
-function previewEditTopicCover(input) {
-  const file = input.files[0];
-  if (!file) return;
-  window._editTopicCoverFile = file;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const preview = document.getElementById('edit-topic-cover-preview');
-    preview.src = e.target.result;
-    preview.style.display = 'block';
-    document.getElementById('edit-topic-cover-remove').style.display = 'block';
-  };
-  reader.readAsDataURL(file);
+window._newTopicPhotos = [];
+window._newTopicCoverUrl = null;
+window._editTopicPhotos = [];
+window._editTopicCoverUrl = null;
+
+async function handleTopicPhotos(input, mode) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const photosArr = mode === 'new' ? window._newTopicPhotos : window._editTopicPhotos;
+  if (photosArr.length + files.length > 8) { showToast('Максимум 8 фото', 'error'); return; }
+  const progId = mode === 'new' ? 'new-topic-upload-progress' : 'edit-topic-upload-progress';
+  const prog = document.getElementById(progId);
+  prog.style.display = 'block'; prog.textContent = 'Загрузка...';
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const ext = file.name.split('.').pop().toLowerCase();
+    const fpath = 'forum/' + currentUser.id + '/' + Date.now() + '_' + i + '.' + ext;
+    const { error } = await sb.storage.from('photos').upload(fpath, file, { upsert: true, contentType: file.type });
+    if (error) { showToast('Ошибка: ' + error.message, 'error'); continue; }
+    const { data: ud } = sb.storage.from('photos').getPublicUrl(fpath);
+    photosArr.push(ud.publicUrl);
+    if (mode === 'new' && !window._newTopicCoverUrl) window._newTopicCoverUrl = ud.publicUrl;
+    if (mode === 'edit' && !window._editTopicCoverUrl) window._editTopicCoverUrl = ud.publicUrl;
+    renderTopicPhotos(mode);
+  }
+  prog.style.display = 'none';
+  input.value = '';
 }
-function removeEditTopicCover(e) {
-  e.stopPropagation();
-  window._editTopicCoverFile = null;
-  window._editTopicCoverRemoved = true;
-  document.getElementById('edit-topic-cover-preview').style.display = 'none';
-  document.getElementById('edit-topic-cover-remove').style.display = 'none';
-  document.getElementById('edit-topic-cover-input').value = '';
+
+function renderTopicPhotos(mode) {
+  const photosArr = mode === 'new' ? window._newTopicPhotos : window._editTopicPhotos;
+  const coverUrl = mode === 'new' ? window._newTopicCoverUrl : window._editTopicCoverUrl;
+  const gridId = mode === 'new' ? 'new-topic-photo-grid' : 'edit-topic-photo-grid';
+  const grid = document.getElementById(gridId);
+  if (!photosArr.length) { grid.style.display = 'none'; return; }
+  grid.style.display = 'grid';
+  grid.innerHTML = photosArr.map(function(url, i) {
+    const isCover = url === coverUrl;
+    return '<div class="topic-photo-item' + (isCover ? ' is-cover' : '') + '">'
+      + '<img src="' + url + '" onclick="setTopicCover('' + mode + '','' + url + '')">'
+      + (isCover ? '<div class="topic-photo-cover-badge">ОБЛОЖКА</div>' : '')
+      + '<button class="topic-photo-remove-btn" onclick="removeTopicPhoto('' + mode + '',' + i + ')">✕</button>'
+      + '</div>';
+  }).join('');
+}
+
+function setTopicCover(mode, url) {
+  if (mode === 'new') window._newTopicCoverUrl = url;
+  else window._editTopicCoverUrl = url;
+  renderTopicPhotos(mode);
+}
+
+function removeTopicPhoto(mode, idx) {
+  const arr = mode === 'new' ? window._newTopicPhotos : window._editTopicPhotos;
+  const coverKey = mode === 'new' ? '_newTopicCoverUrl' : '_editTopicCoverUrl';
+  if (arr[idx] === window[coverKey]) window[coverKey] = arr[idx+1] || arr[0] || null;
+  arr.splice(idx, 1);
+  renderTopicPhotos(mode);
 }
 async function saveTopicEdit() {
   const title = document.getElementById('edit-topic-title').value.trim();
   if (!title) { showToast('Введи заголовок', 'error'); return; }
   const content = document.getElementById('edit-topic-content').value.trim();
-  const topicData = window._currentTopicData || {};
-  let coverUrl = topicData.cover_photo || null;
-  if (window._editTopicCoverFile) {
-    const file = window._editTopicCoverFile;
-    const ext = file.name.split('.').pop();
-    const fileName = 'forum/' + currentUser.id + '/' + Date.now() + '.' + ext;
-    const { error: upErr } = await sb.storage.from('photos').upload(fileName, file, { upsert: true, contentType: file.type });
-    if (!upErr) { const { data: urlData } = sb.storage.from('photos').getPublicUrl(fileName); coverUrl = urlData.publicUrl; }
-  } else if (window._editTopicCoverRemoved) {
-    coverUrl = null;
-  }
-  window._editTopicCoverFile = null;
-  window._editTopicCoverRemoved = false;
-  const { error } = await sb.from('forum_topics').update({ title, content, cover_photo: coverUrl }).eq('id', currentTopicId);
+  const coverUrl = window._editTopicCoverUrl || null;
+  const photosArr = window._editTopicPhotos || [];
+  const { error } = await sb.from('forum_topics').update({ title, content, cover_photo: coverUrl, photos: photosArr.length ? photosArr : null }).eq('id', currentTopicId);
   if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
   closeEditTopicModal();
   showToast('Сохранено!', 'success');
@@ -663,23 +688,7 @@ function closeNewTopicModal() {
   document.getElementById('new-topic-modal').classList.remove('open');
 }
 
-function handleTopicPhoto(input) {
-  const file = input.files[0]; if (!file) return;
-  topicPhotoFile = file;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById('topic-photo-wrap').innerHTML =
-      '<img src="' + e.target.result + '" alt="">' +
-      '<button class="modal-photo-remove" onclick="removeTopicPhoto(event)"><i class="fa fa-times"></i></button>';
-  };
-  reader.readAsDataURL(file);
-}
-
-function removeTopicPhoto(e) {
-  e.stopPropagation(); topicPhotoFile = null;
-  document.getElementById('topic-photo-wrap').innerHTML = '<i class="fa fa-image"></i><span>Нажми чтобы добавить</span>';
-  document.getElementById('topic-photo-input').value = '';
-}
+// handleTopicPhoto replaced by handleTopicPhotos
 
 async function submitTopic() {
   if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
@@ -701,7 +710,7 @@ async function submitTopic() {
     } catch(e) { console.warn(e); }
   }
   const { data, error } = await sb.from('forum_topics').insert({
-    category_id: catId, author_id: currentUser.id, title, content, cover_photo: coverUrl
+    category_id: catId, author_id: currentUser.id, title, content, cover_photo: window._newTopicCoverUrl || coverUrl, photos: window._newTopicPhotos.length ? window._newTopicPhotos : null
   }).select().single();
   if (error) {
     console.error(error);
@@ -709,6 +718,7 @@ async function submitTopic() {
     btn.disabled = false; btn.textContent = 'Опубликовать';
     return;
   }
+  window._newTopicPhotos = []; window._newTopicCoverUrl = null;
   closeNewTopicModal();
   showToast('Тема создана! 🎉', 'success');
   loadTopics();
@@ -929,14 +939,11 @@ init();
         <textarea id="edit-topic-content" rows="5" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;resize:none;" placeholder="Текст темы"></textarea>
       </div>
       <div>
-        <div style="font-size:12px;color:#888;margin-bottom:6px;">Фото обложки</div>
-        <div id="edit-topic-cover-wrap" onclick="document.getElementById('edit-topic-cover-input').click()" style="width:100%;height:140px;background:#0f0f0f;border:2px dashed #2a2a4a;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;cursor:pointer;position:relative;overflow:hidden;">
-          <img id="edit-topic-cover-preview" src="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
-          <i class="fa fa-image" style="font-size:28px;color:#444;"></i>
-          <span style="font-size:12px;color:#666;">Нажми чтобы выбрать фото</span>
-          <button id="edit-topic-cover-remove" onclick="removeEditTopicCover(event)" style="display:none;position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;">&times;</button>
-        </div>
-        <input type="file" id="edit-topic-cover-input" accept="image/*" style="display:none" onchange="previewEditTopicCover(this)">
+        <div style="font-size:12px;color:#888;margin-bottom:6px;">Фото</div>
+        <div class="topic-photo-grid" id="edit-topic-photo-grid" style="display:none"></div>
+        <div class="topic-upload-btn" onclick="document.getElementById('edit-topic-cover-input').click()"><i class="fa fa-images"></i> Добавить фото</div>
+        <input type="file" id="edit-topic-cover-input" accept="image/*" multiple style="display:none" onchange="handleTopicPhotos(this,'edit')">
+        <div id="edit-topic-upload-progress" style="display:none;margin-bottom:10px;font-size:12px;color:#888;">Загрузка...</div>
       </div>
       <div style="display:flex;gap:10px;margin-top:6px;">
         <button onclick="saveTopicEdit()" style="flex:1;background:#f59e0b;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Сохранить</button>
