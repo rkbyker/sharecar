@@ -584,6 +584,11 @@
     import { supabase, requireAuth, getProfile, getLevel, showToast } from '../js/supabase.js';
     import '../js/nav.js';
 
+    // Auto-load events after module init
+    if (!window._eventsLoaded && (localStorage.getItem('sc_tab') || 'events') === 'events') {
+      window._loadEvents();
+    }
+
     // ── Events ─────────────────────────────────────────────────────────────────
     const TYPE_LABELS = {drive:'🚗 Поездка',meet:'👋 Встреча',race:'🏁 Гонка',drift:'🌀 Дрифт',show:'🏆 Шоу',offroad:'🏔 Офроад',photo:'📸 Фотосессия',other:'📌 Другое'};
     const TYPE_ICONS  = {drive:'🚗',meet:'👋',race:'🏁',drift:'🌀',show:'🏆',offroad:'🏔',photo:'📸',other:'📌'};
