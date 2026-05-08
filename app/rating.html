@@ -365,7 +365,7 @@ function fillModalCatSelect() {
 
 async function loadTopics() {
   let q = sb.from('forum_topics')
-    .select('id,title,content,is_pinned,views,likes,replies_count,created_at,category_id,cover_photo,author:profiles!author_id(first_name,last_name,avatar_url)')
+    .select('id,title,content,is_pinned,views,likes,replies_count,created_at,category_id,cover_photo,author_id')
     .order('is_pinned', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(100);
@@ -376,7 +376,15 @@ async function loadTopics() {
     document.getElementById('topics-list').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Ошибка загрузки</div>';
     return;
   }
-  topicsAll = data || [];
+  const topics = data || [];
+  // Грузим профили авторов отдельно
+  const authorIds = [...new Set(topics.map(function(t) { return t.author_id; }).filter(Boolean))];
+  let profilesMap = {};
+  if (authorIds.length) {
+    const { data: profiles } = await sb.from('profiles').select('id,first_name,last_name,avatar_url').in('id', authorIds);
+    (profiles || []).forEach(function(p) { profilesMap[p.id] = p; });
+  }
+  topicsAll = topics.map(function(t) { return Object.assign({}, t, { author: profilesMap[t.author_id] || {} }); });
   renderTopics(topicsAll);
 }
 
@@ -441,13 +449,25 @@ async function openThread(topicId) {
   document.getElementById('thread-op').innerHTML = '<div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>';
   document.getElementById('replies-list').innerHTML = '';
   const { data: topic } = await sb.from('forum_topics')
-    .select('*,author:profiles!author_id(first_name,last_name,avatar_url)')
+    .select('*')
     .eq('id', topicId).single();
+  if (topic && topic.author_id) {
+    const { data: au } = await sb.from('profiles').select('first_name,last_name,avatar_url').eq('id', topic.author_id).single();
+    if (au) topic.author = au;
+  }
   if (topic) renderThreadOp(topic);
-  const { data: replies } = await sb.from('forum_replies')
-    .select('*,author:profiles!author_id(first_name,last_name,avatar_url)')
+  const { data: repliesRaw } = await sb.from('forum_replies')
+    .select('*')
     .eq('topic_id', topicId).order('created_at', { ascending: true });
-  renderReplies(replies || []);
+  const rList = repliesRaw || [];
+  const rAuthorIds = [...new Set(rList.map(function(r) { return r.author_id; }).filter(Boolean))];
+  let rProfilesMap = {};
+  if (rAuthorIds.length) {
+    const { data: rProfiles } = await sb.from('profiles').select('id,first_name,last_name,avatar_url').in('id', rAuthorIds);
+    (rProfiles || []).forEach(function(p) { rProfilesMap[p.id] = p; });
+  }
+  const replies = rList.map(function(r) { return Object.assign({}, r, { author: rProfilesMap[r.author_id] || {} }); });
+  renderReplies(replies);
 }
 
 function renderThreadOp(t) {
@@ -503,7 +523,11 @@ async function sendReply() {
   if (!content) { showToast('Напиши что-нибудь', 'error'); return; }
   const { data, error } = await sb.from('forum_replies').insert({
     topic_id: currentTopicId, author_id: currentUser.id, content
-  }).select('*,author:profiles!author_id(first_name,last_name,avatar_url)').single();
+  }).select('*').single();
+  if (data) {
+    const { data: au } = await sb.from('profiles').select('first_name,last_name,avatar_url').eq('id', currentUser.id).single();
+    if (au) data.author = au;
+  }
   if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
   input.value = ''; input.style.height = 'auto';
   sb.from('forum_topics').select('replies_count').eq('id', currentTopicId).single().then(function(res) {
