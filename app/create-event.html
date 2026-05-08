@@ -290,7 +290,7 @@
     grid.innerHTML = uploadedPhotoUrls.map(function(url, i) {
       const isCover = url === coverPhotoUrl;
       return '<div class="photo-preview' + (isCover ? ' is-cover' : '') + '">' +
-        '<img src="' + url + '" alt="Фото ' + (i+1) + '" onclick="setCoverUrl('' + url + '')">' +
+        '<img src="' + url + '" alt="Фото ' + (i+1) + '" onclick="setCoverUrl(this.dataset.url)" data-url="' + url + '">' +
         (isCover ? '<div class="photo-cover-badge">ОБЛОЖКА</div>' : '') +
         '<button class="photo-remove" onclick="removePhoto(' + i + ')">✕</button>' +
         '</div>';
