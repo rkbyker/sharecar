@@ -461,7 +461,7 @@ async function openThread(topicId) {
     const { data: au } = await sb.from('profiles').select('first_name,last_name,avatar_url').eq('id', topic.author_id).single();
     if (au) topic.author = au;
   }
-  if (topic) renderThreadOp(topic);
+  if (topic) { window._currentTopicData = topic; renderThreadOp(topic); }
   const { data: repliesRaw } = await sb.from('forum_replies')
     .select('*')
     .eq('topic_id', topicId).order('created_at', { ascending: true });
@@ -476,6 +476,32 @@ async function openThread(topicId) {
   renderReplies(replies);
 }
 
+function openEditTopicModal() {
+  const topicData = window._currentTopicData;
+  if (!topicData) return;
+  document.getElementById('edit-topic-title').value = topicData.title || '';
+  document.getElementById('edit-topic-content').value = topicData.content || '';
+  document.getElementById('edit-topic-modal').style.display = 'block';
+}
+function closeEditTopicModal() {
+  document.getElementById('edit-topic-modal').style.display = 'none';
+}
+async function saveTopicEdit() {
+  const title = document.getElementById('edit-topic-title').value.trim();
+  if (!title) { showToast('Введи заголовок', 'error'); return; }
+  const content = document.getElementById('edit-topic-content').value.trim();
+  const { error } = await sb.from('forum_topics').update({ title, content }).eq('id', currentTopicId);
+  if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
+  closeEditTopicModal();
+  showToast('Сохранено!', 'success');
+  openThread(currentTopicId);
+}
+async function deleteTopic() {
+  if (!confirm('Удалить тему?')) return;
+  await sb.from('forum_topics').delete().eq('id', currentTopicId);
+  closeThread();
+  loadTopics();
+}
 function renderThreadOp(t) {
   const au   = t.author || {};
   const name = ((au.first_name || '') + ' ' + (au.last_name || '')).trim() || 'Аноним';
@@ -484,6 +510,12 @@ function renderThreadOp(t) {
   html += '<div class="thread-op-title">' + esc(t.title) + '</div>';
   html += '<div class="thread-op-body">' + esc(t.content || '') + '</div>';
   html += '<div class="thread-op-meta">' + esc(name) + ' · ' + timeAgo(t.created_at) + '</div>';
+  if (currentUser && t.author_id === currentUser.id) {
+    html += '<div style="display:flex;gap:8px;margin-top:12px;">';
+    html += '<button onclick="openEditTopicModal()" style="background:#1a1a2e;border:1px solid #f59e0b;color:#f59e0b;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;"><i class="fa fa-pen"></i> Редактировать</button>';
+    html += '<button onclick="deleteTopic()" style="background:#ef444420;border:1px solid #ef4444;color:#ef4444;border-radius:20px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;"><i class="fa fa-trash"></i></button>';
+    html += '</div>';
+  }
   html += '</div>';
   document.getElementById('thread-op').innerHTML = html;
 }
@@ -835,5 +867,26 @@ async function init() {
 
 init();
 </script>
+<div id="edit-topic-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto;">
+  <div style="background:#1a1a2e;margin:20px 16px;border-radius:20px;padding:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:700;">Редактировать тему</h2>
+      <button onclick="closeEditTopicModal()" style="background:none;border:none;color:#888;font-size:22px;cursor:pointer;">&times;</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px;">Заголовок</div>
+        <input id="edit-topic-title" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;" placeholder="Заголовок темы">
+      </div>
+      <div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px;">Текст</div>
+        <textarea id="edit-topic-content" rows="5" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;resize:none;" placeholder="Текст темы"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px;">
+        <button onclick="saveTopicEdit()" style="flex:1;background:#f59e0b;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

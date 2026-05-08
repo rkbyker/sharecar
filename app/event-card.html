@@ -110,6 +110,7 @@
     <div class="action-row">
       <button class="like-btn" id="like-btn" onclick="toggleLike()"><i class="fa fa-heart"></i> <span id="like-count">0</span></button>
       <button class="share-chat-btn" onclick="shareToChat()"><i class="fa fa-comment"></i> Поделиться в чате</button>
+      <button class="edit-event-btn" id="edit-event-btn" onclick="openEditModal()" style="display:none;background:#1a1a2e;border:1px solid #f59e0b;color:#f59e0b;border-radius:20px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;"><i class="fa fa-pen"></i> Редактировать</button>
     </div>
     <div class="section">
       <div class="section-title"><i class="fa fa-user"></i> Организатор</div>
@@ -209,7 +210,7 @@ function renderEvent(){
     document.getElementById('org-avatar').innerHTML=owner.avatar_url?`<img src="${owner.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:`<span style="color:${lvlColor};">${initials}</span>`;
     document.getElementById('org-name').textContent=name;
     document.getElementById('org-meta').textContent=`${(owner.level?.charAt(0).toUpperCase()+owner.level?.slice(1))||'Bronze'} · ${owner.city||''}`;
-    if(owner.id===currentUser.id)document.getElementById('rsvp-section').style.display='none';
+    if(owner.id===currentUser.id){document.getElementById('rsvp-section').style.display='none';document.getElementById('edit-event-btn').style.display='block';}
   }
 }
 async function loadParticipants(){
@@ -283,11 +284,79 @@ window.sendComment=async function(){
   document.getElementById('stat-comments').textContent=event.comments_count;
   await loadComments();
 };
+window.openEditModal=function(){
+  if(!event)return;
+  document.getElementById('edit-title').value=event.title||'';
+  document.getElementById('edit-desc').value=event.description||'';
+  document.getElementById('edit-city').value=event.city||'';
+  document.getElementById('edit-address').value=event.address||'';
+  if(event.date_start){
+    const d=new Date(event.date_start);
+    const local=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    document.getElementById('edit-date').value=local;
+  }
+  document.getElementById('edit-modal').style.display='block';
+};
+window.closeEditModal=function(){document.getElementById('edit-modal').style.display='none';};
+window.saveEvent=async function(){
+  const title=document.getElementById('edit-title').value.trim();
+  if(!title){alert('Введи название');return;}
+  const updates={
+    title,
+    description:document.getElementById('edit-desc').value.trim()||null,
+    city:document.getElementById('edit-city').value.trim()||null,
+    address:document.getElementById('edit-address').value.trim()||null,
+    date_start:document.getElementById('edit-date').value||null,
+  };
+  const{error}=await supabase.from('events').update(updates).eq('id',EVENT_ID);
+  if(error){alert('Ошибка: '+error.message);return;}
+  closeEditModal();
+  location.reload();
+};
+window.deleteEvent=async function(){
+  if(!confirm('Удалить мероприятие?'))return;
+  await supabase.from('events').delete().eq('id',EVENT_ID);
+  history.back();
+};
 window.openOrganizer=function(){const owner=event.profiles;if(!owner)return;goPage(owner.id===currentUser.id?'profile.html':'user-profile.html?id='+owner.id);};
 window.shareEvent=async function(){const url=`https://sharecar.pro/app/event-card.html?id=${EVENT_ID}`;if(navigator.share)await navigator.share({title:event.title,url});else{await navigator.clipboard.writeText(url);showToast('Ссылка скопирована','success');}};
 window.shareToChat=function(){sessionStorage.setItem('shareEvent',JSON.stringify({id:EVENT_ID,title:event.title}));goPage('messages.html?share=event');};
 supabase.channel(`event-${EVENT_ID}`).on('postgres_changes',{event:'INSERT',schema:'public',table:'event_comments',filter:`event_id=eq.${EVENT_ID}`},()=>loadComments()).subscribe();
 init();
 </script>
+<div id="edit-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto;">
+  <div style="background:#1a1a2e;margin:20px 16px;border-radius:20px;padding:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:700;">Редактировать мероприятие</h2>
+      <button onclick="closeEditModal()" style="background:none;border:none;color:#888;font-size:22px;cursor:pointer;">&times;</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px;">Название</div>
+        <input id="edit-title" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;" placeholder="Название мероприятия">
+      </div>
+      <div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px;">Описание</div>
+        <textarea id="edit-desc" rows="4" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;resize:none;" placeholder="Описание"></textarea>
+      </div>
+      <div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px;">Город</div>
+        <input id="edit-city" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;" placeholder="Город">
+      </div>
+      <div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px;">Адрес</div>
+        <input id="edit-address" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;" placeholder="Адрес">
+      </div>
+      <div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px;">Дата начала</div>
+        <input id="edit-date" type="datetime-local" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px;">
+        <button onclick="saveEvent()" style="flex:1;background:#f59e0b;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Сохранить</button>
+        <button onclick="deleteEvent()" style="background:#ef444420;border:1px solid #ef4444;color:#ef4444;border-radius:12px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;"><i class="fa fa-trash"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
