@@ -584,13 +584,6 @@
     import { supabase, requireAuth, getProfile, getLevel, showToast } from '../js/supabase.js';
     import '../js/nav.js';
 
-    // Auto-load events after module init
-    const _startTab = localStorage.getItem('sc_tab') || 'events';
-    if (_startTab === 'events') {
-      window._eventsLoaded = true;
-      window._loadEvents();
-    }
-
     // ── Events ─────────────────────────────────────────────────────────────────
     const TYPE_LABELS = {drive:'🚗 Поездка',meet:'👋 Встреча',race:'🏁 Гонка',drift:'🌀 Дрифт',show:'🏆 Шоу',offroad:'🏔 Офроад',photo:'📸 Фотосессия',other:'📌 Другое'};
     const TYPE_ICONS  = {drive:'🚗',meet:'👋',race:'🏁',drift:'🌀',show:'🏆',offroad:'🏔',photo:'📸',other:'📌'};
@@ -640,6 +633,11 @@
         </div>`;
       }).join('');
     };
+
+    // Auto-load events if starting on events tab
+    if ((localStorage.getItem('sc_tab') || 'events') === 'events') {
+      window._loadEvents();
+    }
 
     // ── State ──────────────────────────────────────────────────────────────────
     let currentUser = null;
