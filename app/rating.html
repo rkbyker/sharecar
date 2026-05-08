@@ -534,10 +534,12 @@ function renderTopicPhotos(mode) {
   grid.style.display = 'grid';
   grid.innerHTML = photosArr.map(function(url, i) {
     const isCover = url === coverUrl;
+    const modeAttr = mode;
+    const urlAttr = url;
     return '<div class="topic-photo-item' + (isCover ? ' is-cover' : '') + '">'
-      + '<img src="' + url + '" onclick="setTopicCover('' + mode + '','' + url + '')">'
+      + '<img src="' + urlAttr + '" onclick="setTopicCover(this.dataset.mode,this.dataset.url)" data-mode="' + modeAttr + '" data-url="' + urlAttr + '">'
       + (isCover ? '<div class="topic-photo-cover-badge">ОБЛОЖКА</div>' : '')
-      + '<button class="topic-photo-remove-btn" onclick="removeTopicPhoto('' + mode + '',' + i + ')">✕</button>'
+      + '<button class="topic-photo-remove-btn" onclick="removeTopicPhoto(this.dataset.mode,' + i + ')" data-mode="' + modeAttr + '">✕</button>'
       + '</div>';
   }).join('');
 }
