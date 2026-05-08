@@ -560,6 +560,10 @@
     }
     applyView();
 
+    // Глобальные обёртки для модульных функций
+    function loadEvents(){ if(window._loadEvents) window._loadEvents(); }
+    function switchTab(t){ if(window._switchTab) window._switchTab(t); }
+
     // ── Tab switching ──────────────────────────
     let currentTab = localStorage.getItem('sc_tab') || 'events';
 
@@ -584,7 +588,7 @@
     const TYPE_LABELS = {drive:'🚗 Поездка',meet:'👋 Встреча',race:'🏁 Гонка',drift:'🌀 Дрифт',show:'🏆 Шоу',offroad:'🏔 Офроад',photo:'📸 Фотосессия',other:'📌 Другое'};
     const TYPE_ICONS  = {drive:'🚗',meet:'👋',race:'🏁',drift:'🌀',show:'🏆',offroad:'🏔',photo:'📸',other:'📌'};
 
-    window.loadEvents = async function() {
+    window._loadEvents = async function() {
       window._eventsLoaded = true;
       const container = document.getElementById('events-feed');
       container.innerHTML = '<div class="loader"><i class="fa fa-circle-notch"></i></div>';

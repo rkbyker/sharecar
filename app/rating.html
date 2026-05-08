@@ -496,6 +496,23 @@
 
   <script>
     function goPage(p) { window.location.href = p; }
+    // Глобальные обёртки — вызывают реальные функции из модуля после загрузки
+    function switchTop(t){ if(window._switchTop) window._switchTop(t); }
+    function switchMain(t){ if(window._switchMain) window._switchMain(t); }
+    function filterDrivers(q){ if(window._filterDrivers) window._filterDrivers(q); }
+    function filterPassengers(q){ if(window._filterPassengers) window._filterPassengers(q); }
+    function setDriverSort(s,el){ if(window._setDriverSort) window._setDriverSort(s,el); }
+    function setPassSort(s,el){ if(window._setPassSort) window._setPassSort(s,el); }
+    function setSportSort(s,el){ if(window._setSportSort) window._setSportSort(s,el); }
+    function openNewTopicModal(){ if(window._openNewTopicModal) window._openNewTopicModal(); }
+    function closeNewTopicModal(){ if(window._closeNewTopicModal) window._closeNewTopicModal(); }
+    function submitNewTopic(){ if(window._submitNewTopic) window._submitNewTopic(); }
+    function backToCategories(){ if(window._backToCategories) window._backToCategories(); }
+    function backToTopics(){ if(window._backToTopics) window._backToTopics(); }
+    function sendReply(){ if(window._sendReply) window._sendReply(); }
+    function selectCatFilter(el,v){ if(window._selectCatFilter) window._selectCatFilter(el,v); }
+    function previewTopicPhoto(i){ if(window._previewTopicPhoto) window._previewTopicPhoto(i); }
+    function removeTopicPhoto(e){ if(window._removeTopicPhoto) window._removeTopicPhoto(e); }
   </script>
   <script type="module">
     import { supabase, showToast } from '../js/supabase.js';
@@ -505,10 +522,10 @@
     let driversAll = [], passengersAll = [], sportAll = [];
     let driverSort = 'score', passSort = 'score', sportSort = 'points';
 
-    window.switchMain = switchMain;
+    window._switchMain = switchMain;
 
-    window.filterDrivers = filterDrivers;
-    window.filterPassengers = filterPassengers;
+    window._filterDrivers = filterDrivers;
+    window._filterPassengers = filterPassengers;
     window.loadSport = loadSport;
     window.goPage = (p) => window.location.href = p;
 
@@ -552,14 +569,14 @@
       renderTable('drivers-table', sorted, 'driver');
     }
 
-    window.setDriverSort = function(sort, el) {
+    window._setDriverSort = function(sort, el) {
       driverSort = sort;
       document.querySelectorAll('#d-sort-tabs .sort-chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
       renderDrivers(driversAll);
     }
 
-    window.filterDrivers = function(q) {
+    window._filterDrivers = function(q) {
       const filtered = q
         ? driversAll.filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(q.toLowerCase()))
         : driversAll;
@@ -594,14 +611,14 @@
       renderTable('passengers-table', sorted, 'passenger');
     }
 
-    window.setPassSort = function(sort, el) {
+    window._setPassSort = function(sort, el) {
       passSort = sort;
       document.querySelectorAll('#sec-passengers .sort-chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
       renderPassengers(passengersAll);
     }
 
-    window.filterPassengers = function(q) {
+    window._filterPassengers = function(q) {
       const filtered = q
         ? passengersAll.filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(q.toLowerCase()))
         : passengersAll;
@@ -670,7 +687,7 @@
       renderSportTable(aggArr);
     }
 
-    window.setSportSort = function(sort, el) {
+    window._setSportSort = function(sort, el) {
       sportSort = sort;
       document.querySelectorAll('#sec-sport .sort-chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
@@ -869,7 +886,7 @@
         </div>`).join('');
     }
 
-    window.backToCategories = function() {
+    window._backToCategories = function() {
       document.getElementById('forum-wrap').style.display = '';
       document.getElementById('forum-topics-wrap').classList.remove('open');
       document.getElementById('thread-wrap').classList.remove('open');
@@ -932,13 +949,13 @@
       }).join('');
     }
 
-    window.backToTopics = function() {
+    window._backToTopics = function() {
       document.getElementById('thread-wrap').classList.remove('open');
       document.getElementById('reply-form').classList.remove('open');
       document.getElementById('forum-topics-wrap').classList.add('open');
     }
 
-    window.sendReply = async function() {
+    window._sendReply = async function() {
       if (!currentUser_forum) { showToast('Войди в аккаунт', 'error'); return; }
       const textarea = document.getElementById('reply-textarea');
       const text = textarea.value.trim();
@@ -972,7 +989,7 @@
       newTopicCatId = currentCategoryId;
       document.getElementById('new-topic-modal').classList.add('open');
     }
-    window.closeNewTopicModal = function() { document.getElementById('new-topic-modal').classList.remove('open'); };
+    window._closeNewTopicModal = function() { document.getElementById('new-topic-modal').classList.remove('open'); };
 
 
 
@@ -997,13 +1014,13 @@
 
     // Инициализация форума при переключении на вкладку
     const origSwitchMain = window.switchMain;
-    window.switchMain = function(tab) {
+    window._switchMain = function(tab) {
       origSwitchMain(tab);
       if (tab === 'forum') initForum();
     };
 
     // ── TOP TAB SWITCH ─────────────────────────
-    window.switchTop = function(tab) {
+    window._switchTop = function(tab) {
       document.querySelectorAll('#top-tab-forum,#top-tab-rating').forEach(t=>t.classList.remove('active'));
       document.getElementById('top-tab-'+tab).classList.add('active');
       document.getElementById('top-panel-forum').style.display = tab==='forum' ? 'block' : 'none';
@@ -1048,7 +1065,7 @@
       renderTopicsInForum(allTopicsCache);
     }
 
-    window.selectCatFilter = function(el, catId) {
+    window._selectCatFilter = function(el, catId) {
       document.querySelectorAll('#cat-filter-bar .sort-chip').forEach(c=>c.classList.remove('active'));
       el.classList.add('active');
       activeCatFilter = catId;
@@ -1110,7 +1127,7 @@
     };
 
     // Переопределяем openNewTopicModal — категорию выбираем в модалке
-    window.openNewTopicModal = async function() {
+    window._openNewTopicModal = async function() {
       newTopicCatId = null;
       window._topicPhotoFile = null;
       // сбрасываем поля
@@ -1135,7 +1152,7 @@
       }
     };
 
-    window.previewTopicPhoto = function(input) {
+    window._previewTopicPhoto = function(input) {
       const file = input.files[0];
       if (!file) return;
       window._topicPhotoFile = file;
@@ -1148,7 +1165,7 @@
       reader.readAsDataURL(file);
     };
 
-    window.removeTopicPhoto = function(e) {
+    window._removeTopicPhoto = function(e) {
       e.stopPropagation();
       window._topicPhotoFile = null;
       document.getElementById('topic-photo-upload').innerHTML = '<i class="fas fa-camera"></i> Добавить фото';
@@ -1156,7 +1173,7 @@
       document.getElementById('topic-photo-input').value = '';
     };
 
-    window.submitNewTopic = async function() {
+    window._submitNewTopic = async function() {
       const sel = document.getElementById('new-topic-cat-select');
       newTopicCatId = sel ? sel.value : null;
       if (!newTopicCatId) { showToast('Выбери категорию', 'error'); return; }
