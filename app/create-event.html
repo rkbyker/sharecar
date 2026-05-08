@@ -35,18 +35,19 @@
     .type-btn.active { background: #f59e0b20; border-color: #f59e0b; }
     .type-btn.active .type-label { color: #f59e0b; }
 
-    .photos-upload-area { width:100%; min-height:100px; background:#0f0f1a; border:2px dashed #2a2a4a; border-radius:12px; padding:12px; cursor:pointer; transition:border-color 0.2s; }
-    .photos-upload-area:active { border-color:#f59e0b; }
-    .photos-upload-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px 0; }
-    .photos-upload-placeholder i { font-size:32px; color:#555; }
-    .photos-upload-placeholder span { font-size:13px; color:#555; }
-    .photos-grid-preview { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-    .photo-thumb { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:2px solid transparent; cursor:pointer; }
-    .photo-thumb img { width:100%; height:100%; object-fit:cover; }
-    .photo-thumb.is-cover { border-color:#f59e0b; }
-    .photo-thumb .cover-badge { position:absolute; bottom:4px; left:4px; background:#f59e0b; color:#000; font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px; }
-    .photo-thumb .remove-photo { position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.7); border:none; color:#fff; width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center; }
-    .add-more-btn { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:10px; background:#1a1a2e; border:1px dashed #2a2a4a; border-radius:10px; padding:10px; color:#888; font-size:13px; cursor:pointer; }
+    .photo-upload-area { width:100%; min-height:80px; background:#0f0f1a; border:2px dashed #2a2a4a; border-radius:12px; padding:16px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; cursor:pointer; transition:border-color 0.2s; }
+    .photo-upload-area:hover { border-color:#f59e0b; }
+    .photo-upload-area i { font-size:28px; color:#555; }
+    .photo-upload-area span { font-size:13px; color:#555; }
+    .photo-preview-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px; }
+    .photo-preview { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:2px solid transparent; }
+    .photo-preview.is-cover { border-color:#f59e0b; }
+    .photo-preview img { width:100%; height:100%; object-fit:cover; cursor:pointer; }
+    .photo-cover-badge { position:absolute; bottom:4px; left:4px; background:#f59e0b; color:#000; font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px; }
+    .photo-remove { position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.7); border:none; color:#fff; width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center; }
+    .upload-progress { background:#1a1a2e; border-radius:10px; padding:10px 14px; margin-top:8px; display:none; }
+    .progress-bar { height:4px; background:#2a2a4a; border-radius:2px; margin-top:6px; }
+    .progress-fill { height:100%; background:#f59e0b; border-radius:2px; width:0%; transition:width 0.3s; }
 
     .toggle-row { display: flex; align-items: center; justify-content: space-between; }
     .toggle-label { font-size: 14px; color: #ccc; }
@@ -111,16 +112,17 @@
 
   <div class="form-section">
     <div class="form-section-title">Фото</div>
-    <div class="photos-upload-area" id="photos-upload-area">
-      <div class="photos-upload-placeholder" id="photos-placeholder" onclick="document.getElementById('photos-input').click()">
-        <i class="fa fa-images"></i>
-        <span>Нажми чтобы добавить фото (можно несколько)</span>
-      </div>
-      <div class="photos-grid-preview" id="photos-grid-preview" style="display:none"></div>
-      <div class="add-more-btn" id="add-more-btn" style="display:none" onclick="document.getElementById('photos-input').click()"><i class="fa fa-plus"></i> Добавить ещё</div>
+    <div id="photo-preview-grid" class="photo-preview-grid" style="display:none;"></div>
+    <div class="photo-upload-area" onclick="document.getElementById('photos-input').click()">
+      <i class="fa fa-images"></i>
+      <span>Нажми чтобы добавить фото</span>
     </div>
-    <input type="file" id="photos-input" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none" onchange="handlePhotosChange(this)">
-    <p class="hint">Первое фото — обложка. Нажми на любое фото чтобы сделать его обложкой.</p>
+    <input type="file" id="photos-input" accept="image/*" multiple style="display:none" onchange="handlePhotosChange(this)">
+    <div class="upload-progress" id="upload-progress">
+      <span id="upload-status">Загрузка фото...</span>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <p class="hint">Нажми на фото чтобы сделать его обложкой. Первое фото — обложка по умолчанию.</p>
   </div>
 
   <div class="form-section">
@@ -189,7 +191,8 @@
   let selectedType = 'drive';
   let isFree       = true;
   let tags         = [];
-  let photoFiles = []; // массив {file, url, isCover}
+  let uploadedPhotoUrls = []; // массив url загруженных фото
+  let coverPhotoUrl = null; // url обложки
   let coverFile = null; // для обратной совместимости
 
   function showToast(msg, type) {
@@ -243,60 +246,62 @@
     ).join('');
   }
 
-  function handlePhotosChange(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const isCover = photoFiles.length === 0;
-      photoFiles.push({ file: file, url: e.target.result, isCover: isCover });
-      if (isCover) coverFile = file;
-      renderPhotoPreviews();
-    };
-    reader.readAsDataURL(file);
-    // Сбрасываем input чтобы можно было выбрать то же фото снова
-    setTimeout(function(){ input.value = ''; }, 100);
+  async function handlePhotosChange(input) {
+    const newFiles = Array.from(input.files);
+    if (!newFiles.length) return;
+    if (uploadedPhotoUrls.length + newFiles.length > 8) { showToast('Максимум 8 фотографий', 'error'); return; }
+    const startIdx = uploadedPhotoUrls.length;
+    const localPreviews = newFiles.map(function(f) { return URL.createObjectURL(f); });
+    uploadedPhotoUrls.push.apply(uploadedPhotoUrls, localPreviews);
+    if (!coverPhotoUrl) coverPhotoUrl = uploadedPhotoUrls[0];
+    renderPhotoPreview();
+    const prog = document.getElementById('upload-progress');
+    const fill = document.getElementById('progress-fill');
+    const status = document.getElementById('upload-status');
+    prog.style.display = 'block';
+    for (let i = 0; i < newFiles.length; i++) {
+      const file = newFiles[i];
+      status.textContent = 'Загрузка ' + (i+1) + ' из ' + newFiles.length + '...';
+      fill.style.width = ((i / newFiles.length) * 100) + '%';
+      const ext = file.name.split('.').pop().toLowerCase();
+      const fpath = 'events/' + currentUser.id + '/' + Date.now() + '_' + i + '.' + ext;
+      const { error } = await sb.storage.from('photos').upload(fpath, file, { upsert: true, contentType: file.type });
+      if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка: ' + error.message, 'error'); continue; }
+      const { data: urlData } = sb.storage.from('photos').getPublicUrl(fpath);
+      uploadedPhotoUrls[startIdx + i] = urlData.publicUrl;
+      if (startIdx + i === 0) coverPhotoUrl = urlData.publicUrl;
+      renderPhotoPreview();
+    }
+    fill.style.width = '100%';
+    status.textContent = 'Фото загружены!';
+    setTimeout(function() { prog.style.display = 'none'; fill.style.width = '0%'; }, 1500);
+    input.value = '';
   }
 
-  function renderPhotoPreviews() {
-    const placeholder = document.getElementById('photos-placeholder');
-    const grid = document.getElementById('photos-grid-preview');
-    const addMore = document.getElementById('add-more-btn');
-    if (photoFiles.length === 0) {
-      placeholder.style.display = 'flex';
-      grid.style.display = 'none';
-      addMore.style.display = 'none';
-      return;
-    }
-    placeholder.style.display = 'none';
+  function renderPhotoPreview() {
+    const grid = document.getElementById('photo-preview-grid');
+    if (!uploadedPhotoUrls.length) { grid.style.display = 'none'; return; }
     grid.style.display = 'grid';
-    addMore.style.display = 'flex';
-    grid.innerHTML = photoFiles.map(function(p, i) {
-      return '<div class="photo-thumb' + (p.isCover ? ' is-cover' : '') + '" onclick="setCover(' + i + ')">' +
-        '<img src="' + p.url + '" alt="">' +
-        (p.isCover ? '<div class="cover-badge">ОБЛОЖКА</div>' : '') +
-        '<button class="remove-photo" onclick="removePhoto(event,' + i + ')"><i class="fa fa-times"></i></button>' +
+    grid.innerHTML = uploadedPhotoUrls.map(function(url, i) {
+      const isCover = url === coverPhotoUrl;
+      return '<div class="photo-preview' + (isCover ? ' is-cover' : '') + '">' +
+        '<img src="' + url + '" alt="Фото ' + (i+1) + '" onclick="setCoverUrl('' + url + '')">' +
+        (isCover ? '<div class="photo-cover-badge">ОБЛОЖКА</div>' : '') +
+        '<button class="photo-remove" onclick="removePhoto(' + i + ')">✕</button>' +
         '</div>';
     }).join('');
   }
 
-  function setCover(idx) {
-    photoFiles.forEach(function(p, i) { p.isCover = (i === idx); });
-    coverFile = photoFiles[idx].file;
-    renderPhotoPreviews();
+  function setCoverUrl(url) {
+    coverPhotoUrl = url;
+    renderPhotoPreview();
   }
 
-  function removePhoto(e, idx) {
-    e.stopPropagation();
-    photoFiles.splice(idx, 1);
-    if (photoFiles.length > 0 && !photoFiles.some(function(p) { return p.isCover; })) {
-      photoFiles[0].isCover = true;
-      coverFile = photoFiles[0].file;
-    } else if (photoFiles.length === 0) {
-      coverFile = null;
-    }
-    renderPhotoPreviews();
-  }
+  window.removePhoto = function(idx) {
+    const removed = uploadedPhotoUrls.splice(idx, 1)[0];
+    if (coverPhotoUrl === removed) coverPhotoUrl = uploadedPhotoUrls[0] || null;
+    renderPhotoPreview();
+  };
 
   async function submitEvent() {
     if (!currentUser) {
@@ -321,24 +326,9 @@
     btn.disabled = true;
     btn.textContent = 'Создаём...';
 
-    let finalCoverUrl = null;
-    let finalPhotos = [];
-    if (photoFiles.length > 0) {
-      try {
-        for (let i = 0; i < photoFiles.length; i++) {
-          const pf = photoFiles[i];
-          const ext = pf.file.name.split('.').pop().toLowerCase();
-          const fpath = 'events/' + currentUser.id + '/' + Date.now() + '_' + i + '.' + ext;
-          const { error: upErr } = await sb.storage.from('photos').upload(fpath, pf.file, { upsert: true, contentType: pf.file.type });
-          if (!upErr) {
-            const { data: urlData } = sb.storage.from('photos').getPublicUrl(fpath);
-            finalPhotos.push(urlData.publicUrl);
-            if (pf.isCover) finalCoverUrl = urlData.publicUrl;
-          }
-        }
-        if (!finalCoverUrl && finalPhotos.length > 0) finalCoverUrl = finalPhotos[0];
-      } catch(e) { console.warn('upload error:', e); }
-    }
+    // Фото уже загружены в handlePhotosChange
+    const finalCoverUrl = coverPhotoUrl || (uploadedPhotoUrls.length ? uploadedPhotoUrls[0] : null);
+    const finalPhotos = uploadedPhotoUrls.filter(Boolean);
 
     const { data, error } = await sb.from('events').insert({
       owner_id:         currentUser.id,
