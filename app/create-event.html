@@ -119,7 +119,7 @@
       <div class="photos-grid-preview" id="photos-grid-preview" style="display:none"></div>
       <div class="add-more-btn" id="add-more-btn" style="display:none" onclick="document.getElementById('photos-input').click()"><i class="fa fa-plus"></i> Добавить ещё</div>
     </div>
-    <input type="file" id="photos-input" accept="image/jpeg,image/png,image/webp,image/gif" multiple style="display:none" onchange="handlePhotosChange(this)">
+    <input type="file" id="photos-input" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none" onchange="handlePhotosChange(this)">
     <p class="hint">Первое фото — обложка. Нажми на любое фото чтобы сделать его обложкой.</p>
   </div>
 
@@ -244,19 +244,18 @@
   }
 
   function handlePhotosChange(input) {
-    const files = Array.from(input.files);
-    if (!files.length) return;
-    files.forEach(function(file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const isCover = photoFiles.length === 0;
-        photoFiles.push({ file: file, url: e.target.result, isCover: isCover });
-        if (isCover) coverFile = file;
-        renderPhotoPreviews();
-      };
-      reader.readAsDataURL(file);
-    });
-    input.value = '';
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const isCover = photoFiles.length === 0;
+      photoFiles.push({ file: file, url: e.target.result, isCover: isCover });
+      if (isCover) coverFile = file;
+      renderPhotoPreviews();
+    };
+    reader.readAsDataURL(file);
+    // Сбрасываем input чтобы можно было выбрать то же фото снова
+    setTimeout(function(){ input.value = ''; }, 100);
   }
 
   function renderPhotoPreviews() {
