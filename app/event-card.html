@@ -66,10 +66,18 @@
     .like-btn.liked { border-color: #ef4444; color: #ef4444; }
     .share-chat-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid #3b82f6; color: #3b82f6; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; }
     .action-row { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
-    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
-    .lightbox.active { display: flex; }
-    .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
-    .lightbox-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; }
+    .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:1000; align-items:center; justify-content:center; flex-direction:column; }
+    .lightbox.active { display:flex; }
+    .lightbox-img-wrap { position:relative; display:flex; align-items:center; justify-content:center; width:100vw; height:80vh; }
+    .lightbox-img-wrap img { max-width:90vw; max-height:80vh; border-radius:8px; object-fit:contain; user-select:none; }
+    .lightbox-close { position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.5); border:none; color:#fff; font-size:28px; cursor:pointer; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:10; }
+    .lightbox-prev, .lightbox-next { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); border:none; color:#fff; font-size:22px; cursor:pointer; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:10; }
+    .lightbox-prev { left:12px; }
+    .lightbox-next { right:12px; }
+    .lightbox-dots { display:flex; gap:6px; justify-content:center; margin-top:12px; }
+    .lightbox-dot { width:8px; height:8px; border-radius:50%; background:#555; cursor:pointer; }
+    .lightbox-dot.active { background:#f59e0b; }
+    .lightbox-counter { color:#888; font-size:13px; margin-top:8px; }
     .loader { display: flex; align-items: center; justify-content: center; height: 50vh; }
     .spinner { width: 40px; height: 40px; border: 3px solid #2a2a4a; border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -153,9 +161,15 @@
     </div>
   </div>
 </div>
-<div class="lightbox" id="lightbox" onclick="this.classList.remove('active')">
-  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('active')">✕</button>
-  <img id="lightbox-img" src="" alt="">
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <div class="lightbox-img-wrap">
+    <button class="lightbox-prev" onclick="slideLightbox(-1)"><i class="fa fa-chevron-left"></i></button>
+    <img id="lightbox-img" src="" alt="">
+    <button class="lightbox-next" onclick="slideLightbox(1)"><i class="fa fa-chevron-right"></i></button>
+  </div>
+  <div class="lightbox-dots" id="lightbox-dots"></div>
+  <div class="lightbox-counter" id="lightbox-counter"></div>
 </div>
 <nav class="bottom-nav">
   <button class="nav-item" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
@@ -166,7 +180,46 @@
 </nav>
 <script>
 function goPage(p){window.location.href=p;}
-function openLightbox(url){document.getElementById('lightbox-img').src=url;document.getElementById('lightbox').classList.add('active');}
+let _sliderPhotos=[], _sliderIdx=0;
+function openLightbox(url){
+  const photos = (event && event.photos && event.photos.length) ? event.photos : (event && event.cover_photo ? [event.cover_photo] : [url]);
+  _sliderPhotos = photos;
+  _sliderIdx = photos.indexOf(url);
+  if(_sliderIdx<0)_sliderIdx=0;
+  renderLightbox();
+  document.getElementById('lightbox').classList.add('active');
+  // Свайп
+  let startX=0;
+  const lb=document.getElementById('lightbox');
+  lb.ontouchstart=function(e){startX=e.touches[0].clientX;};
+  lb.ontouchend=function(e){
+    const dx=e.changedTouches[0].clientX-startX;
+    if(Math.abs(dx)>50)slideLightbox(dx<0?1:-1);
+  };
+  lb.onclick=function(e){if(e.target===lb)closeLightbox();};
+}
+function renderLightbox(){
+  document.getElementById('lightbox-img').src=_sliderPhotos[_sliderIdx]||'';
+  const counter=document.getElementById('lightbox-counter');
+  const dots=document.getElementById('lightbox-dots');
+  if(_sliderPhotos.length>1){
+    counter.textContent=(_sliderIdx+1)+' / '+_sliderPhotos.length;
+    dots.innerHTML=_sliderPhotos.map(function(_,i){return '<div class="lightbox-dot'+(i===_sliderIdx?' active':'')+'" onclick="gotoSlide('+i+')"></div>';}).join('');
+    document.querySelector('.lightbox-prev').style.display='flex';
+    document.querySelector('.lightbox-next').style.display='flex';
+  } else {
+    counter.textContent='';
+    dots.innerHTML='';
+    document.querySelector('.lightbox-prev').style.display='none';
+    document.querySelector('.lightbox-next').style.display='none';
+  }
+}
+function slideLightbox(dir){
+  _sliderIdx=(_sliderIdx+dir+_sliderPhotos.length)%_sliderPhotos.length;
+  renderLightbox();
+}
+function gotoSlide(idx){_sliderIdx=idx;renderLightbox();}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('active');}
 </script>
 <script type="module">
 import { supabase, showToast } from '../js/supabase.js';
