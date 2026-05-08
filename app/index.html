@@ -565,11 +565,10 @@
     function switchTab(t){ if(window._switchTab) window._switchTab(t); }
 
     // ── Tab switching ──────────────────────────
-    let currentTab = localStorage.getItem('sc_tab') || 'events';
+    let currentTab = 'events';
 
     function switchTab(tab) {
       currentTab = tab;
-      localStorage.setItem('sc_tab', tab);
       document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       document.getElementById('tab-' + tab).classList.add('active');
