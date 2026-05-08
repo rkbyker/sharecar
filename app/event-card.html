@@ -291,6 +291,17 @@ window.sendComment=async function(){
 };
 window.openEditModal=function(){
   if(!event)return;
+  window._editCoverFile=null;
+  const preview=document.getElementById('edit-cover-preview');
+  const removeBtn=document.getElementById('edit-cover-remove');
+  if(event.cover_photo){
+    preview.src=event.cover_photo;
+    preview.style.display='block';
+    removeBtn.style.display='block';
+  } else {
+    preview.style.display='none';
+    removeBtn.style.display='none';
+  }
   document.getElementById('edit-title').value=event.title||'';
   document.getElementById('edit-desc').value=event.description||'';
   document.getElementById('edit-city').value=event.city||'';
@@ -302,16 +313,50 @@ window.openEditModal=function(){
   }
   document.getElementById('edit-modal').style.display='block';
 };
+window.previewEditCover=function(input){
+  const file=input.files[0];
+  if(!file)return;
+  window._editCoverFile=file;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const preview=document.getElementById('edit-cover-preview');
+    preview.src=e.target.result;
+    preview.style.display='block';
+    document.getElementById('edit-cover-remove').style.display='block';
+  };
+  reader.readAsDataURL(file);
+};
+window.removeEditCover=function(e){
+  e.stopPropagation();
+  window._editCoverFile=null;
+  window._editCoverRemoved=true;
+  document.getElementById('edit-cover-preview').style.display='none';
+  document.getElementById('edit-cover-remove').style.display='none';
+  document.getElementById('edit-cover-input').value='';
+};
 window.closeEditModal=function(){document.getElementById('edit-modal').style.display='none';};
 window.saveEvent=async function(){
   const title=document.getElementById('edit-title').value.trim();
   if(!title){alert('Введи название');return;}
+  let coverUrl=event.cover_photo||null;
+  if(window._editCoverFile){
+    const file=window._editCoverFile;
+    const ext=file.name.split('.').pop();
+    const fileName='events/'+currentUser.id+'/'+Date.now()+'.'+ext;
+    const{data:upData,error:upErr}=await supabase.storage.from('photos').upload(fileName,file,{upsert:true,contentType:file.type});
+    if(!upErr){const{data:urlData}=supabase.storage.from('photos').getPublicUrl(fileName);coverUrl=urlData.publicUrl;}
+  } else if(window._editCoverRemoved){
+    coverUrl=null;
+  }
+  window._editCoverFile=null;
+  window._editCoverRemoved=false;
   const updates={
     title,
     description:document.getElementById('edit-desc').value.trim()||null,
     city:document.getElementById('edit-city').value.trim()||null,
     address:document.getElementById('edit-address').value.trim()||null,
     date_start:document.getElementById('edit-date').value||null,
+    cover_photo:coverUrl,
   };
   const{error}=await supabase.from('events').update(updates).eq('id',EVENT_ID);
   if(error){alert('Ошибка: '+error.message);return;}
@@ -355,6 +400,16 @@ init();
       <div>
         <div style="font-size:12px;color:#888;margin-bottom:6px;">Дата начала</div>
         <input id="edit-date" type="datetime-local" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;">
+      </div>
+      <div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px;">Фото обложки</div>
+        <div id="edit-cover-wrap" onclick="document.getElementById('edit-cover-input').click()" style="width:100%;height:140px;background:#0f0f0f;border:2px dashed #2a2a4a;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;cursor:pointer;position:relative;overflow:hidden;">
+          <img id="edit-cover-preview" src="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
+          <i class="fa fa-image" style="font-size:28px;color:#444;"></i>
+          <span style="font-size:12px;color:#666;">Нажми чтобы выбрать фото</span>
+          <button id="edit-cover-remove" onclick="removeEditCover(event)" style="display:none;position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;">&times;</button>
+        </div>
+        <input type="file" id="edit-cover-input" accept="image/*" style="display:none" onchange="previewEditCover(this)">
       </div>
       <div style="display:flex;gap:10px;margin-top:6px;">
         <button onclick="saveEvent()" style="flex:1;background:#f59e0b;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Сохранить</button>
