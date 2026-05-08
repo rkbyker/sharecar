@@ -179,9 +179,14 @@ async function init(){
   document.getElementById('event-content').style.display='block';
 }
 async function loadEvent(){
-  const{data,error}=await supabase.from('events').select('*, profiles:owner_id(*)').eq('id',EVENT_ID).single();
+  const{data,error}=await supabase.from('events').select('*').eq('id',EVENT_ID).single();
   if(error||!data){showToast('Мероприятие не найдено','error');return;}
-  event=data;renderEvent();
+  event=data;
+  if(event.owner_id){
+    const{data:ownerData}=await supabase.from('profiles').select('*').eq('id',event.owner_id).single();
+    if(ownerData)event.profiles=ownerData;
+  }
+  renderEvent();
 }
 function renderEvent(){
   if(event.cover_photo){const img=document.createElement('img');img.src=event.cover_photo;img.alt=event.title;document.getElementById('cover-placeholder').replaceWith(img);}
