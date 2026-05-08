@@ -676,11 +676,12 @@ async function likeReply(replyId, btn) {
 
 function openNewTopicModal() {
   if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
-  topicPhotoFile = null;
+  window._newTopicPhotos = []; window._newTopicCoverUrl = null;
   document.getElementById('topic-title').value = '';
   document.getElementById('topic-body').value = '';
   document.getElementById('topic-cat-select').value = '';
-  document.getElementById('topic-photo-wrap').innerHTML = '<i class="fa fa-image"></i><span>Нажми чтобы добавить</span>';
+  document.getElementById('new-topic-photo-grid').style.display = 'none';
+  document.getElementById('new-topic-photo-grid').innerHTML = '';
   document.getElementById('topic-photo-input').value = '';
   document.getElementById('topic-submit-btn').disabled = false;
   document.getElementById('topic-submit-btn').textContent = 'Опубликовать';
