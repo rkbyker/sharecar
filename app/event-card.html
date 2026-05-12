@@ -182,7 +182,7 @@
 function goPage(p){window.location.href=p;}
 let _sliderPhotos=[], _sliderIdx=0;
 function openLightbox(url){
-  const photos = (event && event.photos && event.photos.length) ? event.photos : (event && event.cover_photo ? [event.cover_photo] : [url]);
+  const photos = (event && currentEvent.photos && currentEvent.photos.length) ? currentEvent.photos : (event && currentEvent.cover_photo ? [currentEvent.cover_photo] : [url]);
   _sliderPhotos = photos;
   _sliderIdx = photos.indexOf(url);
   if(_sliderIdx<0)_sliderIdx=0;
@@ -226,7 +226,7 @@ import { supabase, showToast } from '../js/supabase.js';
 const params=new URLSearchParams(location.search);
 const EVENT_ID=params.get('id');
 if(!EVENT_ID){location.href='index.html';}
-let currentUser=null,event=null,myRsvp=null,myLike=null;
+let currentUser=null,currentEvent=null,myRsvp=null,myLike=null;
 const TYPE_LABELS={drive:'🚗 Поездка',show:'🏎️ Шоу',meet:'👋 Встреча',drift:'💨 Дрифт',offroad:'🏔️ Офроад',photo:'📸 Фотосессия',race:'🏁 Гонка',other:'⭐ Другое'};
 const TYPE_ICONS={drive:'🚗',show:'🏎️',meet:'👋',drift:'💨',offroad:'🏔️',photo:'📸',race:'🏁',other:'⭐'};
 const LEVEL_COLORS={bronze:'#cd7f32',silver:'#a8a9ad',gold:'#ffd700',premium:'#a855f7',vip:'#f59e0b'};
@@ -241,32 +241,32 @@ async function init(){
 async function loadEvent(){
   const{data,error}=await supabase.from('events').select('*').eq('id',EVENT_ID).single();
   if(error||!data){showToast('Мероприятие не найдено','error');return;}
-  event=data;
-  if(event.owner_id){
-    const{data:ownerData}=await supabase.from('profiles').select('*').eq('id',event.owner_id).single();
-    if(ownerData)event.profiles=ownerData;
+  currentEvent=data;
+  if(currentEvent.owner_id){
+    const{data:ownerData}=await supabase.from('profiles').select('*').eq('id',currentEvent.owner_id).single();
+    if(ownerData)currentEvent.profiles=ownerData;
   }
   renderEvent();
 }
 function renderEvent(){
-  if(event.cover_photo){const img=document.createElement('img');img.src=event.cover_photo;img.alt=event.title;document.getElementById('cover-placeholder').replaceWith(img);}
-  else{document.getElementById('cover-placeholder').textContent=TYPE_ICONS[event.type]||'🚗';}
-  document.getElementById('type-badge').textContent=TYPE_LABELS[event.type]||'Мероприятие';
-  document.getElementById('event-title').textContent=event.title;
+  if(currentEvent.cover_photo){const img=document.createElement('img');img.src=currentEvent.cover_photo;img.alt=currentEvent.title;document.getElementById('cover-placeholder').replaceWith(img);}
+  else{document.getElementById('cover-placeholder').textContent=TYPE_ICONS[currentEvent.type]||'🚗';}
+  document.getElementById('type-badge').textContent=TYPE_LABELS[currentEvent.type]||'Мероприятие';
+  document.getElementById('event-title').textContent=currentEvent.title;
   const meta=[];
-  if(event.date_start){const d=new Date(event.date_start);meta.push(`<div class="meta-row"><i class="fa fa-calendar"></i><span>${d.toLocaleDateString('ru',{day:'numeric',month:'long',year:'numeric'})} в ${d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}</span></div>`);}
-  if(event.address||event.city){meta.push(`<div class="meta-row"><i class="fa fa-map-marker-alt"></i><span>${[event.address,event.city].filter(Boolean).join(', ')}</span></div>`);}
+  if(currentEvent.date_start){const d=new Date(currentEvent.date_start);meta.push(`<div class="meta-row"><i class="fa fa-calendar"></i><span>${d.toLocaleDateString('ru',{day:'numeric',month:'long',year:'numeric'})} в ${d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}</span></div>`);}
+  if(currentEvent.address||currentEvent.city){meta.push(`<div class="meta-row"><i class="fa fa-map-marker-alt"></i><span>${[currentEvent.address,currentEvent.city].filter(Boolean).join(', ')}</span></div>`);}
   if(event.max_participants){meta.push(`<div class="meta-row"><i class="fa fa-users"></i><span>Лимит: ${event.max_participants} чел.</span></div>`);}
   document.getElementById('event-meta').innerHTML=meta.join('');
-  if(event.address||event.city){const q=encodeURIComponent(`${event.address||''} ${event.city||''}`);document.getElementById('event-meta').innerHTML+=`<button class="map-btn" onclick="window.open('https://maps.google.com/?q=${q}','_blank')"><i class="fa fa-map"></i> Открыть на карте</button>`;}
-  document.getElementById('price-wrap').innerHTML=(!event.price||event.is_free)?'<span class="price-badge">🎉 Бесплатно</span>':`<span class="price-badge paid">💰 Взнос: ${event.price.toLocaleString('ru')} ₽</span>`;
-  document.getElementById('stat-likes').textContent=event.likes||0;
-  document.getElementById('stat-comments').textContent=event.comments_count||0;
-  document.getElementById('like-count').textContent=event.likes||0;
-  if(event.description){document.getElementById('desc-section').style.display='block';document.getElementById('event-desc').textContent=event.description;}
-  if(event.tags?.length){document.getElementById('tags-section').style.display='block';document.getElementById('tags-wrap').innerHTML=event.tags.map(t=>`<span class="tag">#${t}</span>`).join('');}
-  if(event.photos?.length){document.getElementById('photos-section').style.display='block';document.getElementById('photos-grid').innerHTML=event.photos.map(p=>`<div class="photo-item" onclick="openLightbox('${p}')"><img src="${p}" alt=""></div>`).join('');}
-  const owner=event.profiles;
+  if(currentEvent.address||currentEvent.city){const q=encodeURIComponent(`${currentEvent.address||''} ${currentEvent.city||''}`);document.getElementById('event-meta').innerHTML+=`<button class="map-btn" onclick="window.open('https://maps.google.com/?q=${q}','_blank')"><i class="fa fa-map"></i> Открыть на карте</button>`;}
+  document.getElementById('price-wrap').innerHTML=(!currentEvent.price||currentEvent.is_free)?'<span class="price-badge">🎉 Бесплатно</span>':`<span class="price-badge paid">💰 Взнос: ${currentEvent.price.toLocaleString('ru')} ₽</span>`;
+  document.getElementById('stat-likes').textContent=currentEvent.likes||0;
+  document.getElementById('stat-comments').textContent=currentEvent.comments_count||0;
+  document.getElementById('like-count').textContent=currentEvent.likes||0;
+  if(currentEvent.description){document.getElementById('desc-section').style.display='block';document.getElementById('event-desc').textContent=currentEvent.description;}
+  if(currentEvent.tags?.length){document.getElementById('tags-section').style.display='block';document.getElementById('tags-wrap').innerHTML=currentEvent.tags.map(t=>`<span class="tag">#${t}</span>`).join('');}
+  if(currentEvent.photos?.length){document.getElementById('photos-section').style.display='block';document.getElementById('photos-grid').innerHTML=currentEvent.photos.map(p=>`<div class="photo-item" onclick="openLightbox('${p}')"><img src="${p}" alt=""></div>`).join('');}
+  const owner=currentEvent.profiles;
   if(owner){
     const name=`${owner.first_name||''} ${owner.last_name||''}`.trim()||'Пользователь';
     const lvlColor=LEVEL_COLORS[owner.level]||'#888';
@@ -333,33 +333,33 @@ window.setRsvp=async function(status){
   updateRsvpUI();await loadParticipants();
 };
 window.toggleLike=async function(){
-  if(myLike){await supabase.from('event_likes').delete().eq('id',myLike.id);event.likes=Math.max(0,(event.likes||1)-1);myLike=null;document.getElementById('like-btn').classList.remove('liked');}
-  else{const{data}=await supabase.from('event_likes').insert({event_id:EVENT_ID,user_id:currentUser.id}).select().single();event.likes=(event.likes||0)+1;myLike=data;document.getElementById('like-btn').classList.add('liked');}
-  await supabase.from('events').update({likes:event.likes}).eq('id',EVENT_ID);
-  document.getElementById('like-count').textContent=event.likes;
-  document.getElementById('stat-likes').textContent=event.likes;
+  if(myLike){await supabase.from('event_likes').delete().eq('id',myLike.id);currentEvent.likes=Math.max(0,(currentEvent.likes||1)-1);myLike=null;document.getElementById('like-btn').classList.remove('liked');}
+  else{const{data}=await supabase.from('event_likes').insert({event_id:EVENT_ID,user_id:currentUser.id}).select().single();currentEvent.likes=(currentEvent.likes||0)+1;myLike=data;document.getElementById('like-btn').classList.add('liked');}
+  await supabase.from('events').update({likes:currentEvent.likes}).eq('id',EVENT_ID);
+  document.getElementById('like-count').textContent=currentEvent.likes;
+  document.getElementById('stat-likes').textContent=currentEvent.likes;
 };
 window.sendComment=async function(){
   const input=document.getElementById('comment-input');
   const text=input.value.trim();if(!text)return;
   input.value='';input.style.height='auto';
   await supabase.from('event_comments').insert({event_id:EVENT_ID,user_id:currentUser.id,content:text});
-  event.comments_count=(event.comments_count||0)+1;
-  await supabase.from('events').update({comments_count:event.comments_count}).eq('id',EVENT_ID);
-  document.getElementById('stat-comments').textContent=event.comments_count;
+  currentEvent.comments_count=(currentEvent.comments_count||0)+1;
+  await supabase.from('events').update({comments_count:currentEvent.comments_count}).eq('id',EVENT_ID);
+  document.getElementById('stat-comments').textContent=currentEvent.comments_count;
   await loadComments();
 };
 window.openEditModal=function(){
-  if(!event)return;
-  window._editPhotos=Array.isArray(event.photos)&&event.photos.length?[...event.photos]:(event.cover_photo?[event.cover_photo]:[]);
-  window._editCoverUrl=event.cover_photo||window._editPhotos[0]||null;
+  if(!currentEvent)return;
+  window._editPhotos=Array.isArray(currentEvent.photos)&&currentEvent.photos.length?[...currentEvent.photos]:(currentEvent.cover_photo?[currentEvent.cover_photo]:[]);
+  window._editCoverUrl=currentEvent.cover_photo||window._editPhotos[0]||null;
   renderEditPhotos();
-  document.getElementById('edit-title').value=event.title||'';
-  document.getElementById('edit-desc').value=event.description||'';
-  document.getElementById('edit-city').value=event.city||'';
-  document.getElementById('edit-address').value=event.address||'';
-  if(event.date_start){
-    const d=new Date(event.date_start);
+  document.getElementById('edit-title').value=currentEvent.title||'';
+  document.getElementById('edit-desc').value=currentEvent.description||'';
+  document.getElementById('edit-city').value=currentEvent.city||'';
+  document.getElementById('edit-address').value=currentEvent.address||'';
+  if(currentEvent.date_start){
+    const d=new Date(currentEvent.date_start);
     const local=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
     document.getElementById('edit-date').value=local;
   }
@@ -431,9 +431,9 @@ window.deleteEvent=async function(){
   await supabase.from('events').delete().eq('id',EVENT_ID);
   history.back();
 };
-window.openOrganizer=function(){const owner=event.profiles;if(!owner)return;goPage(owner.id===currentUser.id?'profile.html':'user-profile.html?id='+owner.id);};
-window.shareEvent=async function(){const url=`https://sharecar.pro/app/event-card.html?id=${EVENT_ID}`;if(navigator.share)await navigator.share({title:event.title,url});else{await navigator.clipboard.writeText(url);showToast('Ссылка скопирована','success');}};
-window.shareToChat=function(){sessionStorage.setItem('shareEvent',JSON.stringify({id:EVENT_ID,title:event.title}));goPage('messages.html?share=event');};
+window.openOrganizer=function(){const owner=currentEvent.profiles;if(!owner)return;goPage(owner.id===currentUser.id?'profile.html':'user-profile.html?id='+owner.id);};
+window.shareEvent=async function(){const url=`https://sharecar.pro/app/event-card.html?id=${EVENT_ID}`;if(navigator.share)await navigator.share({title:currentEvent.title,url});else{await navigator.clipboard.writeText(url);showToast('Ссылка скопирована','success');}};
+window.shareToChat=function(){sessionStorage.setItem('shareEvent',JSON.stringify({id:EVENT_ID,title:currentEvent.title}));goPage('messages.html?share=event');};
 supabase.channel(`event-${EVENT_ID}`).on('postgres_changes',{event:'INSERT',schema:'public',table:'event_comments',filter:`event_id=eq.${EVENT_ID}`},()=>loadComments()).subscribe();
 init();
 </script>
