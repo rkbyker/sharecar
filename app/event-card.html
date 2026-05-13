@@ -182,7 +182,7 @@
 function goPage(p){window.location.href=p;}
 let _sliderPhotos=[], _sliderIdx=0;
 function openLightbox(url){
-  const photos = (event && currentEvent.photos && currentEvent.photos.length) ? currentEvent.photos : (event && currentEvent.cover_photo ? [currentEvent.cover_photo] : [url]);
+  const photos = (currentEvent && currentEvent.photos && currentEvent.photos.length) ? currentEvent.photos : (currentEvent && currentEvent.cover_photo ? [currentEvent.cover_photo] : [url]);
   _sliderPhotos = photos;
   _sliderIdx = photos.indexOf(url);
   if(_sliderIdx<0)_sliderIdx=0;
