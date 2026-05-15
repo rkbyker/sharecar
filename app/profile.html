@@ -196,6 +196,37 @@
       margin-bottom: 10px; box-sizing: border-box; outline: none;
     }
     .settings-input:focus { border-color: #f59e0b; }
+
+    /* ── City Autocomplete ──────────────────────────────────────────── */
+    .city-wrap { position: relative; }
+    .city-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 10px;
+      z-index: 200; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.6);
+      display: none;
+    }
+    .city-dropdown.open { display: block; }
+    .city-option {
+      padding: 11px 14px; cursor: pointer; font-size: 14px; color: #ddd;
+      border-bottom: 1px solid #2a2a4a; display: flex; align-items: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .city-option:last-child { border-bottom: none; }
+    .city-option:hover, .city-option.focused { background: #f59e0b20; color: #fff; }
+    .city-option i { color: #f59e0b; font-size: 12px; flex-shrink: 0; }
+    .city-option small { font-size: 11px; color: #666; }
+    .city-option-main { display: flex; flex-direction: column; gap: 2px; }
+    .city-spinner {
+      padding: 12px 14px; font-size: 13px; color: #666;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .city-spinner i { animation: p-spin 1s linear infinite; }
+    @keyframes p-spin { to { transform: rotate(360deg); } }
+    .city-confirmed .settings-input { border-color: #22c55e !important; }
+    .city-confirmed::after {
+      content: '✓'; position: absolute; right: 14px; top: 14px;
+      color: #22c55e; font-size: 16px; pointer-events: none;
+    }
     .btn-save {
       width: 100%; padding: 14px; background: #f59e0b; color: #000;
       border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
@@ -364,7 +395,12 @@
       </div>
       <div class="settings-group">
         <div class="settings-label">Город</div>
-        <input class="settings-input" id="s-city" placeholder="Москва">
+        <div class="city-wrap" id="p-city-wrap">
+          <input class="settings-input" id="s-city" placeholder="Начни вводить город..." autocomplete="off" style="margin-bottom:0">
+          <div class="city-dropdown" id="p-city-dropdown"></div>
+        </div>
+        <input type="hidden" id="p-city-lat">
+        <input type="hidden" id="p-city-lng">
       </div>
       <div class="settings-group">
         <div class="settings-label">О себе</div>
@@ -804,6 +840,97 @@
       Object.assign(profile, updates);
       showToast('Профиль сохранён ✅', 'success');
       renderProfile();
+    }
+
+
+    // ── City Autocomplete (profile) ───────────────────────────────────────────
+    let pCityDebounce = null;
+
+    function initProfileCityAC() {
+      const input    = document.getElementById('s-city');
+      const dropdown = document.getElementById('p-city-dropdown');
+      const wrap     = document.getElementById('p-city-wrap');
+
+      input.addEventListener('input', () => {
+        wrap.classList.remove('city-confirmed');
+        document.getElementById('p-city-lat').value = '';
+        document.getElementById('p-city-lng').value = '';
+        const q = input.value.trim();
+        clearTimeout(pCityDebounce);
+        if (q.length < 2) { closePDropdown(); return; }
+        dropdown.innerHTML = `<div class="city-spinner"><i class="fa fa-circle-notch"></i> Ищем...</div>`;
+        dropdown.classList.add('open');
+        pCityDebounce = setTimeout(() => searchPCity(q), 400);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!wrap.contains(e.target)) closePDropdown();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        const items   = dropdown.querySelectorAll('.city-option');
+        const focused = dropdown.querySelector('.city-option.focused');
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = focused ? (focused.nextElementSibling || items[0]) : items[0];
+          if (next) { focused && focused.classList.remove('focused'); next.classList.add('focused'); }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = focused ? (focused.previousElementSibling || items[items.length-1]) : items[items.length-1];
+          if (prev) { focused && focused.classList.remove('focused'); prev.classList.add('focused'); }
+        } else if (e.key === 'Enter') {
+          if (focused) { e.preventDefault(); focused.click(); }
+        } else if (e.key === 'Escape') {
+          closePDropdown();
+        }
+      });
+    }
+
+    async function searchPCity(q) {
+      const dropdown = document.getElementById('p-city-dropdown');
+      const wrap     = document.getElementById('p-city-wrap');
+      try {
+        const url  = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&addressdetails=1&accept-language=ru`;
+        const res  = await fetch(url);
+        const data = await res.json();
+        const cities = data.filter(r =>
+          ['city','town','village','municipality','county','state'].includes(r.type) ||
+          r.class === 'place' ||
+          (r.address && (r.address.city || r.address.town || r.address.village))
+        );
+        if (!cities.length) {
+          dropdown.innerHTML = `<div class="city-spinner"><i class="fa fa-map-marker-alt" style="color:#555"></i> Город не найден</div>`;
+          return;
+        }
+        dropdown.innerHTML = cities.map(c => {
+          const addr = c.address || {};
+          const name = addr.city || addr.town || addr.village || addr.county || c.display_name.split(',')[0];
+          const sub  = [addr.state, addr.country].filter(Boolean).join(', ');
+          return `<div class="city-option" data-lat="${c.lat}" data-lng="${c.lon}" data-name="${name.replace(/"/g,'&quot;')}">
+            <i class="fa fa-map-marker-alt"></i>
+            <div class="city-option-main">
+              <span>${name}</span>
+              ${sub ? `<small>${sub}</small>` : ''}
+            </div>
+          </div>`;
+        }).join('');
+        dropdown.querySelectorAll('.city-option').forEach(item => {
+          item.addEventListener('click', () => {
+            document.getElementById('s-city').value        = item.dataset.name;
+            document.getElementById('p-city-lat').value   = item.dataset.lat;
+            document.getElementById('p-city-lng').value   = item.dataset.lng;
+            wrap.classList.add('city-confirmed');
+            closePDropdown();
+          });
+        });
+      } catch(err) {
+        dropdown.innerHTML = `<div class="city-spinner"><i class="fa fa-wifi" style="color:#555"></i> Нет соединения</div>`;
+      }
+    }
+
+    function closePDropdown() {
+      const dd = document.getElementById('p-city-dropdown');
+      if (dd) { dd.classList.remove('open'); dd.innerHTML = ''; }
     }
 
     async function uploadAvatar(input) {

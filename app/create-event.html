@@ -69,6 +69,37 @@
     .submit-btn:active { opacity: 0.8; }
     .hint { font-size: 12px; color: #555; margin-top: 6px; }
 
+    /* ── City Autocomplete ──────────────────────────────────────────── */
+    .city-wrap { position: relative; }
+    .city-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 10px;
+      z-index: 100; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.5);
+      display: none;
+    }
+    .city-dropdown.open { display: block; }
+    .city-option {
+      padding: 11px 14px; cursor: pointer; font-size: 14px; color: #ddd;
+      border-bottom: 1px solid #2a2a4a; display: flex; align-items: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .city-option:last-child { border-bottom: none; }
+    .city-option:hover, .city-option.focused { background: #f59e0b20; color: #fff; }
+    .city-option i { color: #f59e0b; font-size: 12px; flex-shrink: 0; }
+    .city-option small { font-size: 11px; color: #666; }
+    .city-option-main { display: flex; flex-direction: column; gap: 2px; }
+    .city-spinner {
+      padding: 12px 14px; font-size: 13px; color: #666;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .city-spinner i { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .city-confirmed .form-input { border-color: #22c55e !important; }
+    .city-confirmed::after {
+      content: '✓'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      color: #22c55e; font-size: 16px; pointer-events: none;
+    }
+
     #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1e1e3a; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; z-index: 1000; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     #toast.show { opacity: 1; }
     #toast.error { background: #7f1d1d; color: #fca5a5; }
@@ -137,7 +168,12 @@
     </div>
     <div class="form-group">
       <label class="form-label">Город</label>
-      <input class="form-input" id="city" placeholder="Москва">
+      <div class="city-wrap" id="city-wrap">
+        <input class="form-input" id="city" placeholder="Начни вводить город..." autocomplete="off">
+        <div class="city-dropdown" id="city-dropdown"></div>
+      </div>
+      <input type="hidden" id="city-lat">
+      <input type="hidden" id="city-lng">
     </div>
     <div class="form-group">
       <label class="form-label">Адрес / место встречи</label>
@@ -320,6 +356,8 @@
     const dateStart   = document.getElementById('date-start').value;
     const dateEnd     = document.getElementById('date-end').value;
     const city        = document.getElementById('city').value.trim();
+    const cityLat     = document.getElementById('city-lat').value || null;
+    const cityLng     = document.getElementById('city-lng').value || null;
     const address     = document.getElementById('address').value.trim();
     const maxP        = parseInt(document.getElementById('max-participants').value) || 0;
     const price       = parseInt(document.getElementById('price').value) || 0;
@@ -366,6 +404,7 @@
   }
 
   init();
+  initCityAutocomplete();
 </script>
 </body>
 </html>
