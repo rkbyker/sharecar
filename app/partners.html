@@ -270,7 +270,7 @@ function createGlobe(canvasId, sfx) {
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45,1,0.1,100);
-  camera.position.z = 2.6;
+  camera.position.z = 1.9;
 
   // Ocean
   const geo = new THREE.SphereGeometry(1,64,64);
@@ -384,10 +384,12 @@ function createGlobe(canvasId, sfx) {
 
   // Animate
   let t=0;
+  const clock = new THREE.Clock();
   function animate(){
     requestAnimationFrame(animate);
-    t+=0.016;
-    if(autoRot)scene.rotation.y+=0.003;
+    const delta = clock.getDelta();
+    t += delta;
+    if(autoRot) scene.rotation.y += 0.003 * delta * 60;
     // pulse markers
     markersGroup.children.forEach(m=>{
       if(m.userData.pulse){m.material.opacity=0.25+0.25*Math.sin(t*2+m.userData.phase);}
