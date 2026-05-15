@@ -638,7 +638,7 @@
         if (photos.length > 1) {
           const slides = photos.map((url,si) => `<div class="fslide" style="flex-shrink:0;width:100%;height:100%;"><img src="${url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;"></div>`).join('');
           const dots = photos.map((_,si) => `<span class="fdot${si===0?' active':''}" onclick="evSliderJump('${ev.id}',${si},arguments[0]||window.event)"></span>`).join('');
-          coverHtml = `<div class="fslides" id="efsl-${ev.id}" style="display:flex;height:100%;transition:transform .3s;" ontouchstart="efts(arguments[0]||window.event,'${ev.id}')" ontouchend="efte(arguments[0]||window.event,'${ev.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div>`;
+          coverHtml = `<div style="position:relative;width:100%;height:100%;overflow:hidden;"><div class="fslides" id="efsl-${ev.id}" style="display:flex;width:100%;height:100%;transition:transform .3s;" ontouchstart="efts(arguments[0]||window.event,'${ev.id}')" ontouchend="efte(arguments[0]||window.event,'${ev.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div></div>`;
         } else if (photos.length === 1) {
           coverHtml = `<img src="${photos[0]}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`;
         } else {
