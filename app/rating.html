@@ -396,7 +396,7 @@ function fillModalCatSelect() {
 
 async function loadTopics() {
   let q = sb.from('forum_topics')
-    .select('id,title,content,is_pinned,views,likes,replies_count,created_at,category_id,cover_photo,author_id')
+    .select('id,title,content,is_pinned,views,likes,replies_count,created_at,category_id,cover_photo,photos,author_id')
     .order('is_pinned', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(100);
