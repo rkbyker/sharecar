@@ -440,13 +440,13 @@ function renderTopics(list) {
     let photoHtml = '';
     if (photos.length > 1) {
       const slides = photos.map(function(url, si) {
-        return '<div style="flex-shrink:0;min-width:100%;width:100%;height:120px;overflow:hidden;"><img src="' + esc(url) + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:10px;"></div>';
+        return '<div style="flex-shrink:0;min-width:100%;scroll-snap-align:start;height:120px;overflow:hidden;"><img src="' + esc(url) + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>';
       }).join('');
       const dots = photos.map(function(_, si) {
         return '<span class="tsl-dot' + (si===0?' active':'') + '" data-tid="' + t.id + '" data-idx="' + si + '"></span>';
       }).join('');
       photoHtml = '<div class="tsl-wrap" style="position:relative;margin-bottom:10px;" data-tid="' + t.id + '">'
-        + '<div id="tsl-' + t.id + '" class="tsl-track" style="display:flex;min-width:100%;height:120px;transition:transform .3s;overflow:hidden;border-radius:10px;">' + slides + '</div>'
+        + '<div id="tsl-' + t.id + '" class="tsl-track" style="display:flex;width:100%;height:120px;overflow-x:scroll;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:10px;-webkit-overflow-scrolling:touch;">' + slides + '</div>'
         + '<div style="position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:center;gap:4px;">' + dots + '</div>'
         + '<span style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border-radius:6px;padding:2px 7px;font-size:11px;">' + photos.length + ' фото</span>'
         + '</div>';
@@ -476,29 +476,22 @@ function renderTopics(list) {
     wrap.appendChild(card);
   });
 
-  // Делегирование для слайдера тем
+  // Делегирование для слайдера тем (scroll-snap)
   (function() {
-    var _tx = {};
-
     function getWrap(el) { return el.closest ? el.closest('.tsl-wrap') : null; }
 
-    function goSlide(tid, next) {
+    function goSlide(tid, idx) {
       var track = document.getElementById('tsl-'+tid);
       if (!track) return;
       var count = track.children.length;
-      next = Math.max(0, Math.min(next, count-1));
-      track.style.transform = 'translateX(-'+next+'00%)';
-      var wrap = track.parentNode;
-      wrap.querySelectorAll('.tsl-dot').forEach(function(d,i){ d.classList.toggle('active', i===next); });
+      idx = Math.max(0, Math.min(idx, count-1));
+      track.scrollTo({ left: track.offsetWidth * idx, behavior: 'smooth' });
+      track.parentNode.querySelectorAll('.tsl-dot').forEach(function(d,i){
+        d.classList.toggle('active', i===idx);
+      });
     }
 
-    function getCur(tid) {
-      var track = document.getElementById('tsl-'+tid);
-      if (!track) return 0;
-      var tx = parseFloat((track.style.transform||'').replace('translateX(-','').replace('%)',''))||0;
-      return Math.round(tx/100);
-    }
-
+    // Клик по доту
     document.addEventListener('click', function(e) {
       var dot = e.target.closest ? e.target.closest('.tsl-dot') : null;
       if (!dot) return;
@@ -506,21 +499,16 @@ function renderTopics(list) {
       goSlide(dot.dataset.tid, parseInt(dot.dataset.idx));
     }, true);
 
-    document.addEventListener('touchstart', function(e) {
-      var wrap = getWrap(e.target);
-      if (!wrap) return;
-      _tx[wrap.dataset.tid] = e.touches[0].clientX;
-    }, {passive:true});
-
-    document.addEventListener('touchend', function(e) {
-      var wrap = getWrap(e.target);
-      if (!wrap) return;
-      var tid = wrap.dataset.tid;
-      var dx = e.changedTouches[0].clientX - (_tx[tid]||0);
-      if (Math.abs(dx) < 40) return;
-      e.stopPropagation();
-      goSlide(tid, getCur(tid) + (dx < 0 ? 1 : -1));
-    }, {passive:true});
+    // Обновляем доты при скролле
+    document.addEventListener('scroll', function(e) {
+      var track = e.target;
+      if (!track || !track.classList.contains('tsl-track')) return;
+      var idx = Math.round(track.scrollLeft / track.offsetWidth);
+      var tid = track.id.replace('tsl-','');
+      track.parentNode.querySelectorAll('.tsl-dot').forEach(function(d,i){
+        d.classList.toggle('active', i===idx);
+      });
+    }, true);
   })();
 }
 
