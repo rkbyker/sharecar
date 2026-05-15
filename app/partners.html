@@ -26,12 +26,12 @@ body{background:#0f0f0f;color:#fff;font-family:-apple-system,sans-serif;overflow
 .main-tab{flex:1;padding:13px;text-align:center;font-size:14px;font-weight:600;color:#555;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
 .main-tab.active{color:#fff;border-bottom-color:#fff}
 
-.tab-panel{display:none}
-.tab-panel.active{display:block}
+.tab-panel{display:none;min-height:calc(100vh - 60px)}
+.tab-panel.active{display:block;min-height:calc(100vh - 60px)}
 
 /* GLOBE WRAPPER */
 .globe-wrap{position:relative;width:100%;background:#000;overflow:hidden;transition:height .4s cubic-bezier(.4,0,.2,1)}
-.globe-wrap.normal{height:240px}
+.globe-wrap.normal{height:calc(100vh - 140px)}
 .globe-wrap.fullscreen{height:100vh;position:fixed;inset:0;z-index:200}
 #globe-canvas-ev, #globe-canvas-us{width:100%;height:100%;display:block;cursor:grab}
 #globe-canvas-ev:active, #globe-canvas-us:active{cursor:grabbing}
