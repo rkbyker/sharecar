@@ -636,9 +636,9 @@
         let coverHtml = '';
         const photos = ev.photos && ev.photos.length ? ev.photos : (ev.cover_photo ? [ev.cover_photo] : []);
         if (photos.length > 1) {
-          const slides = photos.map((url,si) => `<div class="fslide" style="flex-shrink:0;width:100%;height:100%;"><img src="${url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;"></div>`).join('');
+          const slides = photos.map((url,si) => `<div style="flex-shrink:0;min-width:100%;width:100%;height:100%;overflow:hidden;"><img src="${url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>`).join('');
           const dots = photos.map((_,si) => `<span class="fdot${si===0?' active':''}" onclick="evSliderJump('${ev.id}',${si},arguments[0]||window.event)"></span>`).join('');
-          coverHtml = `<div style="position:relative;width:100%;height:100%;overflow:hidden;"><div class="fslides" id="efsl-${ev.id}" style="display:flex;width:100%;height:100%;transition:transform .3s;" ontouchstart="efts(arguments[0]||window.event,'${ev.id}')" ontouchend="efte(arguments[0]||window.event,'${ev.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div></div>`;
+          coverHtml = `<div style="position:relative;width:100%;height:100%;overflow:hidden;"><div class="fslides" id="efsl-${ev.id}" style="display:flex;width:100%;height:100%;transition:transform .3s;will-change:transform;" ontouchstart="efts(arguments[0]||window.event,'${ev.id}')" ontouchend="efte(arguments[0]||window.event,'${ev.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div></div>`;
         } else if (photos.length === 1) {
           coverHtml = `<img src="${photos[0]}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`;
         } else {
@@ -908,7 +908,7 @@
       const photos = car.photos || [];
       let photoHtml = '';
       if (photos.length > 1) {
-        const slides = photos.map((url, i) => `<div class="fslide" style="flex-shrink:0;width:100%;height:100%;"><img src="${url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;"></div>`).join('');
+        const slides = photos.map((url, i) => `<div style="flex-shrink:0;min-width:100%;width:100%;height:100%;overflow:hidden;"><img src="${url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>`).join('');
         const dots = photos.map((_, i) => `<span class="fdot${i===0?' active':''}" onclick="event.stopPropagation();jumpFeed('${car.id}',${i})"></span>`).join('');
         photoHtml = `<div class="fslides" id="fsl-${car.id}" style="display:flex;height:100%;transition:transform .3s;" ontouchstart="fts(event,'${car.id}')" ontouchend="fte(event,'${car.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div>`;
       } else if (photos.length === 1) {
