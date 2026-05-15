@@ -621,33 +621,98 @@
         return;
       }
 
+      // Загружаем лайки мероприятий текущего пользователя
+      const { data: myEvLikes } = await supabase
+        .from('event_likes').select('event_id').eq('user_id', currentUser.id);
+      const likedEvIds = new Set((myEvLikes||[]).map(l => l.event_id));
+
       container.innerHTML = data.map(ev => {
         const ds = ev.date_start ? new Date(ev.date_start) : null;
         const dateStr = ds ? ds.toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
         const loc = [ev.city, ev.address].filter(Boolean).join(', ');
-        const coverHtml = ev.cover_photo
-          ? `<img src="${ev.cover_photo}" alt="" loading="lazy">`
-          : `${TYPE_ICONS[ev.type] || '🎉'}`;
+        const isLiked = likedEvIds.has(ev.id);
+
+        // Слайдер фото или обложка
+        let coverHtml = '';
+        const photos = ev.photos && ev.photos.length ? ev.photos : (ev.cover_photo ? [ev.cover_photo] : []);
+        if (photos.length > 1) {
+          const slides = photos.map((url,si) => `<div class="fslide" style="flex-shrink:0;width:100%;height:100%;"><img src="${url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;"></div>`).join('');
+          const dots = photos.map((_,si) => `<span class="fdot${si===0?' active':''}" onclick="evSliderJump('${ev.id}',${si},arguments[0]||window.event)"></span>`).join('');
+          coverHtml = `<div class="fslides" id="efsl-${ev.id}" style="display:flex;height:100%;transition:transform .3s;" ontouchstart="efts(arguments[0]||window.event,'${ev.id}')" ontouchend="efte(arguments[0]||window.event,'${ev.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div>`;
+        } else if (photos.length === 1) {
+          coverHtml = `<img src="${photos[0]}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`;
+        } else {
+          coverHtml = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(135deg,#1a1a2e,#0f0f1e)">${TYPE_ICONS[ev.type]||'🎉'}</div>`;
+        }
+
         return `<div class="event-card" onclick="goPage('event-card.html?id=${ev.id}')">
           <div class="event-cover">
             ${coverHtml}
             <span class="event-type-pill">${TYPE_LABELS[ev.type] || 'Мероприятие'}</span>
             ${dateStr ? `<span class="event-date-pill">📅 ${dateStr}</span>` : ''}
+            ${photos.length > 1 ? `<span class="photo-count">${photos.length} фото</span>` : ''}
           </div>
           <div class="event-body">
             <div class="event-title">${ev.title}</div>
             <div class="event-meta-row">
               ${loc ? `<span>📍 ${loc}</span>` : ''}
               <span>👥 ${ev.participants_count || 0} участников</span>
-              <span>❤️ ${ev.likes || 0}</span>
             </div>
             <div class="event-footer">
-              <span class="${ev.is_free ? 'event-price-free' : 'event-price-paid'}">${ev.is_free ? 'Бесплатно' : ev.price + ' ₽'}</span>
-              <button class="event-rsvp-btn" onclick="event.stopPropagation();goPage('event-card.html?id=${ev.id}')">Подробнее →</button>
+              <span class="${ev.is_free ? 'event-price-free' : 'event-price-paid'}">${ev.is_free ? 'Бесплатно' : (ev.price||0) + ' ₽'}</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <button class="btn-like${isLiked?' liked':''}" id="evlike-${ev.id}"
+                  onclick="toggleEvLike('${ev.id}',this,arguments[0]||window.event)">
+                  <i class="fa${isLiked?'s':'r'} fa-heart"></i>
+                  <span>${ev.likes||0}</span>
+                </button>
+                <button class="event-rsvp-btn" onclick="goPage('event-card.html?id=${ev.id}')">Подробнее →</button>
+              </div>
             </div>
           </div>
         </div>`;
       }).join('');
+
+      // Свайп для слайдера мероприятий
+      var _efTx = {};
+      window.efts = function(e, id) { _efTx[id] = e.touches[0].clientX; };
+      window.efte = function(e, id) {
+        var dx = e.changedTouches[0].clientX - (_efTx[id]||0);
+        if (Math.abs(dx) < 40) return;
+        var el = document.getElementById('efsl-'+id);
+        if (!el) return;
+        var count = el.children.length;
+        var cur = Math.round(Math.abs(el.style.transform.replace('translateX(',''))/100)||0;
+        var next = dx < 0 ? Math.min(cur+1,count-1) : Math.max(cur-1,0);
+        el.style.transform = 'translateX(-'+next+'00%)';
+        el.parentNode.querySelectorAll('.fdot').forEach(function(d,i){ d.classList.toggle('active',i===next); });
+      };
+      window.evSliderJump = function(id, idx, e) {
+        if(e){ e.stopPropagation(); }
+        var el = document.getElementById('efsl-'+id);
+        if (!el) return;
+        el.style.transform = 'translateX(-'+idx+'00%)';
+        el.parentNode.querySelectorAll('.fdot').forEach(function(d,i){ d.classList.toggle('active',i===idx); });
+      };
+
+      // Лайк мероприятия
+      window.toggleEvLike = async function(evId, btn, e) {
+        if(e){ e.stopPropagation(); }
+        const wasLiked = likedEvIds.has(evId);
+        if (wasLiked) {
+          likedEvIds.delete(evId);
+          await supabase.from('event_likes').delete().eq('user_id',currentUser.id).eq('event_id',evId);
+          btn.classList.remove('liked');
+          btn.querySelector('i').className = 'far fa-heart';
+          btn.querySelector('span').textContent = Math.max(0, parseInt(btn.querySelector('span').textContent)-1);
+        } else {
+          likedEvIds.add(evId);
+          await supabase.from('event_likes').insert({user_id:currentUser.id,event_id:evId});
+          btn.classList.add('liked');
+          btn.querySelector('i').className = 'fas fa-heart';
+          btn.querySelector('span').textContent = parseInt(btn.querySelector('span').textContent)+1;
+        }
+      };
     };
 
     // Auto-load events if starting on events tab

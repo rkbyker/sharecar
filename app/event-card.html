@@ -256,7 +256,7 @@ function renderEvent(){
   const meta=[];
   if(currentEvent.date_start){const d=new Date(currentEvent.date_start);meta.push(`<div class="meta-row"><i class="fa fa-calendar"></i><span>${d.toLocaleDateString('ru',{day:'numeric',month:'long',year:'numeric'})} в ${d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}</span></div>`);}
   if(currentEvent.address||currentEvent.city){meta.push(`<div class="meta-row"><i class="fa fa-map-marker-alt"></i><span>${[currentEvent.address,currentEvent.city].filter(Boolean).join(', ')}</span></div>`);}
-  if(event.max_participants){meta.push(`<div class="meta-row"><i class="fa fa-users"></i><span>Лимит: ${event.max_participants} чел.</span></div>`);}
+  if(currentEvent.max_participants){meta.push(`<div class="meta-row"><i class="fa fa-users"></i><span>Лимит: ${currentEvent.max_participants} чел.</span></div>`);}
   document.getElementById('event-meta').innerHTML=meta.join('');
   if(currentEvent.address||currentEvent.city){const q=encodeURIComponent(`${currentEvent.address||''} ${currentEvent.city||''}`);document.getElementById('event-meta').innerHTML+=`<button class="map-btn" onclick="window.open('https://maps.google.com/?q=${q}','_blank')"><i class="fa fa-map"></i> Открыть на карте</button>`;}
   document.getElementById('price-wrap').innerHTML=(!currentEvent.price||currentEvent.is_free)?'<span class="price-badge">🎉 Бесплатно</span>':`<span class="price-badge paid">💰 Взнос: ${currentEvent.price.toLocaleString('ru')} ₽</span>`;
@@ -265,7 +265,7 @@ function renderEvent(){
   document.getElementById('like-count').textContent=currentEvent.likes||0;
   if(currentEvent.description){document.getElementById('desc-section').style.display='block';document.getElementById('event-desc').textContent=currentEvent.description;}
   if(currentEvent.tags?.length){document.getElementById('tags-section').style.display='block';document.getElementById('tags-wrap').innerHTML=currentEvent.tags.map(t=>`<span class="tag">#${t}</span>`).join('');}
-  if(currentEvent.photos?.length){document.getElementById('photos-section').style.display='block';document.getElementById('photos-grid').innerHTML=currentEvent.photos.map(p=>`<div class="photo-item" onclick="openLightbox('${p}')"><img src="${p}" alt=""></div>`).join('');}
+  if(currentEvent.photos?.length){document.getElementById('photos-section').style.display='block';document.getElementById('photos-grid').innerHTML=currentEvent.photos.map(function(p){return '<div class="photo-item" onclick="openLightbox(\''+p+'\')" ><img src="'+p+'" alt=""></div>';}).join('');}
   const owner=currentEvent.profiles;
   if(owner){
     const name=`${owner.first_name||''} ${owner.last_name||''}`.trim()||'Пользователь';
