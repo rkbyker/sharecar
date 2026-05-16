@@ -204,7 +204,7 @@ function switchTab(tab){
   updateGlobeMarkers();
   // resize canvas on show
   const sfx = tab==='events'?'ev':'us';
-  setTimeout(()=>resizeGlobe(sfx),50);
+  setTimeout(()=>resizeGlobe(sfx),450);
 }
 
 // ── FILTERS ───────────────────────────────────────────
@@ -247,7 +247,7 @@ function toggleFullscreen(sfx){
     wrap.classList.remove('fullscreen');wrap.classList.add('normal');
     document.body.style.overflow='';
   }
-  setTimeout(()=>resizeGlobe(sfx),50);
+  setTimeout(()=>resizeGlobe(sfx),450);
 }
 
 // ── POPUP ─────────────────────────────────────────────
