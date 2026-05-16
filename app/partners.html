@@ -271,7 +271,7 @@ function createGlobe(canvasId, sfx) {
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45,1,0.1,100);
-  camera.position.z = 1.9;
+  camera.position.z = 2.8;
 
   // Ocean
   const geo = new THREE.SphereGeometry(1,64,64);
@@ -310,7 +310,7 @@ function createGlobe(canvasId, sfx) {
 
   // Interaction
   let isDrag=false,prevX=0,prevY=0,autoRot=true;
-  let zoom=2.6; // camera z
+  let zoom=3.5; // camera z
 
   function onDragStart(x,y){isDrag=true;prevX=x;prevY=y;autoRot=false;}
   function onDragMove(x,y){
