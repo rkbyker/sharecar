@@ -197,14 +197,16 @@ function onSearch(v){searchQ=v.toLowerCase();updateGlobeMarkers()}
 // ── TABS ──────────────────────────────────────────────
 function switchTab(tab){
   currentTab=tab;
+  const sfx = tab==='events'?'ev':'us';
+  // resize до показа чтобы не было рывка
+  resizeGlobe(sfx);
   document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('panel-'+tab).classList.add('active');
   updateGlobeMarkers();
-  // resize canvas on show
-  const sfx = tab==='events'?'ev':'us';
-  setTimeout(()=>resizeGlobe(sfx),450);
+  // и ещё раз после показа
+  setTimeout(()=>resizeGlobe(sfx),50);
 }
 
 // ── FILTERS ───────────────────────────────────────────
@@ -247,7 +249,7 @@ function toggleFullscreen(sfx){
     wrap.classList.remove('fullscreen');wrap.classList.add('normal');
     document.body.style.overflow='';
   }
-  setTimeout(()=>resizeGlobe(sfx),450);
+  setTimeout(()=>resizeGlobe(sfx),420);
 }
 
 // ── POPUP ─────────────────────────────────────────────
