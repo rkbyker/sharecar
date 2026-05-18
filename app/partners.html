@@ -241,14 +241,17 @@ function toggleFullscreen(sfx){
   const topBar   = document.querySelector('.top-bar');
   const mainTabs = document.querySelector('.main-tabs');
   const bottomNav= document.querySelector('.bottom-nav');
+  const pbSpacer = document.querySelector('.pb-spacer');
   if(fsState[sfx]){
     if(topBar)    topBar.style.display='none';
     if(mainTabs)  mainTabs.style.display='none';
     if(bottomNav) bottomNav.style.display='none';
+    if(pbSpacer)  pbSpacer.style.display='none';
   } else {
     if(topBar)    topBar.style.display='';
     if(mainTabs)  mainTabs.style.display='';
     if(bottomNav) bottomNav.style.display='';
+    if(pbSpacer)  pbSpacer.style.display='';
   }
 }
 
