@@ -243,12 +243,10 @@ function toggleFullscreen(sfx){
   const bottomNav= document.querySelector('.bottom-nav');
   fsState[sfx]=!fsState[sfx];
   if(fsState[sfx]){
-    wrap.classList.remove('normal');wrap.classList.add('fullscreen');
     if(topBar)    topBar.style.display='none';
     if(mainTabs)  mainTabs.style.display='none';
     if(bottomNav) bottomNav.style.display='none';
   } else {
-    wrap.classList.remove('fullscreen');wrap.classList.add('normal');
     if(topBar)    topBar.style.display='';
     if(mainTabs)  mainTabs.style.display='';
     if(bottomNav) bottomNav.style.display='';
@@ -338,14 +336,14 @@ function createGlobe(canvasId, sfx) {
     if(e.touches.length===2){
       const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
       zoom-=(d-lastDist)*0.01;
-      zoom=Math.max(1.2,Math.min(4,zoom));
+      zoom=Math.max(3,Math.min(8,zoom));
       lastDist=d;
       camera.position.z=zoom;
     }
   },{passive:true});
   canvas.addEventListener('wheel',e=>{
     zoom+=e.deltaY*0.002;
-    zoom=Math.max(1.2,Math.min(4,zoom));
+    zoom=Math.max(3,Math.min(8,zoom));
     camera.position.z=zoom;
   },{passive:true});
 
