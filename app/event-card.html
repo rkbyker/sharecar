@@ -226,7 +226,9 @@ import { supabase, showToast } from '../js/supabase.js';
 const params=new URLSearchParams(location.search);
 const EVENT_ID=params.get('id');
 if(!EVENT_ID){location.href='index.html';}
-let currentUser=null,currentEvent=null,myRsvp=null,myLike=null;
+let currentUser=null,myRsvp=null,myLike=null;
+window.currentEvent=null;
+let currentEvent=window.currentEvent;
 const TYPE_LABELS={drive:'🚗 Поездка',show:'🏎️ Шоу',meet:'👋 Встреча',drift:'💨 Дрифт',offroad:'🏔️ Офроад',photo:'📸 Фотосессия',race:'🏁 Гонка',other:'⭐ Другое'};
 const TYPE_ICONS={drive:'🚗',show:'🏎️',meet:'👋',drift:'💨',offroad:'🏔️',photo:'📸',race:'🏁',other:'⭐'};
 const LEVEL_COLORS={bronze:'#cd7f32',silver:'#a8a9ad',gold:'#ffd700',premium:'#a855f7',vip:'#f59e0b'};
@@ -241,7 +243,7 @@ async function init(){
 async function loadEvent(){
   const{data,error}=await supabase.from('events').select('*').eq('id',EVENT_ID).single();
   if(error||!data){showToast('Мероприятие не найдено','error');return;}
-  currentEvent=data;
+  currentEvent=data;window.currentEvent=data;
   if(currentEvent.owner_id){
     const{data:ownerData}=await supabase.from('profiles').select('*').eq('id',currentEvent.owner_id).single();
     if(ownerData)currentEvent.profiles=ownerData;
