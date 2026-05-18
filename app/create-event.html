@@ -370,6 +370,22 @@
     btn.textContent = 'Создаём...';
 
     // Фото уже загружены в handlePhotosChange
+
+    // Геокодируем адрес если есть, иначе берём координаты города
+    let finalLat = cityLat ? parseFloat(cityLat) : null;
+    let finalLng = cityLng ? parseFloat(cityLng) : null;
+    if (address) {
+      try {
+        const q = encodeURIComponent((address + ' ' + city).trim());
+        const geoRes = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1&accept-language=ru');
+        const geoData = await geoRes.json();
+        if (geoData.length) {
+          finalLat = parseFloat(geoData[0].lat);
+          finalLng = parseFloat(geoData[0].lon);
+        }
+      } catch(e) { console.warn('Геокодирование не удалось', e); }
+    }
+
     const finalCoverUrl = coverPhotoUrl || (uploadedPhotoUrls.length ? uploadedPhotoUrls[0] : null);
     const finalPhotos = uploadedPhotoUrls.filter(Boolean);
 
@@ -388,8 +404,8 @@
       is_free:          isFree,
       price:            isFree ? 0 : price,
       tags:             tags.length ? tags : null,
-      lat:              cityLat ? parseFloat(cityLat) : null,
-      lng:              cityLng ? parseFloat(cityLng) : null,
+      lat:              finalLat,
+      lng:              finalLng,
       status:           'active'
     }).select().single();
 
