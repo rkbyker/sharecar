@@ -177,7 +177,10 @@
     </div>
     <div class="form-group">
       <label class="form-label">Адрес / место встречи</label>
-      <input class="form-input" id="address" placeholder="ул. Ленина 1, парковка ТЦ...">
+      <div class="city-wrap" id="address-wrap">
+        <input class="form-input" id="address" placeholder="ул. Ленина 1, парковка ТЦ..." autocomplete="off">
+        <div class="city-dropdown" id="address-dropdown"></div>
+      </div>
     </div>
   </div>
 
@@ -453,6 +456,68 @@
     });
   }
 
+
+  function initAddressAutocomplete() {
+    const input = document.getElementById('address');
+    const dropdown = document.getElementById('address-dropdown');
+    const wrap = document.getElementById('address-wrap');
+    let timer = null;
+
+    input.addEventListener('input', function() {
+      clearTimeout(timer);
+      wrap.classList.remove('city-confirmed');
+      const q = input.value.trim();
+      if (q.length < 3) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; return; }
+      timer = setTimeout(() => fetchAddress(q), 400);
+    });
+
+    input.addEventListener('keydown', function(e) {
+      const items = dropdown.querySelectorAll('.city-option');
+      const focused = dropdown.querySelector('.city-option.focused');
+      let idx = Array.from(items).indexOf(focused);
+      if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx+1)%items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx-1+items.length)%items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
+      else if (e.key === 'Enter') { e.preventDefault(); const f = dropdown.querySelector('.city-option.focused'); if(f) f.click(); }
+      else if (e.key === 'Escape') { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!wrap.contains(e.target)) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
+    });
+  }
+
+  async function fetchAddress(q) {
+    const dropdown = document.getElementById('address-dropdown');
+    const city = document.getElementById('city').value.trim();
+    dropdown.innerHTML = '<div class="city-spinner"><i class="fa fa-circle-notch"></i></div>';
+    dropdown.classList.add('open');
+    try {
+      const query = encodeURIComponent((q + (city ? ' ' + city : '')).trim());
+      const res = await fetch('https://nominatim.openstreetmap.org/search?q=' + query + '&format=json&addressdetails=1&limit=5&accept-language=ru');
+      const data = await res.json();
+      if (!data.length) { dropdown.innerHTML = '<div class="city-option" style="color:#666;">Не найдено</div>'; return; }
+      dropdown.innerHTML = data.map(function(item) {
+        const name = item.display_name;
+        return '<div class="city-option" data-lat="' + item.lat + '" data-lng="' + item.lon + '" data-name="' + name.replace(/"/g,"&quot;") + '">'
+          + '<i class="fa fa-map-marker-alt"></i>'
+          + '<div class="city-option-main"><span style="font-size:12px;">' + name + '</span></div>'
+          + '</div>';
+      }).join('');
+      dropdown.querySelectorAll('.city-option').forEach(function(el) {
+        el.addEventListener('click', function() {
+          document.getElementById('address').value = el.dataset.name;
+          document.getElementById('city-lat').value = el.dataset.lat;
+          document.getElementById('city-lng').value = el.dataset.lng;
+          document.getElementById('address-wrap').classList.add('city-confirmed');
+          dropdown.classList.remove('open');
+          dropdown.innerHTML = '';
+        });
+      });
+    } catch(e) {
+      dropdown.innerHTML = '<div class="city-option" style="color:#666;">Ошибка поиска</div>';
+    }
+  }
+
   async function fetchCities(q) {
     const dropdown = document.getElementById('city-dropdown');
     dropdown.innerHTML = '<div class="city-spinner"><i class="fa fa-circle-notch"></i></div>';
@@ -492,6 +557,7 @@
 
   init();
   initCityAutocomplete();
+  initAddressAutocomplete();
 </script>
 </body>
 </html>
