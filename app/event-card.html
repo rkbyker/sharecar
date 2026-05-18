@@ -10,8 +10,8 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #0f0f0f; color: #fff; font-family: -apple-system, sans-serif; padding-bottom: 80px; }
-    .cover-wrap { position: relative; width: 100%; height: 312px; background: #1e1e2e; overflow: hidden; }
-    .cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .cover-wrap { position: relative; width: 100%; background: #000; overflow: hidden; }
+    .cover-wrap img { width: 100%; max-height: 80vh; object-fit: contain; display: block; cursor: pointer; }
     .cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 64px; }
     .back-btn { position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.6); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
     .share-btn { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.6); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
@@ -249,7 +249,7 @@ async function loadEvent(){
   renderEvent();
 }
 function renderEvent(){
-  if(currentEvent.cover_photo){const img=document.createElement('img');img.src=currentEvent.cover_photo;img.alt=currentEvent.title;document.getElementById('cover-placeholder').replaceWith(img);}
+  if(currentEvent.cover_photo){const img=document.createElement('img');img.src=currentEvent.cover_photo;img.alt=currentEvent.title;img.onclick=function(){openLightbox(currentEvent.cover_photo);};document.getElementById('cover-placeholder').replaceWith(img);}
   else{document.getElementById('cover-placeholder').textContent=TYPE_ICONS[currentEvent.type]||'🚗';}
   document.getElementById('type-badge').textContent=TYPE_LABELS[currentEvent.type]||'Мероприятие';
   document.getElementById('event-title').textContent=currentEvent.title;
