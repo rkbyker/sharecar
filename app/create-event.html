@@ -388,6 +388,8 @@
       is_free:          isFree,
       price:            isFree ? 0 : price,
       tags:             tags.length ? tags : null,
+      lat:              cityLat ? parseFloat(cityLat) : null,
+      lng:              cityLng ? parseFloat(cityLng) : null,
       status:           'active'
     }).select().single();
 
