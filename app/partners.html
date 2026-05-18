@@ -504,8 +504,10 @@ async function loadData(){
     supabase.from('profiles').select('id,first_name,last_name,avatar_url,city,level,trips_driven,lat,lng').order('created_at',{ascending:false}).limit(500)
   ]);
 
-  window.allEvents = evRes.data||[];
-  window.allUsers  = usRes.data||[];
+  allEvents = evRes.data||[];
+  allUsers  = usRes.data||[];
+  window.allEvents = allEvents;
+  window.allUsers  = allUsers;
 
   // City chips for events
   const evCities=[...new Set((evRes.data||[]).map(e=>e.city).filter(Boolean))].sort();
