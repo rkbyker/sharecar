@@ -237,21 +237,21 @@ function getActiveChip(group){
 // ── FULLSCREEN ────────────────────────────────────────
 let fsState={ev:false,us:false};
 function toggleFullscreen(sfx){
-  fsState[sfx]=!fsState[sfx];
+  const wrap=document.getElementById('globe-wrap-'+sfx);
   const topBar   = document.querySelector('.top-bar');
   const mainTabs = document.querySelector('.main-tabs');
   const bottomNav= document.querySelector('.bottom-nav');
-  const pbSpacer = document.querySelector('.pb-spacer');
+  fsState[sfx]=!fsState[sfx];
   if(fsState[sfx]){
+    wrap.classList.remove('normal');wrap.classList.add('fullscreen');
     if(topBar)    topBar.style.display='none';
     if(mainTabs)  mainTabs.style.display='none';
     if(bottomNav) bottomNav.style.display='none';
-    if(pbSpacer)  pbSpacer.style.display='none';
   } else {
+    wrap.classList.remove('fullscreen');wrap.classList.add('normal');
     if(topBar)    topBar.style.display='';
     if(mainTabs)  mainTabs.style.display='';
     if(bottomNav) bottomNav.style.display='';
-    if(pbSpacer)  pbSpacer.style.display='';
   }
 }
 
