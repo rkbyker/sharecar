@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0f0f0f;color:#fff;font-family:-apple-system,sans-serif;overflow-x:hidden;display:flex;flex-direction:column;height:100vh}
+body{background:#0f0f0f;color:#fff;font-family:-apple-system,sans-serif;overflow-x:hidden}
 
 /* TOP BAR */
 .top-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#0f0f0f;border-bottom:1px solid #1e1e1e;position:sticky;top:0;z-index:100}
@@ -26,8 +26,8 @@ body{background:#0f0f0f;color:#fff;font-family:-apple-system,sans-serif;overflow
 .main-tab{flex:1;padding:13px;text-align:center;font-size:14px;font-weight:600;color:#555;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
 .main-tab.active{color:#fff;border-bottom-color:#fff}
 
-.tab-panel{display:none;min-height:calc(100vh - 60px);background:#0f0f0f}
-.tab-panel.active{display:flex;align-items:center;min-height:calc(100vh - 60px);background:#0f0f0f}
+.tab-panel{display:none;background:#0f0f0f}
+.tab-panel.active{display:block;background:#0f0f0f}
 
 /* GLOBE WRAPPER */
 .globe-wrap{position:relative;width:100%;background:#000;overflow:hidden;transition:height .4s cubic-bezier(.4,0,.2,1)}
