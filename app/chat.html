@@ -288,20 +288,7 @@
  request = req;
  car = req.cars;
 
-      // Share draft
-      const draft = sessionStorage.getItem('shareDraft');
-      if (draft) {
-        const inp = document.getElementById('msg-input');
-        if (inp) {
-          inp.value = draft;
-          autoResize(inp);
-          inp.focus();
-          inp.setSelectionRange(inp.value.length, inp.value.length);
-          const w = document.getElementById('messages-wrap');
-          if (w) w.scrollTop = w.scrollHeight;
-        }
-        sessionStorage.removeItem('shareDraft');
-      }
+
 
       // Other party
  const otherId = currentUser.id === req.owner_id ? req.requester_id : req.owner_id;
@@ -315,6 +302,21 @@
 
  document.getElementById('loader-full').style.display = 'none';
  document.getElementById('chat-wrap').style.display = 'flex';
+
+      // Share draft — вставляем после показа chat-wrap
+      const draft = sessionStorage.getItem('shareDraft');
+      if (draft) {
+        sessionStorage.removeItem('shareDraft');
+        setTimeout(() => {
+          const inp = document.getElementById('msg-input');
+          if (inp) {
+            inp.value = draft;
+            autoResize(inp);
+            const w = document.getElementById('messages-wrap');
+            if (w) w.scrollTop = w.scrollHeight;
+          }
+        }, 50);
+      }
  scrollBottom();
  }
 
