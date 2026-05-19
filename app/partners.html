@@ -384,9 +384,12 @@ function createGlobe(canvasId, sfx) {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
     t += delta;
-    if(autoRot) scene.rotation.y += 0.003 * delta * 60;
-    // pulse markers
+    const rotSpeed = Math.max(0, (zoom - 1.5) / (5.5 - 1.5)) * 0.003 * delta * 60;
+    if(autoRot) scene.rotation.y += rotSpeed;
+    // scale markers by zoom
+    const markerScale = zoom / 5.5;
     markersGroup.children.forEach(m=>{
+      m.scale.setScalar(markerScale);
       if(m.userData.pulse){m.material.opacity=0.25+0.25*Math.sin(t*2+m.userData.phase);}
     });
     renderer.render(scene,camera);
