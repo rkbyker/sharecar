@@ -71,11 +71,46 @@
 
  let currentUser = null;
 
- async function init() {
+ 
+  // Share event to chat
+  let shareEventData = null;
+  function initShare() {
+    const raw = sessionStorage.getItem('shareEvent');
+    if (!raw) return;
+    try {
+      shareEventData = JSON.parse(raw);
+      document.getElementById('share-banner').style.display = 'block';
+      document.getElementById('share-event-title').textContent = shareEventData.title || '';
+    } catch(e) {}
+  }
+  function cancelShare() {
+    sessionStorage.removeItem('shareEvent');
+    shareEventData = null;
+    document.getElementById('share-banner').style.display = 'none';
+    // восстановить обычные onclick
+    loadMessages();
+  }
+  async function sendShareToChat(requestId) {
+    if (!shareEventData) return;
+    const url = 'https://sharecar.pro/app/event-card.html?id=' + shareEventData.id;
+    const text = 'Мероприятие: ' + shareEventData.title + '\n' + url;
+    await supabase.from('messages').insert({
+      request_id: requestId,
+      sender_id: currentUser.id,
+      content: text
+    });
+    sessionStorage.removeItem('shareEvent');
+    shareEventData = null;
+    showToast && showToast('Отправлено!', 'success');
+    goPage('chat.html?request=' + requestId);
+  }
+
+async function init() {
  const { data: { session } } = await supabase.auth.getSession();
  if (!session) { window.location.href = '/app/auth.html'; return; }
  currentUser = session.user;
  await loadMessages();
+  initShare();
  }
 
  async function loadMessages() {
@@ -174,7 +209,7 @@
 
  const hasUnread = unreadMap[r.id] > 0;
  return `
- <div class="msg-item${hasUnread ? ' unread' : ''}" onclick="goPage('chat.html?request=${r.id}')">
+ <div class="msg-item${hasUnread ? ' unread' : ''}" onclick="shareEventData ? sendShareToChat('${r.id}') : goPage('chat.html?request=${r.id}')">
  <div class="msg-avatar" style="border:2px solid ${lvlColor}20;">${avatarHtml}</div>
  <div class="msg-info">
  <div class="msg-name">${name}</div>
