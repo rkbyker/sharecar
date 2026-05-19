@@ -1071,18 +1071,18 @@
         addSwipeClose(sheet);
       }
     }
-    function closeEvFilters(e) {
+    window.closeEvFilters = function(e) {
       if (e && e.target !== document.getElementById('ev-filter-overlay')) return;
       document.getElementById('ev-filter-overlay').style.display = 'none';
     }
     let evFilterState = { type: '', price: '' };
     window.evFilterState = evFilterState;
-    function selectEvChip(el, group) {
+    window.selectEvChip = function(el, group) {
       el.closest('.filter-chips').querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
       evFilterState[group] = el.dataset.val;
     }
-    function resetEvFilters() {
+    window.resetEvFilters = function() {
       window.evFilterState = { type: '', price: '' };
       document.getElementById('ef-city').value = '';
       evFilterState = { type: '', price: '' };
@@ -1092,7 +1092,7 @@
       window._eventsLoaded = false;
       loadEvents();
     }
-    function applyEvFilters() {
+    window.applyEvFilters = function() {
       window.evFilterState = evFilterState;
       document.getElementById('ev-filter-overlay').style.display = 'none';
       window._eventsLoaded = false;
