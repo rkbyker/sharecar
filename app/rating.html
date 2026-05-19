@@ -377,7 +377,7 @@ function renderCatChips() {
  const chip = document.createElement('div');
  chip.className = 'cat-chip';
  chip.dataset.cat = c.id;
- chip.textContent = (c.icon || '') + ' ' + (c.name || '');
+ chip.textContent = c.name || '';
  chip.onclick = function() { selectCat(chip, c.id); };
  wrap.appendChild(chip);
  });
@@ -389,7 +389,7 @@ function fillModalCatSelect() {
  topicsCats.forEach(function(c) {
  const opt = document.createElement('option');
  opt.value = c.id;
- opt.textContent = (c.icon || '') + ' ' + (c.name || '');
+ opt.textContent = c.name || '';
  sel.appendChild(opt);
  });
 }
@@ -459,7 +459,7 @@ function renderTopics(list) {
  card.onclick = function() { openThread(t.id); };
  let html = photoHtml;
  if (t.is_pinned) html += '<div class="topic-pinned"> Закреплено</div>';
- if (cat) html += '<div class="topic-cat-badge">' + esc((cat.icon || '') + ' ' + cat.name) + '</div>';
+ if (cat) html += '<div class="topic-cat-badge">' + esc(cat.name) + '</div>';
  html += '<div class="topic-title">' + esc(t.title) + '</div>';
  html += '<div class="topic-preview">' + esc(t.content || '') + '</div>';
  html += '<div class="topic-footer">';
