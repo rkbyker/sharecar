@@ -164,7 +164,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Конец (необязательно)</label>
-      <input class="form-input" id="date-end" type="datetime-local">
+      <input class="form-input" id="date-end" type="datetime-local" oninput="validateDateEnd()">
     </div>
     <div class="form-group">
       <label class="form-label">Город</label>
@@ -552,6 +552,19 @@
       });
     } catch(e) {
       dropdown.innerHTML = '<div class="city-option" style="color:#666;">Ошибка поиска</div>';
+    }
+  }
+
+
+  function validateDateEnd() {
+    const start = document.getElementById('date-start').value;
+    const end = document.getElementById('date-end').value;
+    if (start && end && end <= start) {
+      document.getElementById('date-end').setCustomValidity('Дата окончания должна быть позже начала');
+      document.getElementById('date-end').reportValidity();
+      document.getElementById('date-end').value = '';
+    } else {
+      document.getElementById('date-end').setCustomValidity('');
     }
   }
 
