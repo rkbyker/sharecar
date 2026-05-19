@@ -647,7 +647,7 @@
       const evF = window.evFilterState || { type: '', price: '' };
       const efCity = (document.getElementById('ef-city')||{}).value?.trim() || '';
       let evQuery = supabase.from('events').select('*').eq('status','active');
-      if (evF.type) evQuery = evQuery.eq('type', evF.type);
+      if (evF.type && evF.type.length) evQuery = evQuery.in('type', Array.isArray(evF.type) ? evF.type : [evF.type]);
       if (evF.price === 'free') evQuery = evQuery.eq('is_free', true);
       if (evF.price === 'paid') evQuery = evQuery.eq('is_free', false);
       if (efCity) evQuery = evQuery.ilike('city', '%' + efCity + '%');
@@ -1078,9 +1078,24 @@
     let evFilterState = { type: '', price: '' };
     window.evFilterState = evFilterState;
     window.selectEvChip = function(el, group) {
-      el.closest('.filter-chips').querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      evFilterState[group] = el.dataset.val;
+      if (group === 'type') {
+        if (el.dataset.val === '') {
+          el.closest('.filter-chips').querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
+          el.classList.add('active');
+          evFilterState.type = [];
+        } else {
+          el.closest('.filter-chips').querySelector('[data-val=""]').classList.remove('active');
+          el.classList.toggle('active');
+          evFilterState.type = Array.from(el.closest('.filter-chips').querySelectorAll('.f-chip.active')).map(c => c.dataset.val).filter(Boolean);
+          if (!evFilterState.type.length) {
+            el.closest('.filter-chips').querySelector('[data-val=""]').classList.add('active');
+          }
+        }
+      } else {
+        el.closest('.filter-chips').querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        evFilterState[group] = el.dataset.val;
+      }
     }
     window.resetEvFilters = function() {
       window.evFilterState = { type: '', price: '' };
