@@ -826,6 +826,8 @@
     }
 
     async function saveProfile() {
+      const pLat = document.getElementById('p-city-lat').value;
+      const pLng = document.getElementById('p-city-lng').value;
       const updates = {
         first_name: document.getElementById('s-fname').value.trim(),
         last_name:  document.getElementById('s-lname').value.trim(),
@@ -834,6 +836,7 @@
         bio:        document.getElementById('s-bio').value.trim(),
         telegram:   document.getElementById('s-tg').value.trim(),
         instagram:  document.getElementById('s-ig').value.trim(),
+        ...(pLat && pLng ? { lat: parseFloat(pLat), lng: parseFloat(pLng) } : {}),
       };
       const { error } = await supabase.from('profiles').update(updates).eq('id', currentUser.id);
       if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
