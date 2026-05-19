@@ -401,7 +401,8 @@
  function appendMessage(msg) {
  const isOwn = msg.sender_id === currentUser.id;
     // Кликабельные ссылки
-    const linkified = (msg.content||'').replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#3b82f6;text-decoration:underline;word-break:break-all;">$1</a>');
+    const safeContent = escapeHtml(msg.content||'');
+    const linkified = safeContent.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#3b82f6;text-decoration:underline;word-break:break-all;">$1</a>');
  const time = new Date(msg.created_at).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' });
  const div = document.createElement('div');
  div.className = `msg-bubble ${isOwn ? 'outgoing' : 'incoming'}`;
