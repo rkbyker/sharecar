@@ -92,18 +92,14 @@
     document.getElementById('share-banner').style.display = 'none';
     loadMessages();
   }
-  window.sendShareToChat = async function(requestId) {
+   window.sendShareToChat = function(requestId) {
     if (!shareEventData) return;
     const url = 'https://sharecar.pro/app/event-card.html?id=' + shareEventData.id;
-    const text = 'Мероприятие: ' + shareEventData.title + '\n' + url;
-    await supabase.from('messages').insert({
-      request_id: requestId,
-      sender_id: currentUser.id,
-      content: text
-    });
+    const text = 'Мероприятие: ' + shareEventData.title + ' — ' + url;
+    sessionStorage.setItem('shareDraft', text);
     sessionStorage.removeItem('shareEvent');
+    window.shareEventData = null;
     shareEventData = null;
-    showToast && showToast('Отправлено!', 'success');
     goPage('chat.html?request=' + requestId);
   };
 
