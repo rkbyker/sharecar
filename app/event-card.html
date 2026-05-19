@@ -438,7 +438,7 @@ window.deleteEvent=async function(){
 };
 window.openOrganizer=function(){const owner=currentEvent.profiles;if(!owner)return;goPage(owner.id===currentUser.id?'profile.html':'user-profile.html?id='+owner.id);};
 window.shareEvent=async function(){const url=`https://sharecar.pro/app/event-card.html?id=${EVENT_ID}`;if(navigator.share)await navigator.share({title:currentEvent.title,url});else{await navigator.clipboard.writeText(url);showToast('Ссылка скопирована','success');}};
-window.shareToChat=function(){sessionStorage.setItem('shareEvent',JSON.stringify({id:EVENT_ID,title:currentEvent.title}));goPage('messages.html?share=event');};
+window.shareToChat=function(){sessionStorage.setItem('shareEvent',JSON.stringify({id:EVENT_ID,title:currentEvent.title,cover:currentEvent.cover_photo||''}));goPage('messages.html?share=event');};
 supabase.channel(`event-${EVENT_ID}`).on('postgres_changes',{event:'INSERT',schema:'public',table:'event_comments',filter:`event_id=eq.${EVENT_ID}`},()=>loadComments()).subscribe();
 init();
 </script>

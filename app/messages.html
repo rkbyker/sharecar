@@ -94,9 +94,8 @@
   }
    window.sendShareToChat = function(requestId) {
     if (!shareEventData) return;
-    const url = 'https://sharecar.pro/app/event-card.html?id=' + shareEventData.id;
-    const text = 'Мероприятие: ' + shareEventData.title + ' — ' + url;
-    sessionStorage.setItem('shareDraft', text);
+    const payload = JSON.stringify({type:'event', id:shareEventData.id, title:shareEventData.title, cover:shareEventData.cover||''});
+    sessionStorage.setItem('shareDraft', payload);
     sessionStorage.removeItem('shareEvent');
     window.shareEventData = null;
     shareEventData = null;
