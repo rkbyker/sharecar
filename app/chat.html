@@ -292,7 +292,11 @@
       const draft = sessionStorage.getItem('shareDraft');
       if (draft) {
         const inp = document.getElementById('msg-input');
-        if (inp) { inp.value = draft; autoResize(inp); }
+        if (inp) {
+          inp.value = draft;
+          autoResize(inp);
+          setTimeout(() => inp.scrollIntoView({ behavior: 'smooth', block: 'end' }), 300);
+        }
         sessionStorage.removeItem('shareDraft');
       }
 
