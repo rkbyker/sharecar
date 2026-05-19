@@ -297,6 +297,8 @@
           autoResize(inp);
           inp.focus();
           inp.setSelectionRange(inp.value.length, inp.value.length);
+          const w = document.getElementById('messages-wrap');
+          if (w) w.scrollTop = w.scrollHeight;
         }
         sessionStorage.removeItem('shareDraft');
       }
