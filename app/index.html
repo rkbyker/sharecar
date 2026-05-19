@@ -552,7 +552,42 @@
     </div>
   </div>
 
-  <div id="global-toast"></div>
+  
+  <!-- EVENTS FILTER OVERLAY -->
+  <div class="filter-overlay" id="ev-filter-overlay" onclick="closeEvFilters(event)">
+    <div class="filter-sheet">
+      <div class="filter-handle"></div>
+      <div class="filter-title">Фильтр мероприятий</div>
+
+      <div class="filter-label">Город</div>
+      <input class="filter-input" id="ef-city" placeholder="Например: Москва">
+
+      <div class="filter-label">Тип</div>
+      <div class="filter-chips">
+        <div class="f-chip active" data-val="" onclick="selectEvChip(this,'type')">Любой</div>
+        <div class="f-chip" data-val="race" onclick="selectEvChip(this,'type')">Гонка</div>
+        <div class="f-chip" data-val="meet" onclick="selectEvChip(this,'type')">Встреча</div>
+        <div class="f-chip" data-val="show" onclick="selectEvChip(this,'type')">Шоу</div>
+        <div class="f-chip" data-val="trip" onclick="selectEvChip(this,'type')">Поездка</div>
+        <div class="f-chip" data-val="offroad" onclick="selectEvChip(this,'type')">Оффроуд</div>
+        <div class="f-chip" data-val="other" onclick="selectEvChip(this,'type')">Другое</div>
+      </div>
+
+      <div class="filter-label">Стоимость</div>
+      <div class="filter-chips">
+        <div class="f-chip active" data-val="" onclick="selectEvChip(this,'price')">Любая</div>
+        <div class="f-chip" data-val="free" onclick="selectEvChip(this,'price')">Бесплатно</div>
+        <div class="f-chip" data-val="paid" onclick="selectEvChip(this,'price')">Платно</div>
+      </div>
+
+      <div class="filter-btns">
+        <button class="btn-reset" onclick="resetEvFilters()">Сбросить</button>
+        <button class="btn-apply" onclick="applyEvFilters()">Применить</button>
+      </div>
+    </div>
+  </div>
+
+<div id="global-toast"></div>
 
   <script>
     function goPage(p) { window.location.href = p; }
@@ -609,12 +644,15 @@
       const container = document.getElementById('events-feed');
       container.innerHTML = '<div class="loader"><i class="fa fa-circle-notch"></i></div>';
 
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(50);
+      const evF = window.evFilterState || { type: '', price: '' };
+      const efCity = (document.getElementById('ef-city')||{}).value?.trim() || '';
+      let evQuery = supabase.from('events').select('*').eq('status','active');
+      if (evF.type) evQuery = evQuery.eq('type', evF.type);
+      if (evF.price === 'free') evQuery = evQuery.eq('is_free', true);
+      if (evF.price === 'paid') evQuery = evQuery.eq('is_free', false);
+      if (efCity) evQuery = evQuery.ilike('city', '%' + efCity + '%');
+      evQuery = evQuery.order('created_at', { ascending: false }).limit(50);
+      const { data, error } = await evQuery;
 
       if (error || !data || data.length === 0) {
         container.innerHTML = `<div class="empty-events"><div class="icon">🎉</div><p>Мероприятий пока нет</p><p style="font-size:13px;margin-top:8px;color:#444">Создай первое!</p></div>`;
@@ -1021,10 +1059,44 @@
 
     // ── Filter overlay ─────────────────────────────────────────────────────────
     function showFilters() {
-      const sheet = document.querySelector('.filter-sheet');
-      sheet.style.transform = 'translateY(0)';
-      document.getElementById('filter-overlay').style.display = 'block';
-      addSwipeClose(sheet);
+      if (currentTab === 'events') {
+        const sheet = document.querySelector('#ev-filter-overlay .filter-sheet');
+        sheet.style.transform = 'translateY(0)';
+        document.getElementById('ev-filter-overlay').style.display = 'block';
+        addSwipeClose(sheet);
+      } else {
+        const sheet = document.querySelector('#filter-overlay .filter-sheet');
+        sheet.style.transform = 'translateY(0)';
+        document.getElementById('filter-overlay').style.display = 'block';
+        addSwipeClose(sheet);
+      }
+    }
+    function closeEvFilters(e) {
+      if (e && e.target !== document.getElementById('ev-filter-overlay')) return;
+      document.getElementById('ev-filter-overlay').style.display = 'none';
+    }
+    let evFilterState = { type: '', price: '' };
+    window.evFilterState = evFilterState;
+    function selectEvChip(el, group) {
+      el.closest('.filter-chips').querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      evFilterState[group] = el.dataset.val;
+    }
+    function resetEvFilters() {
+      window.evFilterState = { type: '', price: '' };
+      document.getElementById('ef-city').value = '';
+      evFilterState = { type: '', price: '' };
+      document.querySelectorAll('#ev-filter-overlay .f-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('#ev-filter-overlay .f-chip[data-val=""]').forEach(c => c.classList.add('active'));
+      document.getElementById('ev-filter-overlay').style.display = 'none';
+      window._eventsLoaded = false;
+      loadEvents();
+    }
+    function applyEvFilters() {
+      window.evFilterState = evFilterState;
+      document.getElementById('ev-filter-overlay').style.display = 'none';
+      window._eventsLoaded = false;
+      loadEvents();
     }
 
     function addSwipeClose(sheet) {
