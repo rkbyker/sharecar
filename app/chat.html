@@ -407,7 +407,7 @@
  div.className = `msg-bubble ${isOwn ? 'outgoing' : 'incoming'}`;
  div.dataset.id = msg.id;
  div.innerHTML = `
- <div class="bubble-body">${escapeHtml(msg.content)}</div>
+ <div class="bubble-body">${linkified}</div>
  <div class="msg-time">${time}</div>`;
  document.getElementById('messages-wrap').appendChild(div);
  }
