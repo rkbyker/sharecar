@@ -283,9 +283,12 @@ function renderEvent(){
 async function loadParticipants(){
   const{data}=await supabase.from('event_participants').select('*, profiles:user_id(*)').eq('event_id',EVENT_ID).in('status',['going','maybe']).limit(20);
   if(!data)return;
-  document.getElementById('stat-going').textContent=data.filter(p=>p.status==='going').length;
-  document.getElementById('stat-maybe').textContent=data.filter(p=>p.status==='maybe').length;
+  const goingCount=data.filter(p=>p.status==='going').length;
+  const maybeCount=data.filter(p=>p.status==='maybe').length;
+  document.getElementById('stat-going').textContent=goingCount;
+  document.getElementById('stat-maybe').textContent=maybeCount;
   document.getElementById('participants-count').textContent=`(${data.length})`;
+  await supabase.from('events').update({participants_count:goingCount}).eq('id',EVENT_ID);
   const list=document.getElementById('participants-list');
   list.innerHTML=data.slice(0,12).map(p=>{
     const pr=p.profiles;if(!pr)return'';
