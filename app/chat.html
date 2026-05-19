@@ -295,7 +295,8 @@
         if (inp) {
           inp.value = draft;
           autoResize(inp);
-          setTimeout(() => inp.scrollIntoView({ behavior: 'smooth', block: 'end' }), 300);
+          inp.focus();
+          setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 400);
         }
         sessionStorage.removeItem('shareDraft');
       }
