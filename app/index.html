@@ -404,8 +404,8 @@
 
   <!-- MAIN TABS -->
   <div class="main-tabs">
-    <div class="main-tab active" id="tab-events" onclick="switchTab('events')">🎉 Мероприятия</div>
-    <div class="main-tab" id="tab-cars" onclick="switchTab('cars')">🚗 Автомобили</div>
+    <div class="main-tab active" id="tab-events" onclick="switchTab('events')">Мероприятия</div>
+    <div class="main-tab" id="tab-cars" onclick="switchTab('cars')">Автомобили</div>
   </div>
 
   <!-- TAB: EVENTS -->
@@ -426,20 +426,20 @@
     <!-- CLASS FILTER CHIPS -->
     <div class="filter-bar" id="class-bar">
       <div class="chip active" data-class="all" onclick="setClass('all', this)">Все</div>
-      <div class="chip" data-class="city" onclick="setClass('city', this)">🚗 Город</div>
-      <div class="chip" data-class="ring" onclick="setClass('ring', this)">🏁 Кольцо</div>
-      <div class="chip" data-class="drift" onclick="setClass('drift', this)">💨 Дрифт</div>
-      <div class="chip" data-class="sport" onclick="setClass('sport', this)">🏎 Спорт</div>
-      <div class="chip" data-class="offroad" onclick="setClass('offroad', this)">🚙 Оффроуд</div>
-      <div class="chip" data-class="special" onclick="setClass('special', this)">⚡ Спецтех</div>
-      <div class="chip" data-class="business" onclick="setClass('business', this)">🏢 Бизнес</div>
+      <div class="chip" data-class="city" onclick="setClass('city', this)">Город</div>
+      <div class="chip" data-class="ring" onclick="setClass('ring', this)">Кольцо</div>
+      <div class="chip" data-class="drift" onclick="setClass('drift', this)">Дрифт</div>
+      <div class="chip" data-class="sport" onclick="setClass('sport', this)">Спорт</div>
+      <div class="chip" data-class="offroad" onclick="setClass('offroad', this)">Оффроуд</div>
+      <div class="chip" data-class="special" onclick="setClass('special', this)">Спецтех</div>
+      <div class="chip" data-class="business" onclick="setClass('business', this)">Бизнес</div>
     </div>
     <!-- SORT CHIPS -->
     <div class="sort-bar" id="sort-bar">
-      <div class="sort-chip active" data-sort="new" onclick="setSort('new', this)">🕒 Новые</div>
-      <div class="sort-chip" id="chip-hp" data-sort="hp_desc" onclick="toggleSort('hp', this)">⚡ Мощность ↓</div>
-      <div class="sort-chip" id="chip-price" data-sort="price_asc" onclick="toggleSort('price', this)">💰 Цена ↑</div>
-      <div class="sort-chip" data-sort="popular" onclick="setSort('popular', this)">❤️ Популярные</div>
+      <div class="sort-chip active" data-sort="new" onclick="setSort('new', this)">Новые</div>
+      <div class="sort-chip" id="chip-hp" data-sort="hp_desc" onclick="toggleSort('hp', this)">Мощность ↓</div>
+      <div class="sort-chip" id="chip-price" data-sort="price_asc" onclick="toggleSort('price', this)">Цена ↑</div>
+      <div class="sort-chip" data-sort="popular" onclick="setSort('popular', this)">Популярные</div>
     </div>
     <!-- FEED -->
     <div class="feed-container" id="feed">
@@ -468,19 +468,19 @@
       <div class="filter-label">Роль</div>
       <div class="filter-chips">
         <div class="f-chip active" data-val="" onclick="selectChip(this,'role')">Любая</div>
-        <div class="f-chip" data-val="driver" onclick="selectChip(this,'role')">🚗 Водитель</div>
-        <div class="f-chip" data-val="passenger" onclick="selectChip(this,'role')">👥 Пассажир</div>
+        <div class="f-chip" data-val="driver" onclick="selectChip(this,'role')">Водитель</div>
+        <div class="f-chip" data-val="passenger" onclick="selectChip(this,'role')">Пассажир</div>
       </div>
 
       <div class="filter-label">Тип поездки <span style="color:#666;font-size:11px;">(можно несколько)</span></div>
       <div class="filter-chips">
         <div class="f-chip active" data-val="" onclick="selectChip(this,'trip',true)">Любой</div>
-        <div class="f-chip" data-val="city" onclick="selectChip(this,'trip',true)">🚗 Город</div>
-        <div class="f-chip" data-val="ring" onclick="selectChip(this,'trip',true)">🏁 Кольцо</div>
-        <div class="f-chip" data-val="drift" onclick="selectChip(this,'trip',true)">💨 Дрифт</div>
-        <div class="f-chip" data-val="sport" onclick="selectChip(this,'trip',true)">🏎 Спорт</div>
-        <div class="f-chip" data-val="offroad" onclick="selectChip(this,'trip',true)">🚙 Оффроуд</div>
-        <div class="f-chip" data-val="business" onclick="selectChip(this,'trip',true)">🏢 Бизнес</div>
+        <div class="f-chip" data-val="city" onclick="selectChip(this,'trip',true)">Город</div>
+        <div class="f-chip" data-val="ring" onclick="selectChip(this,'trip',true)">Кольцо</div>
+        <div class="f-chip" data-val="drift" onclick="selectChip(this,'trip',true)">Дрифт</div>
+        <div class="f-chip" data-val="sport" onclick="selectChip(this,'trip',true)">Спорт</div>
+        <div class="f-chip" data-val="offroad" onclick="selectChip(this,'trip',true)">Оффроуд</div>
+        <div class="f-chip" data-val="business" onclick="selectChip(this,'trip',true)">Бизнес</div>
       </div>
 
       <div class="filter-label">Цвет <span style="color:#666;font-size:11px;">(можно несколько)</span></div>
@@ -636,7 +636,7 @@
     import '../js/nav.js';
 
     // ── Events ─────────────────────────────────────────────────────────────────
-    const TYPE_LABELS = {drive:'🚗 Поездка',meet:'👋 Встреча',race:'🏁 Гонка',drift:'🌀 Дрифт',show:'🏆 Шоу',offroad:'🏔 Офроад',photo:'📸 Фотосессия',other:'📌 Другое'};
+    const TYPE_LABELS = {drive:'Поездка',meet:'Встреча',race:'Гонка',drift:'Дрифт',show:'Шоу',offroad:'Офроад',photo:'Фотосессия',other:'Другое'};
     const TYPE_ICONS  = {drive:'🚗',meet:'👋',race:'🏁',drift:'🌀',show:'🏆',offroad:'🏔',photo:'📸',other:'📌'};
 
     window._loadEvents = async function() {
@@ -694,7 +694,7 @@
             <div class="event-title">${ev.title}</div>
             <div class="event-meta-row">
               ${loc ? `<span>📍 ${loc}</span>` : ''}
-              <span>👥 ${ev.participants_count || 0} участников</span>
+              <span>${ev.participants_count || 0} участников</span>
             </div>
             <div class="event-footer">
               <span class="${ev.is_free ? 'event-price-free' : 'event-price-paid'}">${ev.is_free ? 'Бесплатно' : (ev.price||0) + ' ₽'}</span>
@@ -811,12 +811,12 @@
       if (type === 'hp') {
         const isDesc = el.dataset.sort === 'hp_desc';
         el.dataset.sort = isDesc ? 'hp_asc' : 'hp_desc';
-        el.textContent = isDesc ? '⚡ Мощность ↑' : '⚡ Мощность ↓';
+        el.textContent = isDesc ? 'Мощность ↑' : 'Мощность ↓';
         setSort(el.dataset.sort, el);
       } else {
         const isAsc = el.dataset.sort === 'price_asc';
         el.dataset.sort = isAsc ? 'price_desc' : 'price_asc';
-        el.textContent = isAsc ? '💰 Цена ↓' : '💰 Цена ↑';
+        el.textContent = isAsc ? 'Цена ↓' : 'Цена ↑';
         setSort(el.dataset.sort, el);
       }
     }
@@ -965,7 +965,7 @@
         if (car.has_driver_role && car.price_driver) {
           const orig = car.price_driver;
           const final = discount > 0 ? Math.round(orig * (1 - discount / 100)) : orig;
-          rows.push(`<div class="feed-price-row"><span class="feed-price-label">🚗 За рулём</span><span class="feed-price-val">${final.toLocaleString('ru')} ₽</span></div>`);
+          rows.push(`<div class="feed-price-row"><span class="feed-price-label">За рулём</span><span class="feed-price-val">${final.toLocaleString('ru')} ₽</span></div>`);
         }
         if (car.has_passenger_role && car.price_passenger) {
           const orig = car.price_passenger;

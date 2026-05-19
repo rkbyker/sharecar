@@ -434,12 +434,12 @@
         if (car.has_driver_role) {
           const orig = car.price_driver || 0;
           const final = discount > 0 ? Math.round(orig * (1 - discount / 100)) : orig;
-          roles.push({ label: '🚗 Водитель', orig, final });
+          roles.push({ label: 'Водитель', orig, final });
         }
         if (car.has_passenger_role) {
           const orig = car.price_passenger || 0;
           const final = discount > 0 ? Math.round(orig * (1 - discount / 100)) : orig;
-          roles.push({ label: '👥 Пассажир', orig, final });
+          roles.push({ label: 'Пассажир', orig, final });
         }
         priceHtml = roles.map(r => `
           <div class="price-row">
