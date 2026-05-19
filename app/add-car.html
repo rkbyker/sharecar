@@ -1,615 +1,615 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="theme-color" content="#0f0f0f">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>Sharecar — Добавить машину</title>
-  <link rel="stylesheet" href="../css/app.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-  <style>
-    body { background: #0f0f0f; padding-bottom: 40px; }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+ <meta name="theme-color" content="#0f0f0f">
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <title>Sharecar — Добавить машину</title>
+ <link rel="stylesheet" href="../css/app.css">
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+ <style>
+ body { background: #0f0f0f; padding-bottom: 40px; }
 
-    .top-bar {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 16px; border-bottom: 1px solid #1e1e3a;
-      position: sticky; top: 0; background: #0f0f0f; z-index: 100;
-    }
-    .back-btn {
-      background: #1a1a2e; border: none; color: #aaa;
-      width: 36px; height: 36px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
+ .top-bar {
+ display: flex; align-items: center; gap: 12px;
+ padding: 14px 16px; border-bottom: 1px solid #1e1e3a;
+ position: sticky; top: 0; background: #0f0f0f; z-index: 100;
+ }
+ .back-btn {
+ background: #1a1a2e; border: none; color: #aaa;
+ width: 36px; height: 36px; border-radius: 10px;
+ display: flex; align-items: center; justify-content: center;
       cursor: pointer; font-size: 16px; flex-shrink: 0;
-    }
+ }
     .page-title { font-size: 16px; font-weight: 700; }
 
-    .form-wrap { padding: 20px 16px; }
+ .form-wrap { padding: 20px 16px; }
 
-    .section-title {
+ .section-title {
       font-size: 13px; font-weight: 700; color: #888;
-      text-transform: uppercase; letter-spacing: .5px;
-      margin: 24px 0 12px;
-    }
-    .section-title:first-child { margin-top: 0; }
+ text-transform: uppercase; letter-spacing: .5px;
+ margin: 24px 0 12px;
+ }
+ .section-title:first-child { margin-top: 0; }
 
-    .form-group { margin-bottom: 14px; }
-    .form-label {
+ .form-group { margin-bottom: 14px; }
+ .form-label {
       display: block; font-size: 12px; color: #888;
-      margin-bottom: 6px; font-weight: 500;
-      text-transform: uppercase; letter-spacing: .4px;
-    }
-    .form-input {
-      width: 100%; background: #141428; border: 1px solid #2a2a4a;
+ margin-bottom: 6px; font-weight: 500;
+ text-transform: uppercase; letter-spacing: .4px;
+ }
+ .form-input {
+ width: 100%; background: #141428; border: 1px solid #2a2a4a;
       border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 15px;
-      outline: none; box-sizing: border-box; transition: border .2s;
-      -webkit-appearance: none;
-    }
-    .form-input:focus { border-color: #f59e0b; }
-    .form-input::placeholder { color: #444; }
-    select.form-input { cursor: pointer; }
-    textarea.form-input { resize: none; min-height: 90px; line-height: 1.5; }
+ outline: none; box-sizing: border-box; transition: border .2s;
+ -webkit-appearance: none;
+ }
+ .form-input:focus { border-color: #f59e0b; }
+ .form-input::placeholder { color: #444; }
+ select.form-input { cursor: pointer; }
+ textarea.form-input { resize: none; min-height: 90px; line-height: 1.5; }
 
-    .form-row { display: flex; gap: 10px; }
-    .form-row .form-group { flex: 1; }
+ .form-row { display: flex; gap: 10px; }
+ .form-row .form-group { flex: 1; }
 
     /* Class selector */
-    .class-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-      margin-bottom: 14px;
-    }
-    .class-btn {
-      background: #141428; border: 2px solid #2a2a4a;
-      border-radius: 10px; padding: 10px 6px; text-align: center;
-      cursor: pointer; transition: all .2s;
-    }
-    .class-btn.selected { border-color: #f59e0b; background: rgba(245,158,11,.08); }
+ .class-grid {
+ display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+ margin-bottom: 14px;
+ }
+ .class-btn {
+ background: #141428; border: 2px solid #2a2a4a;
+ border-radius: 10px; padding: 10px 6px; text-align: center;
+ cursor: pointer; transition: all .2s;
+ }
+ .class-btn.selected { border-color: #f59e0b; background: rgba(245,158,11,.08); }
     .class-btn .ci { font-size: 22px; }
     .class-btn .cl { font-size: 10px; color: #888; margin-top: 4px; }
 
     /* Photo upload */
-    .photo-upload-area {
-      border: 2px dashed #2a2a4a; border-radius: 12px;
-      padding: 24px; text-align: center; cursor: pointer;
-      transition: border .2s; margin-bottom: 14px;
-    }
-    .photo-upload-area:hover { border-color: #f59e0b; }
-    .photo-preview-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-      margin-bottom: 14px;
-    }
-    .photo-preview {
-      aspect-ratio: 1; border-radius: 8px; overflow: hidden;
-      position: relative; background: #1a1a2e;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .photo-remove {
-      position: absolute; top: 4px; right: 4px;
-      width: 22px; height: 22px; border-radius: 50%;
-      background: rgba(0,0,0,.7); border: none; color: #fff;
+ .photo-upload-area {
+ border: 2px dashed #2a2a4a; border-radius: 12px;
+ padding: 24px; text-align: center; cursor: pointer;
+ transition: border .2s; margin-bottom: 14px;
+ }
+ .photo-upload-area:hover { border-color: #f59e0b; }
+ .photo-preview-grid {
+ display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+ margin-bottom: 14px;
+ }
+ .photo-preview {
+ aspect-ratio: 1; border-radius: 8px; overflow: hidden;
+ position: relative; background: #1a1a2e;
+ display: flex; align-items: center; justify-content: center;
+ }
+ .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+ .photo-remove {
+ position: absolute; top: 4px; right: 4px;
+ width: 22px; height: 22px; border-radius: 50%;
+ background: rgba(0,0,0,.7); border: none; color: #fff;
       cursor: pointer; font-size: 12px;
-      display: flex; align-items: center; justify-content: center;
-    }
+ display: flex; align-items: center; justify-content: center;
+ }
 
     /* Toggle chips */
-    .role-row { display: flex; gap: 8px; margin-bottom: 14px; }
-    .role-chip {
-      flex: 1; padding: 10px; text-align: center;
-      background: #141428; border: 2px solid #2a2a4a;
+ .role-row { display: flex; gap: 8px; margin-bottom: 14px; }
+ .role-chip {
+ flex: 1; padding: 10px; text-align: center;
+ background: #141428; border: 2px solid #2a2a4a;
       border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600;
-      transition: all .2s; color: #888;
-    }
-    .role-chip.selected { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,.08); }
+ transition: all .2s; color: #888;
+ }
+ .role-chip.selected { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,.08); }
 
     /* Free toggle */
-    .toggle-row {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #141428; border: 1px solid #2a2a4a; border-radius: 10px;
-      padding: 12px 14px; margin-bottom: 10px; cursor: pointer;
-    }
+ .toggle-row {
+ display: flex; align-items: center; justify-content: space-between;
+ background: #141428; border: 1px solid #2a2a4a; border-radius: 10px;
+ padding: 12px 14px; margin-bottom: 10px; cursor: pointer;
+ }
     .toggle-label { font-size: 14px; color: #ccc; }
-    .toggle-switch {
-      width: 44px; height: 24px; background: #333; border-radius: 12px;
-      position: relative; transition: background .2s;
-    }
-    .toggle-switch.on { background: #22c55e; }
-    .toggle-switch::after {
-      content: ''; position: absolute; top: 2px; left: 2px;
-      width: 20px; height: 20px; border-radius: 50%;
-      background: #fff; transition: transform .2s;
-    }
-    .toggle-switch.on::after { transform: translateX(20px); }
+ .toggle-switch {
+ width: 44px; height: 24px; background: #333; border-radius: 12px;
+ position: relative; transition: background .2s;
+ }
+ .toggle-switch.on { background: #22c55e; }
+ .toggle-switch::after {
+ content: ''; position: absolute; top: 2px; left: 2px;
+ width: 20px; height: 20px; border-radius: 50%;
+ background: #fff; transition: transform .2s;
+ }
+ .toggle-switch.on::after { transform: translateX(20px); }
 
     /* Submit */
-    .btn-publish {
-      width: 100%; padding: 16px; background: #f59e0b; color: #000;
+ .btn-publish {
+ width: 100%; padding: 16px; background: #f59e0b; color: #000;
       border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
-      cursor: pointer; margin-top: 8px; transition: opacity .2s;
-    }
-    .btn-publish:disabled { opacity: .5; cursor: not-allowed; }
-    .btn-draft {
-      width: 100%; padding: 12px; background: #141428;
-      border: 1px solid #2a2a4a; border-radius: 12px;
+ cursor: pointer; margin-top: 8px; transition: opacity .2s;
+ }
+ .btn-publish:disabled { opacity: .5; cursor: not-allowed; }
+ .btn-draft {
+ width: 100%; padding: 12px; background: #141428;
+ border: 1px solid #2a2a4a; border-radius: 12px;
       color: #aaa; font-size: 14px; cursor: pointer; margin-top: 10px;
-    }
+ }
 
-    .upload-progress {
-      background: #1a1a2e; border-radius: 8px; padding: 12px;
-      margin-bottom: 12px; display: none;
-    }
-    .progress-bar {
-      height: 4px; background: #2a2a4a; border-radius: 2px; overflow: hidden; margin-top: 8px;
-    }
-    .progress-fill {
-      height: 100%; background: #f59e0b; border-radius: 2px; transition: width .3s;
-    }
-  </style>
+ .upload-progress {
+ background: #1a1a2e; border-radius: 8px; padding: 12px;
+ margin-bottom: 12px; display: none;
+ }
+ .progress-bar {
+ height: 4px; background: #2a2a4a; border-radius: 2px; overflow: hidden; margin-top: 8px;
+ }
+ .progress-fill {
+ height: 100%; background: #f59e0b; border-radius: 2px; transition: width .3s;
+ }
+ </style>
 </head>
 <body>
 
-  <div class="top-bar">
-    <button class="back-btn" onclick="scGoBack()"><i class="fa fa-arrow-left"></i></button>
-    <div class="page-title" id="page-title">Добавить машину</div>
-  </div>
+ <div class="top-bar">
+ <button class="back-btn" onclick="scGoBack()"><i class="fa fa-arrow-left"></i></button>
+ <div class="page-title" id="page-title">Добавить машину</div>
+ </div>
 
-  <div class="form-wrap">
+ <div class="form-wrap">
 
-    <!-- PHOTOS -->
-    <div class="section-title">📷 Фотографии</div>
+ <!-- PHOTOS -->
+ <div class="section-title">Фотографии</div>
 
-    <div id="photo-preview-grid" class="photo-preview-grid" style="display:none;"></div>
+ <div id="photo-preview-grid" class="photo-preview-grid" style="display:none;"></div>
 
-    <div class="photo-upload-area" onclick="document.getElementById('photo-input').click()">
+ <div class="photo-upload-area" onclick="document.getElementById('photo-input').click()">
       <i class="fa fa-camera" style="font-size:32px;color:#555;margin-bottom:8px;"></i>
       <div style="color:#888;font-size:14px;">Добавить фото (до 8 штук)</div>
       <div style="color:#555;font-size:12px;margin-top:4px;">JPG, PNG, WebP · до 10 МБ</div>
-    </div>
-    <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="addPhotos(this)">
+ </div>
+ <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="addPhotos(this)">
 
-    <div class="upload-progress" id="upload-progress">
-      <span id="upload-status">Загрузка фото...</span>
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-    </div>
+ <div class="upload-progress" id="upload-progress">
+ <span id="upload-status">Загрузка фото...</span>
+ <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+ </div>
 
-    <!-- BASIC INFO -->
-    <div class="section-title">🚗 Основная информация</div>
+ <!-- BASIC INFO -->
+ <div class="section-title">Основная информация</div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Марка *</label>
+ <div class="form-row">
+ <div class="form-group">
+ <label class="form-label">Марка *</label>
         <input class="form-input" id="f-brand" list="brands-list" placeholder="BMW" required>
-                <datalist id="brands-list">
-          <option value="Audi"><option value="BMW"><option value="Mercedes-Benz">
-          <option value="Porsche"><option value="Ferrari"><option value="Lamborghini">
-          <option value="McLaren"><option value="Aston Martin"><option value="Bentley">
-          <option value="Rolls-Royce"><option value="Bugatti"><option value="Koenigsegg">
-          <option value="Alfa Romeo"><option value="Maserati"><option value="Pagani">
-          <option value="Toyota"><option value="Nissan"><option value="Honda">
-          <option value="Subaru"><option value="Mitsubishi"><option value="Lexus">
-          <option value="Mazda"><option value="Infiniti"><option value="Acura">
-          <option value="Lada"><option value="Volkswagen"><option value="Skoda">
-          <option value="Hyundai"><option value="Kia"><option value="Genesis">
-          <option value="Ford"><option value="Chevrolet"><option value="Dodge">
-          <option value="Tesla"><option value="Rivian"><option value="Lucid">
-          <option value="Land Rover"><option value="Jaguar"><option value="Range Rover">
-          <option value="Volvo"><option value="Peugeot"><option value="Renault">
-          <option value="Haval"><option value="Geely"><option value="Chery">
-          <option value="BYD"><option value="GAZ"><option value="UAZ">
-          <option value="Zeekr"><option value="Li Auto"><option value="NIO">
-          <option value="Tank"><option value="Omoda"><option value="Exeed">
-        </datalist>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Модель *</label>
+ <datalist id="brands-list">
+ <option value="Audi"><option value="BMW"><option value="Mercedes-Benz">
+ <option value="Porsche"><option value="Ferrari"><option value="Lamborghini">
+ <option value="McLaren"><option value="Aston Martin"><option value="Bentley">
+ <option value="Rolls-Royce"><option value="Bugatti"><option value="Koenigsegg">
+ <option value="Alfa Romeo"><option value="Maserati"><option value="Pagani">
+ <option value="Toyota"><option value="Nissan"><option value="Honda">
+ <option value="Subaru"><option value="Mitsubishi"><option value="Lexus">
+ <option value="Mazda"><option value="Infiniti"><option value="Acura">
+ <option value="Lada"><option value="Volkswagen"><option value="Skoda">
+ <option value="Hyundai"><option value="Kia"><option value="Genesis">
+ <option value="Ford"><option value="Chevrolet"><option value="Dodge">
+ <option value="Tesla"><option value="Rivian"><option value="Lucid">
+ <option value="Land Rover"><option value="Jaguar"><option value="Range Rover">
+ <option value="Volvo"><option value="Peugeot"><option value="Renault">
+ <option value="Haval"><option value="Geely"><option value="Chery">
+ <option value="BYD"><option value="GAZ"><option value="UAZ">
+ <option value="Zeekr"><option value="Li Auto"><option value="NIO">
+ <option value="Tank"><option value="Omoda"><option value="Exeed">
+ </datalist>
+ </div>
+ <div class="form-group">
+ <label class="form-label">Модель *</label>
         <input class="form-input" id="f-model" placeholder="M3 Competition" required>
-      </div>
-    </div>
+ </div>
+ </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Год</label>
+ <div class="form-row">
+ <div class="form-group">
+ <label class="form-label">Год</label>
         <input class="form-input" id="f-year" type="number" placeholder="2022" min="1980" max="2026">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Цвет</label>
-        <div class="color-picker" id="color-picker">
-        <div class="color-opt selected" data-color="Белый" style="background:#f0f0f0;" title="Белый"></div>
-        <div class="color-opt" data-color="Чёрный" style="background:#111;box-shadow:0 0 0 1px #333;" title="Чёрный"></div>
-        <div class="color-opt" data-color="Серебристый" style="background:linear-gradient(135deg,#aaa,#e0e0e0);" title="Серебристый"></div>
-        <div class="color-opt" data-color="Серый" style="background:#777;" title="Серый"></div>
-        <div class="color-opt" data-color="Красный" style="background:#dc2020;" title="Красный"></div>
-        <div class="color-opt" data-color="Синий" style="background:#1a55d4;" title="Синий"></div>
-        <div class="color-opt" data-color="Жёлтый" style="background:#eab308;" title="Жёлтый"></div>
-        <div class="color-opt" data-color="Зелёный" style="background:#16a34a;" title="Зелёный"></div>
-        <div class="color-opt" data-color="Оранжевый" style="background:#f97316;" title="Оранжевый"></div>
-        <div class="color-opt" data-color="Фиолетовый" style="background:#7c3aed;" title="Фиолетовый"></div>
-        <div class="color-opt" data-color="Золотой" style="background:linear-gradient(135deg,#b8860b,#ffd700);" title="Золотой"></div>
-        <div class="color-opt" data-color="Бежевый" style="background:#d4b896;" title="Бежевый"></div>
-      </div>
+ </div>
+ <div class="form-group">
+ <label class="form-label">Цвет</label>
+ <div class="color-picker" id="color-picker">
+ <div class="color-opt selected" data-color="Белый" style="background:#f0f0f0;" title="Белый"></div>
+ <div class="color-opt" data-color="Чёрный" style="background:#111;box-shadow:0 0 0 1px #333;" title="Чёрный"></div>
+ <div class="color-opt" data-color="Серебристый" style="background:linear-gradient(135deg,#aaa,#e0e0e0);" title="Серебристый"></div>
+ <div class="color-opt" data-color="Серый" style="background:#777;" title="Серый"></div>
+ <div class="color-opt" data-color="Красный" style="background:#dc2020;" title="Красный"></div>
+ <div class="color-opt" data-color="Синий" style="background:#1a55d4;" title="Синий"></div>
+ <div class="color-opt" data-color="Жёлтый" style="background:#eab308;" title="Жёлтый"></div>
+ <div class="color-opt" data-color="Зелёный" style="background:#16a34a;" title="Зелёный"></div>
+ <div class="color-opt" data-color="Оранжевый" style="background:#f97316;" title="Оранжевый"></div>
+ <div class="color-opt" data-color="Фиолетовый" style="background:#7c3aed;" title="Фиолетовый"></div>
+ <div class="color-opt" data-color="Золотой" style="background:linear-gradient(135deg,#b8860b,#ffd700);" title="Золотой"></div>
+ <div class="color-opt" data-color="Бежевый" style="background:#d4b896;" title="Бежевый"></div>
+ </div>
       <div style="font-size:12px;color:#888;margin-top:6px;">Выбрано: <span id="color-label">Белый</span></div>
-      <input type="hidden" id="f-color" value="Белый">
-      </div>
-    </div>
+ <input type="hidden" id="f-color" value="Белый">
+ </div>
+ </div>
 
-    <!-- CLASS -->
-    <div class="section-title">🏷 Класс</div>
-    <div class="class-grid">
-      <div class="class-btn selected" data-class="city" onclick="selectClass('city', this)">
-        <div class="ci">🚗</div><div class="cl">Город</div>
-      </div>
-      <div class="class-btn" data-class="ring" onclick="selectClass('ring', this)">
-        <div class="ci">🏁</div><div class="cl">Кольцо</div>
-      </div>
-      <div class="class-btn" data-class="drift" onclick="selectClass('drift', this)">
-        <div class="ci">💨</div><div class="cl">Дрифт</div>
-      </div>
-      <div class="class-btn" data-class="sport" onclick="selectClass('sport', this)">
-        <div class="ci">🏎</div><div class="cl">Спорт</div>
-      </div>
-      <div class="class-btn" data-class="offroad" onclick="selectClass('offroad', this)">
-        <div class="ci">🚙</div><div class="cl">Оффроуд</div>
-      </div>
-      <div class="class-btn" data-class="special" onclick="selectClass('special', this)">
-        <div class="ci">⚡</div><div class="cl">Спецтех</div>
-      </div>
-      <div class="class-btn" data-class="business" onclick="selectClass('business', this)">
-        <div class="ci">🏢</div><div class="cl">Бизнес</div>
-      </div>
-    </div>
+ <!-- CLASS -->
+ <div class="section-title">Класс</div>
+ <div class="class-grid">
+ <div class="class-btn selected" data-class="city" onclick="selectClass('city', this)">
+ <div class="ci"></div><div class="cl">Город</div>
+ </div>
+ <div class="class-btn" data-class="ring" onclick="selectClass('ring', this)">
+ <div class="ci"></div><div class="cl">Кольцо</div>
+ </div>
+ <div class="class-btn" data-class="drift" onclick="selectClass('drift', this)">
+ <div class="ci"></div><div class="cl">Дрифт</div>
+ </div>
+ <div class="class-btn" data-class="sport" onclick="selectClass('sport', this)">
+ <div class="ci"></div><div class="cl">Спорт</div>
+ </div>
+ <div class="class-btn" data-class="offroad" onclick="selectClass('offroad', this)">
+ <div class="ci"></div><div class="cl">Оффроуд</div>
+ </div>
+ <div class="class-btn" data-class="special" onclick="selectClass('special', this)">
+ <div class="ci"></div><div class="cl">Спецтех</div>
+ </div>
+ <div class="class-btn" data-class="business" onclick="selectClass('business', this)">
+ <div class="ci"></div><div class="cl">Бизнес</div>
+ </div>
+ </div>
 
-    <!-- TECH -->
-    <div class="section-title">⚙️ Технические характеристики</div>
+ <!-- TECH -->
+ <div class="section-title">Технические характеристики</div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Мощность (л.с.)</label>
+ <div class="form-row">
+ <div class="form-group">
+ <label class="form-label">Мощность (л.с.)</label>
         <input class="form-input" id="f-hp" type="number" placeholder="510">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Объём (л)</label>
+ </div>
+ <div class="form-group">
+ <label class="form-label">Объём (л)</label>
         <input class="form-input" id="f-engine" type="number" step="0.1" placeholder="3.0">
-      </div>
-    </div>
+ </div>
+ </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Привод</label>
-        <select class="form-input" id="f-drive">
-          <option value="">— не указан —</option>
-          <option value="FWD">Передний (FWD)</option>
-          <option value="RWD">Задний (RWD)</option>
-          <option value="AWD">Полный (AWD)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Коробка</label>
-        <select class="form-input" id="f-trans">
-          <option value="">— не указана —</option>
-          <option value="AT">Автомат</option>
-          <option value="MT">Механика</option>
-          <option value="Robot">Робот</option>
-          <option value="CVT">Вариатор</option>
-          <option value="Robot">Робот</option>
-          <option value="CVT">Вариатор</option>
-        </select>
-      </div>
-    </div>
+ <div class="form-row">
+ <div class="form-group">
+ <label class="form-label">Привод</label>
+ <select class="form-input" id="f-drive">
+ <option value="">— не указан —</option>
+ <option value="FWD">Передний (FWD)</option>
+ <option value="RWD">Задний (RWD)</option>
+ <option value="AWD">Полный (AWD)</option>
+ </select>
+ </div>
+ <div class="form-group">
+ <label class="form-label">Коробка</label>
+ <select class="form-input" id="f-trans">
+ <option value="">— не указана —</option>
+ <option value="AT">Автомат</option>
+ <option value="MT">Механика</option>
+ <option value="Robot">Робот</option>
+ <option value="CVT">Вариатор</option>
+ <option value="Robot">Робот</option>
+ <option value="CVT">Вариатор</option>
+ </select>
+ </div>
+ </div>
 
-    <!-- ROLES & PRICING -->
-    <div class="section-title">💰 Роли и стоимость</div>
+ <!-- ROLES & PRICING -->
+ <div class="section-title">Роли и стоимость</div>
 
     <div style="background:#1a1a2e;border-radius:10px;padding:12px 14px;margin-bottom:14px;border:1px solid #2a2a4a;font-size:13px;color:#aaa;line-height:1.6;">
-      <b style="color:#f59e0b;">Кто может подать заявку на вашу машину?</b><br>
-      🚗 <b style="color:#fff;">Водитель</b> — другой пользователь сядет за руль, вы пассажир. Укажите цену.<br>
-      👥 <b style="color:#fff;">Пассажир</b> — вы за рулём, другой едет как пассажир. Укажите цену за место.
-    </div>
-    <div class="role-row">
-      <div class="role-chip selected" id="role-driver" onclick="toggleRole('driver')">
-        🚗 Водитель
-      </div>
-      <div class="role-chip" id="role-passenger" onclick="toggleRole('passenger')">
-        👥 Пассажир
-      </div>
-    </div>
+ <b style="color:#f59e0b;">Кто может подать заявку на вашу машину?</b><br>
+ <b style="color:#fff;">Водитель</b>— другой пользователь сядет за руль, вы пассажир. Укажите цену.<br>
+ <b style="color:#fff;">Пассажир</b>— вы за рулём, другой едет как пассажир. Укажите цену за место.
+ </div>
+ <div class="role-row">
+ <div class="role-chip selected" id="role-driver" onclick="toggleRole('driver')">
+ Водитель
+ </div>
+ <div class="role-chip" id="role-passenger" onclick="toggleRole('passenger')">
+ Пассажир
+ </div>
+ </div>
 
-    <div class="toggle-row" onclick="toggleFree()">
-      <span class="toggle-label">Бесплатная поездка</span>
-      <div class="toggle-switch" id="free-toggle"></div>
-    </div>
+ <div class="toggle-row" onclick="toggleFree()">
+ <span class="toggle-label">Бесплатная поездка</span>
+ <div class="toggle-switch" id="free-toggle"></div>
+ </div>
 
-    <div id="price-inputs">
-      <div id="price-driver-wrap" class="form-group">
-        <label class="form-label">Цена для водителя (₽)</label>
+ <div id="price-inputs">
+ <div id="price-driver-wrap" class="form-group">
+ <label class="form-label">Цена для водителя (₽)</label>
         <input class="form-input" id="f-price-driver" type="number" placeholder="5000">
-      </div>
-      <div id="price-passenger-wrap" class="form-group" style="display:none;">
-        <label class="form-label">Цена для пассажира (₽)</label>
+ </div>
+ <div id="price-passenger-wrap" class="form-group" style="display:none;">
+ <label class="form-label">Цена для пассажира (₽)</label>
         <input class="form-input" id="f-price-passenger" type="number" placeholder="3000">
-      </div>
-    </div>
+ </div>
+ </div>
 
-    <!-- LOCATION & CONDITIONS -->
-    <div class="section-title">📍 Место и условия</div>
+ <!-- LOCATION & CONDITIONS -->
+ <div class="section-title">Место и условия</div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Страна</label>
-        <select class="form-input" id="f-country">
-          <option value="Russia">Россия</option>
-          <option value="UAE">ОАЭ</option>
-          <option value="Kazakhstan">Казахстан</option>
-          <option value="Belarus">Беларусь</option>
-          <option value="Germany">Германия</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Город</label>
+ <div class="form-row">
+ <div class="form-group">
+ <label class="form-label">Страна</label>
+ <select class="form-input" id="f-country">
+ <option value="Russia">Россия</option>
+ <option value="UAE">ОАЭ</option>
+ <option value="Kazakhstan">Казахстан</option>
+ <option value="Belarus">Беларусь</option>
+ <option value="Germany">Германия</option>
+ </select>
+ </div>
+ <div class="form-group">
+ <label class="form-label">Город</label>
         <input class="form-input" id="f-city" placeholder="Москва">
-      </div>
-    </div>
+ </div>
+ </div>
 
-    <div class="form-group">
-      <label class="form-label">Минимальный уровень участника</label>
-      <select class="form-input" id="f-min-level">
-        <option value="bronze">🥉 Bronze (все)</option>
-        <option value="silver">🥈 Silver</option>
-        <option value="gold">🥇 Gold</option>
-        <option value="premium">💎 Premium</option>
-        <option value="vip">👑 VIP</option>
-      </select>
-    </div>
+ <div class="form-group">
+ <label class="form-label">Минимальный уровень участника</label>
+ <select class="form-input" id="f-min-level">
+ <option value="bronze">Bronze (все)</option>
+ <option value="silver">Silver</option>
+ <option value="gold">Gold</option>
+ <option value="premium">Premium</option>
+ <option value="vip">VIP</option>
+ </select>
+ </div>
 
-    <div class="form-group">
-      <label class="form-label">Расписание / Условия</label>
+ <div class="form-group">
+ <label class="form-label">Расписание / Условия</label>
       <textarea class="form-input" id="f-schedule" placeholder="Пн–Пт 18:00–21:00, Сб–Вс 10:00–20:00&#10;Место встречи: м. Коломенская"></textarea>
-    </div>
+ </div>
 
-    <!-- DESCRIPTION -->
-    <div class="section-title">📝 Описание</div>
+ <!-- DESCRIPTION -->
+ <div class="section-title">Описание</div>
 
-    <div class="form-group">
-      <label class="form-label">О машине</label>
+ <div class="form-group">
+ <label class="form-label">О машине</label>
       <textarea class="form-input" id="f-desc" rows="4" placeholder="Расскажите о машине, опыте, что ожидаете от кандидатов..."></textarea>
-    </div>
+ </div>
 
-    <div class="form-group">
-      <label class="form-label">Хэштеги (через запятую)</label>
+ <div class="form-group">
+ <label class="form-label">Хэштеги (через запятую)</label>
       <input class="form-input" id="f-tags" placeholder="bmw, ring, drift, moscow">
-    </div>
+ </div>
 
-    <!-- SUBMIT -->
-    <button class="btn-publish" id="btn-publish" onclick="submitCar('published')">
-      🚀 Опубликовать
-    </button>
-    <button class="btn-draft" onclick="submitCar('draft')">
-      Сохранить как черновик
-    </button>
+ <!-- SUBMIT -->
+ <button class="btn-publish" id="btn-publish" onclick="submitCar('published')">
+ Опубликовать
+ </button>
+ <button class="btn-draft" onclick="submitCar('draft')">
+ Сохранить как черновик
+ </button>
 
-  </div>
+ </div>
 
-  <div id="global-toast"></div>
+ <div id="global-toast"></div>
 
-  <script type="module">
-    import { supabase, showToast } from '../js/supabase.js';
-    import '../js/nav.js';
+ <script type="module">
+ import { supabase, showToast } from '../js/supabase.js';
+ import '../js/nav.js';
 
-    let currentUser = null;
-    let selectedClass = 'city';
-    let isFree = false;
-    let roles = { driver: true, passenger: false };
-    let uploadedPhotoUrls = [];
-    let editCarId = null;
+ let currentUser = null;
+ let selectedClass = 'city';
+ let isFree = false;
+ let roles = { driver: true, passenger: false };
+ let uploadedPhotoUrls = [];
+ let editCarId = null;
 
-    window.selectClass = selectClass;
-    window.toggleRole = toggleRole;
-    window.toggleFree = toggleFree;
-    window.addPhotos = addPhotos;
-    window.submitCar = submitCar;
+ window.selectClass = selectClass;
+ window.toggleRole = toggleRole;
+ window.toggleFree = toggleFree;
+ window.addPhotos = addPhotos;
+ window.submitCar = submitCar;
 
-    async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { window.location.href = '/app/auth.html'; return; }
-      currentUser = session.user;
+ async function init() {
+ const { data: { session } } = await supabase.auth.getSession();
+ if (!session) { window.location.href = '/app/auth.html'; return; }
+ currentUser = session.user;
 
       // Check edit mode
-      const params = new URLSearchParams(location.search);
-      editCarId = params.get('edit');
-      if (editCarId) {
-        document.getElementById('page-title').textContent = 'Редактировать машину';
-        await loadCarForEdit(editCarId);
-      }
-    }
+ const params = new URLSearchParams(location.search);
+ editCarId = params.get('edit');
+ if (editCarId) {
+ document.getElementById('page-title').textContent = 'Редактировать машину';
+ await loadCarForEdit(editCarId);
+ }
+ }
 
-    async function loadCarForEdit(carId) {
-      const { data: car } = await supabase.from('cars').select('*').eq('id', carId).single();
-      if (!car) return;
+ async function loadCarForEdit(carId) {
+ const { data: car } = await supabase.from('cars').select('*').eq('id', carId).single();
+ if (!car) return;
 
-      document.getElementById('f-brand').value = car.brand || '';
-      document.getElementById('f-model').value = car.model || '';
-      document.getElementById('f-year').value = car.year || '';
-      document.getElementById('f-color').value = car.color || '';
-      document.getElementById('f-hp').value = car.horsepower || '';
-      document.getElementById('f-engine').value = car.engine_volume || '';
-      document.getElementById('f-drive').value = car.drive_type || '';
-      document.getElementById('f-trans').value = car.transmission || '';
-      document.getElementById('f-country').value = car.country || 'Russia';
-      document.getElementById('f-city').value = car.city || '';
-      document.getElementById('f-min-level').value = car.min_level || 'bronze';
-      document.getElementById('f-schedule').value = car.schedule || '';
-      document.getElementById('f-desc').value = car.description || '';
-      document.getElementById('f-tags').value = (car.hashtags || []).join(', ');
-      document.getElementById('f-price-driver').value = car.price_driver || '';
-      document.getElementById('f-price-passenger').value = car.price_passenger || '';
+ document.getElementById('f-brand').value = car.brand || '';
+ document.getElementById('f-model').value = car.model || '';
+ document.getElementById('f-year').value = car.year || '';
+ document.getElementById('f-color').value = car.color || '';
+ document.getElementById('f-hp').value = car.horsepower || '';
+ document.getElementById('f-engine').value = car.engine_volume || '';
+ document.getElementById('f-drive').value = car.drive_type || '';
+ document.getElementById('f-trans').value = car.transmission || '';
+ document.getElementById('f-country').value = car.country || 'Russia';
+ document.getElementById('f-city').value = car.city || '';
+ document.getElementById('f-min-level').value = car.min_level || 'bronze';
+ document.getElementById('f-schedule').value = car.schedule || '';
+ document.getElementById('f-desc').value = car.description || '';
+ document.getElementById('f-tags').value = (car.hashtags || []).join(', ');
+ document.getElementById('f-price-driver').value = car.price_driver || '';
+ document.getElementById('f-price-passenger').value = car.price_passenger || '';
 
-      selectClass(car.car_class || 'city', document.querySelector(`[data-class="${car.car_class}"]`));
-      isFree = car.is_free || false;
-      updateFreeUI();
-      roles = { driver: car.has_driver_role, passenger: car.has_passenger_role };
-      updateRolesUI();
+ selectClass(car.car_class || 'city', document.querySelector(`[data-class="${car.car_class}"]`));
+ isFree = car.is_free || false;
+ updateFreeUI();
+ roles = { driver: car.has_driver_role, passenger: car.has_passenger_role };
+ updateRolesUI();
 
-      uploadedPhotoUrls = car.photos || [];
-      renderPhotoPreview();
-    }
+ uploadedPhotoUrls = car.photos || [];
+ renderPhotoPreview();
+ }
 
-    function selectClass(cls, el) {
-      selectedClass = cls;
-      document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('selected'));
-      if (el) el.classList.add('selected');
-    }
+ function selectClass(cls, el) {
+ selectedClass = cls;
+ document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('selected'));
+ if (el) el.classList.add('selected');
+ }
 
-    function toggleRole(role) {
-      roles[role] = !roles[role];
-      updateRolesUI();
-    }
+ function toggleRole(role) {
+ roles[role] = !roles[role];
+ updateRolesUI();
+ }
 
-    function updateRolesUI() {
-      document.getElementById('role-driver').classList.toggle('selected', roles.driver);
-      document.getElementById('role-passenger').classList.toggle('selected', roles.passenger);
-      document.getElementById('price-driver-wrap').style.display = roles.driver ? 'block' : 'none';
-      document.getElementById('price-passenger-wrap').style.display = roles.passenger ? 'block' : 'none';
-    }
+ function updateRolesUI() {
+ document.getElementById('role-driver').classList.toggle('selected', roles.driver);
+ document.getElementById('role-passenger').classList.toggle('selected', roles.passenger);
+ document.getElementById('price-driver-wrap').style.display = roles.driver ? 'block' : 'none';
+ document.getElementById('price-passenger-wrap').style.display = roles.passenger ? 'block' : 'none';
+ }
 
-    function toggleFree() {
-      isFree = !isFree;
-      updateFreeUI();
-    }
+ function toggleFree() {
+ isFree = !isFree;
+ updateFreeUI();
+ }
 
-    function updateFreeUI() {
-      document.getElementById('free-toggle').classList.toggle('on', isFree);
-      document.getElementById('price-inputs').style.display = isFree ? 'none' : 'block';
-    }
+ function updateFreeUI() {
+ document.getElementById('free-toggle').classList.toggle('on', isFree);
+ document.getElementById('price-inputs').style.display = isFree ? 'none' : 'block';
+ }
 
-    async function addPhotos(input) {
+ async function addPhotos(input) {
       // Сразу показываем локальное превью
-      const newFiles = Array.from(input.files);
-      if (!newFiles.length) return;
-      if (uploadedPhotoUrls.length + newFiles.length > 8) { showToast('Максимум 8 фотографий', 'warn'); return; }
-      const startIdx = uploadedPhotoUrls.length;
-      const localPreviews = newFiles.map(f => URL.createObjectURL(f));
-      uploadedPhotoUrls.push(...localPreviews);
-      renderPhotoPreview();
-      const prog = document.getElementById('upload-progress');
-      const fill = document.getElementById('progress-fill');
-      const status = document.getElementById('upload-status');
-      prog.style.display = 'block';
-      for (let i = 0; i < newFiles.length; i++) {
-        const file = newFiles[i];
-        status.textContent = `Загрузка ${i+1} из ${newFiles.length}...`;
+ const newFiles = Array.from(input.files);
+ if (!newFiles.length) return;
+ if (uploadedPhotoUrls.length + newFiles.length > 8) { showToast('Максимум 8 фотографий', 'warn'); return; }
+ const startIdx = uploadedPhotoUrls.length;
+ const localPreviews = newFiles.map(f => URL.createObjectURL(f));
+ uploadedPhotoUrls.push(...localPreviews);
+ renderPhotoPreview();
+ const prog = document.getElementById('upload-progress');
+ const fill = document.getElementById('progress-fill');
+ const status = document.getElementById('upload-status');
+ prog.style.display = 'block';
+ for (let i = 0; i < newFiles.length; i++) {
+ const file = newFiles[i];
+ status.textContent = `Загрузка ${i+1} из ${newFiles.length}...`;
         fill.style.width = ((i / newFiles.length) * 100) + '%';
-        const ext = file.name.split('.').pop().toLowerCase();
-        const storagePath = `${currentUser.id}/${Date.now()}_${i}.${ext}`;
-        const { error } = await supabase.storage.from('car-photos').upload(storagePath, file);
-        if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка загрузки: ' + error.message, 'error'); continue; }
-        const { data: { publicUrl } } = supabase.storage.from('car-photos').getPublicUrl(storagePath);
-        uploadedPhotoUrls[startIdx + i] = publicUrl;
-        renderPhotoPreview();
-      }
-      fill.style.width = '100%';
-      status.textContent = '✅ Фото загружены!';
-      setTimeout(() => { prog.style.display = 'none'; fill.style.width = '0%'; }, 1500);
-      input.value = '';
-      return;
-    }
+ const ext = file.name.split('.').pop().toLowerCase();
+ const storagePath = `${currentUser.id}/${Date.now()}_${i}.${ext}`;
+ const { error } = await supabase.storage.from('car-photos').upload(storagePath, file);
+ if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка загрузки: ' + error.message, 'error'); continue; }
+ const { data: { publicUrl } } = supabase.storage.from('car-photos').getPublicUrl(storagePath);
+ uploadedPhotoUrls[startIdx + i] = publicUrl;
+ renderPhotoPreview();
+ }
+ fill.style.width = '100%';
+ status.textContent = ' Фото загружены!';
+ setTimeout(() => { prog.style.display = 'none'; fill.style.width = '0%'; }, 1500);
+ input.value = '';
+ return;
+ }
 
-    function renderPhotoPreview() {
-      const grid = document.getElementById('photo-preview-grid');
-      if (!uploadedPhotoUrls.length) { grid.style.display = 'none'; return; }
-      grid.style.display = 'grid';
-      grid.innerHTML = uploadedPhotoUrls.map((url, i) => `
-        <div class="photo-preview">
+ function renderPhotoPreview() {
+ const grid = document.getElementById('photo-preview-grid');
+ if (!uploadedPhotoUrls.length) { grid.style.display = 'none'; return; }
+ grid.style.display = 'grid';
+ grid.innerHTML = uploadedPhotoUrls.map((url, i) => `
+ <div class="photo-preview">
           <img src="${url}" alt="Фото ${i+1}">
-          <button class="photo-remove" onclick="removePhoto(${i})">✕</button>
-        </div>
-      `).join('');
-    }
+ <button class="photo-remove" onclick="removePhoto(${i})"></button>
+ </div>
+ `).join('');
+ }
 
-    window.removePhoto = function(idx) {
-      uploadedPhotoUrls.splice(idx, 1);
-      renderPhotoPreview();
-    };
+ window.removePhoto = function(idx) {
+ uploadedPhotoUrls.splice(idx, 1);
+ renderPhotoPreview();
+ };
 
-    async function submitCar(status) {
-      const brand = document.getElementById('f-brand').value.trim();
-      const model = document.getElementById('f-model').value.trim();
+ async function submitCar(status) {
+ const brand = document.getElementById('f-brand').value.trim();
+ const model = document.getElementById('f-model').value.trim();
 
-      if (!brand || !model) {
-        showToast('Укажите марку и модель', 'warn'); return;
-      }
+ if (!brand || !model) {
+ showToast('Укажите марку и модель', 'warn'); return;
+ }
 
-      const btn = document.getElementById('btn-publish');
-      btn.disabled = true;
-      btn.textContent = 'Сохраняем...';
+ const btn = document.getElementById('btn-publish');
+ btn.disabled = true;
+ btn.textContent = 'Сохраняем...';
 
-      const tagsRaw = document.getElementById('f-tags').value;
-      const hashtags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+ const tagsRaw = document.getElementById('f-tags').value;
+ const hashtags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
 
-      const carData = {
-        owner_id:      currentUser.id,
-        status:        status,
-        brand:         brand,
-        model:         model,
-        year:          parseInt(document.getElementById('f-year').value) || null,
-        color:         document.getElementById('f-color').value.trim() || null,
-        description:   document.getElementById('f-desc').value.trim() || null,
-        hashtags:      hashtags,
-        horsepower:    parseInt(document.getElementById('f-hp').value) || null,
-        engine_volume: parseFloat(document.getElementById('f-engine').value) || null,
-        drive_type:    document.getElementById('f-drive').value || null,
-        transmission:  document.getElementById('f-trans').value || null,
-        car_class:     selectedClass,
-        is_free:       isFree,
-        price_driver:  isFree ? 0 : (parseInt(document.getElementById('f-price-driver').value) || 0),
-        price_passenger: isFree ? 0 : (parseInt(document.getElementById('f-price-passenger').value) || 0),
-        has_driver_role:    roles.driver,
-        has_passenger_role: roles.passenger,
-        country:       document.getElementById('f-country').value,
-        city:          document.getElementById('f-city').value.trim() || 'Москва',
-        min_level:     document.getElementById('f-min-level').value,
-        schedule:      document.getElementById('f-schedule').value.trim() || null,
-        photos:        uploadedPhotoUrls.filter(u => typeof u === 'string' && u.startsWith('http')),
-        account_type:  selectedClass === 'business' ? 'business' : 'personal',
-      };
+ const carData = {
+ owner_id: currentUser.id,
+ status: status,
+ brand: brand,
+ model: model,
+ year: parseInt(document.getElementById('f-year').value) || null,
+ color: document.getElementById('f-color').value.trim() || null,
+ description: document.getElementById('f-desc').value.trim() || null,
+ hashtags: hashtags,
+ horsepower: parseInt(document.getElementById('f-hp').value) || null,
+ engine_volume: parseFloat(document.getElementById('f-engine').value) || null,
+ drive_type: document.getElementById('f-drive').value || null,
+ transmission: document.getElementById('f-trans').value || null,
+ car_class: selectedClass,
+ is_free: isFree,
+ price_driver: isFree ? 0 : (parseInt(document.getElementById('f-price-driver').value) || 0),
+ price_passenger: isFree ? 0 : (parseInt(document.getElementById('f-price-passenger').value) || 0),
+ has_driver_role: roles.driver,
+ has_passenger_role: roles.passenger,
+ country: document.getElementById('f-country').value,
+ city: document.getElementById('f-city').value.trim() || 'Москва',
+ min_level: document.getElementById('f-min-level').value,
+ schedule: document.getElementById('f-schedule').value.trim() || null,
+ photos: uploadedPhotoUrls.filter(u => typeof u === 'string' && u.startsWith('http')),
+ account_type: selectedClass === 'business' ? 'business' : 'personal',
+ };
 
-      let error;
-      if (editCarId) {
-        ({ error } = await supabase.from('cars').update(carData).eq('id', editCarId));
-      } else {
-        ({ error } = await supabase.from('cars').insert(carData));
-      }
+ let error;
+ if (editCarId) {
+ ({ error } = await supabase.from('cars').update(carData).eq('id', editCarId));
+ } else {
+ ({ error } = await supabase.from('cars').insert(carData));
+ }
 
-      if (error) {
-        showToast('Ошибка: ' + error.message, 'error');
-        btn.disabled = false;
-        btn.textContent = '🚀 Опубликовать';
-        return;
-      }
+ if (error) {
+ showToast('Ошибка: ' + error.message, 'error');
+ btn.disabled = false;
+ btn.textContent = ' Опубликовать';
+ return;
+ }
 
-      showToast(status === 'published' ? '🚀 Машина опубликована!' : '💾 Черновик сохранён', 'success');
-      setTimeout(() => window.location.href = status === 'published' ? 'index.html' : 'profile.html', 1200);
-    }
+ showToast(status === 'published' ? ' Машина опубликована!' : ' Черновик сохранён', 'success');
+ setTimeout(() => window.location.href = status === 'published' ? 'index.html' : 'profile.html', 1200);
+ }
 
-    init();
+ init();
     // Pull to refresh
-    let ptr_startY = 0, ptr_pulling = false;
-    const ptr_indicator = document.createElement('div');
-    ptr_indicator.style.cssText = 'position:fixed;top:0;left:0;right:0;height:4px;background:#f59e0b;transform:scaleX(0);transform-origin:left;transition:transform 0.2s;z-index:9999;';
-    document.body.appendChild(ptr_indicator);
-    document.addEventListener('touchstart', (e) => {
-      if (window.scrollY === 0) { ptr_startY = e.touches[0].clientY; ptr_pulling = true; }
-    }, { passive: true });
-    document.addEventListener('touchmove', (e) => {
-      if (!ptr_pulling) return;
-      const dy = e.touches[0].clientY - ptr_startY;
-      if (dy > 0) ptr_indicator.style.transform = `scaleX(${Math.min(dy / 100, 1)})`;
-    }, { passive: true });
-    document.addEventListener('touchend', (e) => {
-      if (!ptr_pulling) return;
-      ptr_pulling = false;
-      const dy = e.changedTouches[0].clientY - ptr_startY;
-      ptr_indicator.style.transform = 'scaleX(0)';
-      if (dy > 80) { showToast('🔄 Обновление...'); setTimeout(() => init(), 300); }
-    }, { passive: true });
-  </script>
+ let ptr_startY = 0, ptr_pulling = false;
+ const ptr_indicator = document.createElement('div');
+ ptr_indicator.style.cssText = 'position:fixed;top:0;left:0;right:0;height:4px;background:#f59e0b;transform:scaleX(0);transform-origin:left;transition:transform 0.2s;z-index:9999;';
+ document.body.appendChild(ptr_indicator);
+ document.addEventListener('touchstart', (e) => {
+ if (window.scrollY === 0) { ptr_startY = e.touches[0].clientY; ptr_pulling = true; }
+ }, { passive: true });
+ document.addEventListener('touchmove', (e) => {
+ if (!ptr_pulling) return;
+ const dy = e.touches[0].clientY - ptr_startY;
+ if (dy > 0) ptr_indicator.style.transform = `scaleX(${Math.min(dy / 100, 1)})`;
+ }, { passive: true });
+ document.addEventListener('touchend', (e) => {
+ if (!ptr_pulling) return;
+ ptr_pulling = false;
+ const dy = e.changedTouches[0].clientY - ptr_startY;
+ ptr_indicator.style.transform = 'scaleX(0)';
+ if (dy > 80) { showToast(' Обновление...'); setTimeout(() => init(), 300); }
+ }, { passive: true });
+ </script>
 </body>
 </html>

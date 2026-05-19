@@ -1,196 +1,196 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="theme-color" content="#0f0f0f">
-  <title>Sharecar — Сообщения</title>
-  <link rel="stylesheet" href="../css/app.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-  <style>
-    body { background:#0f0f0f; color:#fff; font-family:-apple-system,sans-serif; margin:0; padding:0 0 80px; }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+ <meta name="theme-color" content="#0f0f0f">
+ <title>Sharecar — Сообщения</title>
+ <link rel="stylesheet" href="../css/app.css">
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+ <style>
+ body { background:#0f0f0f; color:#fff; font-family:-apple-system,sans-serif; margin:0; padding:0 0 80px; }
 
     .page-header { position:sticky; top:0; background:#0f0f0f; padding:16px; font-size:18px; font-weight:700; border-bottom:1px solid #1e1e3a; z-index:10; }
-    .msg-list { padding:12px; }
+ .msg-list { padding:12px; }
     .page-header { padding:16px; font-size:20px; font-weight:700; border-bottom:1px solid #1e1e3a; }
-    .msg-list { padding:0 0 80px; }
-    .msg-item {
-      display:flex; align-items:center; gap:12px;
-      padding:14px 16px; border-bottom:1px solid #111;
-      cursor:pointer; transition:background .15s;
-    }
-    .msg-item:active { background:#1a1a2e; }
-    .msg-avatar {
-      width:48px; height:48px; border-radius:50%;
-      background:#1a1a2e; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center;
+ .msg-list { padding:0 0 80px; }
+ .msg-item {
+ display:flex; align-items:center; gap:12px;
+ padding:14px 16px; border-bottom:1px solid #111;
+ cursor:pointer; transition:background .15s;
+ }
+ .msg-item:active { background:#1a1a2e; }
+ .msg-avatar {
+ width:48px; height:48px; border-radius:50%;
+ background:#1a1a2e; flex-shrink:0;
+ display:flex; align-items:center; justify-content:center;
       font-size:18px; font-weight:700; overflow:hidden;
-    }
-    .msg-avatar img { width:100%; height:100%; object-fit:cover; }
-    .msg-info { flex:1; overflow:hidden; }
+ }
+ .msg-avatar img { width:100%; height:100%; object-fit:cover; }
+ .msg-info { flex:1; overflow:hidden; }
     .msg-name { font-size:15px; font-weight:600; margin-bottom:2px; }
     .msg-car { font-size:12px; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .msg-last { font-size:12px; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .msg-item.unread { background:#1a1a2e; border-left:3px solid #f59e0b; }
-    .msg-item.unread .msg-last { color:#fff; font-weight:600; }
-    .msg-item.unread .msg-name { color:#f59e0b; }
+ .msg-item.unread { background:#1a1a2e; border-left:3px solid #f59e0b; }
+ .msg-item.unread .msg-last { color:#fff; font-weight:600; }
+ .msg-item.unread .msg-name { color:#f59e0b; }
     .unread-count { background:#ef4444; color:#fff; font-size:11px; font-weight:700; min-width:20px; height:20px; border-radius:10px; display:flex; align-items:center; justify-content:center; padding:0 5px; margin-left:auto; }
-    .msg-meta { text-align:right; flex-shrink:0; }
+ .msg-meta { text-align:right; flex-shrink:0; }
     .msg-time { font-size:11px; color:#555; margin-bottom:4px; }
     .msg-status { font-size:11px; padding:2px 8px; border-radius:10px; }
-    .status-pending { background:#f59e0b20; color:#f59e0b; }
-    .status-accepted { background:#3b82f620; color:#3b82f6; }
-    .status-completed { background:#22c55e20; color:#22c55e; }
-    .status-rejected { background:#ef444420; color:#ef4444; }
-    .empty-state { text-align:center; padding:60px 20px; color:#555; }
+ .status-pending { background:#f59e0b20; color:#f59e0b; }
+ .status-accepted { background:#3b82f620; color:#3b82f6; }
+ .status-completed { background:#22c55e20; color:#22c55e; }
+ .status-rejected { background:#ef444420; color:#ef4444; }
+ .empty-state { text-align:center; padding:60px 20px; color:#555; }
     .empty-state .icon { font-size:48px; margin-bottom:12px; }
-    .loader-wrap { text-align:center; padding:40px; color:#555; }
+ .loader-wrap { text-align:center; padding:40px; color:#555; }
     .loader-wrap i { font-size:28px; animation:spin .8s linear infinite; color:#f59e0b; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-  </style>
+ @keyframes spin { to { transform:rotate(360deg); } }
+ </style>
 </head>
 <body>
-  <div class="page-header">💬 Сообщения</div>
-  <div class="msg-list" id="msg-list">
-    <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
-  </div>
+ <div class="page-header">Сообщения</div>
+ <div class="msg-list" id="msg-list">
+ <div class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+ </div>
 
-  <nav class="bottom-nav">
-    <button class="nav-item" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
-    <button class="nav-item" onclick="goPage('partners.html')"><i class="fas fa-search"></i><span>Поиск</span></button>
-    <button class="nav-item active" style="position:relative;"><i class="fa fa-comment"></i><span>Сообщения</span><span class="nav-msg-badge nav-badge" style="display:none;"></span></button>
-    <button class="nav-item" onclick="goPage('rating.html')"><i class="fa fa-trophy"></i><span>Рейтинг</span></button>
-    <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
-  </nav>
+ <nav class="bottom-nav">
+ <button class="nav-item" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
+ <button class="nav-item" onclick="goPage('partners.html')"><i class="fas fa-search"></i><span>Поиск</span></button>
+ <button class="nav-item active" style="position:relative;"><i class="fa fa-comment"></i><span>Сообщения</span><span class="nav-msg-badge nav-badge" style="display:none;"></span></button>
+ <button class="nav-item" onclick="goPage('rating.html')"><i class="fa fa-trophy"></i><span>Рейтинг</span></button>
+ <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
+ </nav>
 
-  <script>
-    function goPage(p) { window.location.href = p; }
-  </script>
-  <script type="module">
-    import { supabase, requireAuth, getProfile, showToast } from '../js/supabase.js';
+ <script>
+ function goPage(p) { window.location.href = p; }
+ </script>
+ <script type="module">
+ import { supabase, requireAuth, getProfile, showToast } from '../js/supabase.js';
 
-    let currentUser = null;
+ let currentUser = null;
 
-    async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { window.location.href = '/app/auth.html'; return; }
-      currentUser = session.user;
-      await loadMessages();
-    }
+ async function init() {
+ const { data: { session } } = await supabase.auth.getSession();
+ if (!session) { window.location.href = '/app/auth.html'; return; }
+ currentUser = session.user;
+ await loadMessages();
+ }
 
-    async function loadMessages() {
-      const list = document.getElementById('msg-list');
+ async function loadMessages() {
+ const list = document.getElementById('msg-list');
 
       // Загружаем заявки где я requester или owner
-      const { data: asRequester } = await supabase
-        .from('requests')
-        .select('*, cars(brand, model, year, photos), profiles:owner_id(first_name, last_name, avatar_url, level)')
-        .eq('requester_id', currentUser.id)
-        .order('updated_at', { ascending: false });
+ const { data: asRequester } = await supabase
+ .from('requests')
+ .select('*, cars(brand, model, year, photos), profiles:owner_id(first_name, last_name, avatar_url, level)')
+ .eq('requester_id', currentUser.id)
+ .order('updated_at', { ascending: false });
 
-      const { data: asOwner } = await supabase
-        .from('requests')
-        .select('*, cars(brand, model, year, photos), profiles:requester_id(first_name, last_name, avatar_url, level)')
-        .eq('owner_id', currentUser.id)
-        .order('updated_at', { ascending: false });
+ const { data: asOwner } = await supabase
+ .from('requests')
+ .select('*, cars(brand, model, year, photos), profiles:requester_id(first_name, last_name, avatar_url, level)')
+ .eq('owner_id', currentUser.id)
+ .order('updated_at', { ascending: false });
 
-      const all = [...(asRequester || []), ...(asOwner || [])]
-        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+ const all = [...(asRequester || []), ...(asOwner || [])]
+ .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
-      if (!all.length) {
-        list.innerHTML = '<div class="empty-state"><div class="icon">💬</div><div>Нет сообщений</div></div>';
-        return;
-      }
+ if (!all.length) {
+ list.innerHTML = '<div class="empty-state"><div class="icon"></div><div>Нет сообщений</div></div>';
+ return;
+ }
 
       // Загружаем последние сообщения для каждого чата
-      const requestIds = all.map(r => r.id);
-      const { data: lastMsgs } = await supabase
-        .from('messages')
-        .select('request_id, content, created_at, sender_id')
-        .in('request_id', requestIds)
-        .order('created_at', { ascending: false });
+ const requestIds = all.map(r => r.id);
+ const { data: lastMsgs } = await supabase
+ .from('messages')
+ .select('request_id, content, created_at, sender_id')
+ .in('request_id', requestIds)
+ .order('created_at', { ascending: false });
 
       // Группируем по request_id — берём первое (последнее) для каждого
-      const lastMsgMap = {};
-      if (lastMsgs) {
-        lastMsgs.forEach(m => {
-          if (!lastMsgMap[m.request_id]) lastMsgMap[m.request_id] = m;
-        });
-      }
+ const lastMsgMap = {};
+ if (lastMsgs) {
+ lastMsgs.forEach(m => {
+ if (!lastMsgMap[m.request_id]) lastMsgMap[m.request_id] = m;
+ });
+ }
 
       // Считаем непрочитанные для каждого чата
-      const { data: unreadMsgs } = await supabase
-        .from('messages')
-        .select('request_id')
-        .in('request_id', requestIds)
-        .neq('sender_id', currentUser.id)
-        .eq('read', false);
+ const { data: unreadMsgs } = await supabase
+ .from('messages')
+ .select('request_id')
+ .in('request_id', requestIds)
+ .neq('sender_id', currentUser.id)
+ .eq('read', false);
 
-      const unreadMap = {};
-      if (unreadMsgs) {
-        unreadMsgs.forEach(m => {
-          unreadMap[m.request_id] = (unreadMap[m.request_id] || 0) + 1;
-        });
-      }
+ const unreadMap = {};
+ if (unreadMsgs) {
+ unreadMsgs.forEach(m => {
+ unreadMap[m.request_id] = (unreadMap[m.request_id] || 0) + 1;
+ });
+ }
 
       // Обновляем бейдж
-      const totalUnread = Object.values(unreadMap).reduce((a, b) => a + b, 0);
-      const badge = document.querySelector('.nav-msg-badge');
-      if (badge) {
-        if (totalUnread > 0) {
-          badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
-          badge.style.display = 'flex';
-        } else {
-          badge.style.display = 'none';
-        }
-      }
+ const totalUnread = Object.values(unreadMap).reduce((a, b) => a + b, 0);
+ const badge = document.querySelector('.nav-msg-badge');
+ if (badge) {
+ if (totalUnread > 0) {
+ badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+ badge.style.display = 'flex';
+ } else {
+ badge.style.display = 'none';
+ }
+ }
 
-      const STATUS = {
-        pending: { label: 'Ожидает', cls: 'status-pending' },
-        accepted: { label: 'Принята', cls: 'status-accepted' },
-        completed: { label: 'Завершена', cls: 'status-completed' },
-        rejected: { label: 'Отклонена', cls: 'status-rejected' },
-        cancelled: { label: 'Отменена', cls: 'status-rejected' },
-      };
+ const STATUS = {
+ pending: { label: 'Ожидает', cls: 'status-pending' },
+ accepted: { label: 'Принята', cls: 'status-accepted' },
+ completed: { label: 'Завершена', cls: 'status-completed' },
+ rejected: { label: 'Отклонена', cls: 'status-rejected' },
+ cancelled: { label: 'Отменена', cls: 'status-rejected' },
+ };
 
-      const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
+ const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
 
-      list.innerHTML = all.map(r => {
-        const other = r.profiles || {};
-        const name = `${other.first_name || ''} ${other.last_name || ''}`.trim() || 'Пользователь';
-        const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
-        const lvlColor = LEVEL_COLORS[other.level || 'bronze'] || '#888';
-        const car = r.cars || {};
-        const s = STATUS[r.status] || { label: r.status, cls: 'status-pending' };
-        const lastMsg = lastMsgMap[r.id];
-        const lastText = lastMsg ? lastMsg.content : (r.message || 'Нет сообщений');
-        const isMe = lastMsg && lastMsg.sender_id === currentUser.id;
-        const dt = lastMsg
-          ? new Date(lastMsg.created_at).toLocaleDateString('ru', { day:'numeric', month:'short' })
-          : new Date(r.updated_at || r.created_at).toLocaleDateString('ru', { day:'numeric', month:'short' });
-        const avatarHtml = other.avatar_url
-          ? `<img src="${other.avatar_url}">`
-          : `<span style="color:${lvlColor}">${initials}</span>`;
+ list.innerHTML = all.map(r => {
+ const other = r.profiles || {};
+ const name = `${other.first_name || ''} ${other.last_name || ''}`.trim() || 'Пользователь';
+ const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
+ const lvlColor = LEVEL_COLORS[other.level || 'bronze'] || '#888';
+ const car = r.cars || {};
+ const s = STATUS[r.status] || { label: r.status, cls: 'status-pending' };
+ const lastMsg = lastMsgMap[r.id];
+ const lastText = lastMsg ? lastMsg.content : (r.message || 'Нет сообщений');
+ const isMe = lastMsg && lastMsg.sender_id === currentUser.id;
+ const dt = lastMsg
+ ? new Date(lastMsg.created_at).toLocaleDateString('ru', { day:'numeric', month:'short' })
+ : new Date(r.updated_at || r.created_at).toLocaleDateString('ru', { day:'numeric', month:'short' });
+ const avatarHtml = other.avatar_url
+ ? `<img src="${other.avatar_url}">`
+ : `<span style="color:${lvlColor}">${initials}</span>`;
 
-        const hasUnread = unreadMap[r.id] > 0;
-        return `
-          <div class="msg-item${hasUnread ? ' unread' : ''}" onclick="goPage('chat.html?request=${r.id}')">
-            <div class="msg-avatar" style="border:2px solid ${lvlColor}20;">${avatarHtml}</div>
-            <div class="msg-info">
-              <div class="msg-name">${name}</div>
-              <div class="msg-car">${car.brand || ''} ${car.model || ''} ${car.year || ''}</div>
-              <div class="msg-last">${isMe ? 'Вы: ' : ''}${lastText}</div>
-            </div>
-            <div class="msg-meta">
-              <div class="msg-time">${dt}</div>
-              <div class="msg-status ${s.cls}">${s.label}</div>
-              ${hasUnread ? `<div class="unread-count">${unreadMap[r.id]}</div>` : ''}
-            </div>
-          </div>`;
-      }).join('');
-    }
+ const hasUnread = unreadMap[r.id] > 0;
+ return `
+ <div class="msg-item${hasUnread ? ' unread' : ''}" onclick="goPage('chat.html?request=${r.id}')">
+ <div class="msg-avatar" style="border:2px solid ${lvlColor}20;">${avatarHtml}</div>
+ <div class="msg-info">
+ <div class="msg-name">${name}</div>
+ <div class="msg-car">${car.brand || ''} ${car.model || ''} ${car.year || ''}</div>
+ <div class="msg-last">${isMe ? 'Вы: ' : ''}${lastText}</div>
+ </div>
+ <div class="msg-meta">
+ <div class="msg-time">${dt}</div>
+ <div class="msg-status ${s.cls}">${s.label}</div>
+ ${hasUnread ? `<div class="unread-count">${unreadMap[r.id]}</div>` : ''}
+ </div>
+ </div>`;
+ }).join('');
+ }
 
-    init();
-  </script>
+ init();
+ </script>
 </body>
 </html>

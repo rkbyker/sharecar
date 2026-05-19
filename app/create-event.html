@@ -1,212 +1,212 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="theme-color" content="#0f0f0f">
-  <title>Создать мероприятие — Sharecar</title>
-  <link rel="stylesheet" href="../css/app.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-  <style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+ <meta name="theme-color" content="#0f0f0f">
+ <title>Создать мероприятие — Sharecar</title>
+ <link rel="stylesheet" href="../css/app.css">
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+ <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0f0f0f; color: #fff; font-family: -apple-system, sans-serif; padding-bottom: 40px; }
+ body { background: #0f0f0f; color: #fff; font-family: -apple-system, sans-serif; padding-bottom: 40px; }
 
-    .top-bar { display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid #1e1e3a; position: sticky; top: 0; background: #0f0f0f; z-index: 10; }
+ .top-bar { display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid #1e1e3a; position: sticky; top: 0; background: #0f0f0f; z-index: 10; }
     .top-bar h1 { font-size: 18px; font-weight: 700; flex: 1; }
     .back-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 4px; }
 
-    .form-wrap { padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; }
+ .form-wrap { padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; }
 
-    .form-section { background: #1a1a2e; border-radius: 16px; padding: 16px; }
+ .form-section { background: #1a1a2e; border-radius: 16px; padding: 16px; }
     .form-section-title { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; }
 
-    .form-group { margin-bottom: 14px; }
-    .form-group:last-child { margin-bottom: 0; }
+ .form-group { margin-bottom: 14px; }
+ .form-group:last-child { margin-bottom: 0; }
     .form-label { font-size: 13px; color: #aaa; margin-bottom: 6px; display: block; }
     .form-input { width: 100%; background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 14px; outline: none; font-family: inherit; transition: border-color 0.2s; }
-    .form-input:focus { border-color: #f59e0b; }
+ .form-input:focus { border-color: #f59e0b; }
     .form-textarea { width: 100%; background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 14px; outline: none; font-family: inherit; resize: none; min-height: 100px; transition: border-color 0.2s; }
-    .form-textarea:focus { border-color: #f59e0b; }
+ .form-textarea:focus { border-color: #f59e0b; }
 
-    .type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .type-btn { background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 12px; padding: 10px 4px; cursor: pointer; text-align: center; transition: all 0.2s; }
+ .type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+ .type-btn { background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 12px; padding: 10px 4px; cursor: pointer; text-align: center; transition: all 0.2s; }
     .type-btn .type-icon { font-size: 22px; display: block; margin-bottom: 4px; }
     .type-btn .type-label { font-size: 10px; color: #888; }
-    .type-btn.active { background: #f59e0b20; border-color: #f59e0b; }
-    .type-btn.active .type-label { color: #f59e0b; }
+ .type-btn.active { background: #f59e0b20; border-color: #f59e0b; }
+ .type-btn.active .type-label { color: #f59e0b; }
 
-    .photo-upload-area { width:100%; min-height:80px; background:#0f0f1a; border:2px dashed #2a2a4a; border-radius:12px; padding:16px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; cursor:pointer; transition:border-color 0.2s; }
-    .photo-upload-area:hover { border-color:#f59e0b; }
+ .photo-upload-area { width:100%; min-height:80px; background:#0f0f1a; border:2px dashed #2a2a4a; border-radius:12px; padding:16px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; cursor:pointer; transition:border-color 0.2s; }
+ .photo-upload-area:hover { border-color:#f59e0b; }
     .photo-upload-area i { font-size:28px; color:#555; }
     .photo-upload-area span { font-size:13px; color:#555; }
-    .photo-preview-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px; }
-    .photo-preview { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:2px solid transparent; }
-    .photo-preview.is-cover { border-color:#f59e0b; }
-    .photo-preview img { width:100%; height:100%; object-fit:cover; cursor:pointer; }
+ .photo-preview-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px; }
+ .photo-preview { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:2px solid transparent; }
+ .photo-preview.is-cover { border-color:#f59e0b; }
+ .photo-preview img { width:100%; height:100%; object-fit:cover; cursor:pointer; }
     .photo-cover-badge { position:absolute; bottom:4px; left:4px; background:#f59e0b; color:#000; font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px; }
     .photo-remove { position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.7); border:none; color:#fff; width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center; }
-    .upload-progress { background:#1a1a2e; border-radius:10px; padding:10px 14px; margin-top:8px; display:none; }
-    .progress-bar { height:4px; background:#2a2a4a; border-radius:2px; margin-top:6px; }
-    .progress-fill { height:100%; background:#f59e0b; border-radius:2px; width:0%; transition:width 0.3s; }
+ .upload-progress { background:#1a1a2e; border-radius:10px; padding:10px 14px; margin-top:8px; display:none; }
+ .progress-bar { height:4px; background:#2a2a4a; border-radius:2px; margin-top:6px; }
+ .progress-fill { height:100%; background:#f59e0b; border-radius:2px; width:0%; transition:width 0.3s; }
 
-    .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+ .toggle-row { display: flex; align-items: center; justify-content: space-between; }
     .toggle-label { font-size: 14px; color: #ccc; }
-    .toggle { width: 44px; height: 24px; background: #2a2a4a; border-radius: 12px; cursor: pointer; position: relative; transition: background 0.2s; border: none; }
-    .toggle.on { background: #22c55e; }
-    .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
-    .toggle.on::after { transform: translateX(20px); }
+ .toggle { width: 44px; height: 24px; background: #2a2a4a; border-radius: 12px; cursor: pointer; position: relative; transition: background 0.2s; border: none; }
+ .toggle.on { background: #22c55e; }
+ .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+ .toggle.on::after { transform: translateX(20px); }
 
-    .tags-input-wrap { display: flex; gap: 8px; margin-bottom: 10px; }
+ .tags-input-wrap { display: flex; gap: 8px; margin-bottom: 10px; }
     .tags-input { flex: 1; background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; }
-    .tags-input:focus { border-color: #f59e0b; }
+ .tags-input:focus { border-color: #f59e0b; }
     .tag-add-btn { background: #f59e0b; color: #000; border: none; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-weight: 700; font-size: 14px; }
-    .tags-list { display: flex; flex-wrap: wrap; gap: 8px; }
+ .tags-list { display: flex; flex-wrap: wrap; gap: 8px; }
     .tag-item { background: #1e1e3a; color: #f59e0b; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
     .tag-remove { background: none; border: none; color: #f59e0b; cursor: pointer; font-size: 14px; padding: 0; line-height: 1; }
 
     .submit-btn { width: 100%; padding: 16px; background: #f59e0b; color: #000; border: none; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
-    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .submit-btn:active { opacity: 0.8; }
+ .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+ .submit-btn:active { opacity: 0.8; }
     .hint { font-size: 12px; color: #555; margin-top: 6px; }
 
     /* ── City Autocomplete ──────────────────────────────────────────── */
-    .city-wrap { position: relative; }
-    .city-dropdown {
-      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-      background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 10px;
-      z-index: 100; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.5);
-      display: none;
-    }
-    .city-dropdown.open { display: block; }
-    .city-option {
+ .city-wrap { position: relative; }
+ .city-dropdown {
+ position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+ background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 10px;
+ z-index: 100; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.5);
+ display: none;
+ }
+ .city-dropdown.open { display: block; }
+ .city-option {
       padding: 11px 14px; cursor: pointer; font-size: 14px; color: #ddd;
-      border-bottom: 1px solid #2a2a4a; display: flex; align-items: center; gap: 8px;
-      transition: background 0.15s;
-    }
-    .city-option:last-child { border-bottom: none; }
-    .city-option:hover, .city-option.focused { background: #f59e0b20; color: #fff; }
+ border-bottom: 1px solid #2a2a4a; display: flex; align-items: center; gap: 8px;
+ transition: background 0.15s;
+ }
+ .city-option:last-child { border-bottom: none; }
+ .city-option:hover, .city-option.focused { background: #f59e0b20; color: #fff; }
     .city-option i { color: #f59e0b; font-size: 12px; flex-shrink: 0; }
     .city-option small { font-size: 11px; color: #666; }
-    .city-option-main { display: flex; flex-direction: column; gap: 2px; }
-    .city-spinner {
+ .city-option-main { display: flex; flex-direction: column; gap: 2px; }
+ .city-spinner {
       padding: 12px 14px; font-size: 13px; color: #666;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .city-spinner i { animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .city-confirmed .form-input { border-color: #22c55e !important; }
-    .city-confirmed::after {
-      content: '✓'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+ display: flex; align-items: center; gap: 8px;
+ }
+ .city-spinner i { animation: spin 1s linear infinite; }
+ @keyframes spin { to { transform: rotate(360deg); } }
+ .city-confirmed .form-input { border-color: #22c55e !important; }
+ .city-confirmed::after {
+ content: ''; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
       color: #22c55e; font-size: 16px; pointer-events: none;
-    }
+ }
 
     #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1e1e3a; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; z-index: 1000; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
-    #toast.show { opacity: 1; }
-    #toast.error { background: #7f1d1d; color: #fca5a5; }
-    #toast.success { background: #14532d; color: #86efac; }
-  </style>
+ #toast.show { opacity: 1; }
+ #toast.error { background: #7f1d1d; color: #fca5a5; }
+ #toast.success { background: #14532d; color: #86efac; }
+ </style>
 </head>
 <body>
 
 <div class="top-bar">
-  <button class="back-btn" onclick="history.back()"><i class="fa fa-arrow-left"></i></button>
-  <h1>Новое мероприятие</h1>
+ <button class="back-btn" onclick="history.back()"><i class="fa fa-arrow-left"></i></button>
+ <h1>Новое мероприятие</h1>
 </div>
 
 <div class="form-wrap">
 
-  <div class="form-section">
-    <div class="form-section-title">Тип мероприятия</div>
-    <div class="type-grid">
-      <div class="type-btn active" data-type="drive" onclick="selectType('drive')"><span class="type-icon">🚗</span><span class="type-label">Поездка</span></div>
-      <div class="type-btn" data-type="meet" onclick="selectType('meet')"><span class="type-icon">👋</span><span class="type-label">Встреча</span></div>
-      <div class="type-btn" data-type="race" onclick="selectType('race')"><span class="type-icon">🏁</span><span class="type-label">Гонка</span></div>
-      <div class="type-btn" data-type="drift" onclick="selectType('drift')"><span class="type-icon">💨</span><span class="type-label">Дрифт</span></div>
-      <div class="type-btn" data-type="show" onclick="selectType('show')"><span class="type-icon">🏎️</span><span class="type-label">Шоу</span></div>
-      <div class="type-btn" data-type="offroad" onclick="selectType('offroad')"><span class="type-icon">🏔️</span><span class="type-label">Офроад</span></div>
-      <div class="type-btn" data-type="photo" onclick="selectType('photo')"><span class="type-icon">📸</span><span class="type-label">Фотосессия</span></div>
-      <div class="type-btn" data-type="other" onclick="selectType('other')"><span class="type-icon">⭐</span><span class="type-label">Другое</span></div>
-    </div>
-  </div>
+ <div class="form-section">
+ <div class="form-section-title">Тип мероприятия</div>
+ <div class="type-grid">
+ <div class="type-btn active" data-type="drive" onclick="selectType('drive')"><span class="type-icon"></span><span class="type-label">Поездка</span></div>
+ <div class="type-btn" data-type="meet" onclick="selectType('meet')"><span class="type-icon"></span><span class="type-label">Встреча</span></div>
+ <div class="type-btn" data-type="race" onclick="selectType('race')"><span class="type-icon"></span><span class="type-label">Гонка</span></div>
+ <div class="type-btn" data-type="drift" onclick="selectType('drift')"><span class="type-icon"></span><span class="type-label">Дрифт</span></div>
+ <div class="type-btn" data-type="show" onclick="selectType('show')"><span class="type-icon"></span><span class="type-label">Шоу</span></div>
+ <div class="type-btn" data-type="offroad" onclick="selectType('offroad')"><span class="type-icon"></span><span class="type-label">Офроад</span></div>
+ <div class="type-btn" data-type="photo" onclick="selectType('photo')"><span class="type-icon"></span><span class="type-label">Фотосессия</span></div>
+ <div class="type-btn" data-type="other" onclick="selectType('other')"><span class="type-icon"></span><span class="type-label">Другое</span></div>
+ </div>
+ </div>
 
-  <div class="form-section">
-    <div class="form-section-title">Основное</div>
-    <div class="form-group">
-      <label class="form-label">Название *</label>
+ <div class="form-section">
+ <div class="form-section-title">Основное</div>
+ <div class="form-group">
+ <label class="form-label">Название *</label>
       <input class="form-input" id="title" placeholder="Вечерний заезд по набережной" maxlength="100">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Описание</label>
+ </div>
+ <div class="form-group">
+ <label class="form-label">Описание</label>
       <textarea class="form-textarea" id="description" placeholder="Расскажи подробнее..."></textarea>
-    </div>
-  </div>
+ </div>
+ </div>
 
-  <div class="form-section">
-    <div class="form-section-title">Фото</div>
-    <div id="photo-preview-grid" class="photo-preview-grid" style="display:none;"></div>
-    <div class="photo-upload-area" onclick="document.getElementById('photos-input').click()">
-      <i class="fa fa-images"></i>
-      <span>Нажми чтобы добавить фото</span>
-    </div>
-    <input type="file" id="photos-input" accept="image/*" multiple style="display:none" onchange="handlePhotosChange(this)">
-    <div class="upload-progress" id="upload-progress">
-      <span id="upload-status">Загрузка фото...</span>
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-    </div>
-    <p class="hint">Нажми на фото чтобы сделать его обложкой. Первое фото — обложка по умолчанию.</p>
-  </div>
+ <div class="form-section">
+ <div class="form-section-title">Фото</div>
+ <div id="photo-preview-grid" class="photo-preview-grid" style="display:none;"></div>
+ <div class="photo-upload-area" onclick="document.getElementById('photos-input').click()">
+ <i class="fa fa-images"></i>
+ <span>Нажми чтобы добавить фото</span>
+ </div>
+ <input type="file" id="photos-input" accept="image/*" multiple style="display:none" onchange="handlePhotosChange(this)">
+ <div class="upload-progress" id="upload-progress">
+ <span id="upload-status">Загрузка фото...</span>
+ <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+ </div>
+ <p class="hint">Нажми на фото чтобы сделать его обложкой. Первое фото — обложка по умолчанию.</p>
+ </div>
 
-  <div class="form-section">
-    <div class="form-section-title">Дата и место</div>
-    <div class="form-group">
-      <label class="form-label">Начало *</label>
-      <input class="form-input" id="date-start" type="datetime-local">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Конец (необязательно)</label>
-      <input class="form-input" id="date-end" type="datetime-local" oninput="validateDateEnd()">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Город</label>
-      <div class="city-wrap" id="city-wrap">
+ <div class="form-section">
+ <div class="form-section-title">Дата и место</div>
+ <div class="form-group">
+ <label class="form-label">Начало *</label>
+ <input class="form-input" id="date-start" type="datetime-local">
+ </div>
+ <div class="form-group">
+ <label class="form-label">Конец (необязательно)</label>
+ <input class="form-input" id="date-end" type="datetime-local" oninput="validateDateEnd()">
+ </div>
+ <div class="form-group">
+ <label class="form-label">Город</label>
+ <div class="city-wrap" id="city-wrap">
         <input class="form-input" id="city" placeholder="Начни вводить город..." autocomplete="off">
-        <div class="city-dropdown" id="city-dropdown"></div>
-      </div>
-      <input type="hidden" id="city-lat">
-      <input type="hidden" id="city-lng">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Адрес / место встречи</label>
-      <div class="city-wrap" id="address-wrap">
+ <div class="city-dropdown" id="city-dropdown"></div>
+ </div>
+ <input type="hidden" id="city-lat">
+ <input type="hidden" id="city-lng">
+ </div>
+ <div class="form-group">
+ <label class="form-label">Адрес / место встречи</label>
+ <div class="city-wrap" id="address-wrap">
         <input class="form-input" id="address" placeholder="ул. Ленина 1, парковка ТЦ..." autocomplete="off">
-        <div class="city-dropdown" id="address-dropdown"></div>
-      </div>
-    </div>
-  </div>
+ <div class="city-dropdown" id="address-dropdown"></div>
+ </div>
+ </div>
+ </div>
 
-  <div class="form-section">
-    <div class="form-section-title">Участники</div>
-    <div class="form-group">
-      <label class="form-label">Максимум участников (0 = без ограничений)</label>
-      <input class="form-input" id="max-participants" type="number" min="0" value="0">
-    </div>
-    <div class="form-group">
-      <div class="toggle-row">
-        <span class="toggle-label">Бесплатное мероприятие</span>
-        <button class="toggle on" id="free-toggle" onclick="toggleFree()"></button>
-      </div>
-    </div>
-    <div class="form-group" id="price-group" style="display:none;">
-      <label class="form-label">Взнос (₽)</label>
+ <div class="form-section">
+ <div class="form-section-title">Участники</div>
+ <div class="form-group">
+ <label class="form-label">Максимум участников (0 = без ограничений)</label>
+ <input class="form-input" id="max-participants" type="number" min="0" value="0">
+ </div>
+ <div class="form-group">
+ <div class="toggle-row">
+ <span class="toggle-label">Бесплатное мероприятие</span>
+ <button class="toggle on" id="free-toggle" onclick="toggleFree()"></button>
+ </div>
+ </div>
+ <div class="form-group" id="price-group" style="display:none;">
+ <label class="form-label">Взнос (₽)</label>
       <input class="form-input" id="price" type="number" min="0" placeholder="500">
-    </div>
-  </div>
+ </div>
+ </div>
 
 
 
-  <button class="submit-btn" id="submit-btn" onclick="submitEvent()">
-    🚀 Создать мероприятие
-  </button>
+ <button class="submit-btn" id="submit-btn" onclick="submitEvent()">
+ Создать мероприятие
+ </button>
 
 </div>
 
@@ -214,355 +214,355 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-  const SUPA_URL = 'https://ktqiyywdgokktiwavgbq.supabase.co';
-  const SUPA_KEY = 'sb_publishable_UqkqWGlqU0Slw7a4azOoGg_l8E3vUYP';
-  const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+ const SUPA_URL = 'https://ktqiyywdgokktiwavgbq.supabase.co';
+ const SUPA_KEY = 'sb_publishable_UqkqWGlqU0Slw7a4azOoGg_l8E3vUYP';
+ const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-  let currentUser  = null;
-  let selectedType = 'drive';
-  let isFree       = true;
-  let tags         = [];
+ let currentUser = null;
+ let selectedType = 'drive';
+ let isFree = true;
+ let tags = [];
   let uploadedPhotoUrls = []; // массив url загруженных фото
   let coverPhotoUrl = null; // url обложки
   let coverFile = null; // для обратной совместимости
 
-  function showToast(msg, type) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'show ' + (type||'info');
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => { t.className = ''; }, 3000);
-  }
+ function showToast(msg, type) {
+ const t = document.getElementById('toast');
+ t.textContent = msg;
+ t.className = 'show ' + (type||'info');
+ clearTimeout(t._timer);
+ t._timer = setTimeout(() => { t.className = ''; }, 3000);
+ }
 
-  async function init() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) { location.href = 'auth.html'; return; }
-    currentUser = session.user;
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const nowStr = now.toISOString().slice(0, 16);
-    document.getElementById('date-start').min = nowStr;
-    document.getElementById('date-end').min = nowStr;
-  }
+ async function init() {
+ const { data: { session } } = await sb.auth.getSession();
+ if (!session) { location.href = 'auth.html'; return; }
+ currentUser = session.user;
+ const now = new Date();
+ now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+ const nowStr = now.toISOString().slice(0, 16);
+ document.getElementById('date-start').min = nowStr;
+ document.getElementById('date-end').min = nowStr;
+ }
 
-  function selectType(type) {
-    selectedType = type;
-    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector('[data-type="' + type + '"]').classList.add('active');
-  }
+ function selectType(type) {
+ selectedType = type;
+ document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+ document.querySelector('[data-type="' + type + '"]').classList.add('active');
+ }
 
-  function toggleFree() {
-    isFree = !isFree;
-    document.getElementById('free-toggle').classList.toggle('on', isFree);
-    document.getElementById('price-group').style.display = isFree ? 'none' : 'block';
-  }
+ function toggleFree() {
+ isFree = !isFree;
+ document.getElementById('free-toggle').classList.toggle('on', isFree);
+ document.getElementById('price-group').style.display = isFree ? 'none' : 'block';
+ }
 
-  function addTag() {
-    const input = document.getElementById('tag-input');
-    const val = input.value.trim().replace(/^#/, '').toLowerCase();
-    if (!val || tags.includes(val) || tags.length >= 10) return;
-    tags.push(val);
-    input.value = '';
-    renderTags();
-  }
+ function addTag() {
+ const input = document.getElementById('tag-input');
+ const val = input.value.trim().replace(/^#/, '').toLowerCase();
+ if (!val || tags.includes(val) || tags.length >= 10) return;
+ tags.push(val);
+ input.value = '';
+ renderTags();
+ }
 
-  function removeTag(tag) {
-    tags = tags.filter(t => t !== tag);
-    renderTags();
-  }
+ function removeTag(tag) {
+ tags = tags.filter(t => t !== tag);
+ renderTags();
+ }
 
-  function renderTags() {
-    document.getElementById('tags-list').innerHTML = tags.map(t =>
-      '<div class="tag-item">#' + t + '<button class="tag-remove" onclick="removeTag(\'' + t + '\')">✕</button></div>'
-    ).join('');
-  }
+ function renderTags() {
+ document.getElementById('tags-list').innerHTML = tags.map(t =>
+ '<div class="tag-item">#' + t + '<button class="tag-remove" onclick="removeTag(\'' + t + '\')"></button></div>'
+ ).join('');
+ }
 
-  async function handlePhotosChange(input) {
-    const newFiles = Array.from(input.files);
-    if (!newFiles.length) return;
-    if (!currentUser) {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) { location.href = 'auth.html'; return; }
-      currentUser = session.user;
-    }
-    if (uploadedPhotoUrls.length + newFiles.length > 8) { showToast('Максимум 8 фотографий', 'error'); return; }
-    const startIdx = uploadedPhotoUrls.length;
-    const localPreviews = newFiles.map(function(f) { return URL.createObjectURL(f); });
-    uploadedPhotoUrls.push.apply(uploadedPhotoUrls, localPreviews);
-    if (!coverPhotoUrl) coverPhotoUrl = uploadedPhotoUrls[0];
-    renderPhotoPreview();
-    const prog = document.getElementById('upload-progress');
-    const fill = document.getElementById('progress-fill');
-    const status = document.getElementById('upload-status');
-    prog.style.display = 'block';
-    for (let i = 0; i < newFiles.length; i++) {
-      const file = newFiles[i];
-      status.textContent = 'Загрузка ' + (i+1) + ' из ' + newFiles.length + '...';
+ async function handlePhotosChange(input) {
+ const newFiles = Array.from(input.files);
+ if (!newFiles.length) return;
+ if (!currentUser) {
+ const { data: { session } } = await sb.auth.getSession();
+ if (!session) { location.href = 'auth.html'; return; }
+ currentUser = session.user;
+ }
+ if (uploadedPhotoUrls.length + newFiles.length > 8) { showToast('Максимум 8 фотографий', 'error'); return; }
+ const startIdx = uploadedPhotoUrls.length;
+ const localPreviews = newFiles.map(function(f) { return URL.createObjectURL(f); });
+ uploadedPhotoUrls.push.apply(uploadedPhotoUrls, localPreviews);
+ if (!coverPhotoUrl) coverPhotoUrl = uploadedPhotoUrls[0];
+ renderPhotoPreview();
+ const prog = document.getElementById('upload-progress');
+ const fill = document.getElementById('progress-fill');
+ const status = document.getElementById('upload-status');
+ prog.style.display = 'block';
+ for (let i = 0; i < newFiles.length; i++) {
+ const file = newFiles[i];
+ status.textContent = 'Загрузка ' + (i+1) + ' из ' + newFiles.length + '...';
       fill.style.width = ((i / newFiles.length) * 100) + '%';
-      const ext = file.name.split('.').pop().toLowerCase();
-      const fpath = 'events/' + currentUser.id + '/' + Date.now() + '_' + i + '.' + ext;
-      const { error } = await sb.storage.from('photos').upload(fpath, file, { upsert: true, contentType: file.type });
-      if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка: ' + error.message, 'error'); continue; }
-      const { data: urlData } = sb.storage.from('photos').getPublicUrl(fpath);
-      uploadedPhotoUrls[startIdx + i] = urlData.publicUrl;
-      if (startIdx + i === 0) coverPhotoUrl = urlData.publicUrl;
-      renderPhotoPreview();
-    }
-    fill.style.width = '100%';
-    status.textContent = 'Фото загружены!';
-    setTimeout(function() { prog.style.display = 'none'; fill.style.width = '0%'; }, 1500);
-    input.value = '';
-  }
+ const ext = file.name.split('.').pop().toLowerCase();
+ const fpath = 'events/' + currentUser.id + '/' + Date.now() + '_' + i + '.' + ext;
+ const { error } = await sb.storage.from('photos').upload(fpath, file, { upsert: true, contentType: file.type });
+ if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка: ' + error.message, 'error'); continue; }
+ const { data: urlData } = sb.storage.from('photos').getPublicUrl(fpath);
+ uploadedPhotoUrls[startIdx + i] = urlData.publicUrl;
+ if (startIdx + i === 0) coverPhotoUrl = urlData.publicUrl;
+ renderPhotoPreview();
+ }
+ fill.style.width = '100%';
+ status.textContent = 'Фото загружены!';
+ setTimeout(function() { prog.style.display = 'none'; fill.style.width = '0%'; }, 1500);
+ input.value = '';
+ }
 
-  function renderPhotoPreview() {
-    const grid = document.getElementById('photo-preview-grid');
-    if (!uploadedPhotoUrls.length) { grid.style.display = 'none'; return; }
-    grid.style.display = 'grid';
-    grid.innerHTML = uploadedPhotoUrls.map(function(url, i) {
-      const isCover = url === coverPhotoUrl;
-      return '<div class="photo-preview' + (isCover ? ' is-cover' : '') + '">' +
+ function renderPhotoPreview() {
+ const grid = document.getElementById('photo-preview-grid');
+ if (!uploadedPhotoUrls.length) { grid.style.display = 'none'; return; }
+ grid.style.display = 'grid';
+ grid.innerHTML = uploadedPhotoUrls.map(function(url, i) {
+ const isCover = url === coverPhotoUrl;
+ return '<div class="photo-preview' + (isCover ? ' is-cover' : '') + '">' +
         '<img src="' + url + '" alt="Фото ' + (i+1) + '" onclick="setCoverUrl(this.dataset.url)" data-url="' + url + '">' +
-        (isCover ? '<div class="photo-cover-badge">ОБЛОЖКА</div>' : '') +
-        '<button class="photo-remove" onclick="removePhoto(' + i + ')">✕</button>' +
-        '</div>';
-    }).join('');
-  }
+ (isCover ? '<div class="photo-cover-badge">ОБЛОЖКА</div>' : '') +
+ '<button class="photo-remove" onclick="removePhoto(' + i + ')"></button>' +
+ '</div>';
+ }).join('');
+ }
 
-  function setCoverUrl(url) {
-    coverPhotoUrl = url;
-    renderPhotoPreview();
-  }
+ function setCoverUrl(url) {
+ coverPhotoUrl = url;
+ renderPhotoPreview();
+ }
 
-  window.removePhoto = function(idx) {
-    const removed = uploadedPhotoUrls.splice(idx, 1)[0];
-    if (coverPhotoUrl === removed) coverPhotoUrl = uploadedPhotoUrls[0] || null;
-    renderPhotoPreview();
-  };
+ window.removePhoto = function(idx) {
+ const removed = uploadedPhotoUrls.splice(idx, 1)[0];
+ if (coverPhotoUrl === removed) coverPhotoUrl = uploadedPhotoUrls[0] || null;
+ renderPhotoPreview();
+ };
 
-  async function submitEvent() {
-    if (!currentUser) {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) { location.href = 'auth.html'; return; }
-      currentUser = session.user;
-    }
+ async function submitEvent() {
+ if (!currentUser) {
+ const { data: { session } } = await sb.auth.getSession();
+ if (!session) { location.href = 'auth.html'; return; }
+ currentUser = session.user;
+ }
 
-    const title       = document.getElementById('title').value.trim();
-    const description = document.getElementById('description').value.trim();
-    const dateStart   = document.getElementById('date-start').value;
-    const dateEnd     = document.getElementById('date-end').value;
-    const city        = document.getElementById('city').value.trim();
-    const cityLat     = document.getElementById('city-lat').value || null;
-    const cityLng     = document.getElementById('city-lng').value || null;
-    const address     = document.getElementById('address').value.trim();
-    const maxP        = parseInt(document.getElementById('max-participants').value) || 0;
-    const price       = parseInt(document.getElementById('price').value) || 0;
+ const title = document.getElementById('title').value.trim();
+ const description = document.getElementById('description').value.trim();
+ const dateStart = document.getElementById('date-start').value;
+ const dateEnd = document.getElementById('date-end').value;
+ const city = document.getElementById('city').value.trim();
+ const cityLat = document.getElementById('city-lat').value || null;
+ const cityLng = document.getElementById('city-lng').value || null;
+ const address = document.getElementById('address').value.trim();
+ const maxP = parseInt(document.getElementById('max-participants').value) || 0;
+ const price = parseInt(document.getElementById('price').value) || 0;
 
-    if (!title)     { showToast('Введи название', 'error'); return; }
-    if (!dateStart) { showToast('Укажи дату начала', 'error'); return; }
+ if (!title) { showToast('Введи название', 'error'); return; }
+ if (!dateStart) { showToast('Укажи дату начала', 'error'); return; }
 
-    const btn = document.getElementById('submit-btn');
-    btn.disabled = true;
-    btn.textContent = 'Создаём...';
+ const btn = document.getElementById('submit-btn');
+ btn.disabled = true;
+ btn.textContent = 'Создаём...';
 
     // Фото уже загружены в handlePhotosChange
 
     // Геокодируем адрес если есть, иначе берём координаты города
-    let finalLat = cityLat ? parseFloat(cityLat) : null;
-    let finalLng = cityLng ? parseFloat(cityLng) : null;
-    if (address) {
-      try {
-        const q = encodeURIComponent((address + ' ' + city).trim());
-        const geoRes = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1&accept-language=ru');
-        const geoData = await geoRes.json();
-        if (geoData.length) {
-          finalLat = parseFloat(geoData[0].lat);
-          finalLng = parseFloat(geoData[0].lon);
-        }
+ let finalLat = cityLat ? parseFloat(cityLat) : null;
+ let finalLng = cityLng ? parseFloat(cityLng) : null;
+ if (address) {
+ try {
+ const q = encodeURIComponent((address + ' ' + city).trim());
+ const geoRes = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1&accept-language=ru');
+ const geoData = await geoRes.json();
+ if (geoData.length) {
+ finalLat = parseFloat(geoData[0].lat);
+ finalLng = parseFloat(geoData[0].lon);
+ }
       } catch(e) { console.warn('Геокодирование не удалось', e); }
-    }
+ }
 
-    const finalCoverUrl = coverPhotoUrl || (uploadedPhotoUrls.length ? uploadedPhotoUrls[0] : null);
-    const finalPhotos = uploadedPhotoUrls.filter(Boolean);
+ const finalCoverUrl = coverPhotoUrl || (uploadedPhotoUrls.length ? uploadedPhotoUrls[0] : null);
+ const finalPhotos = uploadedPhotoUrls.filter(Boolean);
 
-    const { data, error } = await sb.from('events').insert({
-      owner_id:         currentUser.id,
-      title,
-      description:      description || null,
-      type:             selectedType,
-      cover_photo:      finalCoverUrl,
-      photos:           finalPhotos.length ? finalPhotos : null,
-      city:             city || null,
-      address:          address || null,
-      date_start:       dateStart ? new Date(dateStart).toISOString() : null,
-      date_end:         dateEnd   ? new Date(dateEnd).toISOString()   : null,
-      max_participants: maxP || null,
-      is_free:          isFree,
-      price:            isFree ? 0 : price,
-      tags:             tags.length ? tags : null,
-      lat:              finalLat,
-      lng:              finalLng,
-      status:           'active'
-    }).select().single();
+ const { data, error } = await sb.from('events').insert({
+ owner_id: currentUser.id,
+ title,
+ description: description || null,
+ type: selectedType,
+ cover_photo: finalCoverUrl,
+ photos: finalPhotos.length ? finalPhotos : null,
+ city: city || null,
+ address: address || null,
+ date_start: dateStart ? new Date(dateStart).toISOString() : null,
+ date_end: dateEnd ? new Date(dateEnd).toISOString() : null,
+ max_participants: maxP || null,
+ is_free: isFree,
+ price: isFree ? 0 : price,
+ tags: tags.length ? tags : null,
+ lat: finalLat,
+ lng: finalLng,
+ status: 'active'
+ }).select().single();
 
-    if (error) {
+ if (error) {
       console.error('Ошибка:', error);
-      showToast('Ошибка: ' + error.message, 'error');
-      btn.disabled = false;
-      btn.textContent = '🚀 Создать мероприятие';
-      return;
-    }
+ showToast('Ошибка: ' + error.message, 'error');
+ btn.disabled = false;
+ btn.textContent = ' Создать мероприятие';
+ return;
+ }
 
-    showToast('Мероприятие создано! 🎉', 'success');
-    setTimeout(() => { location.href = 'event-card.html?id=' + data.id; }, 1200);
-  }
-
-
-  function initCityAutocomplete() {
-    const input = document.getElementById('city');
-    const dropdown = document.getElementById('city-dropdown');
-    const wrap = document.getElementById('city-wrap');
-    let timer = null;
-
-    input.addEventListener('input', function() {
-      clearTimeout(timer);
-      wrap.classList.remove('city-confirmed');
-      document.getElementById('city-lat').value = '';
-      document.getElementById('city-lng').value = '';
-      const q = input.value.trim();
-      if (q.length < 2) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; return; }
-      timer = setTimeout(() => fetchCities(q), 400);
-    });
-
-    input.addEventListener('keydown', function(e) {
-      const items = dropdown.querySelectorAll('.city-option');
-      const focused = dropdown.querySelector('.city-option.focused');
-      let idx = Array.from(items).indexOf(focused);
-      if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx + 1) % items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx - 1 + items.length) % items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
-      else if (e.key === 'Enter') { e.preventDefault(); const f = dropdown.querySelector('.city-option.focused'); if (f) f.click(); }
-      else if (e.key === 'Escape') { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
-    });
-
-    document.addEventListener('click', function(e) {
-      if (!wrap.contains(e.target)) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
-    });
-  }
+ showToast('Мероприятие создано! ', 'success');
+ setTimeout(() => { location.href = 'event-card.html?id=' + data.id; }, 1200);
+ }
 
 
-  function initAddressAutocomplete() {
-    const input = document.getElementById('address');
-    const dropdown = document.getElementById('address-dropdown');
-    const wrap = document.getElementById('address-wrap');
-    let timer = null;
+ function initCityAutocomplete() {
+ const input = document.getElementById('city');
+ const dropdown = document.getElementById('city-dropdown');
+ const wrap = document.getElementById('city-wrap');
+ let timer = null;
 
-    input.addEventListener('input', function() {
-      clearTimeout(timer);
-      wrap.classList.remove('city-confirmed');
-      const q = input.value.trim();
-      if (q.length < 3) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; return; }
-      timer = setTimeout(() => fetchAddress(q), 400);
-    });
+ input.addEventListener('input', function() {
+ clearTimeout(timer);
+ wrap.classList.remove('city-confirmed');
+ document.getElementById('city-lat').value = '';
+ document.getElementById('city-lng').value = '';
+ const q = input.value.trim();
+ if (q.length < 2) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; return; }
+ timer = setTimeout(() => fetchCities(q), 400);
+ });
 
-    input.addEventListener('keydown', function(e) {
-      const items = dropdown.querySelectorAll('.city-option');
-      const focused = dropdown.querySelector('.city-option.focused');
-      let idx = Array.from(items).indexOf(focused);
-      if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx+1)%items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx-1+items.length)%items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
-      else if (e.key === 'Enter') { e.preventDefault(); const f = dropdown.querySelector('.city-option.focused'); if(f) f.click(); }
-      else if (e.key === 'Escape') { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
-    });
+ input.addEventListener('keydown', function(e) {
+ const items = dropdown.querySelectorAll('.city-option');
+ const focused = dropdown.querySelector('.city-option.focused');
+ let idx = Array.from(items).indexOf(focused);
+ if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx + 1) % items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
+ else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx - 1 + items.length) % items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
+ else if (e.key === 'Enter') { e.preventDefault(); const f = dropdown.querySelector('.city-option.focused'); if (f) f.click(); }
+ else if (e.key === 'Escape') { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
+ });
 
-    document.addEventListener('click', function(e) {
-      if (!wrap.contains(e.target)) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
-    });
-  }
+ document.addEventListener('click', function(e) {
+ if (!wrap.contains(e.target)) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
+ });
+ }
 
-  async function fetchAddress(q) {
-    const dropdown = document.getElementById('address-dropdown');
-    const city = document.getElementById('city').value.trim();
-    dropdown.innerHTML = '<div class="city-spinner"><i class="fa fa-circle-notch"></i></div>';
-    dropdown.classList.add('open');
-    try {
-      const query = encodeURIComponent((q + (city ? ' ' + city : '')).trim());
-      const res = await fetch('https://nominatim.openstreetmap.org/search?q=' + query + '&format=json&addressdetails=1&limit=5&accept-language=ru');
-      const data = await res.json();
-      if (!data.length) { dropdown.innerHTML = '<div class="city-option" style="color:#666;">Не найдено</div>'; return; }
-      dropdown.innerHTML = data.map(function(item) {
-        const name = item.display_name;
-        return '<div class="city-option" data-lat="' + item.lat + '" data-lng="' + item.lon + '" data-name="' + name.replace(/"/g,"&quot;") + '">'
-          + '<i class="fa fa-map-marker-alt"></i>'
+
+ function initAddressAutocomplete() {
+ const input = document.getElementById('address');
+ const dropdown = document.getElementById('address-dropdown');
+ const wrap = document.getElementById('address-wrap');
+ let timer = null;
+
+ input.addEventListener('input', function() {
+ clearTimeout(timer);
+ wrap.classList.remove('city-confirmed');
+ const q = input.value.trim();
+ if (q.length < 3) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; return; }
+ timer = setTimeout(() => fetchAddress(q), 400);
+ });
+
+ input.addEventListener('keydown', function(e) {
+ const items = dropdown.querySelectorAll('.city-option');
+ const focused = dropdown.querySelector('.city-option.focused');
+ let idx = Array.from(items).indexOf(focused);
+ if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx+1)%items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
+ else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx-1+items.length)%items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
+ else if (e.key === 'Enter') { e.preventDefault(); const f = dropdown.querySelector('.city-option.focused'); if(f) f.click(); }
+ else if (e.key === 'Escape') { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
+ });
+
+ document.addEventListener('click', function(e) {
+ if (!wrap.contains(e.target)) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
+ });
+ }
+
+ async function fetchAddress(q) {
+ const dropdown = document.getElementById('address-dropdown');
+ const city = document.getElementById('city').value.trim();
+ dropdown.innerHTML = '<div class="city-spinner"><i class="fa fa-circle-notch"></i></div>';
+ dropdown.classList.add('open');
+ try {
+ const query = encodeURIComponent((q + (city ? ' ' + city : '')).trim());
+ const res = await fetch('https://nominatim.openstreetmap.org/search?q=' + query + '&format=json&addressdetails=1&limit=5&accept-language=ru');
+ const data = await res.json();
+ if (!data.length) { dropdown.innerHTML = '<div class="city-option" style="color:#666;">Не найдено</div>'; return; }
+ dropdown.innerHTML = data.map(function(item) {
+ const name = item.display_name;
+ return '<div class="city-option" data-lat="' + item.lat + '" data-lng="' + item.lon + '" data-name="' + name.replace(/"/g,"&quot;") + '">'
+ + '<i class="fa fa-map-marker-alt"></i>'
           + '<div class="city-option-main"><span style="font-size:12px;">' + name + '</span></div>'
-          + '</div>';
-      }).join('');
-      dropdown.querySelectorAll('.city-option').forEach(function(el) {
-        el.addEventListener('click', function() {
-          document.getElementById('address').value = el.dataset.name;
-          document.getElementById('city-lat').value = el.dataset.lat;
-          document.getElementById('city-lng').value = el.dataset.lng;
-          document.getElementById('address-wrap').classList.add('city-confirmed');
-          dropdown.classList.remove('open');
-          dropdown.innerHTML = '';
-        });
-      });
-    } catch(e) {
-      dropdown.innerHTML = '<div class="city-option" style="color:#666;">Ошибка поиска</div>';
-    }
-  }
+ + '</div>';
+ }).join('');
+ dropdown.querySelectorAll('.city-option').forEach(function(el) {
+ el.addEventListener('click', function() {
+ document.getElementById('address').value = el.dataset.name;
+ document.getElementById('city-lat').value = el.dataset.lat;
+ document.getElementById('city-lng').value = el.dataset.lng;
+ document.getElementById('address-wrap').classList.add('city-confirmed');
+ dropdown.classList.remove('open');
+ dropdown.innerHTML = '';
+ });
+ });
+ } catch(e) {
+ dropdown.innerHTML = '<div class="city-option" style="color:#666;">Ошибка поиска</div>';
+ }
+ }
 
-  async function fetchCities(q) {
-    const dropdown = document.getElementById('city-dropdown');
-    dropdown.innerHTML = '<div class="city-spinner"><i class="fa fa-circle-notch"></i></div>';
-    dropdown.classList.add('open');
-    try {
-      const res = await fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&addressdetails=1&limit=5&accept-language=ru', {
-        headers: { 'Accept-Language': 'ru' }
-      });
-      const data = await res.json();
-      if (!data.length) { dropdown.innerHTML = '<div class="city-option" style="color:#666;">Не найдено</div>'; return; }
-      dropdown.innerHTML = data.map(function(item) {
-        const name = item.address.city || item.address.town || item.address.village || item.address.state || item.display_name;
-        const region = item.address.state || item.address.county || '';
-        const country = item.address.country || '';
-        return '<div class="city-option" data-lat="' + item.lat + '" data-lng="' + item.lon + '" data-name="' + name + '">'
-          + '<i class="fa fa-map-marker-alt"></i>'
-          + '<div class="city-option-main"><span>' + name + '</span><small>' + [region, country].filter(Boolean).join(', ') + '</small></div>'
-          + '</div>';
-      }).join('');
-      dropdown.querySelectorAll('.city-option').forEach(function(el) {
-        el.addEventListener('click', function() {
-          const name = el.dataset.name;
-          const lat = el.dataset.lat;
-          const lng = el.dataset.lng;
-          document.getElementById('city').value = name;
-          document.getElementById('city-lat').value = lat;
-          document.getElementById('city-lng').value = lng;
-          document.getElementById('city-wrap').classList.add('city-confirmed');
-          dropdown.classList.remove('open');
-          dropdown.innerHTML = '';
-        });
-      });
-    } catch(e) {
-      dropdown.innerHTML = '<div class="city-option" style="color:#666;">Ошибка поиска</div>';
-    }
-  }
+ async function fetchCities(q) {
+ const dropdown = document.getElementById('city-dropdown');
+ dropdown.innerHTML = '<div class="city-spinner"><i class="fa fa-circle-notch"></i></div>';
+ dropdown.classList.add('open');
+ try {
+ const res = await fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&addressdetails=1&limit=5&accept-language=ru', {
+ headers: { 'Accept-Language': 'ru' }
+ });
+ const data = await res.json();
+ if (!data.length) { dropdown.innerHTML = '<div class="city-option" style="color:#666;">Не найдено</div>'; return; }
+ dropdown.innerHTML = data.map(function(item) {
+ const name = item.address.city || item.address.town || item.address.village || item.address.state || item.display_name;
+ const region = item.address.state || item.address.county || '';
+ const country = item.address.country || '';
+ return '<div class="city-option" data-lat="' + item.lat + '" data-lng="' + item.lon + '" data-name="' + name + '">'
+ + '<i class="fa fa-map-marker-alt"></i>'
+ + '<div class="city-option-main"><span>' + name + '</span><small>' + [region, country].filter(Boolean).join(', ') + '</small></div>'
+ + '</div>';
+ }).join('');
+ dropdown.querySelectorAll('.city-option').forEach(function(el) {
+ el.addEventListener('click', function() {
+ const name = el.dataset.name;
+ const lat = el.dataset.lat;
+ const lng = el.dataset.lng;
+ document.getElementById('city').value = name;
+ document.getElementById('city-lat').value = lat;
+ document.getElementById('city-lng').value = lng;
+ document.getElementById('city-wrap').classList.add('city-confirmed');
+ dropdown.classList.remove('open');
+ dropdown.innerHTML = '';
+ });
+ });
+ } catch(e) {
+ dropdown.innerHTML = '<div class="city-option" style="color:#666;">Ошибка поиска</div>';
+ }
+ }
 
 
-  function validateDateEnd() {
-    const start = document.getElementById('date-start').value;
-    const end = document.getElementById('date-end').value;
-    if (start && end && end <= start) {
-      document.getElementById('date-end').setCustomValidity('Дата окончания должна быть позже начала');
-      document.getElementById('date-end').reportValidity();
-      document.getElementById('date-end').value = '';
-    } else {
-      document.getElementById('date-end').setCustomValidity('');
-    }
-  }
+ function validateDateEnd() {
+ const start = document.getElementById('date-start').value;
+ const end = document.getElementById('date-end').value;
+ if (start && end && end <= start) {
+ document.getElementById('date-end').setCustomValidity('Дата окончания должна быть позже начала');
+ document.getElementById('date-end').reportValidity();
+ document.getElementById('date-end').value = '';
+ } else {
+ document.getElementById('date-end').setCustomValidity('');
+ }
+ }
 
-  init();
-  initCityAutocomplete();
-  initAddressAutocomplete();
+ init();
+ initCityAutocomplete();
+ initAddressAutocomplete();
 </script>
 </body>
 </html>

@@ -1,1256 +1,1256 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="theme-color" content="#0f0f0f">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>Sharecar — Лента</title>
-  <link rel="stylesheet" href="../css/app.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-  <style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+ <meta name="theme-color" content="#0f0f0f">
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <title>Sharecar — Лента</title>
+ <link rel="stylesheet" href="../css/app.css">
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+ <style>
     /* ── Feed card ─────────────────────────────── */
-    .feed-card {
-      background: #141428;
-      border-radius: 16px;
-      margin: 0 12px 16px;
-      overflow: hidden;
-      border: 1px solid #1e1e3a;
-      cursor: pointer;
-      transition: transform .15s;
-    }
-    .feed-card:active { transform: scale(.98); }
+ .feed-card {
+ background: #141428;
+ border-radius: 16px;
+ margin: 0 12px 16px;
+ overflow: hidden;
+ border: 1px solid #1e1e3a;
+ cursor: pointer;
+ transition: transform .15s;
+ }
+ .feed-card:active { transform: scale(.98); }
 
-    .feed-photo {
-      aspect-ratio: 4/2.4;
-      background: #1a1a2e;
-      position: relative;
-      overflow: hidden;
-    }
-    .feed-photo img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+ .feed-photo {
+ aspect-ratio: 4/2.4;
+ background: #1a1a2e;
+ position: relative;
+ overflow: hidden;
+ }
+ .feed-photo img {
+ width: 100%; height: 100%;
+ object-fit: cover;
+ display: block;
+ }
     .feed-photo .no-photo {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
+ width: 100%; height: 100%;
+ display: flex; align-items: center; justify-content: center;
       font-size: 48px;
-      background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
-    }
-    .photo-count {
-      position: absolute; bottom: 8px; right: 8px;
-      background: rgba(0,0,0,.6); color: #fff;
+ background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
+ }
+ .photo-count {
+ position: absolute; bottom: 8px; right: 8px;
+ background: rgba(0,0,0,.6); color: #fff;
       border-radius: 8px; padding: 2px 8px; font-size: 12px;
-    }
+ }
 
     /* Badges */
-    .badge-class {
-      position: absolute; top: 8px; left: 8px;
-      background: rgba(0,0,0,.7);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 6px;
+ .badge-class {
+ position: absolute; top: 8px; left: 8px;
+ background: rgba(0,0,0,.7);
+ border: 1px solid rgba(255,255,255,.15);
+ border-radius: 6px;
       padding: 2px 8px; font-size: 11px; font-weight: 600;
-      text-transform: uppercase; letter-spacing: .5px;
-    }
-    .badge-free {
-      position: absolute; top: 8px; right: 8px;
-      background: #22c55e; color: #000;
+ text-transform: uppercase; letter-spacing: .5px;
+ }
+ .badge-free {
+ position: absolute; top: 8px; right: 8px;
+ background: #22c55e; color: #000;
       border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700;
-    }
+ }
 
     /* Card body */
-    .feed-body { padding: 12px 14px 14px; }
+ .feed-body { padding: 12px 14px 14px; }
     .feed-title { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
     .feed-sub { font-size: 13px; color: #777; margin-bottom: 8px; }
 
-    .feed-owner {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 8px;
-    }
-    .owner-avatar {
-      width: 28px; height: 28px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
+ .feed-owner {
+ display: flex; align-items: center; gap: 8px;
+ margin-bottom: 8px;
+ }
+ .owner-avatar {
+ width: 28px; height: 28px; border-radius: 50%;
+ display: flex; align-items: center; justify-content: center;
       font-size: 11px; font-weight: 700; color: #fff;
-      flex-shrink: 0;
-    }
+ flex-shrink: 0;
+ }
     .owner-name { font-size: 13px; color: #aaa; }
-    .owner-badge {
+ .owner-badge {
       font-size: 10px; padding: 1px 6px;
-      border-radius: 4px; font-weight: 600;
-    }
+ border-radius: 4px; font-weight: 600;
+ }
 
-    .feed-tags {
-      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;
-    }
-    .tag {
-      background: rgba(255,255,255,.06);
+ .feed-tags {
+ display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;
+ }
+ .tag {
+ background: rgba(255,255,255,.06);
       border-radius: 6px; padding: 3px 8px; font-size: 11px; color: #999;
-    }
+ }
 
-    .feed-footer {
-      display: flex; align-items: center; justify-content: space-between;
-    }
+ .feed-footer {
+ display: flex; align-items: center; justify-content: space-between;
+ }
     .feed-price { font-size: 18px; font-weight: 700; color: #f59e0b; }
     .feed-price .per { font-size: 12px; color: #666; font-weight: 400; }
-    .feed-price-block { display:flex; flex-direction:column; gap:2px; }
-    .feed-price-row { display:flex; align-items:center; gap:6px; }
+ .feed-price-block { display:flex; flex-direction:column; gap:2px; }
+ .feed-price-row { display:flex; align-items:center; gap:6px; }
     .feed-price-label { font-size:11px; color:#aaa; }
     .feed-price-val { font-size:14px; font-weight:700; color:#f59e0b; }
-    .price-free { color: #22c55e; }
+ .price-free { color: #22c55e; }
 
-    .feed-actions { display: flex; gap: 8px; align-items: center; }
-    .btn-write {
-      background: #f59e0b;
-      border: none;
-      border-radius: 8px;
-      color: #000;
+ .feed-actions { display: flex; gap: 8px; align-items: center; }
+ .btn-write {
+ background: #f59e0b;
+ border: none;
+ border-radius: 8px;
+ color: #000;
       font-size: 12px;
-      font-weight: 700;
-      padding: 6px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0;
-      white-space: nowrap;
-    }
+ font-weight: 700;
+ padding: 6px 12px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ cursor: pointer;
+ flex-shrink: 0;
+ white-space: nowrap;
+ }
     .feed-grid2 .feed-card .btn-write { font-size:11px; padding:4px 8px; }
-    .feed-list .feed-card .btn-write { display:none; }
-    .btn-like {
-      background: none; border: none; cursor: pointer;
+ .feed-list .feed-card .btn-write { display:none; }
+ .btn-like {
+ background: none; border: none; cursor: pointer;
       color: #555; font-size: 15px; padding: 4px;
-      display: flex; align-items: center; gap: 4px;
-      transition: color .2s;
-    }
-    .btn-like.liked { color: #ef4444; }
+ display: flex; align-items: center; gap: 4px;
+ transition: color .2s;
+ }
+ .btn-like.liked { color: #ef4444; }
     .btn-like span { font-size: 12px; color: #666; }
-    .btn-open {
-      background: #f59e0b; color: #000;
-      border: none; border-radius: 8px;
+ .btn-open {
+ background: #f59e0b; color: #000;
+ border: none; border-radius: 8px;
       padding: 8px 16px; font-size: 13px; font-weight: 700;
-      cursor: pointer;
-    }
+ cursor: pointer;
+ }
 
     /* ── Top bar ────────────────────────────────── */
-    .top-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px 8px;
-      position: sticky; top: 0; z-index: 100;
-      background: #0f0f0f;
-    }
+ .top-bar {
+ display: flex; align-items: center; justify-content: space-between;
+ padding: 12px 16px 8px;
+ position: sticky; top: 0; z-index: 100;
+ background: #0f0f0f;
+ }
     .logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
-    .logo span { color: #f59e0b; }
-    .top-actions { display: flex; gap: 8px; }
-    .icon-btn {
-      width: 36px; height: 36px;
-      background: #1a1a2e; border: none; border-radius: 10px;
+ .logo span { color: #f59e0b; }
+ .top-actions { display: flex; gap: 8px; }
+ .icon-btn {
+ width: 36px; height: 36px;
+ background: #1a1a2e; border: none; border-radius: 10px;
       color: #aaa; cursor: pointer; font-size: 15px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .icon-btn .badge-dot {
-      position: absolute; top: -2px; right: -2px;
-      width: 8px; height: 8px; background: #ef4444; border-radius: 50%;
-    }
+ display: flex; align-items: center; justify-content: center;
+ }
+ .icon-btn .badge-dot {
+ position: absolute; top: -2px; right: -2px;
+ width: 8px; height: 8px; background: #ef4444; border-radius: 50%;
+ }
 
     /* ── Filters & Sort ─────────────────────────── */
-    .filter-bar {
-      padding: 0 12px 8px;
-      display: flex; gap: 8px; overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .filter-bar::-webkit-scrollbar { display: none; }
-    .chip {
-      flex-shrink: 0; padding: 6px 14px;
-      background: #1a1a2e; border: 1px solid #2a2a4a;
+ .filter-bar {
+ padding: 0 12px 8px;
+ display: flex; gap: 8px; overflow-x: auto;
+ scrollbar-width: none;
+ }
+ .filter-bar::-webkit-scrollbar { display: none; }
+ .chip {
+ flex-shrink: 0; padding: 6px 14px;
+ background: #1a1a2e; border: 1px solid #2a2a4a;
       border-radius: 20px; color: #aaa; font-size: 13px;
-      cursor: pointer; white-space: nowrap; transition: all .2s;
-    }
-    .chip.active { background: #f59e0b; border-color: #f59e0b; color: #000; font-weight: 600; }
+ cursor: pointer; white-space: nowrap; transition: all .2s;
+ }
+ .chip.active { background: #f59e0b; border-color: #f59e0b; color: #000; font-weight: 600; }
 
-    .sort-bar {
-      padding: 0 12px 12px;
-      display: flex; gap: 8px; overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .sort-chip {
-      flex-shrink: 0; padding: 5px 12px;
-      background: transparent; border: 1px solid #2a2a4a;
+ .sort-bar {
+ padding: 0 12px 12px;
+ display: flex; gap: 8px; overflow-x: auto;
+ scrollbar-width: none;
+ }
+ .sort-chip {
+ flex-shrink: 0; padding: 5px 12px;
+ background: transparent; border: 1px solid #2a2a4a;
       border-radius: 16px; color: #666; font-size: 12px;
-      cursor: pointer; white-space: nowrap; transition: all .2s;
-    }
-    .sort-chip.active { border-color: #f59e0b; color: #f59e0b; }
+ cursor: pointer; white-space: nowrap; transition: all .2s;
+ }
+ .sort-chip.active { border-color: #f59e0b; color: #f59e0b; }
 
     /* ── Feed container ─────────────────────────── */
-    .feed-container { padding-bottom: 80px; }
-    .empty-feed {
-      padding: 60px 20px;
-      text-align: center; color: #555;
-    }
+ .feed-container { padding-bottom: 80px; }
+ .empty-feed {
+ padding: 60px 20px;
+ text-align: center; color: #555;
+ }
     .empty-feed .icon { font-size: 48px; margin-bottom: 12px; }
 
     /* ── Bottom nav ─────────────────────────────── */
 
-    .filter-chips { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px; }
+ .filter-chips { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px; }
     .f-chip { padding:6px 12px;border-radius:20px;border:1px solid #2a2a4a;color:#888;font-size:12px;cursor:pointer;background:#1a1a2e; }
-    .f-chip.active { border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1); }
+ .f-chip.active { border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1); }
 
     /* ── List view ─────────────────────────────────── */
     /* Grid 2-col view */
-    .feed-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 12px 80px; }
-    .feed-grid2 .feed-card { margin:0; border-radius:12px; }
+ .feed-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 12px 80px; }
+ .feed-grid2 .feed-card { margin:0; border-radius:12px; }
     .feed-grid2 .feed-card .car-title { font-size:12px; }
-    .feed-grid2 .feed-card .car-body { padding:8px 10px; }
-    .feed-grid2 .feed-card .owner-row { display:none; }
-    .feed-grid2 .feed-card .feed-owner { display:none; }
+ .feed-grid2 .feed-card .car-body { padding:8px 10px; }
+ .feed-grid2 .feed-card .owner-row { display:none; }
+ .feed-grid2 .feed-card .feed-owner { display:none; }
     .feed-grid2 .feed-card .feed-sub { font-size:10px; }
     .feed-grid2 .feed-card .feed-title { font-size:12px; font-weight:600; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .feed-grid2 .feed-card .feed-tags { display:flex; flex-wrap:wrap; gap:2px; }
+ .feed-grid2 .feed-card .feed-tags { display:flex; flex-wrap:wrap; gap:2px; }
     .feed-grid2 .feed-card .feed-tags .tag { font-size:10px; padding:2px 4px; }
-    .feed-grid2 .feed-card .feed-footer { flex-direction:column; gap:4px; align-items:flex-start; }
+ .feed-grid2 .feed-card .feed-footer { flex-direction:column; gap:4px; align-items:flex-start; }
     .feed-grid2 .feed-card .feed-price { font-size:12px; }
-    .feed-grid2 .feed-card .feed-actions { width:100%; justify-content:flex-end; }
-    .feed-grid2 .feed-card .btn-like span { display:none; }
+ .feed-grid2 .feed-card .feed-actions { width:100%; justify-content:flex-end; }
+ .feed-grid2 .feed-card .btn-like span { display:none; }
 
-    .fdot { width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.4); }
-    .fdot.active { background:#fff; }
+ .fdot { width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.4); }
+ .fdot.active { background:#fff; }
 
-    .feed-list .feed-card { display:flex; flex-direction:row; height:100px; margin:0 12px 8px; }
-    .feed-list .feed-card .feed-photo { width:120px; min-width:120px; height:100px; border-radius:10px 0 0 10px; }
-    .feed-list .feed-card .feed-body { padding:8px 12px; display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden; }
-    .feed-list .feed-card .feed-list-top { display:flex; justify-content:space-between; align-items:flex-start; gap:6px; }
+ .feed-list .feed-card { display:flex; flex-direction:row; height:100px; margin:0 12px 8px; }
+ .feed-list .feed-card .feed-photo { width:120px; min-width:120px; height:100px; border-radius:10px 0 0 10px; }
+ .feed-list .feed-card .feed-body { padding:8px 12px; display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden; }
+ .feed-list .feed-card .feed-list-top { display:flex; justify-content:space-between; align-items:flex-start; gap:6px; }
     .feed-list .feed-card .feed-title { font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; margin-bottom:2px; }
     .feed-list .feed-card .feed-city { font-size:11px; color:#aaa; white-space:nowrap; flex-shrink:0; }
     .feed-list .feed-card .feed-sub { font-size:11px; color:#aaa; margin-bottom:2px; }
-    .feed-list .feed-card .feed-owner { display:none; }
-    .feed-list .feed-card .feed-tags { display:none; }
-    .feed-list .feed-card .feed-footer { margin-top:auto; display:flex; align-items:center; justify-content:space-between; }
+ .feed-list .feed-card .feed-owner { display:none; }
+ .feed-list .feed-card .feed-tags { display:none; }
+ .feed-list .feed-card .feed-footer { margin-top:auto; display:flex; align-items:center; justify-content:space-between; }
     .feed-list .feed-card .feed-price { font-size:12px; }
-    .feed-list .feed-card .btn-like span { display:none; }
-    .feed-list .feed-card .per { display:none; }
+ .feed-list .feed-card .btn-like span { display:none; }
+ .feed-list .feed-card .per { display:none; }
 
     /* ── Filter overlay ─────────────────────────── */
-    .filter-overlay {
-      position: fixed; inset: 0; z-index: 200;
-      background: rgba(0,0,0,.7); display: none;
-    }
-    .filter-sheet {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: #141428; border-radius: 20px 20px 0 0;
-      padding: 20px; max-height: 80vh; overflow-y: auto;
-      transition: transform 0.3s ease;
-    }
-    .filter-handle {
-      width: 40px; height: 4px;
-      background: #333; border-radius: 2px;
-      margin: 0 auto 20px;
-      position: relative;
-    }
-    .filter-handle::before {
-      content: '';
-      position: absolute;
-      top: -12px; left: -60px; right: -60px; bottom: -12px;
-    }
+ .filter-overlay {
+ position: fixed; inset: 0; z-index: 200;
+ background: rgba(0,0,0,.7); display: none;
+ }
+ .filter-sheet {
+ position: absolute; bottom: 0; left: 0; right: 0;
+ background: #141428; border-radius: 20px 20px 0 0;
+ padding: 20px; max-height: 80vh; overflow-y: auto;
+ transition: transform 0.3s ease;
+ }
+ .filter-handle {
+ width: 40px; height: 4px;
+ background: #333; border-radius: 2px;
+ margin: 0 auto 20px;
+ position: relative;
+ }
+ .filter-handle::before {
+ content: '';
+ position: absolute;
+ top: -12px; left: -60px; right: -60px; bottom: -12px;
+ }
     .filter-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
-    .filter-label {
+ .filter-label {
       font-size: 12px; color: #888; margin-bottom: 6px;
-      text-transform: uppercase; letter-spacing: .5px;
-    }
-    .filter-input {
-      width: 100%; background: #1a1a2e; border: 1px solid #2a2a4a;
+ text-transform: uppercase; letter-spacing: .5px;
+ }
+ .filter-input {
+ width: 100%; background: #1a1a2e; border: 1px solid #2a2a4a;
       border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 14px;
-      margin-bottom: 12px; box-sizing: border-box; outline: none;
-    }
-    .filter-row { display: flex; gap: 10px; }
-    .filter-row .filter-input { flex: 1; }
-    .filter-btns { display: flex; gap: 10px; margin-top: 8px; }
-    .btn-reset {
-      flex: 1; padding: 12px; background: #1a1a2e;
-      border: 1px solid #2a2a4a; border-radius: 10px;
+ margin-bottom: 12px; box-sizing: border-box; outline: none;
+ }
+ .filter-row { display: flex; gap: 10px; }
+ .filter-row .filter-input { flex: 1; }
+ .filter-btns { display: flex; gap: 10px; margin-top: 8px; }
+ .btn-reset {
+ flex: 1; padding: 12px; background: #1a1a2e;
+ border: 1px solid #2a2a4a; border-radius: 10px;
       color: #aaa; font-size: 14px; cursor: pointer;
-    }
-    .btn-apply {
-      flex: 2; padding: 12px; background: #f59e0b;
-      border: none; border-radius: 10px;
+ }
+ .btn-apply {
+ flex: 2; padding: 12px; background: #f59e0b;
+ border: none; border-radius: 10px;
       color: #000; font-size: 14px; font-weight: 700; cursor: pointer;
-    }
+ }
 
-    .loader {
-      text-align: center; padding: 40px; color: #555;
-    }
+ .loader {
+ text-align: center; padding: 40px; color: #555;
+ }
     .loader i { font-size: 32px; animation: spin .8s linear infinite; color: #f59e0b; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+ @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Tabs ─────────────────────────────────── */
-    .main-tabs {
-      display: flex;
-      border-bottom: 1px solid #1e1e3a;
-      background: #0f0f0f;
-      position: sticky;
-      top: 56px;
-      z-index: 90;
-    }
-    .main-tab {
-      flex: 1;
-      padding: 14px;
-      text-align: center;
+ .main-tabs {
+ display: flex;
+ border-bottom: 1px solid #1e1e3a;
+ background: #0f0f0f;
+ position: sticky;
+ top: 56px;
+ z-index: 90;
+ }
+ .main-tab {
+ flex: 1;
+ padding: 14px;
+ text-align: center;
       font-size: 14px;
-      font-weight: 600;
-      color: #555;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all .2s;
-    }
-    .main-tab.active {
-      color: #fff;
-      border-bottom-color: #fff;
-    }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+ font-weight: 600;
+ color: #555;
+ cursor: pointer;
+ border-bottom: 2px solid transparent;
+ transition: all .2s;
+ }
+ .main-tab.active {
+ color: #fff;
+ border-bottom-color: #fff;
+ }
+ .tab-panel { display: none; }
+ .tab-panel.active { display: block; }
     /* Events feed */
-    .event-card {
-      background: #141428;
-      border-radius: 16px;
-      margin: 0 12px 16px;
-      overflow: hidden;
-      border: 1px solid #1e1e3a;
-      cursor: pointer;
-      transition: transform .15s;
-    }
-    .event-card:active { transform: scale(.98); }
-    .event-cover {
-      aspect-ratio: 4/2.4;
-      background: #1a1a2e;
-      position: relative;
-      overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
+ .event-card {
+ background: #141428;
+ border-radius: 16px;
+ margin: 0 12px 16px;
+ overflow: hidden;
+ border: 1px solid #1e1e3a;
+ cursor: pointer;
+ transition: transform .15s;
+ }
+ .event-card:active { transform: scale(.98); }
+ .event-cover {
+ aspect-ratio: 4/2.4;
+ background: #1a1a2e;
+ position: relative;
+ overflow: hidden;
+ display: flex; align-items: center; justify-content: center;
       font-size: 56px;
-    }
-    .event-cover img { width:100%; height:100%; object-fit:cover; display:block; }
-    .event-type-pill {
-      position: absolute; top: 10px; left: 10px;
-      background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
-      color: #fff; padding: 4px 10px; border-radius: 20px;
+ }
+ .event-cover img { width:100%; height:100%; object-fit:cover; display:block; }
+ .event-type-pill {
+ position: absolute; top: 10px; left: 10px;
+ background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
+ color: #fff; padding: 4px 10px; border-radius: 20px;
       font-size: 12px; font-weight: 600;
-    }
-    .event-date-pill {
-      position: absolute; top: 10px; right: 10px;
-      background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
-      color: #fff; padding: 4px 10px; border-radius: 20px;
+ }
+ .event-date-pill {
+ position: absolute; top: 10px; right: 10px;
+ background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
+ color: #fff; padding: 4px 10px; border-radius: 20px;
       font-size: 12px;
-    }
-    .event-body { padding: 14px; }
+ }
+ .event-body { padding: 14px; }
     .event-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
     .event-meta-row { display: flex; gap: 14px; font-size: 13px; color: #777; margin-bottom: 10px; }
-    .event-meta-row span { display: flex; align-items: center; gap: 4px; }
-    .event-footer { display: flex; align-items: center; justify-content: space-between; }
+ .event-meta-row span { display: flex; align-items: center; gap: 4px; }
+ .event-footer { display: flex; align-items: center; justify-content: space-between; }
     .event-price-free { color: #22c55e; font-weight: 600; font-size: 14px; }
     .event-price-paid { color: #f59e0b; font-weight: 700; font-size: 16px; }
-    .event-rsvp-btn {
-      background: #1e1e3a; color: #fff; border: none;
+ .event-rsvp-btn {
+ background: #1e1e3a; color: #fff; border: none;
       padding: 8px 18px; border-radius: 20px; font-size: 13px;
-      font-weight: 600; cursor: pointer; transition: background .2s;
-    }
-    .event-rsvp-btn:hover { background: #2a2a4a; }
-    .events-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 16px 8px;
-    }
+ font-weight: 600; cursor: pointer; transition: background .2s;
+ }
+ .event-rsvp-btn:hover { background: #2a2a4a; }
+ .events-header {
+ display: flex; align-items: center; justify-content: space-between;
+ padding: 16px 16px 8px;
+ }
     .events-header-title { font-size: 18px; font-weight: 700; }
-    .create-event-btn {
-      background: #fff; color: #000;
-      border: none; border-radius: 20px;
+ .create-event-btn {
+ background: #fff; color: #000;
+ border: none; border-radius: 20px;
       padding: 8px 16px; font-size: 13px; font-weight: 600;
-      cursor: pointer; display: flex; align-items: center; gap: 6px;
-    }
-    .events-container { padding-bottom: 80px; }
-    .events-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 12px 80px; }
-    .events-grid2 .event-card { margin:0; border-radius:12px; }
+ cursor: pointer; display: flex; align-items: center; gap: 6px;
+ }
+ .events-container { padding-bottom: 80px; }
+ .events-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 12px 80px; }
+ .events-grid2 .event-card { margin:0; border-radius:12px; }
     .events-grid2 .event-card .event-title { font-size:12px; font-weight:600; }
-    .events-grid2 .event-card .event-body { padding:8px 10px; }
-    .events-grid2 .event-card .event-meta-row { display:none; }
-    .events-grid2 .event-card .event-cover { aspect-ratio: 4/2.4; }
-    .events-list .event-card { display:flex; flex-direction:row; height:90px; margin:0 12px 8px; border-radius:12px; overflow:hidden; }
-    .events-list .event-card .event-cover { width:110px; min-width:110px; height:90px; border-radius:0; }
-    .events-list .event-card .event-body { padding:8px 10px; display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden; }
+ .events-grid2 .event-card .event-body { padding:8px 10px; }
+ .events-grid2 .event-card .event-meta-row { display:none; }
+ .events-grid2 .event-card .event-cover { aspect-ratio: 4/2.4; }
+ .events-list .event-card { display:flex; flex-direction:row; height:90px; margin:0 12px 8px; border-radius:12px; overflow:hidden; }
+ .events-list .event-card .event-cover { width:110px; min-width:110px; height:90px; border-radius:0; }
+ .events-list .event-card .event-body { padding:8px 10px; display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden; }
     .events-list .event-card .event-title { font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .events-list .event-card .event-footer { display:none; }
+ .events-list .event-card .event-footer { display:none; }
     .events-list .event-card .event-type-pill { font-size:10px; padding:2px 6px; }
-    .events-list .event-card .event-date-pill { display:none; }
-    .empty-events {
-      text-align: center; padding: 60px 20px; color: #555;
-    }
+ .events-list .event-card .event-date-pill { display:none; }
+ .empty-events {
+ text-align: center; padding: 60px 20px; color: #555;
+ }
     .empty-events .icon { font-size: 48px; margin-bottom: 12px; }
-  </style>
+ </style>
 </head>
 <body>
 
-  <!-- TOP BAR -->
-  <div class="top-bar">
-    <div class="logo">Share<span>car</span></div>
-    <div class="top-actions">
-      <button class="icon-btn" id="view-toggle-btn" onclick="toggleView()" title="Вид"><i class="fa fa-th-large" id="view-toggle-icon"></i></button>
-      <button class="icon-btn" onclick="showFilters()" title="Фильтры">
-        <i class="fa fa-sliders-h"></i>
-      </button>
-      <button class="icon-btn" onclick="goPage('search.html')" title="Поиск">
-        <i class="fa fa-search"></i>
-      </button>
-      <button class="icon-btn" onclick="goPage('add-car.html')" title="Добавить машину">
-        <i class="fa fa-plus"></i>
-      </button>
-    </div>
-  </div>
+ <!-- TOP BAR -->
+ <div class="top-bar">
+ <div class="logo">Share<span>car</span></div>
+ <div class="top-actions">
+ <button class="icon-btn" id="view-toggle-btn" onclick="toggleView()" title="Вид"><i class="fa fa-th-large" id="view-toggle-icon"></i></button>
+ <button class="icon-btn" onclick="showFilters()" title="Фильтры">
+ <i class="fa fa-sliders-h"></i>
+ </button>
+ <button class="icon-btn" onclick="goPage('search.html')" title="Поиск">
+ <i class="fa fa-search"></i>
+ </button>
+ <button class="icon-btn" onclick="goPage('add-car.html')" title="Добавить машину">
+ <i class="fa fa-plus"></i>
+ </button>
+ </div>
+ </div>
 
-  <!-- MAIN TABS -->
-  <div class="main-tabs">
-    <div class="main-tab active" id="tab-events" onclick="switchTab('events')">Мероприятия</div>
-    <div class="main-tab" id="tab-cars" onclick="switchTab('cars')">Автомобили</div>
-  </div>
+ <!-- MAIN TABS -->
+ <div class="main-tabs">
+ <div class="main-tab active" id="tab-events" onclick="switchTab('events')">Мероприятия</div>
+ <div class="main-tab" id="tab-cars" onclick="switchTab('cars')">Автомобили</div>
+ </div>
 
-  <!-- TAB: EVENTS -->
-  <div class="tab-panel active" id="panel-events">
-    <div class="events-header">
-      <div class="events-header-title">Мероприятия</div>
-      <button class="create-event-btn" onclick="goPage('create-event.html')">
-        <i class="fas fa-plus"></i> Создать
-      </button>
-    </div>
-    <div class="events-container" id="events-feed">
-      <div class="loader" id="events-loader"><i class="fa fa-circle-notch"></i></div>
-    </div>
-  </div>
+ <!-- TAB: EVENTS -->
+ <div class="tab-panel active" id="panel-events">
+ <div class="events-header">
+ <div class="events-header-title">Мероприятия</div>
+ <button class="create-event-btn" onclick="goPage('create-event.html')">
+ <i class="fas fa-plus"></i>Создать
+ </button>
+ </div>
+ <div class="events-container" id="events-feed">
+ <div class="loader" id="events-loader"><i class="fa fa-circle-notch"></i></div>
+ </div>
+ </div>
 
-  <!-- TAB: CARS -->
-  <div class="tab-panel" id="panel-cars">
-    <!-- CLASS FILTER CHIPS -->
-    <div class="filter-bar" id="class-bar">
-      <div class="chip active" data-class="all" onclick="setClass('all', this)">Все</div>
-      <div class="chip" data-class="city" onclick="setClass('city', this)">Город</div>
-      <div class="chip" data-class="ring" onclick="setClass('ring', this)">Кольцо</div>
-      <div class="chip" data-class="drift" onclick="setClass('drift', this)">Дрифт</div>
-      <div class="chip" data-class="sport" onclick="setClass('sport', this)">Спорт</div>
-      <div class="chip" data-class="offroad" onclick="setClass('offroad', this)">Оффроуд</div>
-      <div class="chip" data-class="special" onclick="setClass('special', this)">Спецтех</div>
-      <div class="chip" data-class="business" onclick="setClass('business', this)">Бизнес</div>
-    </div>
-    <!-- SORT CHIPS -->
-    <div class="sort-bar" id="sort-bar">
-      <div class="sort-chip active" data-sort="new" onclick="setSort('new', this)">Новые</div>
-      <div class="sort-chip" id="chip-hp" data-sort="hp_desc" onclick="toggleSort('hp', this)">Мощность ↓</div>
-      <div class="sort-chip" id="chip-price" data-sort="price_asc" onclick="toggleSort('price', this)">Цена ↑</div>
-      <div class="sort-chip" data-sort="popular" onclick="setSort('popular', this)">Популярные</div>
-    </div>
-    <!-- FEED -->
-    <div class="feed-container" id="feed">
-      <div class="loader" id="loader"><i class="fa fa-circle-notch"></i></div>
-    </div>
-  </div>
+ <!-- TAB: CARS -->
+ <div class="tab-panel" id="panel-cars">
+ <!-- CLASS FILTER CHIPS -->
+ <div class="filter-bar" id="class-bar">
+ <div class="chip active" data-class="all" onclick="setClass('all', this)">Все</div>
+ <div class="chip" data-class="city" onclick="setClass('city', this)">Город</div>
+ <div class="chip" data-class="ring" onclick="setClass('ring', this)">Кольцо</div>
+ <div class="chip" data-class="drift" onclick="setClass('drift', this)">Дрифт</div>
+ <div class="chip" data-class="sport" onclick="setClass('sport', this)">Спорт</div>
+ <div class="chip" data-class="offroad" onclick="setClass('offroad', this)">Оффроуд</div>
+ <div class="chip" data-class="special" onclick="setClass('special', this)">Спецтех</div>
+ <div class="chip" data-class="business" onclick="setClass('business', this)">Бизнес</div>
+ </div>
+ <!-- SORT CHIPS -->
+ <div class="sort-bar" id="sort-bar">
+ <div class="sort-chip active" data-sort="new" onclick="setSort('new', this)">Новые</div>
+ <div class="sort-chip" id="chip-hp" data-sort="hp_desc" onclick="toggleSort('hp', this)">Мощность ↓</div>
+ <div class="sort-chip" id="chip-price" data-sort="price_asc" onclick="toggleSort('price', this)">Цена ↑</div>
+ <div class="sort-chip" data-sort="popular" onclick="setSort('popular', this)">Популярные</div>
+ </div>
+ <!-- FEED -->
+ <div class="feed-container" id="feed">
+ <div class="loader" id="loader"><i class="fa fa-circle-notch"></i></div>
+ </div>
+ </div>
 
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-    <button class="nav-item active" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
-    <button class="nav-item" onclick="goPage('partners.html')"><i class="fas fa-search"></i><span>Поиск</span></button>
-    <button class="nav-item" onclick="goPage('messages.html')" style="position:relative;"><i class="fa fa-comment"></i><span>Сообщения</span><span class="nav-msg-badge nav-badge" style="display:none;"></span></button>
-    <button class="nav-item" onclick="goPage('rating.html')"><i class="fa fa-comments"></i><span>Форум</span></button>
-    <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
-  </nav>
+ <!-- BOTTOM NAV -->
+ <nav class="bottom-nav">
+ <button class="nav-item active" onclick="goPage('index.html')"><i class="fa fa-home"></i><span>Лента</span></button>
+ <button class="nav-item" onclick="goPage('partners.html')"><i class="fas fa-search"></i><span>Поиск</span></button>
+ <button class="nav-item" onclick="goPage('messages.html')" style="position:relative;"><i class="fa fa-comment"></i><span>Сообщения</span><span class="nav-msg-badge nav-badge" style="display:none;"></span></button>
+ <button class="nav-item" onclick="goPage('rating.html')"><i class="fa fa-comments"></i><span>Форум</span></button>
+ <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
+ </nav>
 
-  <!-- FILTER OVERLAY -->
-  <div class="filter-overlay" id="filter-overlay" onclick="closeFilters(event)">
-    <div class="filter-sheet">
-      <div class="filter-handle"></div>
-      <div class="filter-title">Фильтры</div>
+ <!-- FILTER OVERLAY -->
+ <div class="filter-overlay" id="filter-overlay" onclick="closeFilters(event)">
+ <div class="filter-sheet">
+ <div class="filter-handle"></div>
+ <div class="filter-title">Фильтры</div>
 
-      <div class="filter-label">Город</div>
+ <div class="filter-label">Город</div>
       <input class="filter-input" id="f-city" placeholder="Например: Москва">
 
-      <div class="filter-label">Роль</div>
-      <div class="filter-chips">
-        <div class="f-chip active" data-val="" onclick="selectChip(this,'role')">Любая</div>
-        <div class="f-chip" data-val="driver" onclick="selectChip(this,'role')">Водитель</div>
-        <div class="f-chip" data-val="passenger" onclick="selectChip(this,'role')">Пассажир</div>
-      </div>
+ <div class="filter-label">Роль</div>
+ <div class="filter-chips">
+ <div class="f-chip active" data-val="" onclick="selectChip(this,'role')">Любая</div>
+ <div class="f-chip" data-val="driver" onclick="selectChip(this,'role')">Водитель</div>
+ <div class="f-chip" data-val="passenger" onclick="selectChip(this,'role')">Пассажир</div>
+ </div>
 
       <div class="filter-label">Тип поездки <span style="color:#666;font-size:11px;">(можно несколько)</span></div>
-      <div class="filter-chips">
-        <div class="f-chip active" data-val="" onclick="selectChip(this,'trip',true)">Любой</div>
-        <div class="f-chip" data-val="city" onclick="selectChip(this,'trip',true)">Город</div>
-        <div class="f-chip" data-val="ring" onclick="selectChip(this,'trip',true)">Кольцо</div>
-        <div class="f-chip" data-val="drift" onclick="selectChip(this,'trip',true)">Дрифт</div>
-        <div class="f-chip" data-val="sport" onclick="selectChip(this,'trip',true)">Спорт</div>
-        <div class="f-chip" data-val="offroad" onclick="selectChip(this,'trip',true)">Оффроуд</div>
-        <div class="f-chip" data-val="business" onclick="selectChip(this,'trip',true)">Бизнес</div>
-      </div>
+ <div class="filter-chips">
+ <div class="f-chip active" data-val="" onclick="selectChip(this,'trip',true)">Любой</div>
+ <div class="f-chip" data-val="city" onclick="selectChip(this,'trip',true)">Город</div>
+ <div class="f-chip" data-val="ring" onclick="selectChip(this,'trip',true)">Кольцо</div>
+ <div class="f-chip" data-val="drift" onclick="selectChip(this,'trip',true)">Дрифт</div>
+ <div class="f-chip" data-val="sport" onclick="selectChip(this,'trip',true)">Спорт</div>
+ <div class="f-chip" data-val="offroad" onclick="selectChip(this,'trip',true)">Оффроуд</div>
+ <div class="f-chip" data-val="business" onclick="selectChip(this,'trip',true)">Бизнес</div>
+ </div>
 
       <div class="filter-label">Цвет <span style="color:#666;font-size:11px;">(можно несколько)</span></div>
-      <div class="filter-chips" id="color-chips">
-        <div class="f-chip active" data-val="" onclick="selectChip(this,'color',true)">Любой</div>
-        <div class="f-chip" data-val="Белый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#ffffff;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Белый</div>
-        <div class="f-chip" data-val="Чёрный" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#111111;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Чёрный</div>
-        <div class="f-chip" data-val="Серебристый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#c0c0c0;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Серебристый</div>
-        <div class="f-chip" data-val="Серый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#808080;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Серый</div>
-        <div class="f-chip" data-val="Красный" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#cc0000;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Красный</div>
-        <div class="f-chip" data-val="Синий" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#1a56cc;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Синий</div>
-        <div class="f-chip" data-val="Голубой" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#4ab8e8;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Голубой</div>
-        <div class="f-chip" data-val="Жёлтый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#f5d800;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Жёлтый</div>
-        <div class="f-chip" data-val="Зелёный" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#2a8a3a;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Зелёный</div>
-        <div class="f-chip" data-val="Оранжевый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#e87020;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Оранжевый</div>
-        <div class="f-chip" data-val="Фиолетовый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#7b2fa0;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Фиолетовый</div>
-        <div class="f-chip" data-val="Коричневый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#7a4a1e;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Коричневый</div>
-        <div class="f-chip" data-val="Розовый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#f070a0;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Розовый</div>
-        <div class="f-chip" data-val="Бордовый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#800020;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Бордовый</div>
-        <div class="f-chip" data-val="Золотой" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#d4a017;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Золотой</div>
-        <div class="f-chip" data-val="Бежевый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#d4b896;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Бежевый</div>
-      </div>
+ <div class="filter-chips" id="color-chips">
+ <div class="f-chip active" data-val="" onclick="selectChip(this,'color',true)">Любой</div>
+ <div class="f-chip" data-val="Белый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#ffffff;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Белый</div>
+ <div class="f-chip" data-val="Чёрный" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#111111;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Чёрный</div>
+ <div class="f-chip" data-val="Серебристый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#c0c0c0;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Серебристый</div>
+ <div class="f-chip" data-val="Серый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#808080;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Серый</div>
+ <div class="f-chip" data-val="Красный" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#cc0000;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Красный</div>
+ <div class="f-chip" data-val="Синий" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#1a56cc;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Синий</div>
+ <div class="f-chip" data-val="Голубой" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#4ab8e8;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Голубой</div>
+ <div class="f-chip" data-val="Жёлтый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#f5d800;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Жёлтый</div>
+ <div class="f-chip" data-val="Зелёный" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#2a8a3a;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Зелёный</div>
+ <div class="f-chip" data-val="Оранжевый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#e87020;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Оранжевый</div>
+ <div class="f-chip" data-val="Фиолетовый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#7b2fa0;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Фиолетовый</div>
+ <div class="f-chip" data-val="Коричневый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#7a4a1e;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Коричневый</div>
+ <div class="f-chip" data-val="Розовый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#f070a0;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Розовый</div>
+ <div class="f-chip" data-val="Бордовый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#800020;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Бордовый</div>
+ <div class="f-chip" data-val="Золотой" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#d4a017;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Золотой</div>
+ <div class="f-chip" data-val="Бежевый" onclick="selectChip(this,'color',true)"><span style="display:inline-block;width:12px;height:12px;background:#d4b896;border:1px solid #555;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Бежевый</div>
+ </div>
 
       <div class="filter-label">Коробка передач <span style="color:#666;font-size:11px;">(можно несколько)</span></div>
-      <div class="filter-chips">
-        <div class="f-chip active" data-val="" onclick="selectChip(this,'trans',true)">Любая</div>
-        <div class="f-chip" data-val="AT" onclick="selectChip(this,'trans',true)">Автомат</div>
-        <div class="f-chip" data-val="MT" onclick="selectChip(this,'trans',true)">Механика</div>
-        <div class="f-chip" data-val="Robot" onclick="selectChip(this,'trans',true)">Робот</div>
-        <div class="f-chip" data-val="CVT" onclick="selectChip(this,'trans',true)">Вариатор</div>
-      </div>
+ <div class="filter-chips">
+ <div class="f-chip active" data-val="" onclick="selectChip(this,'trans',true)">Любая</div>
+ <div class="f-chip" data-val="AT" onclick="selectChip(this,'trans',true)">Автомат</div>
+ <div class="f-chip" data-val="MT" onclick="selectChip(this,'trans',true)">Механика</div>
+ <div class="f-chip" data-val="Robot" onclick="selectChip(this,'trans',true)">Робот</div>
+ <div class="f-chip" data-val="CVT" onclick="selectChip(this,'trans',true)">Вариатор</div>
+ </div>
 
       <div class="filter-label">Привод <span style="color:#666;font-size:11px;">(можно несколько)</span></div>
-      <div class="filter-chips">
-        <div class="f-chip active" data-val="" onclick="selectChip(this,'drive',true)">Любой</div>
-        <div class="f-chip" data-val="FWD" onclick="selectChip(this,'drive',true)">Передний</div>
-        <div class="f-chip" data-val="RWD" onclick="selectChip(this,'drive',true)">Задний</div>
-        <div class="f-chip" data-val="AWD" onclick="selectChip(this,'drive',true)">Полный</div>
-      </div>
+ <div class="filter-chips">
+ <div class="f-chip active" data-val="" onclick="selectChip(this,'drive',true)">Любой</div>
+ <div class="f-chip" data-val="FWD" onclick="selectChip(this,'drive',true)">Передний</div>
+ <div class="f-chip" data-val="RWD" onclick="selectChip(this,'drive',true)">Задний</div>
+ <div class="f-chip" data-val="AWD" onclick="selectChip(this,'drive',true)">Полный</div>
+ </div>
 
-      <div class="filter-label">Объём двигателя (л)</div>
-      <div class="filter-row">
+ <div class="filter-label">Объём двигателя (л)</div>
+ <div class="filter-row">
         <input class="filter-input" id="f-vol-min" type="number" step="0.1" placeholder="от">
         <input class="filter-input" id="f-vol-max" type="number" step="0.1" placeholder="до">
-      </div>
+ </div>
 
-      <div class="filter-label">Мощность (л.с.)</div>
-      <div class="filter-row">
+ <div class="filter-label">Мощность (л.с.)</div>
+ <div class="filter-row">
         <input class="filter-input" id="f-hp-min" type="number" placeholder="от">
         <input class="filter-input" id="f-hp-max" type="number" placeholder="до">
-      </div>
+ </div>
 
-      <div class="filter-label">Стоимость поездки (₽)</div>
-      <div class="filter-row">
+ <div class="filter-label">Стоимость поездки (₽)</div>
+ <div class="filter-row">
         <input class="filter-input" id="f-price-min" type="number" placeholder="от">
         <input class="filter-input" id="f-price-max" type="number" placeholder="до">
-      </div>
+ </div>
 
-      <div class="filter-label">Только бесплатные</div>
-      <label style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;">
-        <input type="checkbox" id="f-free" style="width:18px;height:18px;accent-color:#f59e0b;">
+ <div class="filter-label">Только бесплатные</div>
+ <label style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;">
+ <input type="checkbox" id="f-free" style="width:18px;height:18px;accent-color:#f59e0b;">
         <span style="color:#ccc;font-size:14px;">Показать только бесплатные</span>
-      </label>
+ </label>
 
-      <div class="filter-btns">
-        <button class="btn-reset" onclick="resetFilters()">Сбросить</button>
-        <button class="btn-apply" onclick="applyFilters()">Применить</button>
-      </div>
-    </div>
-  </div>
+ <div class="filter-btns">
+ <button class="btn-reset" onclick="resetFilters()">Сбросить</button>
+ <button class="btn-apply" onclick="applyFilters()">Применить</button>
+ </div>
+ </div>
+ </div>
 
-  
-  <!-- EVENTS FILTER OVERLAY -->
-  <div class="filter-overlay" id="ev-filter-overlay" onclick="closeEvFilters(event)">
-    <div class="filter-sheet">
-      <div class="filter-handle"></div>
-      <div class="filter-title">Фильтр мероприятий</div>
+ 
+ <!-- EVENTS FILTER OVERLAY -->
+ <div class="filter-overlay" id="ev-filter-overlay" onclick="closeEvFilters(event)">
+ <div class="filter-sheet">
+ <div class="filter-handle"></div>
+ <div class="filter-title">Фильтр мероприятий</div>
 
-      <div class="filter-label">Город</div>
+ <div class="filter-label">Город</div>
       <input class="filter-input" id="ef-city" placeholder="Например: Москва">
 
-      <div class="filter-label">Тип</div>
-      <div class="filter-chips">
-        <div class="f-chip active" data-val="" onclick="selectEvChip(this,'type')">Любой</div>
-        <div class="f-chip" data-val="race" onclick="selectEvChip(this,'type')">Гонка</div>
-        <div class="f-chip" data-val="meet" onclick="selectEvChip(this,'type')">Встреча</div>
-        <div class="f-chip" data-val="show" onclick="selectEvChip(this,'type')">Шоу</div>
-        <div class="f-chip" data-val="trip" onclick="selectEvChip(this,'type')">Поездка</div>
-        <div class="f-chip" data-val="offroad" onclick="selectEvChip(this,'type')">Оффроуд</div>
-        <div class="f-chip" data-val="other" onclick="selectEvChip(this,'type')">Другое</div>
-      </div>
+ <div class="filter-label">Тип</div>
+ <div class="filter-chips">
+ <div class="f-chip active" data-val="" onclick="selectEvChip(this,'type')">Любой</div>
+ <div class="f-chip" data-val="race" onclick="selectEvChip(this,'type')">Гонка</div>
+ <div class="f-chip" data-val="meet" onclick="selectEvChip(this,'type')">Встреча</div>
+ <div class="f-chip" data-val="show" onclick="selectEvChip(this,'type')">Шоу</div>
+ <div class="f-chip" data-val="trip" onclick="selectEvChip(this,'type')">Поездка</div>
+ <div class="f-chip" data-val="offroad" onclick="selectEvChip(this,'type')">Оффроуд</div>
+ <div class="f-chip" data-val="other" onclick="selectEvChip(this,'type')">Другое</div>
+ </div>
 
-      <div class="filter-label">Стоимость</div>
-      <div class="filter-chips">
-        <div class="f-chip active" data-val="" onclick="selectEvChip(this,'price')">Любая</div>
-        <div class="f-chip" data-val="free" onclick="selectEvChip(this,'price')">Бесплатно</div>
-        <div class="f-chip" data-val="paid" onclick="selectEvChip(this,'price')">Платно</div>
-      </div>
+ <div class="filter-label">Стоимость</div>
+ <div class="filter-chips">
+ <div class="f-chip active" data-val="" onclick="selectEvChip(this,'price')">Любая</div>
+ <div class="f-chip" data-val="free" onclick="selectEvChip(this,'price')">Бесплатно</div>
+ <div class="f-chip" data-val="paid" onclick="selectEvChip(this,'price')">Платно</div>
+ </div>
 
-      <div class="filter-btns">
-        <button class="btn-reset" onclick="resetEvFilters()">Сбросить</button>
-        <button class="btn-apply" onclick="applyEvFilters()">Применить</button>
-      </div>
-    </div>
-  </div>
+ <div class="filter-btns">
+ <button class="btn-reset" onclick="resetEvFilters()">Сбросить</button>
+ <button class="btn-apply" onclick="applyEvFilters()">Применить</button>
+ </div>
+ </div>
+ </div>
 
 <div id="global-toast"></div>
 
-  <script>
-    function goPage(p) { window.location.href = p; }
-    const viewStates = ['single','grid2','list'];
-    const viewIcons = ['fa fa-th-large','fa fa-th','fa fa-list'];
-    const viewClasses = ['feed-container','feed-container feed-grid2','feed-container feed-list'];
-    let currentView = localStorage.getItem('sc_view') || 'single';
-    function applyView() {
-      const idx = viewStates.indexOf(currentView);
-      document.getElementById('view-toggle-icon').className = viewIcons[idx];
-      document.getElementById('feed').className = viewClasses[idx];
-      const ef = document.getElementById('events-feed');
-      if (ef) {
-        ef.className = ['events-container','events-container events-grid2','events-container events-list'][idx];
-      }
-    }
-    function toggleView() {
-      const idx = viewStates.indexOf(currentView);
-      currentView = viewStates[(idx+1) % viewStates.length];
-      localStorage.setItem('sc_view', currentView);
-      applyView();
-    }
-    applyView();
+ <script>
+ function goPage(p) { window.location.href = p; }
+ const viewStates = ['single','grid2','list'];
+ const viewIcons = ['fa fa-th-large','fa fa-th','fa fa-list'];
+ const viewClasses = ['feed-container','feed-container feed-grid2','feed-container feed-list'];
+ let currentView = localStorage.getItem('sc_view') || 'single';
+ function applyView() {
+ const idx = viewStates.indexOf(currentView);
+ document.getElementById('view-toggle-icon').className = viewIcons[idx];
+ document.getElementById('feed').className = viewClasses[idx];
+ const ef = document.getElementById('events-feed');
+ if (ef) {
+ ef.className = ['events-container','events-container events-grid2','events-container events-list'][idx];
+ }
+ }
+ function toggleView() {
+ const idx = viewStates.indexOf(currentView);
+ currentView = viewStates[(idx+1) % viewStates.length];
+ localStorage.setItem('sc_view', currentView);
+ applyView();
+ }
+ applyView();
 
     // Глобальные обёртки для модульных функций
-    function loadEvents(){ if(window._loadEvents) window._loadEvents(); }
-    function switchTab(t){ if(window._switchTab) window._switchTab(t); }
+ function loadEvents(){ if(window._loadEvents) window._loadEvents(); }
+ function switchTab(t){ if(window._switchTab) window._switchTab(t); }
 
     // ── Tab switching ──────────────────────────
-    let currentTab = 'events';
+ let currentTab = 'events';
 
-    function switchTab(tab) {
-      currentTab = tab;
-      document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById('tab-' + tab).classList.add('active');
-      document.getElementById('panel-' + tab).classList.add('active');
-      if (tab === 'events' && !window._eventsLoaded) loadEvents();
-    }
+ function switchTab(tab) {
+ currentTab = tab;
+ document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+ document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+ document.getElementById('tab-' + tab).classList.add('active');
+ document.getElementById('panel-' + tab).classList.add('active');
+ if (tab === 'events' && !window._eventsLoaded) loadEvents();
+ }
 
     // Инициализируем нужную вкладку при загрузке
-    switchTab(currentTab);
-  </script>
-  <script type="module">
-    import { supabase, requireAuth, getProfile, getLevel, showToast } from '../js/supabase.js';
-    import '../js/nav.js';
+ switchTab(currentTab);
+ </script>
+ <script type="module">
+ import { supabase, requireAuth, getProfile, getLevel, showToast } from '../js/supabase.js';
+ import '../js/nav.js';
 
     // ── Events ─────────────────────────────────────────────────────────────────
-    const TYPE_LABELS = {drive:'Поездка',meet:'Встреча',race:'Гонка',drift:'Дрифт',show:'Шоу',offroad:'Офроад',photo:'Фотосессия',other:'Другое'};
+ const TYPE_LABELS = {drive:'Поездка',meet:'Встреча',race:'Гонка',drift:'Дрифт',show:'Шоу',offroad:'Офроад',photo:'Фотосессия',other:'Другое'};
     const TYPE_ICONS  = {drive:'🚗',meet:'👋',race:'🏁',drift:'🌀',show:'🏆',offroad:'🏔',photo:'📸',other:'📌'};
 
-    window._loadEvents = async function() {
-      window._eventsLoaded = true;
-      const container = document.getElementById('events-feed');
-      container.innerHTML = '<div class="loader"><i class="fa fa-circle-notch"></i></div>';
+ window._loadEvents = async function() {
+ window._eventsLoaded = true;
+ const container = document.getElementById('events-feed');
+ container.innerHTML = '<div class="loader"><i class="fa fa-circle-notch"></i></div>';
 
-      const evF = window.evFilterState || { type: '', price: '' };
-      const efCity = (document.getElementById('ef-city')||{}).value?.trim() || '';
-      let evQuery = supabase.from('events').select('*').eq('status','active');
-      if (evF.type && evF.type.length) evQuery = evQuery.in('type', Array.isArray(evF.type) ? evF.type : [evF.type]);
-      if (evF.price === 'free') evQuery = evQuery.eq('is_free', true);
-      if (evF.price === 'paid') evQuery = evQuery.eq('is_free', false);
-      if (efCity) evQuery = evQuery.ilike('city', '%' + efCity + '%');
-      evQuery = evQuery.order('created_at', { ascending: false }).limit(50);
-      const { data, error } = await evQuery;
+ const evF = window.evFilterState || { type: '', price: '' };
+ const efCity = (document.getElementById('ef-city')||{}).value?.trim() || '';
+ let evQuery = supabase.from('events').select('*').eq('status','active');
+ if (evF.type && evF.type.length) evQuery = evQuery.in('type', Array.isArray(evF.type) ? evF.type : [evF.type]);
+ if (evF.price === 'free') evQuery = evQuery.eq('is_free', true);
+ if (evF.price === 'paid') evQuery = evQuery.eq('is_free', false);
+ if (efCity) evQuery = evQuery.ilike('city', '%' + efCity + '%');
+ evQuery = evQuery.order('created_at', { ascending: false }).limit(50);
+ const { data, error } = await evQuery;
 
-      if (error || !data || data.length === 0) {
+ if (error || !data || data.length === 0) {
         container.innerHTML = `<div class="empty-events"><div class="icon">🎉</div><p>Мероприятий пока нет</p><p style="font-size:13px;margin-top:8px;color:#444">Создай первое!</p></div>`;
-        return;
-      }
+ return;
+ }
 
       // Загружаем лайки мероприятий текущего пользователя
-      const { data: myEvLikes } = await supabase
-        .from('event_likes').select('event_id').eq('user_id', currentUser.id);
-      const likedEvIds = new Set((myEvLikes||[]).map(l => l.event_id));
+ const { data: myEvLikes } = await supabase
+ .from('event_likes').select('event_id').eq('user_id', currentUser.id);
+ const likedEvIds = new Set((myEvLikes||[]).map(l => l.event_id));
 
-      container.innerHTML = data.map(ev => {
-        const ds = ev.date_start ? new Date(ev.date_start) : null;
-        const dateStr = ds ? ds.toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
-        const loc = [ev.city, ev.address].filter(Boolean).join(', ');
-        const isLiked = likedEvIds.has(ev.id);
+ container.innerHTML = data.map(ev => {
+ const ds = ev.date_start ? new Date(ev.date_start) : null;
+ const dateStr = ds ? ds.toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+ const loc = [ev.city, ev.address].filter(Boolean).join(', ');
+ const isLiked = likedEvIds.has(ev.id);
 
         // Слайдер фото или обложка
-        let coverHtml = '';
-        const photos = ev.photos && ev.photos.length ? ev.photos : (ev.cover_photo ? [ev.cover_photo] : []);
-        if (photos.length > 1) {
+ let coverHtml = '';
+ const photos = ev.photos && ev.photos.length ? ev.photos : (ev.cover_photo ? [ev.cover_photo] : []);
+ if (photos.length > 1) {
           const slides = photos.map((url,si) => `<div style="flex-shrink:0;min-width:100%;width:100%;height:100%;overflow:hidden;"><img src="${url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>`).join('');
-          const dots = photos.map((_,si) => `<span class="fdot${si===0?' active':''}" onclick="evSliderJump('${ev.id}',${si},arguments[0]||window.event)"></span>`).join('');
-          coverHtml = `<div style="position:relative;width:100%;height:100%;overflow:hidden;"><div class="fslides" id="efsl-${ev.id}" style="display:flex;width:100%;height:100%;transition:transform .3s;will-change:transform;" ontouchstart="efts(arguments[0]||window.event,'${ev.id}')" ontouchend="efte(arguments[0]||window.event,'${ev.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div></div>`;
-        } else if (photos.length === 1) {
+ const dots = photos.map((_,si) => `<span class="fdot${si===0?' active':''}" onclick="evSliderJump('${ev.id}',${si},arguments[0]||window.event)"></span>`).join('');
+ coverHtml = `<div style="position:relative;width:100%;height:100%;overflow:hidden;"><div class="fslides" id="efsl-${ev.id}" style="display:flex;width:100%;height:100%;transition:transform .3s;will-change:transform;" ontouchstart="efts(arguments[0]||window.event,'${ev.id}')" ontouchend="efte(arguments[0]||window.event,'${ev.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div></div>`;
+ } else if (photos.length === 1) {
           coverHtml = `<img src="${photos[0]}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`;
-        } else {
+ } else {
           coverHtml = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(135deg,#1a1a2e,#0f0f1e)">${TYPE_ICONS[ev.type]||'🎉'}</div>`;
-        }
+ }
 
-        return `<div class="event-card" onclick="goPage('event-card.html?id=${ev.id}')">
-          <div class="event-cover">
-            ${coverHtml}
-            <span class="event-type-pill">${TYPE_LABELS[ev.type] || 'Мероприятие'}</span>
-            ${dateStr ? `<span class="event-date-pill">📅 ${dateStr}</span>` : ''}
-            ${photos.length > 1 ? `<span class="photo-count">${photos.length} фото</span>` : ''}
-          </div>
-          <div class="event-body">
-            <div class="event-title">${ev.title}</div>
-            <div class="event-meta-row">
-              ${loc ? `<span>📍 ${loc}</span>` : ''}
-              <span>${ev.participants_count || 0} участников</span>
-            </div>
-            <div class="event-footer">
-              <span class="${ev.is_free ? 'event-price-free' : 'event-price-paid'}">${ev.is_free ? 'Бесплатно' : (ev.price||0) + ' ₽'}</span>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <button class="btn-like${isLiked?' liked':''}" id="evlike-${ev.id}"
-                  onclick="toggleEvLike('${ev.id}',this,arguments[0]||window.event)">
-                  <i class="fa${isLiked?'s':'r'} fa-heart"></i>
-                  <span>${ev.likes||0}</span>
-                </button>
-                <button class="event-rsvp-btn" onclick="goPage('event-card.html?id=${ev.id}')">Подробнее →</button>
-              </div>
-            </div>
-          </div>
-        </div>`;
-      }).join('');
+ return `<div class="event-card" onclick="goPage('event-card.html?id=${ev.id}')">
+ <div class="event-cover">
+ ${coverHtml}
+ <span class="event-type-pill">${TYPE_LABELS[ev.type] || 'Мероприятие'}</span>
+ ${dateStr ? `<span class="event-date-pill"> ${dateStr}</span>` : ''}
+ ${photos.length > 1 ? `<span class="photo-count">${photos.length} фото</span>` : ''}
+ </div>
+ <div class="event-body">
+ <div class="event-title">${ev.title}</div>
+ <div class="event-meta-row">
+ ${loc ? `<span> ${loc}</span>` : ''}
+ <span>${ev.participants_count || 0} участников</span>
+ </div>
+ <div class="event-footer">
+ <span class="${ev.is_free ? 'event-price-free' : 'event-price-paid'}">${ev.is_free ? 'Бесплатно' : (ev.price||0) + ' ₽'}</span>
+ <div style="display:flex;align-items:center;gap:8px;">
+ <button class="btn-like${isLiked?' liked':''}" id="evlike-${ev.id}"
+ onclick="toggleEvLike('${ev.id}',this,arguments[0]||window.event)">
+ <i class="fa${isLiked?'s':'r'} fa-heart"></i>
+ <span>${ev.likes||0}</span>
+ </button>
+ <button class="event-rsvp-btn" onclick="goPage('event-card.html?id=${ev.id}')">Подробнее →</button>
+ </div>
+ </div>
+ </div>
+ </div>`;
+ }).join('');
 
       // Свайп для слайдера мероприятий
-      var _efTx = {};
-      window.efts = function(e, id) { _efTx[id] = e.touches[0].clientX; };
-      window.efte = function(e, id) {
-        var dx = e.changedTouches[0].clientX - (_efTx[id]||0);
-        if (Math.abs(dx) < 40) return;
-        var el = document.getElementById('efsl-'+id);
-        if (!el) return;
-        var count = el.children.length;
-        var cur = Math.round(Math.abs(el.style.transform.replace('translateX(',''))/100)||0;
-        var next = dx < 0 ? Math.min(cur+1,count-1) : Math.max(cur-1,0);
-        el.style.transform = 'translateX(-'+next+'00%)';
-        el.parentNode.querySelectorAll('.fdot').forEach(function(d,i){ d.classList.toggle('active',i===next); });
-      };
-      window.evSliderJump = function(id, idx, e) {
-        if(e){ e.stopPropagation(); }
-        var el = document.getElementById('efsl-'+id);
-        if (!el) return;
-        el.style.transform = 'translateX(-'+idx+'00%)';
-        el.parentNode.querySelectorAll('.fdot').forEach(function(d,i){ d.classList.toggle('active',i===idx); });
-      };
+ var _efTx = {};
+ window.efts = function(e, id) { _efTx[id] = e.touches[0].clientX; };
+ window.efte = function(e, id) {
+ var dx = e.changedTouches[0].clientX - (_efTx[id]||0);
+ if (Math.abs(dx) < 40) return;
+ var el = document.getElementById('efsl-'+id);
+ if (!el) return;
+ var count = el.children.length;
+ var cur = Math.round(Math.abs(el.style.transform.replace('translateX(',''))/100)||0;
+ var next = dx < 0 ? Math.min(cur+1,count-1) : Math.max(cur-1,0);
+ el.style.transform = 'translateX(-'+next+'00%)';
+ el.parentNode.querySelectorAll('.fdot').forEach(function(d,i){ d.classList.toggle('active',i===next); });
+ };
+ window.evSliderJump = function(id, idx, e) {
+ if(e){ e.stopPropagation(); }
+ var el = document.getElementById('efsl-'+id);
+ if (!el) return;
+ el.style.transform = 'translateX(-'+idx+'00%)';
+ el.parentNode.querySelectorAll('.fdot').forEach(function(d,i){ d.classList.toggle('active',i===idx); });
+ };
 
       // Лайк мероприятия
-      window.toggleEvLike = async function(evId, btn, e) {
-        if(e){ e.stopPropagation(); }
-        const wasLiked = likedEvIds.has(evId);
-        if (wasLiked) {
-          likedEvIds.delete(evId);
-          await supabase.from('event_likes').delete().eq('user_id',currentUser.id).eq('event_id',evId);
-          btn.classList.remove('liked');
-          btn.querySelector('i').className = 'far fa-heart';
-          btn.querySelector('span').textContent = Math.max(0, parseInt(btn.querySelector('span').textContent)-1);
-        } else {
-          likedEvIds.add(evId);
-          await supabase.from('event_likes').insert({user_id:currentUser.id,event_id:evId});
-          btn.classList.add('liked');
-          btn.querySelector('i').className = 'fas fa-heart';
-          btn.querySelector('span').textContent = parseInt(btn.querySelector('span').textContent)+1;
-        }
-      };
-    };
+ window.toggleEvLike = async function(evId, btn, e) {
+ if(e){ e.stopPropagation(); }
+ const wasLiked = likedEvIds.has(evId);
+ if (wasLiked) {
+ likedEvIds.delete(evId);
+ await supabase.from('event_likes').delete().eq('user_id',currentUser.id).eq('event_id',evId);
+ btn.classList.remove('liked');
+ btn.querySelector('i').className = 'far fa-heart';
+ btn.querySelector('span').textContent = Math.max(0, parseInt(btn.querySelector('span').textContent)-1);
+ } else {
+ likedEvIds.add(evId);
+ await supabase.from('event_likes').insert({user_id:currentUser.id,event_id:evId});
+ btn.classList.add('liked');
+ btn.querySelector('i').className = 'fas fa-heart';
+ btn.querySelector('span').textContent = parseInt(btn.querySelector('span').textContent)+1;
+ }
+ };
+ };
 
     // Auto-load events if starting on events tab
-    if ((localStorage.getItem('sc_tab') || 'events') === 'events') {
-      window._loadEvents();
-    }
+ if ((localStorage.getItem('sc_tab') || 'events') === 'events') {
+ window._loadEvents();
+ }
 
     // ── State ──────────────────────────────────────────────────────────────────
-    let currentUser = null;
-    let currentProfile = null;
-    let allCars = [];
-    let likedIds = new Set();
-    let currentClass = 'all';
-    let currentSort = 'new';
-    let filters = {};
+ let currentUser = null;
+ let currentProfile = null;
+ let allCars = [];
+ let likedIds = new Set();
+ let currentClass = 'all';
+ let currentSort = 'new';
+ let filters = {};
 
     // Expose globals
-    window.setClass = setClass;
-    window.setSort = setSort;
-    window.selectChip = selectChip;
-    function selectChip(el, group, multi = false) {
-      const chips = el.closest('.filter-chips');
-      const anyChip = chips.querySelector('[data-val=""]');
-      if (!multi || el === anyChip) {
-        chips.querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-      } else {
-        anyChip.classList.remove('active');
-        el.classList.toggle('active');
-        if (!chips.querySelector('.f-chip.active')) anyChip.classList.add('active');
-      }
-    }
+ window.setClass = setClass;
+ window.setSort = setSort;
+ window.selectChip = selectChip;
+ function selectChip(el, group, multi = false) {
+ const chips = el.closest('.filter-chips');
+ const anyChip = chips.querySelector('[data-val=""]');
+ if (!multi || el === anyChip) {
+ chips.querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
+ el.classList.add('active');
+ } else {
+ anyChip.classList.remove('active');
+ el.classList.toggle('active');
+ if (!chips.querySelector('.f-chip.active')) anyChip.classList.add('active');
+ }
+ }
     // Feed photo swipe
-    const _fTouchX = {};
-    const _fIdx = {};
-    window.fts = (e, id) => { _fTouchX[id] = e.touches[0].clientX; };
-    window.fte = (e, id) => {
-      const dx = e.changedTouches[0].clientX - (_fTouchX[id] || 0);
-      if (Math.abs(dx) < 40) return;
-      const el = document.getElementById('fsl-' + id);
-      if (!el) return;
-      const count = el.children.length;
-      _fIdx[id] = ((_fIdx[id] || 0) + (dx < 0 ? 1 : -1) + count) % count;
+ const _fTouchX = {};
+ const _fIdx = {};
+ window.fts = (e, id) => { _fTouchX[id] = e.touches[0].clientX; };
+ window.fte = (e, id) => {
+ const dx = e.changedTouches[0].clientX - (_fTouchX[id] || 0);
+ if (Math.abs(dx) < 40) return;
+ const el = document.getElementById('fsl-' + id);
+ if (!el) return;
+ const count = el.children.length;
+ _fIdx[id] = ((_fIdx[id] || 0) + (dx < 0 ? 1 : -1) + count) % count;
       el.style.transform = `translateX(-${_fIdx[id] * 100}%)`;
-      el.parentNode.querySelectorAll('.fdot').forEach((d, i) => d.classList.toggle('active', i === _fIdx[id]));
-    };
-    window.jumpFeed = (id, i) => {
-      const el = document.getElementById('fsl-' + id);
-      if (!el) return;
-      _fIdx[id] = i;
+ el.parentNode.querySelectorAll('.fdot').forEach((d, i) => d.classList.toggle('active', i === _fIdx[id]));
+ };
+ window.jumpFeed = (id, i) => {
+ const el = document.getElementById('fsl-' + id);
+ if (!el) return;
+ _fIdx[id] = i;
       el.style.transform = `translateX(-${i * 100}%)`;
-      el.parentNode.querySelectorAll('.fdot').forEach((d, j) => d.classList.toggle('active', j === i));
-    };
-    window.toggleView = toggleView;
-    window.toggleSort = toggleSort;
+ el.parentNode.querySelectorAll('.fdot').forEach((d, j) => d.classList.toggle('active', j === i));
+ };
+ window.toggleView = toggleView;
+ window.toggleSort = toggleSort;
 
-    function toggleSort(type, el) {
-      if (type === 'hp') {
-        const isDesc = el.dataset.sort === 'hp_desc';
-        el.dataset.sort = isDesc ? 'hp_asc' : 'hp_desc';
-        el.textContent = isDesc ? 'Мощность ↑' : 'Мощность ↓';
-        setSort(el.dataset.sort, el);
-      } else {
-        const isAsc = el.dataset.sort === 'price_asc';
-        el.dataset.sort = isAsc ? 'price_desc' : 'price_asc';
-        el.textContent = isAsc ? 'Цена ↓' : 'Цена ↑';
-        setSort(el.dataset.sort, el);
-      }
-    }
-    window.showFilters = showFilters;
-    window.closeFilters = closeFilters;
-    window.resetFilters = resetFilters;
-    window.applyFilters = applyFilters;
-    window.goPage = (p) => window.location.href = p;
-    window.toggleLike = toggleLike;
+ function toggleSort(type, el) {
+ if (type === 'hp') {
+ const isDesc = el.dataset.sort === 'hp_desc';
+ el.dataset.sort = isDesc ? 'hp_asc' : 'hp_desc';
+ el.textContent = isDesc ? 'Мощность ↑' : 'Мощность ↓';
+ setSort(el.dataset.sort, el);
+ } else {
+ const isAsc = el.dataset.sort === 'price_asc';
+ el.dataset.sort = isAsc ? 'price_desc' : 'price_asc';
+ el.textContent = isAsc ? 'Цена ↓' : 'Цена ↑';
+ setSort(el.dataset.sort, el);
+ }
+ }
+ window.showFilters = showFilters;
+ window.closeFilters = closeFilters;
+ window.resetFilters = resetFilters;
+ window.applyFilters = applyFilters;
+ window.goPage = (p) => window.location.href = p;
+ window.toggleLike = toggleLike;
 
     // ── Init ───────────────────────────────────────────────────────────────────
-    async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        window.location.href = '/app/auth.html';
-        return;
-      }
-      currentUser = session.user;
-      currentProfile = await getProfile(currentUser.id);
-      await loadLikes();
-      await loadFeed();
-      if (window.updateMsgBadge) updateMsgBadge(supabase, currentUser.id);
-    }
+ async function init() {
+ const { data: { session } } = await supabase.auth.getSession();
+ if (!session) {
+ window.location.href = '/app/auth.html';
+ return;
+ }
+ currentUser = session.user;
+ currentProfile = await getProfile(currentUser.id);
+ await loadLikes();
+ await loadFeed();
+ if (window.updateMsgBadge) updateMsgBadge(supabase, currentUser.id);
+ }
 
     // ── Load likes ─────────────────────────────────────────────────────────────
-    async function loadLikes() {
-      const { data } = await supabase
-        .from('likes')
-        .select('car_id')
-        .eq('user_id', currentUser.id);
-      if (data) likedIds = new Set(data.map(l => l.car_id));
-    }
+ async function loadLikes() {
+ const { data } = await supabase
+ .from('likes')
+ .select('car_id')
+ .eq('user_id', currentUser.id);
+ if (data) likedIds = new Set(data.map(l => l.car_id));
+ }
 
     // ── Load cars from Supabase ────────────────────────────────────────────────
-    async function loadFeed() {
+ async function loadFeed() {
 
       document.getElementById('feed').innerHTML = '<div style="text-align:center;padding:40px;"><i class="fa fa-circle-notch" style="font-size:28px;color:#f59e0b;animation:spin .8s linear infinite;"></i></div>';
 
-      let query = supabase
-        .from('cars')
-        .select(`
-          *,
-          profiles:owner_id (
-            id, first_name, last_name, level, account_type, org_name, rating_driver, trips_driven, avatar_url
-          )
-        `)
-        .eq('status', 'published');
+ let query = supabase
+ .from('cars')
+ .select(`
+ *,
+ profiles:owner_id (
+ id, first_name, last_name, level, account_type, org_name, rating_driver, trips_driven, avatar_url
+ )
+ `)
+ .eq('status', 'published');
 
       // Class filter
-      if (currentClass !== 'all') query = query.eq('car_class', currentClass);
+ if (currentClass !== 'all') query = query.eq('car_class', currentClass);
 
       // Extra filters
-      if (filters.city) query = query.ilike('city', `%${filters.city}%`);
-      if (filters.hpMin) query = query.gte('horsepower', filters.hpMin);
-      if (filters.hpMax) query = query.lte('horsepower', filters.hpMax);
-      if (filters.priceMin) query = query.gte('price_driver', filters.priceMin);
-      if (filters.priceMax) query = query.lte('price_driver', filters.priceMax);
-      if (filters.free) query = query.eq('is_free', true);
-      if (filters.colors?.length) query = query.in('color', filters.colors);
-      if (filters.trans?.length) query = query.in('transmission', filters.trans);
-      if (filters.drive?.length) query = query.in('drive_type', filters.drive);
-      if (filters.volMin) query = query.gte('engine_volume', filters.volMin);
-      if (filters.volMax) query = query.lte('engine_volume', filters.volMax);
-      if (filters.role === 'driver') query = query.eq('allow_driver', true);
-      if (filters.role === 'passenger') query = query.eq('allow_passenger', true);
-      if (filters.trips?.length) query = query.in('car_class', filters.trips);
+ if (filters.city) query = query.ilike('city', `%${filters.city}%`);
+ if (filters.hpMin) query = query.gte('horsepower', filters.hpMin);
+ if (filters.hpMax) query = query.lte('horsepower', filters.hpMax);
+ if (filters.priceMin) query = query.gte('price_driver', filters.priceMin);
+ if (filters.priceMax) query = query.lte('price_driver', filters.priceMax);
+ if (filters.free) query = query.eq('is_free', true);
+ if (filters.colors?.length) query = query.in('color', filters.colors);
+ if (filters.trans?.length) query = query.in('transmission', filters.trans);
+ if (filters.drive?.length) query = query.in('drive_type', filters.drive);
+ if (filters.volMin) query = query.gte('engine_volume', filters.volMin);
+ if (filters.volMax) query = query.lte('engine_volume', filters.volMax);
+ if (filters.role === 'driver') query = query.eq('allow_driver', true);
+ if (filters.role === 'passenger') query = query.eq('allow_passenger', true);
+ if (filters.trips?.length) query = query.in('car_class', filters.trips);
 
       // Sorting
-      if (currentSort === 'new')        query = query.order('created_at', { ascending: false });
-      else if (currentSort === 'hp_desc') query = query.order('horsepower', { ascending: false });
-      else if (currentSort === 'hp_asc')  query = query.order('horsepower', { ascending: true });
-      else if (currentSort === 'price_asc')  query = query.order('price_driver', { ascending: true });
-      else if (currentSort === 'price_desc') query = query.order('price_driver', { ascending: false });
-      else if (currentSort === 'popular') query = query.order('likes', { ascending: false });
+ if (currentSort === 'new') query = query.order('created_at', { ascending: false });
+ else if (currentSort === 'hp_desc') query = query.order('horsepower', { ascending: false });
+ else if (currentSort === 'hp_asc') query = query.order('horsepower', { ascending: true });
+ else if (currentSort === 'price_asc') query = query.order('price_driver', { ascending: true });
+ else if (currentSort === 'price_desc') query = query.order('price_driver', { ascending: false });
+ else if (currentSort === 'popular') query = query.order('likes', { ascending: false });
 
-      query = query.limit(50);
+ query = query.limit(50);
 
-      const { data: cars, error } = await query;
+ const { data: cars, error } = await query;
 
-      if (error) {
-        document.getElementById('feed').innerHTML = `
-          <div class="empty-feed">
-            <div class="icon">⚠️</div>
-            <div>Ошибка загрузки. Попробуйте позже.</div>
-          </div>`;
-        return;
-      }
+ if (error) {
+ document.getElementById('feed').innerHTML = `
+ <div class="empty-feed">
+ <div class="icon"></div>
+ <div>Ошибка загрузки. Попробуйте позже.</div>
+ </div>`;
+ return;
+ }
 
-      allCars = cars || [];
+ allCars = cars || [];
       if (allCars[0]) console.log('first car owner:', JSON.stringify(allCars[0].profiles));
-      renderFeed();
-    }
+ renderFeed();
+ }
 
     // ── Render ─────────────────────────────────────────────────────────────────
-    function renderFeed() {
-      const feed = document.getElementById('feed');
-      if (!allCars.length) {
-        feed.innerHTML = `
-          <div class="empty-feed">
-            <div class="icon">🚗</div>
+ function renderFeed() {
+ const feed = document.getElementById('feed');
+ if (!allCars.length) {
+ feed.innerHTML = `
+ <div class="empty-feed">
+ <div class="icon"></div>
             <div style="font-size:16px;font-weight:600;margin-bottom:8px;">Машин пока нет</div>
-            <div style="color:#666;">Будьте первым — добавьте свою!</div>
-            <button onclick="goPage('add-car.html')"
+ <div style="color:#666;">Будьте первым — добавьте свою!</div>
+ <button onclick="goPage('add-car.html')"
               style="margin-top:20px;padding:12px 24px;background:#f59e0b;color:#000;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;">
-              + Добавить машину
-            </button>
-          </div>`;
-        return;
-      }
+ + Добавить машину
+ </button>
+ </div>`;
+ return;
+ }
 
-      feed.innerHTML = allCars.map((car, i) => buildCard(car, i)).join('');
-    }
+ feed.innerHTML = allCars.map((car, i) => buildCard(car, i)).join('');
+ }
 
     const CLASS_ICONS = { ring:'🏁', drift:'💨', city:'🚗', offroad:'🚙', special:'⚡', sport:'🏎', business:'🏢' };
-    const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
+ const LEVEL_COLORS = { bronze:'#cd7f32', silver:'#a8a9ad', gold:'#ffd700', premium:'#a855f7', vip:'#f59e0b' };
 
-    function buildCard(car, idx) {
-      const owner = car.profiles || {};
-      const ownerName = owner.org_name || `${owner.first_name || ''} ${owner.last_name || ''}`.trim() || 'Владелец';
-      const initials = ownerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
+ function buildCard(car, idx) {
+ const owner = car.profiles || {};
+ const ownerName = owner.org_name || `${owner.first_name || ''} ${owner.last_name || ''}`.trim() || 'Владелец';
+ const initials = ownerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
 
-      const level = owner.level || 'bronze';
-      const lvlColor = LEVEL_COLORS[level] || '#888';
-      const isLiked = likedIds.has(car.id);
+ const level = owner.level || 'bronze';
+ const lvlColor = LEVEL_COLORS[level] || '#888';
+ const isLiked = likedIds.has(car.id);
 
       // Photo
-      const photos = car.photos || [];
-      let photoHtml = '';
-      if (photos.length > 1) {
+ const photos = car.photos || [];
+ let photoHtml = '';
+ if (photos.length > 1) {
         const slides = photos.map((url, i) => `<div style="flex-shrink:0;min-width:100%;width:100%;height:100%;overflow:hidden;"><img src="${url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>`).join('');
-        const dots = photos.map((_, i) => `<span class="fdot${i===0?' active':''}" onclick="event.stopPropagation();jumpFeed('${car.id}',${i})"></span>`).join('');
-        photoHtml = `<div class="fslides" id="fsl-${car.id}" style="display:flex;height:100%;transition:transform .3s;" ontouchstart="fts(event,'${car.id}')" ontouchend="fte(event,'${car.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div>`;
-      } else if (photos.length === 1) {
+ const dots = photos.map((_, i) => `<span class="fdot${i===0?' active':''}" onclick="event.stopPropagation();jumpFeed('${car.id}',${i})"></span>`).join('');
+ photoHtml = `<div class="fslides" id="fsl-${car.id}" style="display:flex;height:100%;transition:transform .3s;" ontouchstart="fts(event,'${car.id}')" ontouchend="fte(event,'${car.id}')">${slides}</div><div class="fdots" style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;">${dots}</div>`;
+ } else if (photos.length === 1) {
         photoHtml = `<img src="${photos[0]}" alt="${car.brand} ${car.model}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=no-photo>${CLASS_ICONS[car.car_class]||'🚗'}</div>'">`;
-      } else {
+ } else {
         photoHtml = `<div class="no-photo">${CLASS_ICONS[car.car_class] || '🚗'}</div>`;
-      }
+ }
 
       // Price
-      let priceHtml = '';
-      const discount = currentProfile ? getDiscountPct(currentProfile.level) : 0;
-      if (car.is_free) {
-        priceHtml = `<div class="feed-price price-free">Бесплатно</div>`;
-      } else {
-        const rows = [];
-        if (car.has_driver_role && car.price_driver) {
-          const orig = car.price_driver;
+ let priceHtml = '';
+ const discount = currentProfile ? getDiscountPct(currentProfile.level) : 0;
+ if (car.is_free) {
+ priceHtml = `<div class="feed-price price-free">Бесплатно</div>`;
+ } else {
+ const rows = [];
+ if (car.has_driver_role && car.price_driver) {
+ const orig = car.price_driver;
           const final = discount > 0 ? Math.round(orig * (1 - discount / 100)) : orig;
-          rows.push(`<div class="feed-price-row"><span class="feed-price-label">За рулём</span><span class="feed-price-val">${final.toLocaleString('ru')} ₽</span></div>`);
-        }
-        if (car.has_passenger_role && car.price_passenger) {
-          const orig = car.price_passenger;
+ rows.push(`<div class="feed-price-row"><span class="feed-price-label">За рулём</span><span class="feed-price-val">${final.toLocaleString('ru')} ₽</span></div>`);
+ }
+ if (car.has_passenger_role && car.price_passenger) {
+ const orig = car.price_passenger;
           const final = discount > 0 ? Math.round(orig * (1 - discount / 100)) : orig;
-          rows.push(`<div class="feed-price-row"><span class="feed-price-label">👤 Пассажир</span><span class="feed-price-val">${final.toLocaleString('ru')} ₽</span></div>`);
-        }
-        if (rows.length === 0) {
-          const p = car.price_driver || 0;
-          rows.push(`<div class="feed-price-row"><span class="feed-price-val">${p.toLocaleString('ru')} ₽</span></div>`);
-        }
-        priceHtml = `<div class="feed-price-block">${rows.join('')}</div>`;
-      }
+ rows.push(`<div class="feed-price-row"><span class="feed-price-label"> Пассажир</span><span class="feed-price-val">${final.toLocaleString('ru')} ₽</span></div>`);
+ }
+ if (rows.length === 0) {
+ const p = car.price_driver || 0;
+ rows.push(`<div class="feed-price-row"><span class="feed-price-val">${p.toLocaleString('ru')} ₽</span></div>`);
+ }
+ priceHtml = `<div class="feed-price-block">${rows.join('')}</div>`;
+ }
 
       // Tags
-      const tags = [];
-      
-      if (car.city) tags.push(`📍 ${car.city}`);
-      
-      const tagsHtml = tags.map(t => `<span class="tag">${t}</span>`).join('');
+ const tags = [];
+ 
+ if (car.city) tags.push(` ${car.city}`);
+ 
+ const tagsHtml = tags.map(t => `<span class="tag">${t}</span>`).join('');
 
-      const cardLink = car.account_type === 'business'
-        ? `business-card.html?id=${car.id}`
-        : `car-card.html?id=${car.id}`;
+ const cardLink = car.account_type === 'business'
+ ? `business-card.html?id=${car.id}`
+ : `car-card.html?id=${car.id}`;
 
-      return `
-        <div class="feed-card" data-id="${car.id}"
-             data-class="${car.car_class}" data-hp="${car.horsepower||0}"
-             data-price="${car.price_driver||0}" data-free="${car.is_free}"
-             onclick="goPage('${cardLink}')">
-          <div class="feed-photo">
-            ${photoHtml}
-            ${photos.length > 1 ? `<div class="photo-count">${photos.length} фото</div>` : ''}
-            ${car.is_free ? '<div class="badge-free">FREE</div>' : ''}
-          </div>
-          <div class="feed-body">
-            <div class="feed-list-top">
-              <div class="feed-title">${car.brand} ${car.model} ${car.year || ''}</div>
-              ${car.city ? `<div class="feed-city">${car.city}</div>` : ''}
-            </div>
+ return `
+ <div class="feed-card" data-id="${car.id}"
+ data-class="${car.car_class}" data-hp="${car.horsepower||0}"
+ data-price="${car.price_driver||0}" data-free="${car.is_free}"
+ onclick="goPage('${cardLink}')">
+ <div class="feed-photo">
+ ${photoHtml}
+ ${photos.length > 1 ? `<div class="photo-count">${photos.length} фото</div>` : ''}
+ ${car.is_free ? '<div class="badge-free">FREE</div>' : ''}
+ </div>
+ <div class="feed-body">
+ <div class="feed-list-top">
+ <div class="feed-title">${car.brand} ${car.model} ${car.year || ''}</div>
+ ${car.city ? `<div class="feed-city">${car.city}</div>` : ''}
+ </div>
             <div class="feed-sub">${car.horsepower ? '⚡ ' + car.horsepower + ' л.с.' : ''}${car.car_class ? ' · ' + (CLASS_ICONS[car.car_class]||'') + ' ' + car.car_class : ''}</div>
-            <div class="feed-owner">
-              <div class="owner-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};overflow:hidden;">
-                ${owner.avatar_url ? `<img src="${owner.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : `<span style="color:${lvlColor}">${initials}</span>`}
-              </div>
-              <span class="owner-name">${ownerName}</span>
-              <span class="owner-badge" style="background:${lvlColor}20;color:${lvlColor};">
-                ${level.charAt(0).toUpperCase() + level.slice(1)}
-              </span>
-            </div>
-            <div class="feed-tags">${tagsHtml}</div>
-            <div class="feed-footer">
-              ${priceHtml}
-              <div class="feed-actions">
-                ${currentUser && car.profiles && car.profiles.id !== currentUser.id ? `
-                <button class="btn-write" onclick="event.stopPropagation();goPage('car-card.html?id=${car.id}#apply')">
-                  Написать
-                </button>` : ''}
-                <button class="btn-like ${isLiked ? 'liked' : ''}"
-                        id="like-${car.id}"
-                        onclick="event.stopPropagation();toggleLike('${car.id}')">
-                  <i class="fa${isLiked ? 's' : 'r'} fa-heart"></i>
-                  <span>${car.likes || 0}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
+ <div class="feed-owner">
+ <div class="owner-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};overflow:hidden;">
+ ${owner.avatar_url ? `<img src="${owner.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : `<span style="color:${lvlColor}">${initials}</span>`}
+ </div>
+ <span class="owner-name">${ownerName}</span>
+ <span class="owner-badge" style="background:${lvlColor}20;color:${lvlColor};">
+ ${level.charAt(0).toUpperCase() + level.slice(1)}
+ </span>
+ </div>
+ <div class="feed-tags">${tagsHtml}</div>
+ <div class="feed-footer">
+ ${priceHtml}
+ <div class="feed-actions">
+ ${currentUser && car.profiles && car.profiles.id !== currentUser.id ? `
+ <button class="btn-write" onclick="event.stopPropagation();goPage('car-card.html?id=${car.id}#apply')">
+ Написать
+ </button>` : ''}
+ <button class="btn-like ${isLiked ? 'liked' : ''}"
+ id="like-${car.id}"
+ onclick="event.stopPropagation();toggleLike('${car.id}')">
+ <i class="fa${isLiked ? 's' : 'r'} fa-heart"></i>
+ <span>${car.likes || 0}</span>
+ </button>
+ </div>
+ </div>
+ </div>
+ </div>
+ `;
+ }
 
-    function getDiscountPct(level) {
-      const discounts = { bronze: 0, silver: 5, gold: 10, premium: 15, vip: 20 };
-      return discounts[level] || 0;
-    }
+ function getDiscountPct(level) {
+ const discounts = { bronze: 0, silver: 5, gold: 10, premium: 15, vip: 20 };
+ return discounts[level] || 0;
+ }
 
     // ── Sort ───────────────────────────────────────────────────────────────────
-    function setSort(sort, el) {
-      currentSort = sort;
-      document.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      loadFeed();
-    }
+ function setSort(sort, el) {
+ currentSort = sort;
+ document.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('active'));
+ el.classList.add('active');
+ loadFeed();
+ }
 
     // ── Class filter ───────────────────────────────────────────────────────────
-    function setClass(cls, el) {
-      currentClass = cls;
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      loadFeed();
-    }
+ function setClass(cls, el) {
+ currentClass = cls;
+ document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+ el.classList.add('active');
+ loadFeed();
+ }
 
     // ── Filter overlay ─────────────────────────────────────────────────────────
-    function showFilters() {
-      if (currentTab === 'events') {
-        const sheet = document.querySelector('#ev-filter-overlay .filter-sheet');
-        sheet.style.transform = 'translateY(0)';
-        document.getElementById('ev-filter-overlay').style.display = 'block';
-        addSwipeClose(sheet);
-      } else {
-        const sheet = document.querySelector('#filter-overlay .filter-sheet');
-        sheet.style.transform = 'translateY(0)';
-        document.getElementById('filter-overlay').style.display = 'block';
-        addSwipeClose(sheet);
-      }
-    }
-    window.closeEvFilters = function(e) {
-      if (e && e.target !== document.getElementById('ev-filter-overlay')) return;
-      document.getElementById('ev-filter-overlay').style.display = 'none';
-    }
-    let evFilterState = { type: '', price: '' };
-    window.evFilterState = evFilterState;
-    window.selectEvChip = function(el, group) {
-      if (group === 'type') {
-        if (el.dataset.val === '') {
-          el.closest('.filter-chips').querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
-          el.classList.add('active');
-          evFilterState.type = [];
-        } else {
-          el.closest('.filter-chips').querySelector('[data-val=""]').classList.remove('active');
-          el.classList.toggle('active');
-          evFilterState.type = Array.from(el.closest('.filter-chips').querySelectorAll('.f-chip.active')).map(c => c.dataset.val).filter(Boolean);
-          if (!evFilterState.type.length) {
-            el.closest('.filter-chips').querySelector('[data-val=""]').classList.add('active');
-          }
-        }
-      } else {
-        el.closest('.filter-chips').querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        evFilterState[group] = el.dataset.val;
-      }
-    }
-    window.resetEvFilters = function() {
-      window.evFilterState = { type: '', price: '' };
-      document.getElementById('ef-city').value = '';
-      evFilterState = { type: '', price: '' };
-      document.querySelectorAll('#ev-filter-overlay .f-chip').forEach(c => c.classList.remove('active'));
-      document.querySelectorAll('#ev-filter-overlay .f-chip[data-val=""]').forEach(c => c.classList.add('active'));
-      document.getElementById('ev-filter-overlay').style.display = 'none';
-      window._eventsLoaded = false;
-      loadEvents();
-    }
-    window.applyEvFilters = function() {
-      window.evFilterState = evFilterState;
-      document.getElementById('ev-filter-overlay').style.display = 'none';
-      window._eventsLoaded = false;
-      loadEvents();
-    }
+ function showFilters() {
+ if (currentTab === 'events') {
+ const sheet = document.querySelector('#ev-filter-overlay .filter-sheet');
+ sheet.style.transform = 'translateY(0)';
+ document.getElementById('ev-filter-overlay').style.display = 'block';
+ addSwipeClose(sheet);
+ } else {
+ const sheet = document.querySelector('#filter-overlay .filter-sheet');
+ sheet.style.transform = 'translateY(0)';
+ document.getElementById('filter-overlay').style.display = 'block';
+ addSwipeClose(sheet);
+ }
+ }
+ window.closeEvFilters = function(e) {
+ if (e && e.target !== document.getElementById('ev-filter-overlay')) return;
+ document.getElementById('ev-filter-overlay').style.display = 'none';
+ }
+ let evFilterState = { type: '', price: '' };
+ window.evFilterState = evFilterState;
+ window.selectEvChip = function(el, group) {
+ if (group === 'type') {
+ if (el.dataset.val === '') {
+ el.closest('.filter-chips').querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
+ el.classList.add('active');
+ evFilterState.type = [];
+ } else {
+ el.closest('.filter-chips').querySelector('[data-val=""]').classList.remove('active');
+ el.classList.toggle('active');
+ evFilterState.type = Array.from(el.closest('.filter-chips').querySelectorAll('.f-chip.active')).map(c => c.dataset.val).filter(Boolean);
+ if (!evFilterState.type.length) {
+ el.closest('.filter-chips').querySelector('[data-val=""]').classList.add('active');
+ }
+ }
+ } else {
+ el.closest('.filter-chips').querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
+ el.classList.add('active');
+ evFilterState[group] = el.dataset.val;
+ }
+ }
+ window.resetEvFilters = function() {
+ window.evFilterState = { type: '', price: '' };
+ document.getElementById('ef-city').value = '';
+ evFilterState = { type: '', price: '' };
+ document.querySelectorAll('#ev-filter-overlay .f-chip').forEach(c => c.classList.remove('active'));
+ document.querySelectorAll('#ev-filter-overlay .f-chip[data-val=""]').forEach(c => c.classList.add('active'));
+ document.getElementById('ev-filter-overlay').style.display = 'none';
+ window._eventsLoaded = false;
+ loadEvents();
+ }
+ window.applyEvFilters = function() {
+ window.evFilterState = evFilterState;
+ document.getElementById('ev-filter-overlay').style.display = 'none';
+ window._eventsLoaded = false;
+ loadEvents();
+ }
 
-    function addSwipeClose(sheet) {
-      const handle = sheet.querySelector('.filter-handle');
-      if (!handle) return;
-      let startY = 0, isDragging = false;
+ function addSwipeClose(sheet) {
+ const handle = sheet.querySelector('.filter-handle');
+ if (!handle) return;
+ let startY = 0, isDragging = false;
 
-      handle.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-        isDragging = true;
-        sheet.style.transition = 'none';
-      }, { passive: true });
+ handle.addEventListener('touchstart', (e) => {
+ startY = e.touches[0].clientY;
+ isDragging = true;
+ sheet.style.transition = 'none';
+ }, { passive: true });
 
-      handle.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const dy = e.touches[0].clientY - startY;
-        if (dy > 0) sheet.style.transform = `translateY(${dy}px)`;
-      }, { passive: true });
+ handle.addEventListener('touchmove', (e) => {
+ if (!isDragging) return;
+ const dy = e.touches[0].clientY - startY;
+ if (dy > 0) sheet.style.transform = `translateY(${dy}px)`;
+ }, { passive: true });
 
-      handle.addEventListener('touchend', (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        sheet.style.transition = 'transform 0.3s ease';
-        const dy = e.changedTouches[0].clientY - startY;
-        if (dy > 60) {
-          sheet.style.transform = 'translateY(100%)';
-          setTimeout(() => {
-            document.getElementById('filter-overlay').style.display = 'none';
-            sheet.style.transform = 'translateY(0)';
-          }, 300);
-        } else {
-          sheet.style.transform = 'translateY(0)';
-        }
-      }, { passive: true });
-    }
-    function closeFilters(e) {
-      if (e && e.target !== document.getElementById('filter-overlay')) return;
-      document.getElementById('filter-overlay').style.display = 'none';
-    }
-    function resetFilters() {
-      document.getElementById('f-city').value = '';
-      document.getElementById('f-hp-min').value = '';
-      document.getElementById('f-hp-max').value = '';
-      document.getElementById('f-price-min').value = '';
-      document.getElementById('f-price-max').value = '';
-      document.getElementById('f-vol-min').value = '';
-      document.getElementById('f-vol-max').value = '';
-      document.getElementById('f-free').checked = false;
-      document.querySelectorAll('.filter-chips').forEach(group => {
-        group.querySelectorAll('.f-chip').forEach((c,i) => c.classList.toggle('active', i===0));
-      });
-      filters = {};
-      document.getElementById('filter-overlay').style.display = 'none';
-      loadFeed();
-      showToast('Фильтры сброшены');
-    }
-    function applyFilters() {
-      const getChips = (group) => {
-        const vals = [...document.querySelectorAll(`.filter-chips .f-chip.active[onclick*="'${group}'"]`)].map(c => c.dataset.val).filter(v => v);
-        return vals.length ? vals : null;
-      };
-      const getChip = (group) => document.querySelector(`.filter-chips .f-chip.active[onclick*="'${group}'"]`)?.dataset.val || null;
-      filters = {
-        city: document.getElementById('f-city').value.trim() || null,
-        role: getChip('role'),
-        trips: getChips('trip'),
-        colors: getChips('color'),
-        trans: getChips('trans'),
-        drive: getChips('drive'),
-        volMin: document.getElementById('f-vol-min').value || null,
-        volMax: document.getElementById('f-vol-max').value || null,
-        hpMin: document.getElementById('f-hp-min').value || null,
-        hpMax: document.getElementById('f-hp-max').value || null,
-        priceMin: document.getElementById('f-price-min').value || null,
-        priceMax: document.getElementById('f-price-max').value || null,
-        free: document.getElementById('f-free').checked,
-      };
-      document.getElementById('filter-overlay').style.display = 'none';
-      loadFeed();
-    }
+ handle.addEventListener('touchend', (e) => {
+ if (!isDragging) return;
+ isDragging = false;
+ sheet.style.transition = 'transform 0.3s ease';
+ const dy = e.changedTouches[0].clientY - startY;
+ if (dy > 60) {
+ sheet.style.transform = 'translateY(100%)';
+ setTimeout(() => {
+ document.getElementById('filter-overlay').style.display = 'none';
+ sheet.style.transform = 'translateY(0)';
+ }, 300);
+ } else {
+ sheet.style.transform = 'translateY(0)';
+ }
+ }, { passive: true });
+ }
+ function closeFilters(e) {
+ if (e && e.target !== document.getElementById('filter-overlay')) return;
+ document.getElementById('filter-overlay').style.display = 'none';
+ }
+ function resetFilters() {
+ document.getElementById('f-city').value = '';
+ document.getElementById('f-hp-min').value = '';
+ document.getElementById('f-hp-max').value = '';
+ document.getElementById('f-price-min').value = '';
+ document.getElementById('f-price-max').value = '';
+ document.getElementById('f-vol-min').value = '';
+ document.getElementById('f-vol-max').value = '';
+ document.getElementById('f-free').checked = false;
+ document.querySelectorAll('.filter-chips').forEach(group => {
+ group.querySelectorAll('.f-chip').forEach((c,i) => c.classList.toggle('active', i===0));
+ });
+ filters = {};
+ document.getElementById('filter-overlay').style.display = 'none';
+ loadFeed();
+ showToast('Фильтры сброшены');
+ }
+ function applyFilters() {
+ const getChips = (group) => {
+ const vals = [...document.querySelectorAll(`.filter-chips .f-chip.active[onclick*="'${group}'"]`)].map(c => c.dataset.val).filter(v => v);
+ return vals.length ? vals : null;
+ };
+ const getChip = (group) => document.querySelector(`.filter-chips .f-chip.active[onclick*="'${group}'"]`)?.dataset.val || null;
+ filters = {
+ city: document.getElementById('f-city').value.trim() || null,
+ role: getChip('role'),
+ trips: getChips('trip'),
+ colors: getChips('color'),
+ trans: getChips('trans'),
+ drive: getChips('drive'),
+ volMin: document.getElementById('f-vol-min').value || null,
+ volMax: document.getElementById('f-vol-max').value || null,
+ hpMin: document.getElementById('f-hp-min').value || null,
+ hpMax: document.getElementById('f-hp-max').value || null,
+ priceMin: document.getElementById('f-price-min').value || null,
+ priceMax: document.getElementById('f-price-max').value || null,
+ free: document.getElementById('f-free').checked,
+ };
+ document.getElementById('filter-overlay').style.display = 'none';
+ loadFeed();
+ }
 
     // ── Like ───────────────────────────────────────────────────────────────────
-    async function toggleLike(carId) {
-      if (!currentUser) { showToast('Войдите, чтобы лайкать', 'warn'); return; }
-      const wasLiked = likedIds.has(carId);
-      const btn = document.getElementById(`like-${carId}`);
+ async function toggleLike(carId) {
+ if (!currentUser) { showToast('Войдите, чтобы лайкать', 'warn'); return; }
+ const wasLiked = likedIds.has(carId);
+ const btn = document.getElementById(`like-${carId}`);
 
-      if (wasLiked) {
-        likedIds.delete(carId);
-        await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('car_id', carId);
+ if (wasLiked) {
+ likedIds.delete(carId);
+ await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('car_id', carId);
         // Считаем реальное количество лайков
-        const { count } = await supabase.from('likes').select('*', { count: 'exact', head: true }).eq('car_id', carId);
-        await supabase.from('cars').update({ likes: count || 0 }).eq('id', carId);
-        if (btn) {
-          btn.classList.remove('liked');
-          btn.querySelector('i').className = 'far fa-heart';
-          const cnt = btn.querySelector('span');
-          cnt.textContent = count || 0;
-        }
-      } else {
-        likedIds.add(carId);
-        await supabase.from('likes').insert({ user_id: currentUser.id, car_id: carId });
+ const { count } = await supabase.from('likes').select('*', { count: 'exact', head: true }).eq('car_id', carId);
+ await supabase.from('cars').update({ likes: count || 0 }).eq('id', carId);
+ if (btn) {
+ btn.classList.remove('liked');
+ btn.querySelector('i').className = 'far fa-heart';
+ const cnt = btn.querySelector('span');
+ cnt.textContent = count || 0;
+ }
+ } else {
+ likedIds.add(carId);
+ await supabase.from('likes').insert({ user_id: currentUser.id, car_id: carId });
         // Считаем реальное количество лайков
-        const { count } = await supabase.from('likes').select('*', { count: 'exact', head: true }).eq('car_id', carId);
-        await supabase.from('cars').update({ likes: count || 0 }).eq('id', carId);
-        if (btn) {
-          btn.classList.add('liked');
-          btn.querySelector('i').className = 'fas fa-heart';
-          const cnt = btn.querySelector('span');
-          cnt.textContent = count || 0;
-        }
-      }
-    }
+ const { count } = await supabase.from('likes').select('*', { count: 'exact', head: true }).eq('car_id', carId);
+ await supabase.from('cars').update({ likes: count || 0 }).eq('id', carId);
+ if (btn) {
+ btn.classList.add('liked');
+ btn.querySelector('i').className = 'fas fa-heart';
+ const cnt = btn.querySelector('span');
+ cnt.textContent = count || 0;
+ }
+ }
+ }
 
-    init();
+ init();
 
     // Pull to refresh
-    let ptr_startY = 0, ptr_pulling = false;
-    const ptr_indicator = document.createElement('div');
-    ptr_indicator.style.cssText = 'position:fixed;top:0;left:0;right:0;height:4px;background:#f59e0b;transform:scaleX(0);transform-origin:left;transition:transform 0.2s;z-index:9999;';
-    document.body.appendChild(ptr_indicator);
+ let ptr_startY = 0, ptr_pulling = false;
+ const ptr_indicator = document.createElement('div');
+ ptr_indicator.style.cssText = 'position:fixed;top:0;left:0;right:0;height:4px;background:#f59e0b;transform:scaleX(0);transform-origin:left;transition:transform 0.2s;z-index:9999;';
+ document.body.appendChild(ptr_indicator);
 
-    document.addEventListener('touchstart', (e) => {
-      if (window.scrollY === 0) { ptr_startY = e.touches[0].clientY; ptr_pulling = true; }
-    }, { passive: true });
+ document.addEventListener('touchstart', (e) => {
+ if (window.scrollY === 0) { ptr_startY = e.touches[0].clientY; ptr_pulling = true; }
+ }, { passive: true });
 
-    document.addEventListener('touchmove', (e) => {
-      if (!ptr_pulling) return;
-      const dy = e.touches[0].clientY - ptr_startY;
-      if (dy > 0) ptr_indicator.style.transform = `scaleX(${Math.min(dy / 100, 1)})`;
-    }, { passive: true });
+ document.addEventListener('touchmove', (e) => {
+ if (!ptr_pulling) return;
+ const dy = e.touches[0].clientY - ptr_startY;
+ if (dy > 0) ptr_indicator.style.transform = `scaleX(${Math.min(dy / 100, 1)})`;
+ }, { passive: true });
 
-    document.addEventListener('touchend', (e) => {
-      if (!ptr_pulling) return;
-      ptr_pulling = false;
-      const dy = e.changedTouches[0].clientY - ptr_startY;
-      ptr_indicator.style.transform = 'scaleX(0)';
-      if (dy > 80) { showToast('🔄 Обновление...'); setTimeout(() => loadFeed(), 300); }
-    }, { passive: true });
-  </script>
+ document.addEventListener('touchend', (e) => {
+ if (!ptr_pulling) return;
+ ptr_pulling = false;
+ const dy = e.changedTouches[0].clientY - ptr_startY;
+ ptr_indicator.style.transform = 'scaleX(0)';
+ if (dy > 80) { showToast(' Обновление...'); setTimeout(() => loadFeed(), 300); }
+ }, { passive: true });
+ </script>
 </body>
 </html>

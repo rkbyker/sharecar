@@ -62,294 +62,294 @@ body { background:#0f0f0f;padding-bottom:40px; }
 </head>
 <body>
 
-  <div class="top-bar">
-    <button class="back-btn" onclick="scGoBack()"><i class="fa fa-arrow-left"></i></button>
-    <div class="page-title" id="page-title">Кабинет владельца</div>
-    <button class="back-btn" onclick="goToEdit()"><i class="fa fa-pencil"></i></button>
-  </div>
+ <div class="top-bar">
+ <button class="back-btn" onclick="scGoBack()"><i class="fa fa-arrow-left"></i></button>
+ <div class="page-title" id="page-title">Кабинет владельца</div>
+ <button class="back-btn" onclick="goToEdit()"><i class="fa fa-pencil"></i></button>
+ </div>
 
-  <div class="tabs-row">
-    <button class="tab-btn active" onclick="switchTab('overview')">📊 Обзор</button>
+ <div class="tabs-row">
+ <button class="tab-btn active" onclick="switchTab('overview')">Обзор</button>
     <button class="tab-btn" onclick="switchTab('requests')">📩 Заявки <span id="req-badge" style="display:none;background:#ef4444;color:#fff;border-radius:8px;padding:1px 5px;font-size:10px;"></span></button>
-    <button class="tab-btn" onclick="switchTab('trips')">🗓 Поездки</button>
-    <button class="tab-btn" onclick="switchTab('settings')">⚙️ Настройки</button>
-  </div>
+ <button class="tab-btn" onclick="switchTab('trips')">Поездки</button>
+ <button class="tab-btn" onclick="switchTab('settings')">Настройки</button>
+ </div>
 
-  <div class="tab-content active" id="tab-overview">
-    <div id="overview-loader" class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
-    <div id="overview-content" style="display:none;">
-      <div class="car-header">
-        <div class="car-header-thumb" id="car-thumb">🚗</div>
-        <div class="car-header-info">
-          <div class="car-title" id="car-title">—</div>
-          <div class="car-sub" id="car-sub">—</div>
-        </div>
-      </div>
-      <div class="credits-block">
+ <div class="tab-content active" id="tab-overview">
+ <div id="overview-loader" class="loader-wrap"><i class="fa fa-circle-notch"></i></div>
+ <div id="overview-content" style="display:none;">
+ <div class="car-header">
+ <div class="car-header-thumb" id="car-thumb"></div>
+ <div class="car-header-info">
+ <div class="car-title" id="car-title">—</div>
+ <div class="car-sub" id="car-sub">—</div>
+ </div>
+ </div>
+ <div class="credits-block">
         <div style="font-size:26px;">⚡</div>
-        <div class="credits-info" style="flex:1;">
-          <div class="credits-val" id="credits-val">0</div>
-          <div class="lbl">кредитов на счету</div>
-        </div>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="val" id="stat-requests">0</div><div class="lbl">Заявок</div></div>
-        <div class="stat-card"><div class="val" id="stat-trips">0</div><div class="lbl">Поездок</div></div>
-        <div class="stat-card"><div class="val" id="stat-rating">5.0</div><div class="lbl">Рейтинг ★</div></div>
-        <div class="stat-card"><div class="val" id="stat-likes">0</div><div class="lbl">Лайков</div></div>
-      </div>
-      <button onclick="goPage('boost.html')"
+ <div class="credits-info" style="flex:1;">
+ <div class="credits-val" id="credits-val">0</div>
+ <div class="lbl">кредитов на счету</div>
+ </div>
+ </div>
+ <div class="stats-grid">
+ <div class="stat-card"><div class="val" id="stat-requests">0</div><div class="lbl">Заявок</div></div>
+ <div class="stat-card"><div class="val" id="stat-trips">0</div><div class="lbl">Поездок</div></div>
+ <div class="stat-card"><div class="val" id="stat-rating">5.0</div><div class="lbl">Рейтинг </div></div>
+ <div class="stat-card"><div class="val" id="stat-likes">0</div><div class="lbl">Лайков</div></div>
+ </div>
+ <button onclick="goPage('boost.html')"
         style="width:100%;padding:13px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">
-        🚀 Поднять машину в топ (Буст)
-      </button>
-    </div>
-  </div>
+ Поднять машину в топ (Буст)
+ </button>
+ </div>
+ </div>
 
-  <div class="tab-content" id="tab-requests">
-    <div id="requests-list"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
-  </div>
+ <div class="tab-content" id="tab-requests">
+ <div id="requests-list"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
+ </div>
 
-  <div class="tab-content" id="tab-trips">
-    <div id="trips-list"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
-  </div>
+ <div class="tab-content" id="tab-trips">
+ <div id="trips-list"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
+ </div>
 
-  <div class="tab-content" id="tab-settings">
-    <div id="settings-content"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
-  </div>
+ <div class="tab-content" id="tab-settings">
+ <div id="settings-content"><div class="loader-wrap"><i class="fa fa-circle-notch"></i></div></div>
+ </div>
 
-  <div id="global-toast"></div>
+ <div id="global-toast"></div>
 
-  <script type="module">
-    import { supabase, showToast } from '../js/supabase.js';
-    import '../js/nav.js';
+ <script type="module">
+ import { supabase, showToast } from '../js/supabase.js';
+ import '../js/nav.js';
 
-    let currentUser = null;
-    let carId = null;
-    let car = null;
+ let currentUser = null;
+ let carId = null;
+ let car = null;
 
-    window.switchTab = switchTab;
-    window.goPage = (p) => window.location.href = p;
-    window.goToEdit = () => { if (carId) window.location.href = `add-car.html?edit=${carId}`; };
-    window.acceptRequest = acceptRequest;
-    window.rejectRequest = rejectRequest;
-    window.savePricing = savePricing;
+ window.switchTab = switchTab;
+ window.goPage = (p) => window.location.href = p;
+ window.goToEdit = () => { if (carId) window.location.href = `add-car.html?edit=${carId}`; };
+ window.acceptRequest = acceptRequest;
+ window.rejectRequest = rejectRequest;
+ window.savePricing = savePricing;
 
-    function switchTab(name) {
-      document.querySelectorAll('.tab-btn').forEach((b, i) => {
-        b.classList.toggle('active', ['overview','requests','trips','settings'][i] === name);
-      });
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      document.getElementById('tab-' + name).classList.add('active');
-    }
+ function switchTab(name) {
+ document.querySelectorAll('.tab-btn').forEach((b, i) => {
+ b.classList.toggle('active', ['overview','requests','trips','settings'][i] === name);
+ });
+ document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+ document.getElementById('tab-' + name).classList.add('active');
+ }
 
-    async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { window.location.href = '/app/auth.html'; return; }
-      currentUser = session.user;
-      const params = new URLSearchParams(location.search);
-      carId = params.get('car');
-      if (!carId) {
-        const { data: cars } = await supabase.from('cars').select('id').eq('owner_id', currentUser.id).limit(1);
-        if (cars && cars.length) { carId = cars[0].id; }
-        else {
-          document.getElementById('overview-loader').style.display = 'none';
-          document.getElementById('overview-content').style.display = 'block';
-          document.getElementById('car-title').textContent = 'Нет машин';
-          document.getElementById('car-sub').textContent = 'Добавьте машину в профиле';
-          return;
-        }
-      }
-      await loadCar();
-      await loadOverview();
-      await loadRequests();
-      await loadTrips();
-      loadSettings();
-    }
+ async function init() {
+ const { data: { session } } = await supabase.auth.getSession();
+ if (!session) { window.location.href = '/app/auth.html'; return; }
+ currentUser = session.user;
+ const params = new URLSearchParams(location.search);
+ carId = params.get('car');
+ if (!carId) {
+ const { data: cars } = await supabase.from('cars').select('id').eq('owner_id', currentUser.id).limit(1);
+ if (cars && cars.length) { carId = cars[0].id; }
+ else {
+ document.getElementById('overview-loader').style.display = 'none';
+ document.getElementById('overview-content').style.display = 'block';
+ document.getElementById('car-title').textContent = 'Нет машин';
+ document.getElementById('car-sub').textContent = 'Добавьте машину в профиле';
+ return;
+ }
+ }
+ await loadCar();
+ await loadOverview();
+ await loadRequests();
+ await loadTrips();
+ loadSettings();
+ }
 
-    async function loadCar() {
-      const { data } = await supabase.from('cars').select('*').eq('id', carId).single();
-      car = data;
-      if (!car) return;
-      document.getElementById('page-title').textContent = `${car.brand} ${car.model}`;
-      document.getElementById('car-title').textContent = `${car.brand} ${car.model} ${car.year || ''}`;
-      document.getElementById('car-sub').textContent = `${car.city || ''} · ${car.status === 'published' ? '✅ Активна' : '📝 Черновик'}`;
-      const thumb = document.getElementById('car-thumb');
-      if (car.photos && car.photos[0]) {
-        thumb.innerHTML = `<img src="${car.photos[0]}" style="width:72px;height:56px;border-radius:8px;object-fit:cover;">`;
-      }
-    }
+ async function loadCar() {
+ const { data } = await supabase.from('cars').select('*').eq('id', carId).single();
+ car = data;
+ if (!car) return;
+ document.getElementById('page-title').textContent = `${car.brand} ${car.model}`;
+ document.getElementById('car-title').textContent = `${car.brand} ${car.model} ${car.year || ''}`;
+ document.getElementById('car-sub').textContent = `${car.city || ''} · ${car.status === 'published' ? ' Активна' : ' Черновик'}`;
+ const thumb = document.getElementById('car-thumb');
+ if (car.photos && car.photos[0]) {
+ thumb.innerHTML = `<img src="${car.photos[0]}" style="width:72px;height:56px;border-radius:8px;object-fit:cover;">`;
+ }
+ }
 
-    async function loadOverview() {
-      const { data: profile } = await supabase.from('profiles').select('credits').eq('id', currentUser.id).single();
-      document.getElementById('credits-val').textContent = profile?.credits || 0;
-      document.getElementById('stat-likes').textContent = car?.likes || 0;
-      document.getElementById('stat-rating').textContent = (car?.rating || 5).toFixed(1);
-      const { count: reqCount } = await supabase.from('requests').select('*', { count:'exact', head:true }).eq('car_id', carId);
-      document.getElementById('stat-requests').textContent = reqCount || 0;
-      const { count: tripCount } = await supabase.from('requests').select('*', { count:'exact', head:true }).eq('car_id', carId).eq('status', 'completed');
-      document.getElementById('stat-trips').textContent = tripCount || 0;
-      document.getElementById('overview-loader').style.display = 'none';
-      document.getElementById('overview-content').style.display = 'block';
-    }
+ async function loadOverview() {
+ const { data: profile } = await supabase.from('profiles').select('credits').eq('id', currentUser.id).single();
+ document.getElementById('credits-val').textContent = profile?.credits || 0;
+ document.getElementById('stat-likes').textContent = car?.likes || 0;
+ document.getElementById('stat-rating').textContent = (car?.rating || 5).toFixed(1);
+ const { count: reqCount } = await supabase.from('requests').select('*', { count:'exact', head:true }).eq('car_id', carId);
+ document.getElementById('stat-requests').textContent = reqCount || 0;
+ const { count: tripCount } = await supabase.from('requests').select('*', { count:'exact', head:true }).eq('car_id', carId).eq('status', 'completed');
+ document.getElementById('stat-trips').textContent = tripCount || 0;
+ document.getElementById('overview-loader').style.display = 'none';
+ document.getElementById('overview-content').style.display = 'block';
+ }
 
-    async function loadRequests() {
-      const { data: reqs } = await supabase
-        .from('requests')
-        .select('*, profiles:requester_id(first_name, last_name, level, rating_driver, avatar_url)')
-        .eq('car_id', carId)
-        .in('status', ['pending', 'accepted'])
-        .order('created_at', { ascending: false });
-      const container = document.getElementById('requests-list');
-      const pending = reqs?.filter(r => r.status === 'pending') || [];
-      if (pending.length > 0) {
-        const badge = document.getElementById('req-badge');
-        badge.textContent = pending.length;
-        badge.style.display = 'inline';
-      }
-      if (!reqs || !reqs.length) {
-        container.innerHTML = `<div class="empty-state"><div class="icon">📩</div>Нет активных заявок</div>`;
-        return;
-      }
-      const LEVEL_LABELS = { bronze:'🥉 Bronze', silver:'🥈 Silver', gold:'🥇 Gold', premium:'💎 Premium', vip:'👑 VIP' };
-      container.innerHTML = reqs.map(r => {
-        const p = r.profiles || {};
-        const name = `${p.first_name||''} ${p.last_name||''}`.trim() || 'Пользователь';
-        const initials = name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-        const price = r.role === 'driver' ? (car?.price_driver||0) : (car?.price_passenger||0);
-        return `<div class="req-card">
-          <div class="req-header">
-            <div class="req-avatar">${initials}</div>
-            <div style="flex:1;">
-              <div class="req-name">${name}</div>
-              <div class="req-meta">${LEVEL_LABELS[p.level]||'🥉 Bronze'} · ★ ${(p.rating_driver||5).toFixed(1)}</div>
-            </div>
-            <div style="text-align:right;">
-              <div class="req-price">${price.toLocaleString()} ₽</div>
+ async function loadRequests() {
+ const { data: reqs } = await supabase
+ .from('requests')
+ .select('*, profiles:requester_id(first_name, last_name, level, rating_driver, avatar_url)')
+ .eq('car_id', carId)
+ .in('status', ['pending', 'accepted'])
+ .order('created_at', { ascending: false });
+ const container = document.getElementById('requests-list');
+ const pending = reqs?.filter(r => r.status === 'pending') || [];
+ if (pending.length > 0) {
+ const badge = document.getElementById('req-badge');
+ badge.textContent = pending.length;
+ badge.style.display = 'inline';
+ }
+ if (!reqs || !reqs.length) {
+ container.innerHTML = `<div class="empty-state"><div class="icon"></div>Нет активных заявок</div>`;
+ return;
+ }
+ const LEVEL_LABELS = { bronze:' Bronze', silver:' Silver', gold:' Gold', premium:' Premium', vip:' VIP' };
+ container.innerHTML = reqs.map(r => {
+ const p = r.profiles || {};
+ const name = `${p.first_name||''} ${p.last_name||''}`.trim() || 'Пользователь';
+ const initials = name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+ const price = r.role === 'driver' ? (car?.price_driver||0) : (car?.price_passenger||0);
+ return `<div class="req-card">
+ <div class="req-header">
+ <div class="req-avatar">${initials}</div>
+ <div style="flex:1;">
+ <div class="req-name">${name}</div>
+ <div class="req-meta">${LEVEL_LABELS[p.level]||' Bronze'} · ${(p.rating_driver||5).toFixed(1)}</div>
+ </div>
+ <div style="text-align:right;">
+ <div class="req-price">${price.toLocaleString()} ₽</div>
               <div style="font-size:11px;color:#888;">${r.role==='driver'?'🚗 Водитель':'👥 Пассажир'}</div>
-            </div>
-          </div>
+ </div>
+ </div>
           ${r.message?`<div style="font-size:13px;color:#ccc;font-style:italic;margin-bottom:8px;">"${r.message}"</div>`:''}
           <div style="font-size:11px;color:#666;margin-bottom:8px;">${new Date(r.created_at).toLocaleDateString('ru-RU')}</div>
-          ${r.status==='pending'?`<div class="req-actions">
-            <button class="btn-accept" onclick="acceptRequest('${r.id}')">✅ Принять</button>
-            <button class="btn-chat" onclick="goPage('chat.html?request=${r.id}')">💬 Чат</button>
-            <button class="btn-reject" onclick="rejectRequest('${r.id}')">✕</button>
+ ${r.status==='pending'?`<div class="req-actions">
+ <button class="btn-accept" onclick="acceptRequest('${r.id}')">Принять</button>
+ <button class="btn-chat" onclick="goPage('chat.html?request=${r.id}')">Чат</button>
+ <button class="btn-reject" onclick="rejectRequest('${r.id}')"></button>
           </div>`:`<div style="font-size:12px;color:#22c55e;font-weight:600;">✅ Заявка принята</div>`}
-        </div>`;
-      }).join('');
-    }
+ </div>`;
+ }).join('');
+ }
 
-    async function acceptRequest(reqId) {
-      const { error } = await supabase.from('requests').update({ status:'accepted' }).eq('id', reqId);
-      if (error) { showToast('Ошибка: '+error.message, 'error'); return; }
-      showToast('✅ Заявка принята!', 'success');
-      await loadRequests();
-    }
+ async function acceptRequest(reqId) {
+ const { error } = await supabase.from('requests').update({ status:'accepted' }).eq('id', reqId);
+ if (error) { showToast('Ошибка: '+error.message, 'error'); return; }
+ showToast(' Заявка принята!', 'success');
+ await loadRequests();
+ }
 
-    async function rejectRequest(reqId) {
-      const { error } = await supabase.from('requests').update({ status:'rejected' }).eq('id', reqId);
-      if (error) { showToast('Ошибка: '+error.message, 'error'); return; }
-      showToast('Заявка отклонена', 'warn');
-      await loadRequests();
-    }
+ async function rejectRequest(reqId) {
+ const { error } = await supabase.from('requests').update({ status:'rejected' }).eq('id', reqId);
+ if (error) { showToast('Ошибка: '+error.message, 'error'); return; }
+ showToast('Заявка отклонена', 'warn');
+ await loadRequests();
+ }
 
-    async function loadTrips() {
-      const { data: trips } = await supabase
-        .from('requests')
-        .select('*, profiles:requester_id(first_name, last_name, level, rating_driver)')
-        .eq('car_id', carId)
-        .in('status', ['accepted', 'completed', 'confirmed'])
-        .order('created_at', { ascending: false });
-      const container = document.getElementById('trips-list');
-      if (!trips || !trips.length) {
-        container.innerHTML = `<div class="empty-state"><div class="icon">🗓</div>Нет поездок</div>`;
-        return;
-      }
-      const STATUS_LABELS = { accepted:'Принята', confirmed:'Подтверждена', completed:'Завершена' };
-      const STATUS_CSS = { accepted:'st-pending', confirmed:'st-confirmed', completed:'st-completed' };
-      container.innerHTML = trips.map(t => {
-        const p = t.profiles || {};
-        const name = `${p.first_name||''} ${p.last_name||''}`.trim() || 'Пользователь';
-        const price = t.role==='driver' ? (car?.price_driver||0) : (car?.price_passenger||0);
-        return `<div class="trip-card">
-          <div class="trip-header">
-            <div>
-              <div class="trip-user">${name}</div>
+ async function loadTrips() {
+ const { data: trips } = await supabase
+ .from('requests')
+ .select('*, profiles:requester_id(first_name, last_name, level, rating_driver)')
+ .eq('car_id', carId)
+ .in('status', ['accepted', 'completed', 'confirmed'])
+ .order('created_at', { ascending: false });
+ const container = document.getElementById('trips-list');
+ if (!trips || !trips.length) {
+ container.innerHTML = `<div class="empty-state"><div class="icon"></div>Нет поездок</div>`;
+ return;
+ }
+ const STATUS_LABELS = { accepted:'Принята', confirmed:'Подтверждена', completed:'Завершена' };
+ const STATUS_CSS = { accepted:'st-pending', confirmed:'st-confirmed', completed:'st-completed' };
+ container.innerHTML = trips.map(t => {
+ const p = t.profiles || {};
+ const name = `${p.first_name||''} ${p.last_name||''}`.trim() || 'Пользователь';
+ const price = t.role==='driver' ? (car?.price_driver||0) : (car?.price_passenger||0);
+ return `<div class="trip-card">
+ <div class="trip-header">
+ <div>
+ <div class="trip-user">${name}</div>
               <div style="font-size:12px;color:#888;">${t.role==='driver'?'🚗 Водитель':'👥 Пассажир'}</div>
-            </div>
-            <div style="text-align:right;">
-              <div class="trip-price">${price.toLocaleString()} ₽</div>
-              <span class="trip-status ${STATUS_CSS[t.status]||'st-completed'}">${STATUS_LABELS[t.status]||t.status}</span>
-            </div>
-          </div>
-          <div class="trip-detail">📅 ${new Date(t.created_at).toLocaleDateString('ru-RU')}
+ </div>
+ <div style="text-align:right;">
+ <div class="trip-price">${price.toLocaleString()} ₽</div>
+ <span class="trip-status ${STATUS_CSS[t.status]||'st-completed'}">${STATUS_LABELS[t.status]||t.status}</span>
+ </div>
+ </div>
+ <div class="trip-detail">${new Date(t.created_at).toLocaleDateString('ru-RU')}
             ${t.status==='accepted'?`<br><button style="margin-top:8px;padding:7px 14px;background:#f59e0b;color:#000;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;" onclick="confirmTrip('${t.id}')">✅ Подтвердить завершение</button>`:''}
-          </div>
-        </div>`;
-      }).join('');
-    }
+ </div>
+ </div>`;
+ }).join('');
+ }
 
-    window.confirmTrip = async function(tripId) {
-      const { error } = await supabase.from('requests').update({ status:'completed' }).eq('id', tripId);
-      if (error) { showToast('Ошибка', 'error'); return; }
-      showToast('✅ Поездка завершена!', 'success');
-      await loadTrips(); await loadOverview();
-    };
+ window.confirmTrip = async function(tripId) {
+ const { error } = await supabase.from('requests').update({ status:'completed' }).eq('id', tripId);
+ if (error) { showToast('Ошибка', 'error'); return; }
+ showToast(' Поездка завершена!', 'success');
+ await loadTrips(); await loadOverview();
+ };
 
-    function loadSettings() {
-      if (!car) return;
-      document.getElementById('settings-content').innerHTML = `
-        <div class="section-label">Цена для водителя (₽)</div>
-        <input class="settings-input" id="s-price-driver" type="number" value="${car.price_driver||0}">
-        <div class="section-label">Цена для пассажира (₽)</div>
-        <input class="settings-input" id="s-price-passenger" type="number" value="${car.price_passenger||0}">
-        <div class="section-label">Расписание / Условия</div>
-        <textarea class="settings-input" id="s-schedule" rows="3">${car.schedule||''}</textarea>
-        <div class="section-label">Минимальный уровень участника</div>
-        <select class="settings-input" id="s-min-level">
-          <option value="bronze" ${car.min_level==='bronze'?'selected':''}>🥉 Bronze (все)</option>
-          <option value="silver" ${car.min_level==='silver'?'selected':''}>🥈 Silver</option>
-          <option value="gold" ${car.min_level==='gold'?'selected':''}>🥇 Gold</option>
-          <option value="premium" ${car.min_level==='premium'?'selected':''}>💎 Premium</option>
-          <option value="vip" ${car.min_level==='vip'?'selected':''}>👑 VIP</option>
-        </select>
-        <button class="btn-save" onclick="savePricing()">Сохранить изменения</button>`;
-    }
+ function loadSettings() {
+ if (!car) return;
+ document.getElementById('settings-content').innerHTML = `
+ <div class="section-label">Цена для водителя (₽)</div>
+ <input class="settings-input" id="s-price-driver" type="number" value="${car.price_driver||0}">
+ <div class="section-label">Цена для пассажира (₽)</div>
+ <input class="settings-input" id="s-price-passenger" type="number" value="${car.price_passenger||0}">
+ <div class="section-label">Расписание / Условия</div>
+ <textarea class="settings-input" id="s-schedule" rows="3">${car.schedule||''}</textarea>
+ <div class="section-label">Минимальный уровень участника</div>
+ <select class="settings-input" id="s-min-level">
+ <option value="bronze" ${car.min_level==='bronze'?'selected':''}>Bronze (все)</option>
+ <option value="silver" ${car.min_level==='silver'?'selected':''}>Silver</option>
+ <option value="gold" ${car.min_level==='gold'?'selected':''}>Gold</option>
+ <option value="premium" ${car.min_level==='premium'?'selected':''}>Premium</option>
+ <option value="vip" ${car.min_level==='vip'?'selected':''}>VIP</option>
+ </select>
+ <button class="btn-save" onclick="savePricing()">Сохранить изменения</button>`;
+ }
 
-    async function savePricing() {
-      const updates = {
-        price_driver: parseInt(document.getElementById('s-price-driver').value)||0,
-        price_passenger: parseInt(document.getElementById('s-price-passenger').value)||0,
-        schedule: document.getElementById('s-schedule').value.trim(),
-        min_level: document.getElementById('s-min-level').value,
-      };
-      const { error } = await supabase.from('cars').update(updates).eq('id', carId);
-      if (error) { showToast('Ошибка: '+error.message, 'error'); return; }
-      showToast('✅ Сохранено!', 'success');
-      car = { ...car, ...updates };
-    }
+ async function savePricing() {
+ const updates = {
+ price_driver: parseInt(document.getElementById('s-price-driver').value)||0,
+ price_passenger: parseInt(document.getElementById('s-price-passenger').value)||0,
+ schedule: document.getElementById('s-schedule').value.trim(),
+ min_level: document.getElementById('s-min-level').value,
+ };
+ const { error } = await supabase.from('cars').update(updates).eq('id', carId);
+ if (error) { showToast('Ошибка: '+error.message, 'error'); return; }
+ showToast(' Сохранено!', 'success');
+ car = { ...car, ...updates };
+ }
 
-    init();
+ init();
     // Pull to refresh
-    let ptr_startY = 0, ptr_pulling = false;
-    const ptr_indicator = document.createElement('div');
-    ptr_indicator.style.cssText = 'position:fixed;top:0;left:0;right:0;height:4px;background:#f59e0b;transform:scaleX(0);transform-origin:left;transition:transform 0.2s;z-index:9999;';
-    document.body.appendChild(ptr_indicator);
-    document.addEventListener('touchstart', (e) => {
-      if (window.scrollY === 0) { ptr_startY = e.touches[0].clientY; ptr_pulling = true; }
-    }, { passive: true });
-    document.addEventListener('touchmove', (e) => {
-      if (!ptr_pulling) return;
-      const dy = e.touches[0].clientY - ptr_startY;
-      if (dy > 0) ptr_indicator.style.transform = `scaleX(${Math.min(dy / 100, 1)})`;
-    }, { passive: true });
-    document.addEventListener('touchend', (e) => {
-      if (!ptr_pulling) return;
-      ptr_pulling = false;
-      const dy = e.changedTouches[0].clientY - ptr_startY;
-      ptr_indicator.style.transform = 'scaleX(0)';
-      if (dy > 80) { showToast('🔄 Обновление...'); setTimeout(() => init(), 300); }
-    }, { passive: true });
-  </script>
+ let ptr_startY = 0, ptr_pulling = false;
+ const ptr_indicator = document.createElement('div');
+ ptr_indicator.style.cssText = 'position:fixed;top:0;left:0;right:0;height:4px;background:#f59e0b;transform:scaleX(0);transform-origin:left;transition:transform 0.2s;z-index:9999;';
+ document.body.appendChild(ptr_indicator);
+ document.addEventListener('touchstart', (e) => {
+ if (window.scrollY === 0) { ptr_startY = e.touches[0].clientY; ptr_pulling = true; }
+ }, { passive: true });
+ document.addEventListener('touchmove', (e) => {
+ if (!ptr_pulling) return;
+ const dy = e.touches[0].clientY - ptr_startY;
+ if (dy > 0) ptr_indicator.style.transform = `scaleX(${Math.min(dy / 100, 1)})`;
+ }, { passive: true });
+ document.addEventListener('touchend', (e) => {
+ if (!ptr_pulling) return;
+ ptr_pulling = false;
+ const dy = e.changedTouches[0].clientY - ptr_startY;
+ ptr_indicator.style.transform = 'scaleX(0)';
+ if (dy > 80) { showToast(' Обновление...'); setTimeout(() => init(), 300); }
+ }, { passive: true });
+ </script>
 </body>
 </html>
