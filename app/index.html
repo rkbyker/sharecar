@@ -381,7 +381,27 @@
  text-align: center; padding: 60px 20px; color: #555;
  }
     .empty-events .icon { font-size: 48px; margin-bottom: 12px; }
- </style>
+ 
+    .city-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 10px;
+      z-index: 200; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.5);
+      display: none;
+    }
+    .city-dropdown.open { display: block; }
+    .city-option {
+      padding: 11px 14px; cursor: pointer; font-size: 14px; color: #ddd;
+      border-bottom: 1px solid #2a2a4a; display: flex; align-items: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .city-option:last-child { border-bottom: none; }
+    .city-option:hover, .city-option.focused { background: #f59e0b20; color: #fff; }
+    .city-option i { color: #f59e0b; font-size: 12px; flex-shrink: 0; }
+    .city-option small { font-size: 11px; color: #666; }
+    .city-option-main { display: flex; flex-direction: column; gap: 2px; }
+    .city-spinner { padding: 12px; text-align: center; color: #f59e0b; }
+    .city-spinner i { animation: spin 1s linear infinite; }
+</style>
 </head>
 <body>
 
@@ -463,7 +483,7 @@
  <div class="filter-title">Фильтры</div>
 
  <div class="filter-label">Город</div>
-      <input class="filter-input" id="f-city" placeholder="Например: Москва">
+      <div id="f-city-wrap" style="position:relative;"><input class="filter-input" id="f-city" placeholder="Например: Москва" autocomplete="off"><div class="city-dropdown" id="f-city-dropdown"></div></div>
 
  <div class="filter-label">Роль</div>
  <div class="filter-chips">
@@ -560,7 +580,7 @@
  <div class="filter-title">Фильтр мероприятий</div>
 
  <div class="filter-label">Город</div>
-      <input class="filter-input" id="ef-city" placeholder="Например: Москва">
+      <div id="ef-city-wrap" style="position:relative;"><input class="filter-input" id="ef-city" placeholder="Например: Москва" autocomplete="off"><div class="city-dropdown" id="ef-city-dropdown"></div></div>
 
  <div class="filter-label">Тип</div>
  <div class="filter-chips">
@@ -1251,6 +1271,69 @@
  ptr_indicator.style.transform = 'scaleX(0)';
  if (dy > 80) { showToast(' Обновление...'); setTimeout(() => loadFeed(), 300); }
  }, { passive: true });
- </script>
+ 
+  function initFilterCityAutocomplete(inputId, dropdownId, wrapId) {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    const wrap = document.getElementById(wrapId);
+    if (!input || !dropdown || !wrap) return;
+    let timer = null;
+
+    input.addEventListener('input', function() {
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (q.length < 2) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; return; }
+      timer = setTimeout(() => fetchFilterCities(q, input, dropdown, wrap), 400);
+    });
+
+    input.addEventListener('keydown', function(e) {
+      const items = dropdown.querySelectorAll('.city-option');
+      const focused = dropdown.querySelector('.city-option.focused');
+      let idx = Array.from(items).indexOf(focused);
+      if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx+1)%items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx-1+items.length)%items.length; items[idx]?.classList.add('focused'); focused?.classList.remove('focused'); }
+      else if (e.key === 'Enter') { e.preventDefault(); const f = dropdown.querySelector('.city-option.focused'); if(f) f.click(); }
+      else if (e.key === 'Escape') { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!wrap.contains(e.target)) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; }
+    });
+  }
+
+  async function fetchFilterCities(q, input, dropdown, wrap) {
+    dropdown.innerHTML = '<div class="city-spinner"><i class="fa fa-circle-notch"></i></div>';
+    dropdown.classList.add('open');
+    try {
+      const res = await fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&addressdetails=1&limit=5&accept-language=ru');
+      const data = await res.json();
+      if (!data.length) { dropdown.innerHTML = '<div class="city-option" style="color:#666;">Не найдено</div>'; return; }
+      dropdown.innerHTML = data.map(function(item) {
+        const name = item.address.city || item.address.town || item.address.village || item.address.state || item.display_name;
+        const region = item.address.state || item.address.county || '';
+        const country = item.address.country || '';
+        return '<div class="city-option" data-name="' + name.replace(/"/g,'&quot;') + '">'
+          + '<i class="fa fa-map-marker-alt"></i>'
+          + '<div class="city-option-main"><span>' + name + '</span><small>' + [region, country].filter(Boolean).join(', ') + '</small></div>'
+          + '</div>';
+      }).join('');
+      dropdown.querySelectorAll('.city-option').forEach(function(el) {
+        el.addEventListener('click', function() {
+          input.value = el.dataset.name;
+          dropdown.classList.remove('open');
+          dropdown.innerHTML = '';
+        });
+      });
+    } catch(e) {
+      dropdown.innerHTML = '<div class="city-option" style="color:#666;">Ошибка поиска</div>';
+    }
+  }
+
+  // Инициализация после загрузки
+  document.addEventListener('DOMContentLoaded', function() {
+    initFilterCityAutocomplete('f-city', 'f-city-dropdown', 'f-city-wrap');
+    initFilterCityAutocomplete('ef-city', 'ef-city-dropdown', 'ef-city-wrap');
+  });
+</script>
 </body>
 </html>
