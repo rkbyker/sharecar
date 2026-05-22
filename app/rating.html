@@ -183,8 +183,12 @@
 <div class="top-panel active" id="panel-forum">
  <div class="forum-header">
  <div class="forum-title">Темы</div>
- <button class="forum-new-btn" onclick="openNewTopicModal()">+ Новая тема</button>
+ <div style="display:flex;align-items:center;gap:8px;">
+  <button id="view-list-btn" onclick="setForumView('list')" style="background:#f59e0b;border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;color:#000;font-size:14px;"><i class="fa fa-list"></i></button>
+  <button id="view-grid-btn" onclick="setForumView('grid')" style="background:#1a1a2e;border:1px solid #2a2a4a;border-radius:8px;width:32px;height:32px;cursor:pointer;color:#888;font-size:14px;"><i class="fa fa-th"></i></button>
+  <button class="forum-new-btn" onclick="openNewTopicModal()">+ Новая тема</button>
  </div>
+</div>
  <div class="forum-search-row">
     <input class="forum-search" id="forum-search" placeholder="Поиск по темам..." oninput="filterTopics(this.value)">
  </div>
