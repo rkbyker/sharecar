@@ -475,7 +475,8 @@ function renderTopics(list) {
  let photoHtml = '';
  if (photos.length > 1) {
  const slides = photos.map(function(url, si) {
-        return '<div style="flex-shrink:0;min-width:100%;scroll-snap-align:start;aspect-ratio:4/2.4;overflow:hidden;"><img src="' + esc(url) + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>';
+        var photosJson = JSON.stringify(photos).replace(/"/g,'&quot;');
+        return '<div style="flex-shrink:0;min-width:100%;scroll-snap-align:start;aspect-ratio:4/2.4;overflow:hidden;cursor:pointer;" onclick="event.stopPropagation();window._threadPhotos=' + JSON.stringify(photos) + ';openForumLightbox(' + si + ');"><img src="' + esc(url) + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"></div>';
  }).join('');
  const dots = photos.map(function(_, si) {
  return '<span class="tsl-dot' + (si===0?' active':'') + '" data-tid="' + t.id + '" data-idx="' + si + '"></span>';
