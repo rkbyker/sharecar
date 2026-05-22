@@ -715,6 +715,7 @@
  <div class="event-meta-row">
  ${loc ? `<span> ${loc}</span>` : ''}
  <span>${ev.participants_count || 0} участников</span>
+ ${ev.comments_count ? `<span><i class="fa fa-comment" style="font-size:10px;"></i> ${ev.comments_count}</span>` : ''}
  </div>
  <div class="event-footer">
  <span class="${ev.is_free ? 'event-price-free' : 'event-price-paid'}">${ev.is_free ? 'Бесплатно' : (ev.price||0) + ' ₽'}</span>
