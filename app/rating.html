@@ -90,10 +90,8 @@
     .topic-author { font-size: 12px; color: #888; flex: 1; }
  .topic-stats { display: flex; gap: 10px; }
     .topic-stat { font-size: 12px; color: #555; display: flex; align-items: center; gap: 4px; }
-    .topic-actions { display:flex; gap:12px; margin-top:10px; padding-top:10px; border-top:1px solid #1e1e3a; }
-    .topic-like-btn { background:none; border:none; color:#555; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:5px; padding:0; }
+    .topic-like-btn { background:none; border:none; color:#555; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:4px; padding:0; }
     .topic-like-btn.liked { color:#f59e0b; }
-    .topic-like-btn i { font-size:13px; }
     .topic-pinned { color: #f59e0b; font-size: 11px; font-weight: 600; }
  #forum-thread { display: none; }
  .thread-photos-slider { position:relative; width:100%; margin-bottom:12px; }
@@ -505,11 +503,10 @@ function renderTopics(list) {
  html += '<div class="topic-stats">';
  html += '<div class="topic-stat"><i class="fa fa-eye"></i> ' + (t.views || 0) + '</div>';
  html += '<div class="topic-stat"><i class="fa fa-comment"></i> ' + (t.replies_count || 0) + '</div>';
- html += '</div></div>';
- html += '<div class="topic-actions">';
+ html += '<div class="topic-stat">';
  html += '<button class="topic-like-btn" onclick="event.stopPropagation();likeTopic(this,\''+t.id+'\')" data-tid="'+t.id+'">';
  html += '<i class="fa fa-heart"></i> <span>' + (t.likes || 0) + '</span></button>';
- html += '</div>';
+ html += '</div></div></div>';
  card.innerHTML = html;
  wrap.appendChild(card);
  });
