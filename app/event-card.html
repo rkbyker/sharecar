@@ -365,10 +365,12 @@ window.toggleLike=async function(){
    document.getElementById('like-btn').classList.remove('liked');
  } else {
    const{error}=await supabase.from('event_likes').insert({event_id:EVENT_ID,user_id:currentUser.id});
-   // Всегда получаем запись через select
-   const{data:ex}=await supabase.from('event_likes').select('id').eq('event_id',EVENT_ID).eq('user_id',currentUser.id).single();
+   console.log('insert error:', error);
+   const{data:ex,error:selErr}=await supabase.from('event_likes').select('id').eq('event_id',EVENT_ID).eq('user_id',currentUser.id).single();
+   console.log('select ex:', ex, 'selErr:', selErr);
    if(!error) currentEvent.likes=(currentEvent.likes||0)+1;
    myLike=ex;
+   console.log('myLike set to:', myLike);
    document.getElementById('like-btn').classList.add('liked');
  }
  await supabase.from('events').update({likes:currentEvent.likes}).eq('id',EVENT_ID);
