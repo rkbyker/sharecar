@@ -93,7 +93,27 @@
     .edit-photo-cover-badge { position:absolute; bottom:4px; left:4px; background:#f59e0b; color:#000; font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px; }
     .edit-photo-remove { position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.7); border:none; color:#fff; width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:11px; }
     .edit-upload-btn { width:100%; padding:10px; background:#0f0f0f; border:2px dashed #2a2a4a; border-radius:10px; color:#888; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
- </style>
+ 
+    .city-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 10px;
+      z-index: 300; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.5);
+      display: none;
+    }
+    .city-dropdown.open { display: block; }
+    .city-option {
+      padding: 11px 14px; cursor: pointer; font-size: 14px; color: #ddd;
+      border-bottom: 1px solid #2a2a4a; display: flex; align-items: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .city-option:last-child { border-bottom: none; }
+    .city-option:hover, .city-option.focused { background: #f59e0b20; color: #fff; }
+    .city-option i { color: #f59e0b; font-size: 12px; flex-shrink: 0; }
+    .city-option small { font-size: 11px; color: #666; }
+    .city-option-main { display: flex; flex-direction: column; gap: 2px; }
+    .city-spinner { padding: 12px; text-align: center; color: #f59e0b; }
+    .city-spinner i { animation: spin 1s linear infinite; }
+</style>
 </head>
 <body>
 <div id="loader" class="loader"><div class="spinner"></div></div>
@@ -444,6 +464,120 @@ window.shareEvent=async function(){const url=`https://sharecar.pro/app/event-car
 window.shareToChat=function(){sessionStorage.setItem('shareEvent',JSON.stringify({id:EVENT_ID,title:currentEvent.title,cover:currentEvent.cover_photo||''}));goPage('messages.html?share=event');};
 supabase.channel(`event-${EVENT_ID}`).on('postgres_changes',{event:'INSERT',schema:'public',table:'event_comments',filter:`event_id=eq.${EVENT_ID}`},()=>loadComments()).subscribe();
 init();
+
+  function initEditCityAutocomplete() {
+    var input = document.getElementById('edit-city');
+    var dropdown = document.getElementById('edit-city-dropdown');
+    var wrap = document.getElementById('edit-city-wrap');
+    if (!input || !dropdown || !wrap) return;
+    var timer = null;
+    input.addEventListener('input', function() {
+      clearTimeout(timer);
+      var q = input.value.trim();
+      if (q.length < 2) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; return; }
+      timer = setTimeout(function() { fetchEditCities(q, input, dropdown, wrap); }, 400);
+    });
+    input.addEventListener('keydown', function(e) {
+      var items = dropdown.querySelectorAll('.city-option');
+      var focused = dropdown.querySelector('.city-option.focused');
+      var idx = Array.from(items).indexOf(focused);
+      if (e.key==='ArrowDown') { e.preventDefault(); idx=(idx+1)%items.length; items[idx]&&items[idx].classList.add('focused'); focused&&focused.classList.remove('focused'); }
+      else if (e.key==='ArrowUp') { e.preventDefault(); idx=(idx-1+items.length)%items.length; items[idx]&&items[idx].classList.add('focused'); focused&&focused.classList.remove('focused'); }
+      else if (e.key==='Enter') { e.preventDefault(); var f=dropdown.querySelector('.city-option.focused'); if(f)f.click(); }
+      else if (e.key==='Escape') { dropdown.classList.remove('open'); dropdown.innerHTML=''; }
+    });
+    document.addEventListener('click', function(e) {
+      if (!wrap.contains(e.target)) { dropdown.classList.remove('open'); dropdown.innerHTML=''; }
+    });
+  }
+
+  function initEditAddressAutocomplete() {
+    var input = document.getElementById('edit-address');
+    var dropdown = document.getElementById('edit-address-dropdown');
+    var wrap = document.getElementById('edit-address-wrap');
+    if (!input || !dropdown || !wrap) return;
+    var timer = null;
+    input.addEventListener('input', function() {
+      clearTimeout(timer);
+      var q = input.value.trim();
+      if (q.length < 3) { dropdown.classList.remove('open'); dropdown.innerHTML=''; return; }
+      timer = setTimeout(function() { fetchEditAddress(q, input, dropdown, wrap); }, 400);
+    });
+    input.addEventListener('keydown', function(e) {
+      var items = dropdown.querySelectorAll('.city-option');
+      var focused = dropdown.querySelector('.city-option.focused');
+      var idx = Array.from(items).indexOf(focused);
+      if (e.key==='ArrowDown') { e.preventDefault(); idx=(idx+1)%items.length; items[idx]&&items[idx].classList.add('focused'); focused&&focused.classList.remove('focused'); }
+      else if (e.key==='ArrowUp') { e.preventDefault(); idx=(idx-1+items.length)%items.length; items[idx]&&items[idx].classList.add('focused'); focused&&focused.classList.remove('focused'); }
+      else if (e.key==='Enter') { e.preventDefault(); var f=dropdown.querySelector('.city-option.focused'); if(f)f.click(); }
+      else if (e.key==='Escape') { dropdown.classList.remove('open'); dropdown.innerHTML=''; }
+    });
+    document.addEventListener('click', function(e) {
+      if (!wrap.contains(e.target)) { dropdown.classList.remove('open'); dropdown.innerHTML=''; }
+    });
+  }
+
+  async function fetchEditCities(q, input, dropdown, wrap) {
+    dropdown.innerHTML = '<div class="city-spinner"><i class="fa fa-circle-notch"></i></div>';
+    dropdown.classList.add('open');
+    try {
+      var res = await fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&addressdetails=1&limit=5&accept-language=ru');
+      var data = await res.json();
+      if (!data.length) { dropdown.innerHTML = '<div class="city-option" style="color:#666;">Не найдено</div>'; return; }
+      dropdown.innerHTML = data.map(function(item) {
+        var name = item.address.city || item.address.town || item.address.village || item.address.state || item.display_name;
+        var region = item.address.state || item.address.county || '';
+        var country = item.address.country || '';
+        return '<div class="city-option" data-name="' + name.replace(/"/g,'&quot;') + '">'
+          + '<i class="fa fa-map-marker-alt"></i>'
+          + '<div class="city-option-main"><span>' + name + '</span><small>' + [region,country].filter(Boolean).join(', ') + '</small></div>'
+          + '</div>';
+      }).join('');
+      dropdown.querySelectorAll('.city-option').forEach(function(el) {
+        el.addEventListener('click', function() {
+          input.value = el.dataset.name;
+          dropdown.classList.remove('open'); dropdown.innerHTML='';
+        });
+      });
+    } catch(e) { dropdown.innerHTML = '<div class="city-option" style="color:#666;">Ошибка поиска</div>'; }
+  }
+
+  async function fetchEditAddress(q, input, dropdown, wrap) {
+    dropdown.innerHTML = '<div class="city-spinner"><i class="fa fa-circle-notch"></i></div>';
+    dropdown.classList.add('open');
+    try {
+      var city = document.getElementById('edit-city').value.trim();
+      var query = encodeURIComponent((q + (city ? ' ' + city : '')).trim());
+      var res = await fetch('https://nominatim.openstreetmap.org/search?q=' + query + '&format=json&addressdetails=1&limit=5&accept-language=ru');
+      var data = await res.json();
+      if (!data.length) { dropdown.innerHTML = '<div class="city-option" style="color:#666;">Не найдено</div>'; return; }
+      dropdown.innerHTML = data.map(function(item) {
+        var name = item.display_name;
+        return '<div class="city-option" data-name="' + name.replace(/"/g,'&quot;') + '">'
+          + '<i class="fa fa-map-marker-alt"></i>'
+          + '<div class="city-option-main"><span style="font-size:12px;">' + name + '</span></div>'
+          + '</div>';
+      }).join('');
+      dropdown.querySelectorAll('.city-option').forEach(function(el) {
+        el.addEventListener('click', function() {
+          input.value = el.dataset.name;
+          dropdown.classList.remove('open'); dropdown.innerHTML='';
+        });
+      });
+    } catch(e) { dropdown.innerHTML = '<div class="city-option" style="color:#666;">Ошибка поиска</div>'; }
+  }
+
+  // Инициализируем при открытии модалки
+  var _editAutoCompleteInited = false;
+  var _origOpenEditModal = window.openEditModal;
+  window.openEditModal = function() {
+    _origOpenEditModal();
+    if (!_editAutoCompleteInited) {
+      _editAutoCompleteInited = true;
+      initEditCityAutocomplete();
+      initEditAddressAutocomplete();
+    }
+  };
 </script>
 <div id="edit-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto;">
  <div style="background:#1a1a2e;margin:20px 16px;border-radius:20px;padding:20px;">
@@ -462,11 +596,17 @@ init();
  </div>
  <div>
         <div style="font-size:12px;color:#888;margin-bottom:6px;">Город</div>
-        <input id="edit-city" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;" placeholder="Город">
+        <div id="edit-city-wrap" style="position:relative;">
+        <input id="edit-city" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;" placeholder="Город" autocomplete="off">
+        <div class="city-dropdown" id="edit-city-dropdown"></div>
+        </div>
  </div>
  <div>
         <div style="font-size:12px;color:#888;margin-bottom:6px;">Адрес</div>
-        <input id="edit-address" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;" placeholder="Адрес">
+        <div id="edit-address-wrap" style="position:relative;">
+        <input id="edit-address" style="width:100%;background:#0f0f0f;border:1px solid #2a2a4a;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;" placeholder="Адрес" autocomplete="off">
+        <div class="city-dropdown" id="edit-address-dropdown"></div>
+        </div>
  </div>
  <div>
         <div style="font-size:12px;color:#888;margin-bottom:6px;">Дата начала</div>
