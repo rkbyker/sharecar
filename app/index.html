@@ -763,13 +763,17 @@
  await supabase.from('event_likes').delete().eq('user_id',currentUser.id).eq('event_id',evId);
  btn.classList.remove('liked');
  btn.querySelector('i').className = 'far fa-heart';
- btn.querySelector('span').textContent = Math.max(0, parseInt(btn.querySelector('span').textContent)-1);
+ const newCount1 = Math.max(0, parseInt(btn.querySelector('span').textContent)-1);
+ btn.querySelector('span').textContent = newCount1;
+ await supabase.from('events').update({likes: newCount1}).eq('id', evId);
  } else {
  likedEvIds.add(evId);
  await supabase.from('event_likes').insert({user_id:currentUser.id,event_id:evId});
  btn.classList.add('liked');
  btn.querySelector('i').className = 'fas fa-heart';
- btn.querySelector('span').textContent = parseInt(btn.querySelector('span').textContent)+1;
+ const newCount2 = parseInt(btn.querySelector('span').textContent)+1;
+ btn.querySelector('span').textContent = newCount2;
+ await supabase.from('events').update({likes: newCount2}).eq('id', evId);
  }
  };
  };
