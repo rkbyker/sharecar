@@ -1086,40 +1086,44 @@ async function init() {
  const { data: { session } } = await sb.auth.getSession();
  if (!session) { window.location.href = '/app/auth.html'; return; }
  currentUser = session.user;
+ await loadTopicLikes();
  await loadForum();
 }
 
 init();
 
   var _topicLikes = {};
-  async function likeTopicThread(btn, topicId) {
+
+  async function loadTopicLikes() {
+    if (!currentUser) return;
+    var { data } = await sb.from('forum_topic_likes').select('topic_id').eq('user_id', currentUser.id);
+    if (data) data.forEach(function(r) { _topicLikes[r.topic_id] = true; });
+  }
+
+  async function _doLikeTopic(btn, topicId) {
     if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
     var already = _topicLikes[topicId];
-    _topicLikes[topicId] = !already;
-    btn.classList.toggle('liked', !already);
     var span = btn.querySelector('span');
     var cur = parseInt(span.textContent) || 0;
-    var delta = already ? -1 : 1;
-    span.textContent = cur + delta;
-    try {
+    if (already) {
+      _topicLikes[topicId] = false;
+      btn.classList.remove('liked');
+      span.textContent = Math.max(0, cur - 1);
+      await sb.from('forum_topic_likes').delete().eq('user_id', currentUser.id).eq('topic_id', topicId);
       var { data: t } = await sb.from('forum_topics').select('likes').eq('id', topicId).single();
-      if (t) await sb.from('forum_topics').update({ likes: (t.likes||0)+delta }).eq('id', topicId);
-    } catch(e) {}
-  }
-  async function likeTopic(btn, topicId) {
-    if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
-    var already = _topicLikes[topicId];
-    _topicLikes[topicId] = !already;
-    btn.classList.toggle('liked', !already);
-    var span = btn.querySelector('span');
-    var cur = parseInt(span.textContent) || 0;
-    var delta = already ? -1 : 1;
-    span.textContent = cur + delta;
-    try {
+      if (t) await sb.from('forum_topics').update({ likes: Math.max(0, (t.likes||0)-1) }).eq('id', topicId);
+    } else {
+      _topicLikes[topicId] = true;
+      btn.classList.add('liked');
+      span.textContent = cur + 1;
+      await sb.from('forum_topic_likes').insert({ user_id: currentUser.id, topic_id: topicId });
       var { data: t } = await sb.from('forum_topics').select('likes').eq('id', topicId).single();
-      if (t) await sb.from('forum_topics').update({ likes: (t.likes || 0) + delta }).eq('id', topicId);
-    } catch(e) {}
+      if (t) await sb.from('forum_topics').update({ likes: (t.likes||0)+1 }).eq('id', topicId);
+    }
   }
+
+  async function likeTopicThread(btn, topicId) { await _doLikeTopic(btn, topicId); }
+  async function likeTopic(btn, topicId) { await _doLikeTopic(btn, topicId); }
 </script>
 <div id="edit-topic-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto;">
  <div style="background:#1a1a2e;margin:20px 16px;border-radius:20px;padding:20px;">
