@@ -166,16 +166,15 @@ async function init() {
  }
 
       // Обновляем бейдж
- const totalUnread = Object.values(unreadMap).reduce((a, b) => a + b, 0);
- const badge = document.querySelector('.nav-msg-badge');
- if (badge) {
+ const totalUnread = Object.values(unreadMap).filter(v => v > 0).length;
+ document.querySelectorAll('.nav-msg-badge').forEach(function(badge) {
  if (totalUnread > 0) {
  badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
  badge.style.display = 'flex';
  } else {
  badge.style.display = 'none';
  }
- }
+ });
 
  const STATUS = {
  pending: { label: 'Ожидает', cls: 'status-pending' },
