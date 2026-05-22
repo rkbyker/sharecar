@@ -502,13 +502,13 @@ function renderTopics(list) {
       + (au.avatar_url ? '<img src="' + esc(au.avatar_url) + '" alt="">' : '<span>' + av + '</span>') + '</div>';
  html += '<div class="topic-author" onclick="event.stopPropagation();goPage(\'' + profileUrl + '\')" style="cursor:pointer;color:#f59e0b;">'
  + esc(name) + ' · ' + timeAgo(t.created_at) + '</div>';
- html += '<div class="topic-stats">';
- html += '<div class="topic-stat"><i class="fa fa-eye"></i> ' + (t.views || 0) + '</div>';
- html += '<div class="topic-stat"><i class="fa fa-comment"></i> ' + (t.replies_count || 0) + '</div>';
- html += '<div class="topic-stat">';
+ html += '</div>';
+ html += '<div style="display:flex;align-items:center;gap:14px;margin-top:8px;padding-top:8px;border-top:1px solid #1e1e3a;">';
+ html += '<div style="display:flex;align-items:center;gap:4px;font-size:12px;color:#555;"><i class="fa fa-eye"></i> ' + (t.views||0) + '</div>';
+ html += '<div style="display:flex;align-items:center;gap:4px;font-size:12px;color:#555;"><i class="fa fa-comment"></i> ' + (t.replies_count||0) + '</div>';
  html += '<button class="topic-like-btn" onclick="event.stopPropagation();likeTopic(this,\''+t.id+'\')" data-tid="'+t.id+'">';
- html += '<i class="fa fa-heart"></i> <span>' + (t.likes || 0) + '</span></button>';
- html += '</div></div></div>';
+ html += '<i class="fa fa-heart"></i> <span>' + (t.likes||0) + '</span></button>';
+ html += '</div>';
  card.innerHTML = html;
  wrap.appendChild(card);
  });
@@ -713,6 +713,12 @@ function renderThreadOp(t) {
  html += '<div class="thread-op-title">' + esc(t.title) + '</div>';
  html += '<div class="thread-op-body">' + esc(t.content || '') + '</div>';
  html += '<div class="thread-op-meta">' + esc(name) + ' · ' + timeAgo(t.created_at) + '</div>';
+ html += '<div style="display:flex;align-items:center;gap:14px;margin-top:12px;padding-top:10px;border-top:1px solid #1e1e3a;">';
+ html += '<div style="display:flex;align-items:center;gap:4px;font-size:12px;color:#555;"><i class="fa fa-eye"></i> ' + (t.views||0) + '</div>';
+ html += '<div style="display:flex;align-items:center;gap:4px;font-size:12px;color:#555;"><i class="fa fa-comment"></i> ' + (t.replies_count||0) + '</div>';
+ html += '<button class="topic-like-btn" id="thread-like-btn" onclick="likeTopicThread(this,\''+t.id+'\')" data-tid="'+t.id+'">';
+ html += '<i class="fa fa-heart"></i> <span>' + (t.likes||0) + '</span></button>';
+ html += '</div>';
  if (currentUser && t.author_id === currentUser.id) {
  html += '<div style="display:flex;gap:8px;margin-top:12px;">';
     html += '<button onclick="openEditTopicModal()" style="background:#1a1a2e;border:1px solid #f59e0b;color:#f59e0b;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;"><i class="fa fa-pen"></i> Редактировать</button>';
@@ -1085,6 +1091,20 @@ async function init() {
 init();
 
   var _topicLikes = {};
+  async function likeTopicThread(btn, topicId) {
+    if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
+    var already = _topicLikes[topicId];
+    _topicLikes[topicId] = !already;
+    btn.classList.toggle('liked', !already);
+    var span = btn.querySelector('span');
+    var cur = parseInt(span.textContent) || 0;
+    var delta = already ? -1 : 1;
+    span.textContent = cur + delta;
+    try {
+      var { data: t } = await sb.from('forum_topics').select('likes').eq('id', topicId).single();
+      if (t) await sb.from('forum_topics').update({ likes: (t.likes||0)+delta }).eq('id', topicId);
+    } catch(e) {}
+  }
   async function likeTopic(btn, topicId) {
     if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
     var already = _topicLikes[topicId];
