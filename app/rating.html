@@ -162,7 +162,14 @@
  #toast.show { opacity: 1; }
  #toast.error { background: #7f1d1d; color: #fca5a5; }
  #toast.success { background: #14532d; color: #86efac; }
- </style>
+ 
+    .topics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 14px; }
+    .topics-grid .topic-card { margin: 0; }
+    .topics-grid .topic-cover { aspect-ratio: 4/2.4; height: auto; }
+    .topics-grid .topic-preview { display: none; }
+    .topics-grid .tsl-wrap { margin-bottom: 8px; }
+
+  </style>
 </head>
 <body>
 
@@ -419,8 +426,20 @@ async function loadTopics() {
  renderTopics(topicsAll);
 }
 
+var forumView = 'list';
+function setForumView(v) {
+  forumView = v;
+  document.getElementById('view-list-btn').style.background = v==='list' ? '#f59e0b' : '#1a1a2e';
+  document.getElementById('view-list-btn').style.color = v==='list' ? '#000' : '#888';
+  document.getElementById('view-list-btn').style.border = v==='list' ? 'none' : '1px solid #2a2a4a';
+  document.getElementById('view-grid-btn').style.background = v==='grid' ? '#f59e0b' : '#1a1a2e';
+  document.getElementById('view-grid-btn').style.color = v==='grid' ? '#000' : '#888';
+  document.getElementById('view-grid-btn').style.border = v==='grid' ? 'none' : '1px solid #2a2a4a';
+  renderTopics(topicsAll.length ? topicsAll : []);
+}
 function renderTopics(list) {
- const wrap = document.getElementById('topics-list');
+  const wrap = document.getElementById('topics-list');
+  wrap.className = forumView === 'grid' ? 'topics-grid' : '';
  if (!list.length) {
  wrap.innerHTML = '<div class="empty-state"><div class="icon"></div>Тем пока нет. Создай первую!</div>';
  return;
