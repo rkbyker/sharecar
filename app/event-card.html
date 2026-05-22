@@ -439,16 +439,28 @@ window.saveEvent=async function(){
  if(!title){alert('Введи название');return;}
  const coverUrl=window._editCoverUrl||null;
  const photosArr=window._editPhotos||[];
+ // Геокодируем город
+ let lat=null, lng=null;
+ const cityVal=document.getElementById('edit-city').value.trim();
+ if(cityVal){
+   try{
+     const gr=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(cityVal)+'&format=json&limit=1&accept-language=ru');
+     const gd=await gr.json();
+     if(gd.length){lat=parseFloat(gd[0].lat);lng=parseFloat(gd[0].lon);}
+   }catch(e){}
+ }
  const updates={
  title,
  description:document.getElementById('edit-desc').value.trim()||null,
- city:document.getElementById('edit-city').value.trim()||null,
+ city:cityVal||null,
  address:document.getElementById('edit-address').value.trim()||null,
  date_start:document.getElementById('edit-date').value||null,
  date_end:document.getElementById('edit-date-end').value||null,
  cover_photo:coverUrl,
  photos:photosArr.length?photosArr:null,
  };
+ if(lat!==null)updates.lat=lat;
+ if(lng!==null)updates.lng=lng;
  const{error}=await supabase.from('events').update(updates).eq('id',EVENT_ID);
  if(error){alert('Ошибка: '+error.message);return;}
  closeEditModal();
