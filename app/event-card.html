@@ -364,15 +364,11 @@ window.toggleLike=async function(){
    myLike=null;
    document.getElementById('like-btn').classList.remove('liked');
  } else {
-   const{data,error}=await supabase.from('event_likes').insert({event_id:EVENT_ID,user_id:currentUser.id}).select().single();
-   if(error){
-     // Уже лайкнуто — получаем существующий
-     const{data:ex}=await supabase.from('event_likes').select('id').eq('event_id',EVENT_ID).eq('user_id',currentUser.id).single();
-     myLike=ex;
-   } else {
-     myLike=data;
-     currentEvent.likes=(currentEvent.likes||0)+1;
-   }
+   const{error}=await supabase.from('event_likes').insert({event_id:EVENT_ID,user_id:currentUser.id});
+   // Всегда получаем запись через select
+   const{data:ex}=await supabase.from('event_likes').select('id').eq('event_id',EVENT_ID).eq('user_id',currentUser.id).single();
+   if(!error) currentEvent.likes=(currentEvent.likes||0)+1;
+   myLike=ex;
    document.getElementById('like-btn').classList.add('liked');
  }
  await supabase.from('events').update({likes:currentEvent.likes}).eq('id',EVENT_ID);
