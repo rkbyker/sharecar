@@ -863,7 +863,7 @@
  currentProfile = await getProfile(currentUser.id);
  await loadLikes();
  await loadFeed();
- if (window.updateMsgBadge) updateMsgBadge(supabase, currentUser.id);
+ updateUnreadBadge(supabase, currentUser);
  }
 
     // ── Load likes ─────────────────────────────────────────────────────────────
@@ -1340,5 +1340,6 @@
     initFilterCityAutocomplete('ef-city', 'ef-city-dropdown', 'ef-city-wrap');
   });
 </script>
+<script src="../js/unread.js"></script>
 </body>
 </html>

@@ -558,7 +558,7 @@
  renderProfile();
  loadCars();
  loadTrips();
- if (window.updateMsgBadge) updateMsgBadge(supabase, currentUser.id);
+ updateUnreadBadge(supabase, currentUser);
  loadReviews();
  loadRacing();
  }
@@ -995,5 +995,6 @@
  if (dy > 80) { showToast(' Обновление...'); setTimeout(() => init(), 300); }
  }, { passive: true });
  </script>
+<script src="../js/unread.js"></script>
 </body>
 </html>

@@ -1086,6 +1086,7 @@ async function init() {
  const { data: { session } } = await sb.auth.getSession();
  if (!session) { window.location.href = '/app/auth.html'; return; }
  currentUser = session.user;
+  updateUnreadBadge(supabase, currentUser);
  await loadTopicLikes();
  await loadForum();
 }
@@ -1162,5 +1163,6 @@ init();
  </div>
  <div class="forum-lb-counter" id="forum-lb-counter"></div>
 </div>
+<script src="../js/unread.js"></script>
 </body>
 </html>

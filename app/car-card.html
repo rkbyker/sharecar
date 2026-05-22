@@ -350,6 +350,7 @@
  const { data: { session } } = await supabase.auth.getSession();
  if (!session) { window.location.href = '/app/auth.html'; return; }
  currentUser = session.user;
+  updateUnreadBadge(supabase, currentUser);
 
       // Load profile
  const { data: prof } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
@@ -778,5 +779,6 @@
  <button class="nav-item" onclick="goPage('rating.html')"><i class="fa fa-comments"></i><span>Форум</span></button>
  <button class="nav-item" onclick="goPage('profile.html')"><i class="fa fa-user"></i><span>Профиль</span></button>
  </nav>
+<script src="../js/unread.js"></script>
 </body>
 </html>
