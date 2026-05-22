@@ -90,6 +90,7 @@
     .topic-author { font-size: 12px; color: #888; flex: 1; }
  .topic-stats { display: flex; gap: 10px; }
     .topic-stat { font-size: 12px; color: #555; display: flex; align-items: center; gap: 4px; }
+    .topic-like-btn.liked { color: #f59e0b !important; }
     .topic-pinned { color: #f59e0b; font-size: 11px; font-weight: 600; }
  #forum-thread { display: none; }
  .thread-photos-slider { position:relative; width:100%; margin-bottom:12px; }
@@ -501,7 +502,7 @@ function renderTopics(list) {
  html += '<div class="topic-stats">';
  html += '<div class="topic-stat"><i class="fa fa-eye"></i> ' + (t.views || 0) + '</div>';
  html += '<div class="topic-stat"><i class="fa fa-comment"></i> ' + (t.replies_count || 0) + '</div>';
- html += '<div class="topic-stat"><i class="fa fa-heart"></i> ' + (t.likes || 0) + '</div>';
+ html += '<div class="topic-stat"><button class="topic-like-btn" onclick="event.stopPropagation();likeTopic(this,\''+t.id+'\')" data-tid="'+t.id+'" style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;padding:0;"><i class="fa fa-heart"></i> <span>' + (t.likes || 0) + '</span></button></div>';
  html += '</div></div>';
  card.innerHTML = html;
  wrap.appendChild(card);
@@ -1077,6 +1078,22 @@ async function init() {
 }
 
 init();
+
+  var _topicLikes = {};
+  async function likeTopic(btn, topicId) {
+    if (!currentUser) { showToast('Войди в аккаунт', 'error'); return; }
+    var already = _topicLikes[topicId];
+    _topicLikes[topicId] = !already;
+    btn.classList.toggle('liked', !already);
+    var span = btn.querySelector('span');
+    var cur = parseInt(span.textContent) || 0;
+    var delta = already ? -1 : 1;
+    span.textContent = cur + delta;
+    try {
+      var { data: t } = await sb.from('forum_topics').select('likes').eq('id', topicId).single();
+      if (t) await sb.from('forum_topics').update({ likes: (t.likes || 0) + delta }).eq('id', topicId);
+    } catch(e) {}
+  }
 </script>
 <div id="edit-topic-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto;">
  <div style="background:#1a1a2e;margin:20px 16px;border-radius:20px;padding:20px;">
