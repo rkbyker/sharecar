@@ -478,9 +478,8 @@
  const div = document.createElement('div');
  div.className = `msg-bubble ${isOwn ? 'outgoing' : 'incoming'}`;
  div.dataset.id = msg.id;
- console.log('reply_preview:', msg.reply_preview, 'reply_to_id:', msg.reply_to_id);
  const replyHtml = msg.reply_preview ? '<div style="background:#0f0f1e;border-left:3px solid #f59e0b;border-radius:6px;padding:6px 10px;margin-bottom:6px;font-size:12px;color:#888;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-scroll-to="' + (msg.reply_to_id||'') + '">' + escapeHtml(msg.reply_preview||'') + '</div>' : '';
- div.innerHTML = replyHtml + '<div class="bubble-body">' + bubbleContent + '</div><div class="msg-time">' + time + '</div>';
+ div.innerHTML = '<div class="bubble-body">' + replyHtml + bubbleContent + '</div><div class="msg-time">' + time + '</div>';
  if (msg.reply_to_id) {
    div.querySelector('[data-scroll-to]')?.addEventListener('click', function() {
      document.querySelector('[data-id="' + msg.reply_to_id + '"]')?.scrollIntoView({behavior:'smooth'});
