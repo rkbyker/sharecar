@@ -331,7 +331,7 @@
             if (parsed.type === 'event') {
               // Отправляем карточку сразу
               await supabase.from('messages').insert({request_id: REQUEST_ID, sender_id: currentUser.id, content: draft});
-              await loadMessages();
+              await loadMessages(true);
               return;
             }
           } catch(e) {}
@@ -402,7 +402,7 @@
  document.getElementById('messages-wrap').prepend(banner);
  }
 
- async function loadMessages() {
+ async function loadMessages(noScroll) {
  const { data: msgs } = await supabase
  .from('messages')
  .select('*')
@@ -415,7 +415,7 @@
 
  if (msgs) {
  msgs.forEach(m => appendMessage(m));
- scrollBottom();
+ if (!noScroll) scrollBottom();
  }
 
       // Mark messages as read
@@ -478,6 +478,7 @@
  const div = document.createElement('div');
  div.className = `msg-bubble ${isOwn ? 'outgoing' : 'incoming'}`;
  div.dataset.id = msg.id;
+ console.log('reply_preview:', msg.reply_preview, 'reply_to_id:', msg.reply_to_id);
  const replyHtml = msg.reply_preview ? '<div style="background:#0f0f1e;border-left:3px solid #f59e0b;border-radius:6px;padding:6px 10px;margin-bottom:6px;font-size:12px;color:#888;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-scroll-to="' + (msg.reply_to_id||'') + '">' + escapeHtml(msg.reply_preview||'') + '</div>' : '';
  div.innerHTML = replyHtml + '<div class="bubble-body">' + bubbleContent + '</div><div class="msg-time">' + time + '</div>';
  if (msg.reply_to_id) {
