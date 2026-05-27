@@ -135,12 +135,7 @@
 <script>
  function goPage(p) { window.location.href = p; }
 
-window.shareUserToChat = function() {
-  if (!profileData) return;
-  const name = profileData.org_name || ((profileData.first_name||'') + ' ' + (profileData.last_name||'')).trim() || 'Пользователь';
-  sessionStorage.setItem('shareEvent', JSON.stringify({type:'user', id:USER_ID, title:name, cover:profileData.avatar_url||''}));
-  goPage('messages.html?share=user');
-};
+
  function openAvatarLightbox() {
  const img = document.getElementById('lightbox-img');
  if (!img.dataset.url) return;
@@ -153,7 +148,14 @@ window.shareUserToChat = function() {
  import { supabase, requireAuth, showToast } from '../js/supabase.js';
   window._supabase = supabase;
 
- const params = new URLSearchParams(location.search);
+  window.shareUserToChat = function() {
+    if (!profileData) return;
+    const name = profileData.org_name || ((profileData.first_name||"") + " " + (profileData.last_name||"")).trim() || "Пользователь";
+    sessionStorage.setItem("shareEvent", JSON.stringify({type:"user", id:USER_ID, title:name, cover:profileData.avatar_url||""}));
+    window.location.href = "messages.html?share=user";
+  };
+
+  const params = new URLSearchParams(location.search);
  const USER_ID = params.get('id');
  if (!USER_ID) { window.location.href = 'index.html'; }
 
