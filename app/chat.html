@@ -404,7 +404,7 @@
  if (msgs) {
  const unread = msgs.filter(m => m.sender_id !== currentUser.id && !m.read).map(m => m.id);
  if (unread.length) {
- supabase.from('messages').update({ read: true }).in('id', unread);
+ await supabase.from('messages').update({ read: true }).in('id', unread);
  }
  }
  }
