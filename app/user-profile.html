@@ -78,6 +78,7 @@
  <div class="profile-name" id="profile-name">—</div>
  <div class="profile-nick" id="profile-nick"></div>
  <div class="level-badge" id="level-badge">—</div>
+ <button onclick="shareUserToChat()" style="margin-top:10px;background:none;border:1px solid #3b82f6;color:#3b82f6;padding:6px 16px;border-radius:20px;font-size:13px;cursor:pointer;"><i class="fa fa-paper-plane"></i> Поделиться в чате</button>
  </div>
 
  <div class="profile-stats">
@@ -133,6 +134,13 @@
 
 <script>
  function goPage(p) { window.location.href = p; }
+
+window.shareUserToChat = function() {
+  if (!profileData) return;
+  const name = profileData.org_name || ((profileData.first_name||'') + ' ' + (profileData.last_name||'')).trim() || 'Пользователь';
+  sessionStorage.setItem('shareEvent', JSON.stringify({type:'user', id:USER_ID, title:name, cover:profileData.avatar_url||''}));
+  goPage('messages.html?share=user');
+};
  function openAvatarLightbox() {
  const img = document.getElementById('lightbox-img');
  if (!img.dataset.url) return;
@@ -143,6 +151,7 @@
 
 <script type="module">
  import { supabase, requireAuth, showToast } from '../js/supabase.js';
+  window._supabase = supabase;
 
  const params = new URLSearchParams(location.search);
  const USER_ID = params.get('id');

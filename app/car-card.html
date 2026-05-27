@@ -231,6 +231,7 @@
  <button class="gallery-btn next" id="btn-next" onclick="slideGallery(1)" style="display:none;"><i class="fa fa-chevron-right"></i></button>
  <div class="gallery-actions">
  <button class="gallery-action-btn" id="like-btn-top" onclick="toggleLike()"><i class="far fa-heart"></i></button>
+ <button class="gallery-action-btn" onclick="shareCarToChat()" title="Поделиться в чате"><i class="fa fa-paper-plane"></i></button>
  </div>
  </div>
 
@@ -317,6 +318,7 @@
 
  <script type="module">
  import { supabase, getLevel, showToast } from '../js/supabase.js';
+  window._supabase = supabase;
  import '../js/nav.js';
 
  let currentUser = null;
@@ -329,6 +331,14 @@
 
  window.slideGallery = slideGallery;
  window.toggleLike = toggleLike;
+
+window.shareCarToChat = function() {
+  if (!car) return;
+  const photos = car.photos || [];
+  const cover = photos.length ? photos[0] : '';
+  sessionStorage.setItem('shareEvent', JSON.stringify({type:'car', id:CAR_ID, title: car.brand + ' ' + car.model + ' ' + (car.year||''), cover: cover}));
+  goPage('messages.html?share=car');
+};
 
  function showLightbox(url) {
  document.getElementById('lightbox-img').src = url;

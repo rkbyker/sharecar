@@ -94,7 +94,7 @@
   }
    window.sendShareToChat = function(requestId) {
     if (!shareEventData) return;
-    const payload = JSON.stringify({type:'event', id:shareEventData.id, title:shareEventData.title, cover:shareEventData.cover||''});
+    const payload = JSON.stringify({type:shareEventData.type||'event', id:shareEventData.id, title:shareEventData.title, cover:shareEventData.cover||''});
     sessionStorage.setItem('shareDraft', payload);
     sessionStorage.removeItem('shareEvent');
     window.shareEventData = null;

@@ -686,6 +686,13 @@ async function saveTopicEdit() {
  showToast('Сохранено!', 'success');
  openThread(currentTopicId);
 }
+window.shareTopicToChat = function(topicId, title) {
+  const t = window._currentTopicData || {};
+  const cover = (t.photos && t.photos.length) ? t.photos[0] : (t.cover_photo || '');
+  sessionStorage.setItem('shareEvent', JSON.stringify({type:'topic', id:topicId, title:title, cover:cover}));
+  window.location.href = 'messages.html?share=topic';
+};
+
 async function deleteTopic() {
  if (!confirm('Удалить тему?')) return;
  await sb.from('forum_topics').delete().eq('id', currentTopicId);
@@ -720,6 +727,7 @@ function renderThreadOp(t) {
  html += '<div style="display:flex;align-items:center;gap:4px;font-size:12px;color:#555;"><i class="fa fa-comment"></i> ' + (t.forum_replies?.[0]?.count||t.replies_count||0) + '</div>';
  html += '<button class="topic-like-btn" id="thread-like-btn" onclick="likeTopicThread(this,\''+t.id+'\')" data-tid="'+t.id+'">';
  html += '<i class="fa fa-heart"></i> <span>' + (t.likes||0) + '</span></button>';
+ html += '<button onclick="shareTopicToChat(\''+t.id+'\',\''+esc(t.title)+'\')" style="margin-left:auto;background:none;border:1px solid #3b82f6;color:#3b82f6;border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;"><i class="fa fa-paper-plane"></i></button>';
  html += '</div>';
  if (currentUser && t.author_id === currentUser.id) {
  html += '<div style="display:flex;gap:8px;margin-top:12px;">';
