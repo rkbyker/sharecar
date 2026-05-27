@@ -161,8 +161,8 @@
  <div class="description" id="event-desc"></div>
  </div>
  <div class="section" id="participants-section">
-      <div class="section-title"><i class="fa fa-users"></i> Участники <span id="participants-count" style="color:#888;font-size:13px;font-weight:400;"></span></div>
- <div class="participants-list" id="participants-list"></div>
+      <div class="section-title" onclick="toggleParticipants()" style="cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;"><span><i class="fa fa-users"></i> Участники <span id="participants-count" style="color:#888;font-size:13px;font-weight:400;"></span></span><i class="fa fa-chevron-down" id="participants-chevron" style="font-size:12px;color:#555;transition:transform .2s;"></i></div>
+ <div class="participants-list" id="participants-list" style="display:none;"></div>
  </div>
  <div class="section" id="tags-section" style="display:none;">
  <div class="section-title"><i class="fa fa-tag"></i>Теги</div>
@@ -244,6 +244,7 @@ function closeLightbox(){document.getElementById('lightbox').classList.remove('a
 </script>
 <script type="module">
 import { supabase, showToast } from '../js/supabase.js';
+  window._supabase = supabase;
 const params=new URLSearchParams(location.search);
 const EVENT_ID=params.get('id');
 if(!EVENT_ID){location.href='index.html';}
@@ -358,6 +359,14 @@ window.setRsvp=async function(status){
  }
  updateRsvpUI();await loadParticipants();
 };
+window.toggleParticipants=function(){
+  const list=document.getElementById('participants-list');
+  const chevron=document.getElementById('participants-chevron');
+  const isOpen=list.style.display!=='none';
+  list.style.display=isOpen?'none':'flex';
+  chevron.style.transform=isOpen?'':'rotate(180deg)';
+};
+
 window.toggleLike=async function(){
  if(myLike){
    await supabase.from('event_likes').delete().eq('id',myLike.id);
