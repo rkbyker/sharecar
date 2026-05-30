@@ -767,7 +767,7 @@
  appendSystemMsg(' Вы оставили отзыв');
  }
 
- function scrollBottom() {
+ window.scrollBottom = function() {
  const wrap = document.getElementById('messages-wrap');
  wrap.scrollTop = wrap.scrollHeight;
  document.getElementById('scroll-down-btn').style.display = 'none';
