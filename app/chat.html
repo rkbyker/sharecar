@@ -356,7 +356,6 @@
           }
         }, 50);
       }
- scrollBottom();
  }
 
  function renderHeader() {
@@ -426,7 +425,7 @@
 
  if (msgs) {
  msgs.forEach(m => appendMessage(m));
- if (!noScroll) scrollBottom();
+ 
  }
 
       // Mark messages as read
@@ -572,7 +571,6 @@
  created_at: new Date().toISOString(),
  };
  appendMessage(tempMsg);
- scrollBottom();
 
   const insertData = {
    request_id: REQUEST_ID,
