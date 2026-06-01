@@ -270,6 +270,7 @@
  let replyToId = null;
  let replyToPreview = null;
 
+   window.setReply = function(msgId, preview) {
    replyToId = msgId;
    replyToPreview = preview;
    const banner = document.getElementById('reply-banner');
