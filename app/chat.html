@@ -428,7 +428,7 @@
  if (msgs) {
  msgs.forEach(m => appendMessage(m, false));
  const wrap = document.getElementById('messages-wrap');
- wrap.scrollTop = wrap.scrollHeight;
+ if (!noScroll) wrap.scrollTop = wrap.scrollHeight;
  }
 
       // Mark messages as read
@@ -549,7 +549,7 @@
  if (newMsgs && newMsgs.length) {
  newMsgs.forEach(msg => {
  if (!document.querySelector(`[data-id="${msg.id}"]`)) {
- appendMessage(msg);
+ appendMessage(msg, true);
  if (msg.sender_id !== currentUser.id) {
  document.getElementById('status-dot').style.background = '#22c55e';
  }
