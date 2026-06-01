@@ -331,6 +331,8 @@
 
  document.getElementById('loader-full').style.display = 'none';
  document.getElementById('chat-wrap').style.display = 'flex';
+ const wrapEl = document.getElementById('messages-wrap');
+ wrapEl.scrollTop = wrapEl.scrollHeight;
 
       // Share draft — если JSON карточка то отправляем сразу, иначе в поле
       const draft = sessionStorage.getItem('shareDraft');
