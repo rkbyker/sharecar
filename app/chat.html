@@ -426,7 +426,7 @@
  existingMsgs.forEach(m => m.remove());
 
  if (msgs) {
- msgs.forEach(m => appendMessage(m));
+ msgs.forEach(m => appendMessage(m, false));
  const wrap = document.getElementById('messages-wrap');
  wrap.scrollTop = wrap.scrollHeight;
  }
@@ -600,7 +600,7 @@
  const tempEl = document.querySelector(`[data-id="${tempMsg.id}"]`);
  if (tempEl && saved) {
    tempEl.remove();
-   appendMessage(saved);
+   appendMessage(saved, false);
  }
  }
 
