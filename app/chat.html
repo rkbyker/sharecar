@@ -270,6 +270,12 @@
  let replyToId = null;
  let replyToPreview = null;
 
+ function smartScroll() {
+   const wrap = document.getElementById('messages-wrap');
+   const dist = wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight;
+   if (dist < 150) wrap.scrollTop = wrap.scrollHeight;
+ }
+
  window.setReply = function(msgId, preview) {
    replyToId = msgId;
    replyToPreview = preview;
@@ -440,7 +446,7 @@
  }
  }
 
- function appendMessage(msg) {
+ function appendMessage(msg, autoScroll = true) {
  const isOwn = msg.sender_id === currentUser.id;
     // Кликабельные ссылки
     let bubbleContent = '';
@@ -503,6 +509,7 @@
  div.addEventListener('touchstart', function() { pressTimer = setTimeout(function() { const preview = msg.content ? msg.content.substring(0,60) : '📎'; window.setReply(msg.id, preview); }, 500); });
  div.addEventListener('touchend', function() { clearTimeout(pressTimer); });
  document.getElementById('messages-wrap').appendChild(div);
+   if (autoScroll) smartScroll();
  }
 
  function appendSystemMsg(text) {
@@ -510,6 +517,7 @@
  div.className = 'msg-bubble system';
  div.innerHTML = `<div class="bubble-body">${text}</div>`;
  document.getElementById('messages-wrap').appendChild(div);
+   if (autoScroll) smartScroll();
  }
 
  function setupRealtime() {
@@ -573,7 +581,8 @@
  content: text,
  created_at: new Date().toISOString(),
  };
- appendMessage(tempMsg);
+ appendMessage(tempMsg, false);
+      document.getElementById('messages-wrap').scrollTop = document.getElementById('messages-wrap').scrollHeight;
 
   const insertData = {
    request_id: REQUEST_ID,
