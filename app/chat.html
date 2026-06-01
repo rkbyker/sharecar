@@ -537,27 +537,6 @@
  });
 
       // Fallback polling каждые 3 секунды
- let lastMsgTime = new Date().toISOString();
- setInterval(async () => {
- const { data: newMsgs } = await supabase
- .from('messages')
- .select('*')
- .eq('request_id', REQUEST_ID)
- .gt('created_at', lastMsgTime)
- .order('created_at', { ascending: true });
-
- if (newMsgs && newMsgs.length) {
- newMsgs.forEach(msg => {
- if (!document.querySelector(`[data-id="${msg.id}"]`)) {
- appendMessage(msg, true);
- if (msg.sender_id !== currentUser.id) {
- document.getElementById('status-dot').style.background = '#22c55e';
- }
- }
- });
- lastMsgTime = newMsgs[newMsgs.length - 1].created_at;
- }
- }, 3000);
  }
 
  async function sendMsg() {
