@@ -269,6 +269,7 @@
  let REQUEST_ID = null;
  let replyToId = null;
  let replyToPreview = null;
+ let scrollLocked = true;
 
    window.setReply = function(msgId, preview) {
    replyToId = msgId;
@@ -328,6 +329,7 @@
  setupRealtime();
  initScrollDownBtn();
  renderReviewBtn();
+ setTimeout(() => { scrollLocked = false; }, 2000);
 
  document.getElementById('loader-full').style.display = 'none';
  document.getElementById('chat-wrap').style.display = 'flex';
@@ -830,6 +832,7 @@ function initScrollDownBtn() {
    });
  }
  function smartScroll() {
+ if (scrollLocked) return;
  const wrap = document.getElementById('messages-wrap');
  const threshold = 100;
  if (wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight < threshold) {
