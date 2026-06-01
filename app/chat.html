@@ -526,7 +526,7 @@
  }, (payload) => {
  const msg = payload.new;
  if (!document.querySelector(`[data-id="${msg.id}"]`)) {
- appendMessage(msg);
+ appendMessage(msg, true);
  if (msg.sender_id !== currentUser.id) {
  document.getElementById('status-dot').style.background = '#22c55e';
  }
