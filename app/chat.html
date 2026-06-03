@@ -332,6 +332,7 @@
  setTimeout(() => { scrollLocked = false; }, 2000);
 
  document.getElementById('loader-full').style.display = 'none';
+  const _w = document.getElementById('messages-wrap'); _w.scrollTop = _w.scrollHeight;
  document.getElementById('chat-wrap').style.display = 'flex';
   setTimeout(() => { const _w = document.getElementById('messages-wrap'); _w.scrollTop = _w.scrollHeight; }, 100);
 
