@@ -333,6 +333,7 @@
 
  document.getElementById('loader-full').style.display = 'none';
  document.getElementById('chat-wrap').style.display = 'flex';
+  setTimeout(() => { const _w = document.getElementById('messages-wrap'); _w.scrollTop = _w.scrollHeight; }, 100);
 
       // Share draft — если JSON карточка то отправляем сразу, иначе в поле
       const draft = sessionStorage.getItem('shareDraft');
