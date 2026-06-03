@@ -654,6 +654,7 @@
  </script>
  <script type="module">
  import { supabase, requireAuth, getProfile, getLevel, showToast } from '../js/supabase.js';
+  window._supabase = supabase;
  import '../js/nav.js';
 
     // ── Events ─────────────────────────────────────────────────────────────────
@@ -726,7 +727,8 @@
  <i class="fa${isLiked?'s':'r'} fa-heart"></i>
  <span>${ev.likes||0}</span>
  </button>
- <button class="event-rsvp-btn" onclick="goPage('event-card.html?id=${ev.id}')">Подробнее →</button>
+ <button class="btn-like" onclick="event.stopPropagation();shareEvent(ev)" style="color:#888;"><i class="fa fa-paper-plane"></i></button>
+                 <button class="event-rsvp-btn" onclick="goPage('event-card.html?id=${ev.id}')">Подробнее →</button>
  </div>
  </div>
  </div>
@@ -852,6 +854,18 @@
  window.applyFilters = applyFilters;
  window.goPage = (p) => window.location.href = p;
  window.toggleLike = toggleLike;
+
+ window.shareCar = function(car) {
+   const cover = car.photos && car.photos[0] ? car.photos[0] : '';
+   sessionStorage.setItem('shareEvent', JSON.stringify({type:'car', id:car.id, title: car.brand+' '+car.model+' '+(car.year||''), cover}));
+   goPage('messages.html?share=car');
+ };
+
+ window.shareEvent = function(ev) {
+   const cover = ev.photos && ev.photos[0] ? ev.photos[0] : (ev.cover_photo||'');
+   sessionStorage.setItem('shareEvent', JSON.stringify({type:'event', id:ev.id, title:ev.title, cover}));
+   goPage('messages.html?share=event');
+ };
 
     // ── Init ───────────────────────────────────────────────────────────────────
  async function init() {
