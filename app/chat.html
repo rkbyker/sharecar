@@ -836,12 +836,12 @@ function initScrollDownBtn() {
 
  init();
     // Pull to refresh
- let ptr_startY = 0, ptr_pulling = false;
+ let ptr_startY = 0, ptr_pulling = false; const ptr_disabled = true;
  const ptr_indicator = document.createElement('div');
  ptr_indicator.style.cssText = 'position:fixed;top:0;left:0;right:0;height:4px;background:#f59e0b;transform:scaleX(0);transform-origin:left;transition:transform 0.2s;z-index:9999;';
  document.body.appendChild(ptr_indicator);
  document.addEventListener('touchstart', (e) => {
- if (window.scrollY === 0) { ptr_startY = e.touches[0].clientY; ptr_pulling = true; }
+ if (!ptr_disabled && window.scrollY === 0) { ptr_startY = e.touches[0].clientY; ptr_pulling = true; }
  }, { passive: true });
  document.addEventListener('touchmove', (e) => {
  if (!ptr_pulling) return;
