@@ -331,14 +331,13 @@
  renderReviewBtn();
  setTimeout(() => { scrollLocked = false; }, 2000);
 
- document.getElementById('loader-full').style.display = 'none';
-  const _w = document.getElementById('messages-wrap'); _w.scrollTop = _w.scrollHeight;
-  document.getElementById('chat-wrap').style.opacity = '0';
-  document.getElementById('chat-wrap').style.display = 'flex';
+  document.getElementById('loader-full').style.display = 'none';
+  const _cw = document.getElementById('chat-wrap');
+  _cw.style.opacity = '0';
+  _cw.style.display = 'flex';
   const _w = document.getElementById('messages-wrap');
   _w.scrollTop = _w.scrollHeight;
-  requestAnimationFrame(() => { document.getElementById('chat-wrap').style.transition = 'opacity 0.15s'; document.getElementById('chat-wrap').style.opacity = '1'; });
-  setTimeout(() => { const _w = document.getElementById('messages-wrap'); _w.scrollTop = _w.scrollHeight; }, 100);
+  requestAnimationFrame(() => { _cw.style.transition = 'opacity 0.15s'; _cw.style.opacity = '1'; });
 
       // Share draft — если JSON карточка то отправляем сразу, иначе в поле
       const draft = sessionStorage.getItem('shareDraft');
