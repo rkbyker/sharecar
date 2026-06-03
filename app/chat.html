@@ -333,7 +333,11 @@
 
  document.getElementById('loader-full').style.display = 'none';
   const _w = document.getElementById('messages-wrap'); _w.scrollTop = _w.scrollHeight;
- document.getElementById('chat-wrap').style.display = 'flex';
+  document.getElementById('chat-wrap').style.opacity = '0';
+  document.getElementById('chat-wrap').style.display = 'flex';
+  const _w = document.getElementById('messages-wrap');
+  _w.scrollTop = _w.scrollHeight;
+  requestAnimationFrame(() => { document.getElementById('chat-wrap').style.transition = 'opacity 0.15s'; document.getElementById('chat-wrap').style.opacity = '1'; });
   setTimeout(() => { const _w = document.getElementById('messages-wrap'); _w.scrollTop = _w.scrollHeight; }, 100);
 
       // Share draft — если JSON карточка то отправляем сразу, иначе в поле
