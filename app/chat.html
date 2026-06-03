@@ -811,11 +811,7 @@ function initScrollDownBtn() {
    });
  }
  function smartScroll() {
- if (scrollLocked) return;
  const wrap = document.getElementById('messages-wrap');
- const threshold = 100;
- if (wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight < threshold) {
- wrap.scrollTop = wrap.scrollHeight;
  }
  }
 
