@@ -675,6 +675,7 @@
  if (efCity) evQuery = evQuery.ilike('city', '%' + efCity + '%');
  evQuery = evQuery.order('created_at', { ascending: false }).limit(50);
  const { data, error } = await evQuery;
+      window._eventsData = data || [];
 
  if (error || !data || data.length === 0) {
         container.innerHTML = `<div class="empty-events"><div class="icon">🎉</div><p>Мероприятий пока нет</p><p style="font-size:13px;margin-top:8px;color:#444">Создай первое!</p></div>`;
@@ -727,7 +728,7 @@
  <i class="fa${isLiked?'s':'r'} fa-heart"></i>
  <span>${ev.likes||0}</span>
  </button>
- <button class="btn-like" onclick="event.stopPropagation();shareEventById('${ev.id}','${(ev.title||'').replace(/'/g,'\\'')}','${ev.photos&&ev.photos[0]?ev.photos[0]:(ev.cover_photo||'')}')" style="color:#888;"><i class="fa fa-paper-plane"></i></button>
+ <button class="btn-like" onclick="event.stopPropagation();shareEventById('${ev.id}')" style="color:#888;"><i class="fa fa-paper-plane"></i></button>
                  <button class="event-rsvp-btn" onclick="goPage('event-card.html?id=${ev.id}')">Подробнее →</button>
  </div>
  </div>
@@ -861,7 +862,10 @@
    goPage('messages.html?share=car');
  };
 
- window.shareEventById = function(id, title, cover) {
+ window.shareEventById = function(id) {
+   const ev = (window._eventsData||[]).find(e => e.id === id);
+   const title = ev ? ev.title : '';
+   const cover = ev ? (ev.photos&&ev.photos[0] ? ev.photos[0] : (ev.cover_photo||'')) : '';
    sessionStorage.setItem('shareEvent', JSON.stringify({type:'event', id, title, cover}));
    goPage('messages.html?share=event');
  };
