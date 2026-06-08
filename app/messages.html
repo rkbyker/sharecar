@@ -106,8 +106,8 @@ async function init() {
  const { data: { session } } = await supabase.auth.getSession();
  if (!session) { window.location.href = '/app/auth.html'; return; }
  currentUser = session.user;
- await loadMessages();
-  initShare();
+ initShare();
+  await loadMessages();
  }
 
  async function loadMessages() {
