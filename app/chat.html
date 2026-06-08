@@ -350,6 +350,8 @@
               // Отправляем карточку сразу
               await supabase.from('messages').insert({request_id: REQUEST_ID, sender_id: currentUser.id, content: draft});
               await loadMessages(true);
+              const _w = document.getElementById('messages-wrap');
+              _w.scrollTop = _w.scrollHeight;
               return;
             }
           } catch(e) {}
