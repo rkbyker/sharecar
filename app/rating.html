@@ -1093,6 +1093,9 @@ function renderTable(id, arr, type) {
 }
 
 async function init() {
+  const _params = new URLSearchParams(location.search);
+  const _topicParam = _params.get('topic');
+  if (_topicParam) { await loadTopics(); openThread(_topicParam); return; }
  const { data: { session } } = await sb.auth.getSession();
  if (!session) { window.location.href = '/app/auth.html'; return; }
  currentUser = session.user;
