@@ -832,10 +832,7 @@ async function sendReply() {
  const _savedPreview = forumReplyPreview;
  const { data, error } = await sb.from('forum_replies').insert(_rd).select('*').single();
  cancelForumReply();
- if (data) {
- const { data: au } = await sb.from('profiles').select('first_name,last_name,avatar_url').eq('id', currentUser.id).single();
- if (au) data.author = au;
- }
+ if (data) { data.author = currentProfile || {}; }
  if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
  input.value = ''; input.style.height = 'auto';
  sb.from('forum_topics').select('replies_count').eq('id', currentTopicId).single().then(function(res) {
