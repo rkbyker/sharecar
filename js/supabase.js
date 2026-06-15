@@ -14,11 +14,15 @@ export async function getUser() {
 }
 
 export async function getProfile(userId) {
+  const cacheKey = 'sc_profile_' + userId;
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached) { try { return JSON.parse(cached); } catch(e) {} }
   const { data } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', userId)
     .single();
+  if (data) sessionStorage.setItem(cacheKey, JSON.stringify(data));
   return data;
 }
 
