@@ -346,7 +346,6 @@ async function loadComments(){
 <div class="comment-time">${dt}</div>
 <button onclick="setEvReply('${c.id}',this)" style="background:none;border:none;color:#555;font-size:11px;cursor:pointer;padding:0;"><i class="fa fa-reply"></i> Ответить</button>
 </div>
-${c.reply_preview?`<div style="background:#0f0f1e;border-left:3px solid #f59e0b;border-radius:6px;padding:5px 10px;margin-bottom:6px;font-size:12px;color:#888;cursor:pointer;" onclick="document.querySelector('[data-id=\'${c.reply_to_id}\']')?.scrollIntoView({behavior:'smooth'})">${c.reply_preview}</div>`:''}
 </div></div>`;
  }).join('');
 }
@@ -405,8 +404,8 @@ let evReplyPreview = null;
 window.setEvReply = function(id, btn) {
   evReplyToId = id;
   const commentEl = document.querySelector('[data-id="'+id+'"]');
-  const evReplyPreviewText = commentEl ? (commentEl.querySelector('.comment-author')?.textContent||'') + ': ' + (commentEl.querySelector('.comment-text')?.textContent||'').substring(0,50) : '';
-  evReplyPreview = evReplyPreviewText;
+  evReplyPreview = commentEl ? (commentEl.querySelector('.comment-author')?.textContent||'') + ': ' + (commentEl.querySelector('.comment-text')?.textContent||'').substring(0,50) : '';
+  document.getElementById('ev-reply-preview').textContent = evReplyPreview;
   document.getElementById('ev-reply-banner').style.display = 'flex';
   document.getElementById('ev-reply-preview').textContent = preview;
   document.getElementById('comment-input').focus();
