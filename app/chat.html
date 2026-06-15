@@ -285,11 +285,12 @@
    document.getElementById('msg-input').focus();
  };
 
- window.showMsgMenu = function(msgId, isOwn, x, y) {
+window.showMsgMenu = function(msgId, isOwn, x, y) {
   const menu = document.getElementById('msg-menu');
-  menu.innerHTML = 
-    '<div class="msg-menu-item" onclick="window.setReply(''+msgId+'', window._msgPreviews[''+msgId+''||'']; hideMsgMenu())"><i class="fa fa-reply"></i> Ответить</div>' +
-    (isOwn ? '<div class="msg-menu-item danger" onclick="deleteMsg(''+msgId+'');hideMsgMenu()"><i class="fa fa-trash"></i> Удалить</div>' : '');
+  const preview = (window._msgPreviews[msgId] || '').replace(/"/g, '');
+  let html = '<div class="msg-menu-item" onclick="window.setReply(&quot;' + msgId + '&quot;,&quot;' + preview + '&quot;);hideMsgMenu()"><i class="fa fa-reply"></i> Ответить</div>';
+  if (isOwn) html += '<div class="msg-menu-item danger" onclick="deleteMsg(&quot;' + msgId + '&quot;);hideMsgMenu()"><i class="fa fa-trash"></i> Удалить</div>';
+  menu.innerHTML = html;
   menu.style.display = 'block';
   const menuW = 180, menuH = 90;
   const left = Math.min(x, window.innerWidth - menuW - 10);
