@@ -832,7 +832,7 @@ async function sendReply() {
  const _savedPreview = forumReplyPreview;
  const { data, error } = await sb.from('forum_replies').insert(_rd).select('*').single();
  cancelForumReply();
- if (data) { data.author = currentProfile || {}; }
+ if (data) { data.author = window._myProfile || {}; }
  if (error) { showToast('Ошибка: ' + error.message, 'error'); return; }
  input.value = ''; input.style.height = 'auto';
  sb.from('forum_topics').select('replies_count').eq('id', currentTopicId).single().then(function(res) {
@@ -1116,6 +1116,7 @@ async function init() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.href = '/app/auth.html'; return; }
   currentUser = session.user;
+  sb.from('profiles').select('*').eq('id', currentUser.id).single().then(function(r){ window._myProfile = r.data || {}; });
   updateUnreadBadge(supabase, currentUser);
   const _params = new URLSearchParams(location.search);
   const _topicParam = _params.get('topic');
