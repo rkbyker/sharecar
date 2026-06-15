@@ -501,7 +501,8 @@
         fill.style.width = ((i / newFiles.length) * 100) + '%';
  const ext = file.name.split('.').pop().toLowerCase();
  const storagePath = `${currentUser.id}/${Date.now()}_${i}.${ext}`;
- const { error } = await supabase.storage.from('car-photos').upload(storagePath, file);
+ const compressed = await compressImage(file);
+        const { error } = await supabase.storage.from('car-photos').upload(storagePath, compressed, {contentType:'image/jpeg'});
  if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка загрузки: ' + error.message, 'error'); continue; }
  const { data: { publicUrl } } = supabase.storage.from('car-photos').getPublicUrl(storagePath);
  uploadedPhotoUrls[startIdx + i] = publicUrl;
