@@ -82,6 +82,9 @@
  .spinner { width: 40px; height: 40px; border: 3px solid #2a2a4a; border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; }
  @keyframes spin { to { transform: rotate(360deg); } }
     .empty-comments { text-align: center; color: #555; padding: 24px; font-size: 14px; }
+.reply-banner { display:none; background:#1a1a2e; border-left:3px solid #f59e0b; border-radius:8px; padding:8px 12px; margin-bottom:8px; align-items:center; gap:8px; }
+.reply-banner-text { flex:1; font-size:12px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.reply-banner-label { font-size:11px; color:#f59e0b; margin-bottom:2px; }
     .map-btn { display: flex; align-items: center; gap: 8px; background: #1a1a2e; border: 1px solid #2a2a4a; color: #aaa; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-size: 14px; width: 100%; margin-top: 8px; }
  .map-btn i { color: #f59e0b; }
     .price-badge { display: inline-flex; align-items: center; gap: 6px; background: #22c55e20; color: #22c55e; border: 1px solid #22c55e40; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
@@ -175,7 +178,14 @@
  <div class="section">
  <div class="section-title"><i class="fa fa-comments"></i>Комментарии</div>
  <div id="comments-list"></div>
- <div class="comment-input-wrap">
+ <div id="ev-reply-banner" class="reply-banner">
+  <div style="flex:1;overflow:hidden;">
+    <div class="reply-banner-label">Ответ на сообщение</div>
+    <div id="ev-reply-preview" class="reply-banner-text"></div>
+  </div>
+  <button onclick="cancelEvReply()" style="background:none;border:none;color:#555;font-size:18px;cursor:pointer;">&times;</button>
+</div>
+<div class="comment-input-wrap">
         <textarea class="comment-input" id="comment-input" placeholder="Написать комментарий..." rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
  <button class="comment-send" onclick="sendComment()"><i class="fa fa-paper-plane"></i></button>
  </div>
@@ -332,7 +342,12 @@ async function loadComments(){
  const lvlColor=LEVEL_COLORS[pr?.level]||'#888';
  const dt=new Date(c.created_at).toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
  const isMe=c.user_id===currentUser?.id;
-    return`<div class="comment-item"><div class="comment-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${pr?.avatar_url?`<img src="${pr.avatar_url}">`:`<span style="color:${lvlColor};font-size:12px;font-weight:700;">${initials}</span>`}</div><div class="comment-body"><div class="comment-author" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${name}</div><div class="comment-text">${c.content}</div><div class="comment-time">${dt}</div></div></div>`;
+    return`<div class="comment-item" data-id="${c.id}"><div class="comment-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${pr?.avatar_url?`<img src="${pr.avatar_url}">`:`<span style="color:${lvlColor};font-size:12px;font-weight:700;">${initials}</span>`}</div><div class="comment-body"><div class="comment-author" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${name}</div><div class="comment-text">${c.content}</div><div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+<div class="comment-time">${dt}</div>
+<button onclick="setEvReply('${c.id}','${name}: '+(c.content||'').substring(0,50))" style="background:none;border:none;color:#555;font-size:11px;cursor:pointer;padding:0;"><i class="fa fa-reply"></i> Ответить</button>
+</div>
+${c.reply_preview?`<div style="background:#0f0f1e;border-left:3px solid #f59e0b;border-radius:6px;padding:5px 10px;margin-bottom:6px;font-size:12px;color:#888;cursor:pointer;" onclick="document.querySelector('[data-id=\'${c.reply_to_id}\']')?.scrollIntoView({behavior:'smooth'})">${c.reply_preview}</div>`:''}
+</div></div>`;
  }).join('');
 }
 async function checkMyRsvp(){
@@ -384,11 +399,30 @@ window.toggleLike=async function(){
  document.getElementById('like-count').textContent=currentEvent.likes;
  document.getElementById('stat-likes').textContent=currentEvent.likes;
 };
+let evReplyToId = null;
+let evReplyPreview = null;
+
+window.setEvReply = function(id, preview) {
+  evReplyToId = id;
+  evReplyPreview = preview;
+  document.getElementById('ev-reply-banner').style.display = 'flex';
+  document.getElementById('ev-reply-preview').textContent = preview;
+  document.getElementById('comment-input').focus();
+};
+
+window.cancelEvReply = function() {
+  evReplyToId = null;
+  evReplyPreview = null;
+  document.getElementById('ev-reply-banner').style.display = 'none';
+};
+
 window.sendComment=async function(){
  const input=document.getElementById('comment-input');
  const text=input.value.trim();if(!text)return;
  input.value='';input.style.height='auto';
- await supabase.from('event_comments').insert({event_id:EVENT_ID,user_id:currentUser.id,content:text});
+ const commentData = {event_id:EVENT_ID, user_id:currentUser.id, content:text};
+ if (evReplyToId) { commentData.reply_to_id = evReplyToId; commentData.reply_preview = evReplyPreview; cancelEvReply(); }
+ await supabase.from('event_comments').insert(commentData);
  currentEvent.comments_count=(currentEvent.comments_count||0)+1;
  await supabase.from('events').update({comments_count:currentEvent.comments_count}).eq('id',EVENT_ID);
  document.getElementById('stat-comments').textContent=currentEvent.comments_count;
