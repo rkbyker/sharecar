@@ -214,7 +214,26 @@
 
 <div id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
+async function compressImage(file, maxW = 1200, quality = 0.82) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.width, h = img.height;
+      if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', quality);
+    };
+    img.onerror = () => resolve(file);
+    img.src = url;
+  });
+}
+
+</script>
 <script>
  const SUPA_URL = 'https://ktqiyywdgokktiwavgbq.supabase.co';
  const SUPA_KEY = 'sb_publishable_UqkqWGlqU0Slw7a4azOoGg_l8E3vUYP';
@@ -303,7 +322,8 @@
       fill.style.width = ((i / newFiles.length) * 100) + '%';
  const ext = file.name.split('.').pop().toLowerCase();
  const fpath = 'events/' + currentUser.id + '/' + Date.now() + '_' + i + '.' + ext;
- const { error } = await sb.storage.from('photos').upload(fpath, file, { upsert: true, contentType: file.type });
+ const compressed = await compressImage(file);
+        const { error } = await sb.storage.from('photos').upload(fpath, compressed, { upsert: true, contentType: 'image/jpeg' });
  if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка: ' + error.message, 'error'); continue; }
  const { data: urlData } = sb.storage.from('photos').getPublicUrl(fpath);
  uploadedPhotoUrls[startIdx + i] = urlData.publicUrl;
