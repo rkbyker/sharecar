@@ -1,13 +1,29 @@
-// Sharecar Service Worker v2.0
-const CACHE = 'sharecar-v3';
+// Sharecar Service Worker v4.0
+const CACHE = 'sharecar-v4';
 const STATIC = [
   '/',
   '/index.html',
   '/css/app.css',
-  '/css/admin.css',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/js/supabase.js',
+  '/js/nav.js',
+  '/js/unread.js',
+  '/app/index.html',
+  '/app/auth.html',
+  '/app/profile.html',
+  '/app/messages.html',
+  '/app/chat.html',
+  '/app/rating.html',
+  '/app/event-card.html',
+  '/app/car-card.html',
+  '/app/add-car.html',
+  '/app/search.html',
+  '/app/partners.html',
+  '/app/create-event.html',
+  '/app/onboarding.html',
+  '/app/user-profile.html',
 ];
 
 self.addEventListener('install', e => {
@@ -27,20 +43,32 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Skip Supabase API calls — always network
-  if (url.hostname.includes('supabase.co') || url.hostname.includes('jsdelivr.net')) {
-    return;
-  }
+  // Supabase API — всегда сеть
+  if (url.hostname.includes('supabase.co')) return;
 
-  // For navigation requests — network first, fallback to cache
-  if (e.request.mode === 'navigate') {
+  // CDN — кэш первый
+  if (url.hostname.includes('jsdelivr.net') || url.hostname.includes('cdnjs')) {
     e.respondWith(
-      fetch(e.request).catch(() => caches.match('/index.html'))
+      caches.match(e.request).then(cached => cached || fetch(e.request).then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return response;
+      }))
     );
     return;
   }
 
-  // Static assets — cache first
+  // Навигация — сеть первая, fallback кэш
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request) || caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Всё остальное — кэш первый
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request).then(response => {
       if (response && response.status === 200 && e.request.method === 'GET') {
