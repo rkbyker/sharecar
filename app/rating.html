@@ -836,9 +836,9 @@ async function sendReply() {
  const input = document.getElementById('reply-input');
  const content = input.value.trim();
  if (!content) { showToast('Напиши что-нибудь', 'error'); return; }
- const { data, error } = await sb.from('forum_replies').insert({
- topic_id: currentTopicId, author_id: currentUser.id, content
- }).select('*').single();
+ const insertData = { topic_id: currentTopicId, author_id: currentUser.id, content };
+ if (forumReplyToId) { insertData.reply_to_id = forumReplyToId; insertData.reply_preview = forumReplyPreview; }
+ const { data, error } = await sb.from('forum_replies').insert(insertData).select('*').single();
  if (data) {
  const { data: au } = await sb.from('profiles').select('first_name,last_name,avatar_url').eq('id', currentUser.id).single();
  if (au) data.author = au;
@@ -859,8 +859,10 @@ async function sendReply() {
  '<div class="reply-name">' + esc(name) + '</div>' +
  '<div class="reply-time">только что</div>' +
  '</div>' +
- '<div class="reply-body">' + esc(content) + '</div>' +
- '<div class="reply-actions"><button class="reply-like-btn" onclick="likeReply(this.dataset.rid,this)" data-rid="' + data.id + '"><i class="fa fa-heart"></i> <span>0</span></button></div>';
+ '<div class="reply-body">' + (forumReplyPreview ? '<div style="background:#141428;border-left:3px solid #f59e0b;border-radius:6px;padding:5px 10px;margin-bottom:6px;font-size:12px;color:#888;">' + esc(forumReplyPreview) + '</div>' : '') + '<div>' + esc(content) + '</div></div>' +
+ '<div class="reply-actions"><button class="reply-like-btn" onclick="likeReply(this.dataset.rid,this)" data-rid="' + data.id + '"><i class="fa fa-heart"></i> <span>0</span></button>' +
+ '<button onclick="setForumReply(\''+data.id+'\',\''+esc(name)+': '+esc(content.substring(0,50))+'\')" style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;margin-left:8px;"><i class="fa fa-reply"></i> Ответить</button></div>';
+ cancelForumReply();
  document.getElementById('replies-list').appendChild(el);
  el.scrollIntoView({ behavior: 'smooth' });
  const lbl = document.getElementById('replies-count-label');
