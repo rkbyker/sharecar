@@ -342,7 +342,7 @@ async function loadComments(){
  const lvlColor=LEVEL_COLORS[pr?.level]||'#888';
  const dt=new Date(c.created_at).toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
  const isMe=c.user_id===currentUser?.id;
-    return`<div class="comment-item" data-id="${c.id}"><div class="comment-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${pr?.avatar_url?`<img src="${pr.avatar_url}">`:`<span style="color:${lvlColor};font-size:12px;font-weight:700;">${initials}</span>`}</div><div class="comment-body"><div class="comment-author" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${name}</div>${c.reply_preview ? '<div style="background:#0f0f1e;border-left:3px solid #f59e0b;border-radius:6px;padding:5px 10px;margin-bottom:6px;font-size:12px;color:#888;">' + c.reply_preview + '</div>' : ''}<div class="comment-text">${c.content}</div><div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+    return`<div class="comment-item" data-id="${c.id}"><div class="comment-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${pr?.avatar_url?`<img src="${pr.avatar_url}">`:`<span style="color:${lvlColor};font-size:12px;font-weight:700;">${initials}</span>`}</div><div class="comment-body"><div class="comment-author" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${name}</div><div class="comment-text">${c.content}</div><div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
 <div class="comment-time">${dt}</div>
 <button onclick="setEvReply('${c.id}',this)" style="background:none;border:none;color:#555;font-size:11px;cursor:pointer;padding:0;"><i class="fa fa-reply"></i> Ответить</button>
 </div>
@@ -407,7 +407,7 @@ window.setEvReply = function(id, btn) {
   evReplyPreview = commentEl ? (commentEl.querySelector('.comment-author')?.textContent||'') + ': ' + (commentEl.querySelector('.comment-text')?.textContent||'').substring(0,50) : '';
   document.getElementById('ev-reply-preview').textContent = evReplyPreview;
   document.getElementById('ev-reply-banner').style.display = 'flex';
-  document.getElementById('comment-input').placeholder = 'Написать ответ...';
+  document.getElementById('ev-reply-preview').textContent = preview;
   document.getElementById('comment-input').focus();
 };
 
@@ -415,7 +415,6 @@ window.cancelEvReply = function() {
   evReplyToId = null;
   evReplyPreview = null;
   document.getElementById('ev-reply-banner').style.display = 'none';
-  document.getElementById('comment-input').placeholder = 'Написать комментарий...';
 };
 
 window.sendComment=async function(){
