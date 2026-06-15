@@ -344,7 +344,7 @@ async function loadComments(){
  const isMe=c.user_id===currentUser?.id;
     return`<div class="comment-item" data-id="${c.id}"><div class="comment-avatar" style="background:${lvlColor}20;border:1px solid ${lvlColor};" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${pr?.avatar_url?`<img src="${pr.avatar_url}">`:`<span style="color:${lvlColor};font-size:12px;font-weight:700;">${initials}</span>`}</div><div class="comment-body"><div class="comment-author" onclick="goPage('${isMe?'profile.html':'user-profile.html?id='+c.user_id}')">${name}</div><div class="comment-text">${c.content}</div><div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
 <div class="comment-time">${dt}</div>
-<button onclick="setEvReply('${c.id}',this)" style="background:none;border:none;color:#555;font-size:11px;cursor:pointer;padding:0;"><i class="fa fa-reply"></i> Ответить</button>
+<button onclick="setEvReply('${c.id}',this)" style="background:none;border:none;color:#555;font-size:11px;cursor:pointer;padding:0;"><i class="fa fa-reply"></i> Ответить</button><button onclick="deleteEventComment('${c.id}')" style="background:none;border:none;color:#ef4444;font-size:11px;cursor:pointer;padding:0;margin-left:8px;"><i class="fa fa-trash"></i></button>
 </div>
 </div></div>`;
  }).join('');
@@ -400,6 +400,12 @@ window.toggleLike=async function(){
 };
 let evReplyToId = null;
 let evReplyPreview = null;
+
+window.deleteEventComment = async function(commentId) {
+  if (!confirm('Удалить комментарий?')) return;
+  await supabase.from('event_comments').delete().eq('id', commentId);
+  document.querySelector('[data-id="'+commentId+'"]')?.remove();
+};
 
 window.setEvReply = function(id, btn) {
   evReplyToId = id;
