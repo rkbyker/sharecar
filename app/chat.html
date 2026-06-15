@@ -157,7 +157,11 @@
  }
  .review-textarea:focus { border-color: #f59e0b; }
 
- .loader-full { display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; gap: 12px; color: #555; }
+ .msg-menu { position:fixed; background:#1a1a2e; border:1px solid #2a2a4a; border-radius:12px; padding:6px; z-index:500; box-shadow:0 8px 24px rgba(0,0,0,.6); min-width:160px; }
+.msg-menu-item { padding:10px 14px; font-size:14px; cursor:pointer; border-radius:8px; display:flex; align-items:center; gap:10px; }
+.msg-menu-item:hover { background:#2a2a4a; }
+.msg-menu-item.danger { color:#ef4444; }
+.loader-full { display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; gap: 12px; color: #555; }
     .loader-full i { font-size: 32px; animation: spin .8s linear infinite; color: #f59e0b; }
  @keyframes spin { to { transform: rotate(360deg); } }
  </style>
@@ -253,7 +257,8 @@
  </div>
  </div>
 
- <div id="global-toast"></div>
+ <div id="msg-menu" class="msg-menu" style="display:none;"></div>
+<div id="global-toast"></div>
 
  <script type="module">
  import { supabase, showToast } from '../js/supabase.js';
@@ -280,7 +285,33 @@
    document.getElementById('msg-input').focus();
  };
 
- window.cancelReply = function() {
+ window.showMsgMenu = function(msgId, isOwn, x, y) {
+  const menu = document.getElementById('msg-menu');
+  menu.innerHTML = 
+    '<div class="msg-menu-item" onclick="window.setReply(''+msgId+'', window._msgPreviews[''+msgId+''||'']; hideMsgMenu())"><i class="fa fa-reply"></i> Ответить</div>' +
+    (isOwn ? '<div class="msg-menu-item danger" onclick="deleteMsg(''+msgId+'');hideMsgMenu()"><i class="fa fa-trash"></i> Удалить</div>' : '');
+  menu.style.display = 'block';
+  const menuW = 180, menuH = 90;
+  const left = Math.min(x, window.innerWidth - menuW - 10);
+  const top = Math.min(y, window.innerHeight - menuH - 10);
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+  setTimeout(() => document.addEventListener('click', hideMsgMenu, {once:true}), 10);
+};
+
+window.hideMsgMenu = function() {
+  document.getElementById('msg-menu').style.display = 'none';
+};
+
+window._msgPreviews = {};
+
+window.deleteMsg = async function(msgId) {
+  if (!confirm('Удалить сообщение?')) return;
+  await supabase.from('messages').delete().eq('id', msgId).eq('sender_id', currentUser.id);
+  document.querySelector('[data-id="'+msgId+'"]')?.remove();
+};
+
+window.cancelReply = function() {
    replyToId = null;
    replyToPreview = null;
    document.getElementById('reply-banner').style.display = 'none';
@@ -505,9 +536,10 @@
      document.querySelector('[data-id="' + msg.reply_to_id + '"]')?.scrollIntoView({behavior:'smooth'});
    });
  }
- div.addEventListener('contextmenu', function(e) { e.preventDefault(); const preview = msg.content ? msg.content.substring(0,60) : '📎'; window.setReply(msg.id, preview); });
+ window._msgPreviews[msg.id] = msg.content ? msg.content.substring(0,60) : '📎';
+  div.addEventListener('contextmenu', function(e) { e.preventDefault(); window.showMsgMenu(msg.id, isOwn, e.clientX, e.clientY); });
  let pressTimer;
- div.addEventListener('touchstart', function() { pressTimer = setTimeout(function() { const preview = msg.content ? msg.content.substring(0,60) : '📎'; window.setReply(msg.id, preview); }, 500); });
+ div.addEventListener('touchstart', function(e) { pressTimer = setTimeout(function() { const t = e.touches[0]; window.showMsgMenu(msg.id, isOwn, t.clientX, t.clientY); }, 500); });
  div.addEventListener('touchend', function() { clearTimeout(pressTimer); });
  document.getElementById('messages-wrap').appendChild(div);
    if (autoScroll) smartScroll();
