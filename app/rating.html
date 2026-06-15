@@ -130,7 +130,8 @@
  .reply-actions { display: flex; gap: 12px; margin-top: 8px; }
     .reply-like-btn { background: none; border: none; color: #555; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0; }
  .reply-like-btn.liked { color: #f59e0b; }
- .reply-form { position: sticky; bottom: 70px; background: #0f0f0f; border-top: 1px solid #1e1e3a; padding: 10px 14px; display: flex; gap: 8px; align-items: flex-end; }
+ .reply-form-wrap { position: sticky; bottom: 70px; background: #0f0f0f; border-top: 1px solid #1e1e3a; z-index: 10; }
+.reply-form { padding: 10px 14px; display: flex; gap: 8px; align-items: flex-end; }
     .reply-input { flex: 1; background: #141428; border: 1px solid #2a2a4a; border-radius: 12px; padding: 10px 14px; color: #fff; font-size: 14px; outline: none; resize: none; min-height: 42px; max-height: 120px; font-family: inherit; }
  .reply-input:focus { border-color: #f59e0b; }
     .reply-send-btn { background: #f59e0b; border: none; border-radius: 12px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: #000; font-size: 16px; }
@@ -214,12 +215,12 @@
  <div id="thread-op"></div>
     <div style="padding:0 14px 8px;font-size:13px;color:#555;font-weight:600;" id="replies-count-label"></div>
  <div class="replies-list" id="replies-list"></div>
- <div id="forum-reply-banner" style="display:none;background:#1a1a2e;border-left:3px solid #f59e0b;border-radius:8px;padding:8px 12px;margin:0 14px 8px;align-items:center;gap:8px;"><div style="flex:1;overflow:hidden;"><div style="font-size:11px;color:#f59e0b;margin-bottom:2px;">Ответ на сообщение</div><div id="forum-reply-preview" style="font-size:13px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div></div><button onclick="cancelForumReply()" style="background:none;border:none;color:#555;font-size:18px;cursor:pointer;">&times;</button></div>
+ <div class="reply-form-wrap"><div id="forum-reply-banner" style="display:none;background:#1a1a2e;border-left:3px solid #f59e0b;border-radius:8px;padding:8px 12px;margin:0 14px 8px;align-items:center;gap:8px;"><div style="flex:1;overflow:hidden;"><div style="font-size:11px;color:#f59e0b;margin-bottom:2px;">Ответ на сообщение</div><div id="forum-reply-preview" style="font-size:13px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div></div><button onclick="cancelForumReply()" style="background:none;border:none;color:#555;font-size:18px;cursor:pointer;">&times;</button></div>
 <div class="reply-form">
       <textarea class="reply-input" id="reply-input" placeholder="Напиши ответ..." rows="1"
  oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
  <button class="reply-send-btn" onclick="sendReply()"><i class="fa fa-paper-plane"></i></button>
- </div>
+ </div></div>
  </div>
 </div>
 
@@ -828,6 +829,7 @@ async function sendReply() {
  if (!content) { showToast('Напиши что-нибудь', 'error'); return; }
  const _rd = {topic_id: currentTopicId, author_id: currentUser.id, content};
  if (forumReplyToId) { _rd.reply_to_id = forumReplyToId; _rd.reply_preview = forumReplyPreview; }
+ const _savedPreview = forumReplyPreview;
  const { data, error } = await sb.from('forum_replies').insert(_rd).select('*').single();
  cancelForumReply();
  if (data) {
@@ -850,8 +852,9 @@ async function sendReply() {
  '<div class="reply-name">' + esc(name) + '</div>' +
  '<div class="reply-time">только что</div>' +
  '</div>' +
+ (_savedPreview ? '<div style="background:#0f0f1e;border-left:3px solid #f59e0b;border-radius:6px;padding:5px 10px;margin-bottom:6px;font-size:12px;color:#888;">' + esc(_savedPreview) + '</div>' : '') +
  '<div class="reply-body">' + esc(content) + '</div>' +
- '<div class="reply-actions"><button class="reply-like-btn" onclick="likeReply(this.dataset.rid,this)" data-rid="' + data.id + '"><i class="fa fa-heart"></i> <span>0</span></button></div>';
+ '<div class="reply-actions"><button class="reply-like-btn" onclick="likeReply(this.dataset.rid,this)" data-rid="' + data.id + '"><i class="fa fa-heart"></i> <span>0</span></button><button onclick="setForumReply(\'' + data.id + '\', \'' + esc(name) + ': ' + esc(content.substring(0,40)) + '\')" style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;margin-left:8px;"><i class="fa fa-reply"></i> Ответить</button></div>';
  document.getElementById('replies-list').appendChild(el);
  el.scrollIntoView({ behavior: 'smooth' });
  const lbl = document.getElementById('replies-count-label');
