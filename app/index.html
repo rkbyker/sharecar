@@ -747,7 +747,7 @@
  var el = document.getElementById('efsl-'+id);
  if (!el) return;
  var count = el.children.length;
- var cur = Math.round(Math.abs(el.style.transform.replace('translateX(',''))/100)||0;
+ var cur = Math.round(parseFloat((el.style.transform.match(/translateX\(-(\d+)/))||[0,0])[1]/100);
  var next = dx < 0 ? Math.min(cur+1,count-1) : Math.max(cur-1,0);
  el.style.transform = 'translateX(-'+next+'00%)';
  el.parentNode.querySelectorAll('.fdot').forEach(function(d,i){ d.classList.toggle('active',i===next); });
