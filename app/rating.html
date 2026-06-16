@@ -642,7 +642,7 @@ window._newTopicCoverUrl = null;
 window._editTopicPhotos = [];
 window._editTopicCoverUrl = null;
 
-async function handleTopicPhotos(input, mode) {
+window.handleTopicPhotos = async function handleTopicPhotos(input, mode) {
  const files = Array.from(input.files);
  if (!files.length) return;
  const photosArr = mode === 'new' ? window._newTopicPhotos : window._editTopicPhotos;
