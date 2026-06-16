@@ -402,8 +402,8 @@ async function compressImage(file, maxW = 1200, quality = 0.82) {
       } catch(e) { console.warn('Геокодирование не удалось', e); }
  }
 
- const finalCoverUrl = coverPhotoUrl || (uploadedPhotoUrls.length ? uploadedPhotoUrls[0] : null);
- const finalPhotos = uploadedPhotoUrls.filter(Boolean);
+ const finalCoverUrl = (coverPhotoUrl && !coverPhotoUrl.startsWith("blob:")) ? coverPhotoUrl : (finalPhotos.length ? finalPhotos[0] : null);
+ const finalPhotos = uploadedPhotoUrls.filter(function(u) { return u && !u.startsWith("blob:"); });
 
  const { data, error } = await sb.from('events').insert({
  owner_id: currentUser.id,
