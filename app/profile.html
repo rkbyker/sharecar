@@ -963,7 +963,7 @@ window.uploadAvatar = uploadAvatar;
  const file = input.files[0];
  if (!file) return;
  const ext = file.name.split('.').pop();
- const path = `${currentUser.id}/avatar.${ext}`;
+ const path = `${currentUser.id}/avatar.jpg`;
  showToast('Загружаем фото...');
  const compressed = await compressImage(file, 400, 0.85);
   const { error } = await supabase.storage.from('avatars').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
