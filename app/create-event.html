@@ -320,8 +320,7 @@ async function compressImage(file, maxW = 1200, quality = 0.82) {
  const file = newFiles[i];
  status.textContent = 'Загрузка ' + (i+1) + ' из ' + newFiles.length + '...';
       fill.style.width = ((i / newFiles.length) * 100) + '%';
- const ext = file.name.split('.').pop().toLowerCase();
- const fpath = 'events/' + currentUser.id + '/' + Date.now() + '_' + i + '.' + ext;
+ const fpath = 'events/' + currentUser.id + '/' + Date.now() + '_' + i + '.jpg';
  const compressed = await compressImage(file);
         const { error } = await sb.storage.from('photos').upload(fpath, compressed, { upsert: true, contentType: 'image/jpeg' });
  if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка: ' + error.message, 'error'); continue; }

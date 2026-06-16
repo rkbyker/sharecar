@@ -653,7 +653,7 @@ async function handleTopicPhotos(input, mode) {
  for (let i = 0; i < files.length; i++) {
  const file = files[i];
  const ext = file.name.split('.').pop().toLowerCase();
- const fpath = 'forum/' + currentUser.id + '/' + Date.now() + '_' + i + '.' + ext;
+ const fpath = 'forum/' + currentUser.id + '/' + Date.now() + '_' + i + '.jpg';
  const compressed = await compressImage(file);
   const { error } = await sb.storage.from('photos').upload(fpath, compressed, { upsert: true, contentType: 'image/jpeg' });
  if (error) { showToast('Ошибка: ' + error.message, 'error'); continue; }
