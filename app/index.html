@@ -739,7 +739,7 @@
  }).join('');
 
       // Свайп для слайдера мероприятий
- var _efTx = {};
+ var _efTx = {}; var _efIdx = {};
  window.efts = function(e, id) { _efTx[id] = e.touches[0].clientX; };
  window.efte = function(e, id) {
  var dx = e.changedTouches[0].clientX - (_efTx[id]||0);
@@ -747,8 +747,9 @@
  var el = document.getElementById('efsl-'+id);
  if (!el) return;
  var count = el.children.length;
- var cur = Math.round(parseFloat((el.style.transform.match(/translateX\(-(\d+)/))||[0,0])[1]/100);
+ var cur = _efIdx[id] || 0;
  var next = dx < 0 ? Math.min(cur+1,count-1) : Math.max(cur-1,0);
+ _efIdx[id] = next;
  el.style.transform = 'translateX(-'+next+'00%)';
  el.parentNode.querySelectorAll('.fdot').forEach(function(d,i){ d.classList.toggle('active',i===next); });
  };
@@ -756,6 +757,7 @@
  if(e){ e.stopPropagation(); }
  var el = document.getElementById('efsl-'+id);
  if (!el) return;
+ _efIdx[id] = idx;
  el.style.transform = 'translateX(-'+idx+'00%)';
  el.parentNode.querySelectorAll('.fdot').forEach(function(d,i){ d.classList.toggle('active',i===idx); });
  };
