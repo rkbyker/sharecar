@@ -96,5 +96,3 @@ export function compressImage(file, maxW = 1200, quality = 0.82) {
     img.src = url;
   });
 }
-
-export { compressImage };
