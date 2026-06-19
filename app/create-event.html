@@ -106,7 +106,30 @@
  #toast.show { opacity: 1; }
  #toast.error { background: #7f1d1d; color: #fca5a5; }
  #toast.success { background: #14532d; color: #86efac; }
- </style>
+ 
+.img-editor-overlay {
+  position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+}
+.img-editor-overlay.open { display:flex; }
+.img-editor-canvas-wrap {
+  width:100%;max-width:500px;aspect-ratio:4/2.4;
+  overflow:hidden;position:relative;touch-action:none;
+  background:#000;border-radius:12px;
+}
+.img-editor-canvas-wrap img {
+  position:absolute;transform-origin:0 0;will-change:transform;
+  user-select:none;-webkit-user-drag:none;
+}
+.img-editor-hint { color:#888;font-size:13px;margin:12px 0 16px; }
+.img-editor-btns { display:flex;gap:12px; }
+.img-editor-btn {
+  padding:12px 28px;border-radius:12px;border:none;
+  font-size:15px;font-weight:700;cursor:pointer;
+}
+.img-editor-btn.done { background:#f59e0b;color:#000; }
+.img-editor-btn.cancel { background:#1a1a2e;color:#aaa; }
+</style>
 </head>
 <body>
 
@@ -212,6 +235,18 @@
 
 </div>
 
+
+<div class="img-editor-overlay" id="img-editor">
+  <div class="img-editor-canvas-wrap" id="img-editor-wrap">
+    <img id="img-editor-img" src="">
+  </div>
+  <div class="img-editor-hint">Двигайте и масштабируйте фото</div>
+  <div class="img-editor-btns">
+    <button class="img-editor-btn cancel" onclick="cancelImgEditor()">Отмена</button>
+    <button class="img-editor-btn done" onclick="confirmImgEditor()">Готово</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -308,30 +343,34 @@ async function compressImage(file, maxW = 1200, quality = 0.82) {
  }
  if (uploadedPhotoUrls.length + newFiles.length > 8) { showToast('Максимум 8 фотографий', 'error'); return; }
  const startIdx = uploadedPhotoUrls.length;
- const localPreviews = newFiles.map(function(f) { return URL.createObjectURL(f); });
- uploadedPhotoUrls.push.apply(uploadedPhotoUrls, localPreviews);
- if (!coverPhotoUrl) coverPhotoUrl = uploadedPhotoUrls[0];
- renderPhotoPreview();
- const prog = document.getElementById('upload-progress');
- const fill = document.getElementById('progress-fill');
- const status = document.getElementById('upload-status');
- prog.style.display = 'block';
- for (let i = 0; i < newFiles.length; i++) {
- const file = newFiles[i];
- status.textContent = 'Загрузка ' + (i+1) + ' из ' + newFiles.length + '...';
-      fill.style.width = ((i / newFiles.length) * 100) + '%';
- const fpath = 'events/' + currentUser.id + '/' + Date.now() + '_' + i + '.jpg';
- const compressed = await compressImage(file);
-        const { error } = await sb.storage.from('photos').upload(fpath, compressed, { upsert: true, contentType: 'image/jpeg' });
- if (error) { uploadedPhotoUrls.splice(startIdx + i, 1); showToast('Ошибка: ' + error.message, 'error'); continue; }
- const { data: urlData } = sb.storage.from('photos').getPublicUrl(fpath);
- uploadedPhotoUrls[startIdx + i] = urlData.publicUrl;
- if (startIdx + i === 0) coverPhotoUrl = urlData.publicUrl;
- renderPhotoPreview();
+ // Показываем редактор для каждого файла по очереди
+ async function processNextFile(idx) {
+   if (idx >= newFiles.length) return;
+   await new Promise(function(resolve) {
+     openImgEditor(newFiles[idx], function(blob) {
+       const localUrl = URL.createObjectURL(blob);
+       uploadedPhotoUrls.push(localUrl);
+       if (!coverPhotoUrl) coverPhotoUrl = localUrl;
+       renderPhotoPreview();
+       // Заменяем blob реальным URL после загрузки
+       const fileIdx = uploadedPhotoUrls.length - 1;
+       compressImage(blob).then(function(compressed) {
+         const fpath = 'events/' + currentUser.id + '/' + Date.now() + '_' + idx + '.jpg';
+         sb.storage.from('photos').upload(fpath, compressed, {upsert:true, contentType:'image/jpeg'}).then(function(res) {
+           if (!res.error) {
+             const pubUrl = sb.storage.from('photos').getPublicUrl(fpath).data.publicUrl;
+             uploadedPhotoUrls[fileIdx] = pubUrl;
+             if (coverPhotoUrl === localUrl) coverPhotoUrl = pubUrl;
+             renderPhotoPreview();
+           }
+         });
+       });
+       resolve();
+     });
+   });
+   processNextFile(idx + 1);
  }
- fill.style.width = '100%';
- status.textContent = 'Фото загружены!';
- setTimeout(function() { prog.style.display = 'none'; fill.style.width = '0%'; }, 1500);
+ processNextFile(0);
  input.value = '';
  }
 
@@ -354,7 +393,102 @@ async function compressImage(file, maxW = 1200, quality = 0.82) {
  renderPhotoPreview();
  }
 
- window.removePhoto = function(idx) {
+ 
+var _imgEditor = {
+  file: null, onDone: null,
+  scale: 1, x: 0, y: 0,
+  startX: 0, startY: 0, startScale: 1,
+  touches: [], imgW: 0, imgH: 0, wrapW: 0, wrapH: 0
+};
+
+function openImgEditor(file, onDone) {
+  _imgEditor.file = file;
+  _imgEditor.onDone = onDone;
+  var url = URL.createObjectURL(file);
+  var img = document.getElementById('img-editor-img');
+  var wrap = document.getElementById('img-editor-wrap');
+  img.onload = function() {
+    _imgEditor.imgW = img.naturalWidth;
+    _imgEditor.imgH = img.naturalHeight;
+    _imgEditor.wrapW = wrap.offsetWidth;
+    _imgEditor.wrapH = wrap.offsetHeight;
+    // Начальный масштаб — заполнить обёртку
+    var scaleX = _imgEditor.wrapW / _imgEditor.imgW;
+    var scaleY = _imgEditor.wrapH / _imgEditor.imgH;
+    _imgEditor.scale = Math.max(scaleX, scaleY);
+    // Центрируем
+    _imgEditor.x = (_imgEditor.wrapW - _imgEditor.imgW * _imgEditor.scale) / 2;
+    _imgEditor.y = (_imgEditor.wrapH - _imgEditor.imgH * _imgEditor.scale) / 2;
+    applyImgTransform();
+  };
+  img.src = url;
+  document.getElementById('img-editor').classList.add('open');
+  initImgEditorTouch();
+}
+
+function applyImgTransform() {
+  var img = document.getElementById('img-editor-img');
+  img.style.transform = 'translate(' + _imgEditor.x + 'px,' + _imgEditor.y + 'px) scale(' + _imgEditor.scale + ')';
+}
+
+function initImgEditorTouch() {
+  var wrap = document.getElementById('img-editor-wrap');
+  wrap.ontouchstart = function(e) {
+    e.preventDefault();
+    _imgEditor.touches = Array.from(e.touches);
+    if (e.touches.length === 1) {
+      _imgEditor.startX = e.touches[0].clientX - _imgEditor.x;
+      _imgEditor.startY = e.touches[0].clientY - _imgEditor.y;
+    } else if (e.touches.length === 2) {
+      _imgEditor.startScale = _imgEditor.scale;
+      _imgEditor.startDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  };
+  wrap.ontouchmove = function(e) {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      _imgEditor.x = e.touches[0].clientX - _imgEditor.startX;
+      _imgEditor.y = e.touches[0].clientY - _imgEditor.startY;
+    } else if (e.touches.length === 2) {
+      var dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      var minScale = Math.max(_imgEditor.wrapW / _imgEditor.imgW, _imgEditor.wrapH / _imgEditor.imgH) * 0.5;
+      _imgEditor.scale = Math.max(minScale, Math.min(5, _imgEditor.startScale * dist / _imgEditor.startDist));
+    }
+    applyImgTransform();
+  };
+}
+
+window.cancelImgEditor = function() {
+  document.getElementById('img-editor').classList.remove('open');
+  URL.revokeObjectURL(document.getElementById('img-editor-img').src);
+};
+
+window.confirmImgEditor = function() {
+  var img = document.getElementById('img-editor-img');
+  var wrap = document.getElementById('img-editor-wrap');
+  var canvas = document.createElement('canvas');
+  canvas.width = wrap.offsetWidth * 2;
+  canvas.height = wrap.offsetHeight * 2;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(img,
+    _imgEditor.x * 2, _imgEditor.y * 2,
+    _imgEditor.imgW * _imgEditor.scale * 2,
+    _imgEditor.imgH * _imgEditor.scale * 2
+  );
+  canvas.toBlob(function(blob) {
+    URL.revokeObjectURL(img.src);
+    document.getElementById('img-editor').classList.remove('open');
+    if (_imgEditor.onDone) _imgEditor.onDone(blob);
+  }, 'image/jpeg', 0.92);
+};
+
+window.removePhoto = function(idx) {
  const removed = uploadedPhotoUrls.splice(idx, 1)[0];
  if (coverPhotoUrl === removed) coverPhotoUrl = uploadedPhotoUrls[0] || null;
  renderPhotoPreview();
