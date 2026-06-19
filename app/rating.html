@@ -477,6 +477,21 @@ function applyForumView() {
   wrap.className = forumViewClasses[forumViewIdx];
   document.getElementById('forum-view-icon').className = forumViewIcons[forumViewIdx];
 }
+
+ var _tslTx = {}; var _tslIdx = {};
+ window.tslTs = function(e, id) { _tslTx[id] = e.touches[0].clientX; };
+ window.tslTe = function(e, id) {
+ var dx = e.changedTouches[0].clientX - (_tslTx[id]||0);
+ if (Math.abs(dx) < 40) return;
+ var el = document.getElementById('tsl-'+id);
+ if (!el) return;
+ var count = el.children.length;
+ var cur = _tslIdx[id] || 0;
+ var next = dx < 0 ? Math.min(cur+1,count-1) : Math.max(cur-1,0);
+ _tslIdx[id] = next;
+ el.style.transform = 'translateX(-'+next+'00%)';
+ el.parentNode.querySelectorAll('.tsl-dot').forEach(function(d,i){ d.classList.toggle('active',i===next); });
+ };
 function renderTopics(list) {
   const wrap = document.getElementById('topics-list');
   applyForumView();
