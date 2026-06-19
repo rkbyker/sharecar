@@ -617,9 +617,32 @@ window.renderEditPhotos=function(){
  +'<img src="'+url+'" onclick="setEditCover(this.dataset.url)" data-url="'+url+'">'
  +(isCover?'<div class="edit-photo-cover-badge">ОБЛОЖКА</div>':'')
  +'<button class="edit-photo-remove" onclick="removeEditPhoto('+i+')"></button>'
+ +'<button onclick="editExistingPhoto('+i+')" style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,.7);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:10px;"><i class="fa fa-pen"></i></button>'
  +'</div>';
  }).join('');
 };
+window.editExistingPhoto = function(idx) {
+  var url = window._editPhotos[idx];
+  fetch(url).then(function(r){ return r.blob(); }).then(function(blob) {
+    openImgEditor(blob, function(newBlob) {
+      var localUrl = URL.createObjectURL(newBlob);
+      window._editPhotos[idx] = localUrl;
+      if (window._editCoverUrl === url) window._editCoverUrl = localUrl;
+      renderEditPhotos();
+      // Загружаем новое фото
+      var fpath = 'events/' + currentUser.id + '/' + Date.now() + '_edit_' + idx + '.jpg';
+      supabase.storage.from('photos').upload(fpath, newBlob, {upsert:true, contentType:'image/jpeg'}).then(function(res) {
+        if (!res.error) {
+          var pubUrl = supabase.storage.from('photos').getPublicUrl(fpath).data.publicUrl;
+          if (window._editPhotos[idx] === localUrl) window._editPhotos[idx] = pubUrl;
+          if (window._editCoverUrl === localUrl) window._editCoverUrl = pubUrl;
+          renderEditPhotos();
+        }
+      });
+    });
+  });
+};
+
 window.setEditCover=function(url){window._editCoverUrl=url;renderEditPhotos();};
 window.removeEditPhoto=function(idx){
  if(window._editPhotos[idx]===window._editCoverUrl)window._editCoverUrl=window._editPhotos[idx+1]||window._editPhotos[0]||null;
