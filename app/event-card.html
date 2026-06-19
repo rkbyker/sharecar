@@ -142,7 +142,7 @@
 <script src="../js/unread.js">
 var _imgEditor = { scale:1, x:0, y:0, startX:0, startY:0, startScale:1, startDist:0, imgW:0, imgH:0, wrapW:0, wrapH:0, onDone:null };
 
-function openImgEditor(file, onDone) {
+window.openImgEditor = function(file, onDone) {
   _imgEditor.onDone = onDone;
   var url = URL.createObjectURL(file);
   var img = document.getElementById('img-editor-img');
@@ -184,7 +184,7 @@ function openImgEditor(file, onDone) {
   };
 }
 
-function applyImgTransform() {
+window.applyImgTransform = function() {
   var img = document.getElementById('img-editor-img');
   img.style.transform = 'translate('+_imgEditor.x+'px,'+_imgEditor.y+'px) scale('+_imgEditor.scale+')';
 }
@@ -586,26 +586,33 @@ window.openEditModal=function(){
 };
 window._editPhotos=[];
 window._editCoverUrl=null;
-window.handleEditPhotos=async function(input){
+window.handleEditPhotos=function(input){
  const files=Array.from(input.files);
  if(!files.length)return;
  if(window._editPhotos.length+files.length>8){alert('Максимум 8 фото');return;}
- const prog=document.getElementById('edit-upload-progress');
- prog.style.display='block';prog.innerHTML='<span style="font-size:12px;color:#aaa;">Загрузка фото...</span><div style="background:#2a2a4a;border-radius:2px;height:4px;margin-top:6px;"><div id="edit-ev-fill" style="height:100%;background:#f59e0b;border-radius:2px;width:0%;transition:width 0.3s;"></div></div>';
- for(let i=0;i<files.length;i++){
- const file=files[i];
- const ext=file.name.split('.').pop().toLowerCase();
- const fpath='events/'+currentUser.id+'/'+Date.now()+'_'+i+'.jpg';
- const compressed=await compressImage(file);
-        const{error}=await supabase.storage.from('photos').upload(fpath,compressed,{upsert:true,contentType:'image/jpeg'});
- if(error){alert('Ошибка: '+error.message);continue;}
- const{data:ud}=supabase.storage.from('photos').getPublicUrl(fpath);
- window._editPhotos.push(ud.publicUrl);
- if(!window._editCoverUrl)window._editCoverUrl=ud.publicUrl;
- renderEditPhotos();
+ var idx=0;
+ function next(){
+   if(idx>=files.length){input.value='';return;}
+   var i=idx++;
+   window.openImgEditor(files[i],function(blob){
+     var localUrl=URL.createObjectURL(blob);
+     window._editPhotos.push(localUrl);
+     if(!window._editCoverUrl)window._editCoverUrl=localUrl;
+     renderEditPhotos();
+     var fpath='events/'+currentUser.id+'/'+Date.now()+'_'+i+'.jpg';
+     supabase.storage.from('photos').upload(fpath,blob,{upsert:true,contentType:'image/jpeg'}).then(function(res){
+       if(!res.error){
+         var pubUrl=supabase.storage.from('photos').getPublicUrl(fpath).data.publicUrl;
+         var li=window._editPhotos.indexOf(localUrl);
+         if(li>=0)window._editPhotos[li]=pubUrl;
+         if(window._editCoverUrl===localUrl)window._editCoverUrl=pubUrl;
+         renderEditPhotos();
+       }
+     });
+     next();
+   });
  }
- const ef=document.getElementById('edit-ev-fill');if(ef)ef.style.width='100%';prog.querySelector('span').textContent='Фото загружены!';setTimeout(()=>{prog.style.display='none';},1500);
- input.value='';
+ next();
 };
 window.renderEditPhotos=function(){
  const grid=document.getElementById('edit-photo-grid');
