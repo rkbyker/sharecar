@@ -649,21 +649,29 @@ window.handleTopicPhotos = async function handleTopicPhotos(input, mode) {
  if (photosArr.length + files.length > 8) { showToast('Максимум 8 фото', 'error'); return; }
  const progId = mode === 'new' ? 'new-topic-upload-progress' : 'edit-topic-upload-progress';
  const prog = document.getElementById(progId);
+
+ // Показываем blob превью сразу
+ const startIdx = photosArr.length;
+ const blobs = files.map(f => URL.createObjectURL(f));
+ photosArr.push(...blobs);
+ if (mode === 'new' && !window._newTopicCoverUrl) window._newTopicCoverUrl = blobs[0];
+ if (mode === 'edit' && !window._editTopicCoverUrl) window._editTopicCoverUrl = blobs[0];
+ renderTopicPhotos(mode);
+
  if (prog) { prog.style.display = 'block'; prog.textContent = 'Загрузка...'; }
  for (let i = 0; i < files.length; i++) {
  const file = files[i];
- const ext = file.name.split('.').pop().toLowerCase();
  const fpath = 'forum/' + currentUser.id + '/' + Date.now() + '_' + i + '.jpg';
  const compressed = await compressImage(file);
   const { error } = await sb.storage.from('photos').upload(fpath, compressed, { upsert: true, contentType: 'image/jpeg' });
- if (error) { showToast('Ошибка: ' + error.message, 'error'); continue; }
+ if (error) { photosArr.splice(startIdx + i, 1); showToast('Ошибка: ' + error.message, 'error'); continue; }
  const { data: ud } = sb.storage.from('photos').getPublicUrl(fpath);
- photosArr.push(ud.publicUrl);
- if (mode === 'new' && !window._newTopicCoverUrl) window._newTopicCoverUrl = ud.publicUrl;
- if (mode === 'edit' && !window._editTopicCoverUrl) window._editTopicCoverUrl = ud.publicUrl;
- renderTopicPhotos(mode);
+ photosArr[startIdx + i] = ud.publicUrl;
+ if (mode === 'new' && window._newTopicCoverUrl === blobs[i]) window._newTopicCoverUrl = ud.publicUrl;
+ if (mode === 'edit' && window._editTopicCoverUrl === blobs[i]) window._editTopicCoverUrl = ud.publicUrl;
  }
  if (prog) prog.style.display = 'none';
+ renderTopicPhotos(mode);
  input.value = '';
 }
 
