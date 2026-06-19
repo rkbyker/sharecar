@@ -481,7 +481,7 @@ window.handleEditPhotos=async function(input){
  if(!files.length)return;
  if(window._editPhotos.length+files.length>8){alert('Максимум 8 фото');return;}
  const prog=document.getElementById('edit-upload-progress');
- prog.style.display='block';prog.textContent='Загрузка...';
+ prog.style.display='block';prog.innerHTML='<span style="font-size:12px;color:#aaa;">Загрузка фото...</span><div style="background:#2a2a4a;border-radius:2px;height:4px;margin-top:6px;"><div id="edit-ev-fill" style="height:100%;background:#f59e0b;border-radius:2px;width:0%;transition:width 0.3s;"></div></div>';
  for(let i=0;i<files.length;i++){
  const file=files[i];
  const ext=file.name.split('.').pop().toLowerCase();
@@ -494,7 +494,7 @@ window.handleEditPhotos=async function(input){
  if(!window._editCoverUrl)window._editCoverUrl=ud.publicUrl;
  renderEditPhotos();
  }
- prog.style.display='none';
+ const ef=document.getElementById('edit-ev-fill');if(ef)ef.style.width='100%';prog.querySelector('span').textContent='Фото загружены!';setTimeout(()=>{prog.style.display='none';},1500);
  input.value='';
 };
 window.renderEditPhotos=function(){
