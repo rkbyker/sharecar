@@ -275,6 +275,7 @@
  <i class="fa fa-camera"></i>
  </div>
  <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+<div id="avatar-upload-progress" style="display:none;background:#1a1a2e;border-radius:10px;padding:10px 14px;margin-top:8px;"><span id="avatar-upload-status" style="font-size:12px;color:#aaa;">Загрузка фото...</span><div style="background:#2a2a4a;border-radius:2px;height:4px;margin-top:6px;"><div id="avatar-upload-fill" style="height:100%;background:#f59e0b;border-radius:2px;width:0%;transition:width 0.3s;"></div></div></div>
  </div>
  <div class="profile-name" id="profile-name">—</div>
  <div class="profile-nick" id="profile-nick">@...</div>
@@ -964,15 +965,22 @@ window.uploadAvatar = uploadAvatar;
  if (!file) return;
  const ext = file.name.split('.').pop();
  const path = `${currentUser.id}/avatar.jpg`;
- showToast('Загружаем фото...');
+ const prog = document.getElementById('avatar-upload-progress');
+ const status = document.getElementById('avatar-upload-status');
+ const fill = document.getElementById('avatar-upload-fill');
+ if (prog) { prog.style.display='block'; status.textContent='Загрузка фото...'; fill.style.width='0%'; }
  const compressed = await compressImage(file, 400, 0.85);
-  const { error } = await supabase.storage.from('avatars').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
- if (error) { showToast('Ошибка загрузки: ' + error.message, 'error'); return; }
+ if (fill) fill.style.width='50%';
+ const { error } = await supabase.storage.from('avatars').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' });
+ if (error) { showToast('Ошибка загрузки: ' + error.message, 'error'); if(prog) prog.style.display='none'; return; }
+ if (fill) fill.style.width='100%';
+ if (status) status.textContent='Фото обновлено!';
  const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
  await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id);
  profile.avatar_url = publicUrl;
  renderProfile();
- showToast('Фото обновлено ', 'success');
+ setTimeout(() => { if(prog) prog.style.display='none'; }, 1500);
+ showToast('Фото обновлено', 'success');
  }
 
  async function logout() {
