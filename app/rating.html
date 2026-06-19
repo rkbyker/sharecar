@@ -506,7 +506,7 @@ function renderTopics(list) {
  return '<span class="tsl-dot' + (si===0?' active':'') + '" data-tid="' + t.id + '" data-idx="' + si + '"></span>';
  }).join('');
  photoHtml = '<div class="tsl-wrap" style="position:relative;margin-bottom:10px;" data-tid="' + t.id + '">'
- + '<div id="tsl-' + t.id + '" class="tsl-track" style="display:flex;width:100%;aspect-ratio:4/2.4;overflow-x:scroll;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:10px;-webkit-overflow-scrolling:touch;">' + slides + '</div>'
+ + '<div id="tsl-' + t.id + '" class="tsl-track" style="display:flex;width:100%;aspect-ratio:4/2.4;overflow-x:scroll;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:10px;-webkit-overflow-scrolling:touch;scroll-snap-stop:always;">' + slides + '</div>'
  + '<div style="position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:center;gap:4px;">' + dots + '</div>'
         + '<span style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border-radius:6px;padding:2px 7px;font-size:11px;">' + photos.length + ' фото</span>'
  + '</div>';
