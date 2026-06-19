@@ -146,7 +146,27 @@
  .progress-fill {
  height: 100%; background: #f59e0b; border-radius: 2px; transition: width .3s;
  }
- </style>
+ 
+.img-editor-overlay {
+  position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+}
+.img-editor-overlay.open { display:flex; }
+.img-editor-canvas-wrap {
+  width:90%;max-width:500px;aspect-ratio:4/2.4;
+  overflow:hidden;position:relative;touch-action:none;
+  background:#000;border-radius:12px;
+}
+.img-editor-canvas-wrap img {
+  position:absolute;transform-origin:0 0;will-change:transform;
+  user-select:none;-webkit-user-drag:none;
+}
+.img-editor-hint { color:#888;font-size:13px;margin:12px 0 16px; }
+.img-editor-btns { display:flex;gap:12px; }
+.img-editor-btn { padding:12px 28px;border-radius:12px;border:none;font-size:15px;font-weight:700;cursor:pointer; }
+.img-editor-btn.done { background:#f59e0b;color:#000; }
+.img-editor-btn.cancel { background:#1a1a2e;color:#aaa; }
+</style>
 </head>
 <body>
 
@@ -390,7 +410,19 @@
 
  </div>
 
- <div id="global-toast"></div>
+ 
+<div class="img-editor-overlay" id="img-editor">
+  <div class="img-editor-canvas-wrap" id="img-editor-wrap">
+    <img id="img-editor-img" src="">
+  </div>
+  <div class="img-editor-hint">Двигайте и масштабируйте фото</div>
+  <div class="img-editor-btns">
+    <button class="img-editor-btn cancel" onclick="cancelImgEditor()">Отмена</button>
+    <button class="img-editor-btn done" onclick="confirmImgEditor()">Готово</button>
+  </div>
+</div>
+
+<div id="global-toast"></div>
 
  <script type="module">
  import { supabase, showToast } from '../js/supabase.js';
@@ -613,6 +645,96 @@
  ptr_indicator.style.transform = 'scaleX(0)';
  if (dy > 80) { showToast(' Обновление...'); setTimeout(() => init(), 300); }
  }, { passive: true });
- </script>
+ 
+var _imgEditor = { scale:1, x:0, y:0, startX:0, startY:0, startScale:1, startDist:0, imgW:0, imgH:0, wrapW:0, wrapH:0, onDone:null };
+
+function openImgEditor(file, onDone) {
+  _imgEditor.onDone = onDone;
+  var url = URL.createObjectURL(file);
+  var img = document.getElementById('img-editor-img');
+  var wrap = document.getElementById('img-editor-wrap');
+  img.onload = function() {
+    _imgEditor.imgW = img.naturalWidth; _imgEditor.imgH = img.naturalHeight;
+    _imgEditor.wrapW = wrap.offsetWidth; _imgEditor.wrapH = wrap.offsetHeight;
+    var scaleX = _imgEditor.wrapW / _imgEditor.imgW;
+    var scaleY = _imgEditor.wrapH / _imgEditor.imgH;
+    _imgEditor.scale = Math.max(scaleX, scaleY);
+    _imgEditor.x = (_imgEditor.wrapW - _imgEditor.imgW * _imgEditor.scale) / 2;
+    _imgEditor.y = (_imgEditor.wrapH - _imgEditor.imgH * _imgEditor.scale) / 2;
+    applyImgTransform();
+  };
+  img.src = url;
+  document.getElementById('img-editor').classList.add('open');
+  var wrap2 = document.getElementById('img-editor-wrap');
+  wrap2.ontouchstart = function(e) {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      _imgEditor.startX = e.touches[0].clientX - _imgEditor.x;
+      _imgEditor.startY = e.touches[0].clientY - _imgEditor.y;
+    } else if (e.touches.length === 2) {
+      _imgEditor.startScale = _imgEditor.scale;
+      _imgEditor.startDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    }
+  };
+  wrap2.ontouchmove = function(e) {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      _imgEditor.x = e.touches[0].clientX - _imgEditor.startX;
+      _imgEditor.y = e.touches[0].clientY - _imgEditor.startY;
+    } else if (e.touches.length === 2) {
+      var dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+      var minScale = Math.max(_imgEditor.wrapW/_imgEditor.imgW, _imgEditor.wrapH/_imgEditor.imgH) * 0.5;
+      _imgEditor.scale = Math.max(minScale, Math.min(5, _imgEditor.startScale * dist / _imgEditor.startDist));
+    }
+    applyImgTransform();
+  };
+}
+
+function applyImgTransform() {
+  var img = document.getElementById('img-editor-img');
+  img.style.transform = 'translate('+_imgEditor.x+'px,'+_imgEditor.y+'px) scale('+_imgEditor.scale+')';
+}
+
+window.cancelImgEditor = function() {
+  document.getElementById('img-editor').classList.remove('open');
+  URL.revokeObjectURL(document.getElementById('img-editor-img').src);
+};
+
+window.confirmImgEditor = function() {
+  var img = document.getElementById('img-editor-img');
+  var wrap = document.getElementById('img-editor-wrap');
+  var canvas = document.createElement('canvas');
+  canvas.width = wrap.offsetWidth * 2; canvas.height = wrap.offsetHeight * 2;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(img, _imgEditor.x*2, _imgEditor.y*2, _imgEditor.imgW*_imgEditor.scale*2, _imgEditor.imgH*_imgEditor.scale*2);
+  canvas.toBlob(function(blob) {
+    URL.revokeObjectURL(img.src);
+    document.getElementById('img-editor').classList.remove('open');
+    if (_imgEditor.onDone) _imgEditor.onDone(blob);
+  }, 'image/jpeg', 0.92);
+};
+
+function processFilesWithEditor(files, supabaseClient, bucket, pathPrefix, onEachDone) {
+  var idx = 0;
+  function next() {
+    if (idx >= files.length) return;
+    var i = idx++;
+    openImgEditor(files[i], function(blob) {
+      var localUrl = URL.createObjectURL(blob);
+      onEachDone(localUrl, null, i);
+      var fpath = pathPrefix + Date.now() + '_' + i + '.jpg';
+      supabaseClient.storage.from(bucket).upload(fpath, blob, {upsert:true, contentType:'image/jpeg'}).then(function(res) {
+        if (!res.error) {
+          var pubUrl = supabaseClient.storage.from(bucket).getPublicUrl(fpath).data.publicUrl;
+          onEachDone(pubUrl, localUrl, i);
+        }
+      });
+      next();
+    });
+  }
+  next();
+}
+
+</script>
 </body>
 </html>
