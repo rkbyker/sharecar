@@ -139,7 +139,8 @@
 .img-editor-btn.done { background:#f59e0b;color:#000; }
 .img-editor-btn.cancel { background:#1a1a2e;color:#aaa; }
 </style>
-<script src="../js/unread.js">
+<script src="../js/unread.js"></script>
+<script>
 var _imgEditor = { scale:1, x:0, y:0, startX:0, startY:0, startScale:1, startDist:0, imgW:0, imgH:0, wrapW:0, wrapH:0, onDone:null };
 
 window.openImgEditor = function(file, onDone) {
@@ -386,6 +387,75 @@ function closeLightbox(){document.getElementById('lightbox').classList.remove('a
 </script>
 <script type="module">
 import { supabase, showToast } from '../js/supabase.js';
+
+// Pan & zoom editor
+var _imgEditor2 = { scale:1, x:0, y:0, startX:0, startY:0, startScale:1, startDist:0, imgW:0, imgH:0, wrapW:0, wrapH:0, onDone:null };
+
+window.openImgEditor = function(file, onDone) {
+  _imgEditor2.onDone = onDone;
+  var url = URL.createObjectURL(file);
+  var img = document.getElementById('img-editor-img');
+  var wrap = document.getElementById('img-editor-wrap');
+  img.onload = function() {
+    _imgEditor2.imgW = img.naturalWidth; _imgEditor2.imgH = img.naturalHeight;
+    _imgEditor2.wrapW = wrap.offsetWidth; _imgEditor2.wrapH = wrap.offsetHeight;
+    var scaleX = _imgEditor2.wrapW / _imgEditor2.imgW;
+    var scaleY = _imgEditor2.wrapH / _imgEditor2.imgH;
+    _imgEditor2.scale = Math.max(scaleX, scaleY);
+    _imgEditor2.x = (_imgEditor2.wrapW - _imgEditor2.imgW * _imgEditor2.scale) / 2;
+    _imgEditor2.y = (_imgEditor2.wrapH - _imgEditor2.imgH * _imgEditor2.scale) / 2;
+    applyImgTransform2();
+  };
+  img.src = url;
+  document.getElementById('img-editor').classList.add('open');
+  wrap.ontouchstart = function(e) {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      _imgEditor2.startX = e.touches[0].clientX - _imgEditor2.x;
+      _imgEditor2.startY = e.touches[0].clientY - _imgEditor2.y;
+    } else if (e.touches.length === 2) {
+      _imgEditor2.startScale = _imgEditor2.scale;
+      _imgEditor2.startDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    }
+  };
+  wrap.ontouchmove = function(e) {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      _imgEditor2.x = e.touches[0].clientX - _imgEditor2.startX;
+      _imgEditor2.y = e.touches[0].clientY - _imgEditor2.startY;
+    } else if (e.touches.length === 2) {
+      var dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+      var minScale = Math.max(_imgEditor2.wrapW/_imgEditor2.imgW, _imgEditor2.wrapH/_imgEditor2.imgH) * 0.5;
+      _imgEditor2.scale = Math.max(minScale, Math.min(5, _imgEditor2.startScale * dist / _imgEditor2.startDist));
+    }
+    applyImgTransform2();
+  };
+};
+
+function applyImgTransform2() {
+  var img = document.getElementById('img-editor-img');
+  img.style.transform = 'translate('+_imgEditor2.x+'px,'+_imgEditor2.y+'px) scale('+_imgEditor2.scale+')';
+}
+
+window.cancelImgEditor = function() {
+  document.getElementById('img-editor').classList.remove('open');
+  URL.revokeObjectURL(document.getElementById('img-editor-img').src);
+};
+
+window.confirmImgEditor = function() {
+  var img = document.getElementById('img-editor-img');
+  var wrap = document.getElementById('img-editor-wrap');
+  var canvas = document.createElement('canvas');
+  canvas.width = wrap.offsetWidth * 2; canvas.height = wrap.offsetHeight * 2;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(img, _imgEditor2.x*2, _imgEditor2.y*2, _imgEditor2.imgW*_imgEditor2.scale*2, _imgEditor2.imgH*_imgEditor2.scale*2);
+  canvas.toBlob(function(blob) {
+    URL.revokeObjectURL(img.src);
+    document.getElementById('img-editor').classList.remove('open');
+    if (_imgEditor2.onDone) _imgEditor2.onDone(blob);
+  }, 'image/jpeg', 0.92);
+};
+
   window._supabase = supabase;
 const params=new URLSearchParams(location.search);
 const EVENT_ID=params.get('id');
