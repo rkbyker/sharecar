@@ -697,7 +697,14 @@
 
         // Слайдер фото или обложка
  let coverHtml = '';
- const photos = ev.photos && ev.photos.length ? ev.photos : (ev.cover_photo ? [ev.cover_photo] : []);
+ // cover_photo всегда первым
+ let photos = ev.photos && ev.photos.length ? [...ev.photos] : [];
+ if (ev.cover_photo && photos.length > 0 && photos[0] !== ev.cover_photo) {
+   photos = photos.filter(p => p !== ev.cover_photo);
+   photos.unshift(ev.cover_photo);
+ } else if (ev.cover_photo && photos.length === 0) {
+   photos = [ev.cover_photo];
+ }
  if (photos.length > 1) {
           const slides = photos.map((url,si) => `<div style="flex-shrink:0;min-width:100%;width:100%;height:100%;overflow:hidden;"><img src="${url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>`).join('');
  const dots = photos.map((_,si) => `<span class="fdot${si===0?' active':''}" onclick="evSliderJump('${ev.id}',${si},arguments[0]||window.event)"></span>`).join('');
