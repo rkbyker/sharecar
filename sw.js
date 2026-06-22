@@ -1,5 +1,5 @@
 // Sharecar Service Worker v4.0
-const CACHE = 'sharecar-v4';
+const CACHE = 'sharecar-v6';
 const STATIC = [
   '/',
   '/index.html',
