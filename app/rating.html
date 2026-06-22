@@ -208,7 +208,6 @@
 <script>
 var _imgEditor = { scale:1, x:0, y:0, startX:0, startY:0, startScale:1, startDist:0, imgW:0, imgH:0, wrapW:0, wrapH:0, onDone:null };
 window.openImgEditor = function(file, onDone) {
-function openImgEditor(file, onDone) {
   _imgEditor.onDone = onDone;
   var url = URL.createObjectURL(file);
   var img = document.getElementById('img-editor-img');
