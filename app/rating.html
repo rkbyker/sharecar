@@ -827,8 +827,35 @@ function renderTopicPhotos(mode) {
  + '<img src="' + urlAttr + '" onclick="setTopicCover(this.dataset.mode,this.dataset.url)" data-mode="' + modeAttr + '" data-url="' + urlAttr + '">'
  + (isCover ? '<div class="topic-photo-cover-badge">ОБЛОЖКА</div>' : '')
  + '<button class="topic-photo-remove-btn" onclick="removeTopicPhoto(this.dataset.mode,' + i + ')" data-mode="' + modeAttr + '"></button>'
+ + '<button onclick="editTopicPhoto(\'' + modeAttr + '\',' + i + ')" style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,.7);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:10px;"><i class="fa fa-pen"></i></button>'
  + '</div>';
  }).join('');
+}
+
+
+function editTopicPhoto(mode, idx) {
+  var arr = mode === 'new' ? window._newTopicPhotos : window._editTopicPhotos;
+  var url = arr[idx];
+  fetch(url).then(function(r){ return r.blob(); }).then(function(blob) {
+    openImgEditor(blob, function(newBlob) {
+      var localUrl = URL.createObjectURL(newBlob);
+      var oldUrl = arr[idx];
+      arr[idx] = localUrl;
+      var coverKey = mode === 'new' ? '_newTopicCoverUrl' : '_editTopicCoverUrl';
+      if (window[coverKey] === oldUrl) window[coverKey] = localUrl;
+      renderTopicPhotos(mode);
+      var fpath = 'forum/' + currentUser.id + '/' + Date.now() + '_edit_' + idx + '.jpg';
+      sb.storage.from('photos').upload(fpath, newBlob, {upsert:true, contentType:'image/jpeg'}).then(function(res) {
+        if (!res.error) {
+          var pubUrl = sb.storage.from('photos').getPublicUrl(fpath).data.publicUrl;
+          var li = arr.indexOf(localUrl);
+          if (li >= 0) arr[li] = pubUrl;
+          if (window[coverKey] === localUrl) window[coverKey] = pubUrl;
+          renderTopicPhotos(mode);
+        }
+      });
+    });
+  });
 }
 
 function setTopicCover(mode, url) {
