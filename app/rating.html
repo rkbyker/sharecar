@@ -833,30 +833,6 @@ function renderTopicPhotos(mode) {
 }
 
 
-function editTopicPhoto(mode, idx) {
-  var arr = mode === 'new' ? window._newTopicPhotos : window._editTopicPhotos;
-  var url = arr[idx];
-  fetch(url).then(function(r){ return r.blob(); }).then(function(blob) {
-    openImgEditor(blob, function(newBlob) {
-      var localUrl = URL.createObjectURL(newBlob);
-      var oldUrl = arr[idx];
-      arr[idx] = localUrl;
-      var coverKey = mode === 'new' ? '_newTopicCoverUrl' : '_editTopicCoverUrl';
-      if (window[coverKey] === oldUrl) window[coverKey] = localUrl;
-      renderTopicPhotos(mode);
-      var fpath = 'forum/' + currentUser.id + '/' + Date.now() + '_edit_' + idx + '.jpg';
-      sb.storage.from('photos').upload(fpath, newBlob, {upsert:true, contentType:'image/jpeg'}).then(function(res) {
-        if (!res.error) {
-          var pubUrl = sb.storage.from('photos').getPublicUrl(fpath).data.publicUrl;
-          var li = arr.indexOf(localUrl);
-          if (li >= 0) arr[li] = pubUrl;
-          if (window[coverKey] === localUrl) window[coverKey] = pubUrl;
-          renderTopicPhotos(mode);
-        }
-      });
-    });
-  });
-}
 
 
 window.editTopicPhoto = function(mode, idx) {
